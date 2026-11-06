@@ -197,7 +197,8 @@
   function renderDial(box) {
     const d = settings.dial && typeof settings.dial === "object" ? settings.dial : {};
     const presetOf = () => init.dials.find((p) => ["ccw", "cw", "press"].every((r) => (p[r] || "") === (d[r] || "")));
-    const current = settings.preset !== undefined && settings.preset !== "" ? init.dials.find((p) => p.id === settings.preset) : presetOf();
+    // preset "" is the player choosing Custom: keep the pickers even while they match a preset.
+    const current = settings.preset === "" ? null : settings.preset !== undefined ? init.dials.find((p) => p.id === settings.preset) : presetOf();
     const preset = el("select", { "aria-label": t("Preset") });
     for (const p of init.dials) preset.append(el("option", { value: p.id, textContent: p.name, selected: current && current.id === p.id }));
     preset.append(el("option", { value: "", textContent: t("Custom"), selected: !current }));

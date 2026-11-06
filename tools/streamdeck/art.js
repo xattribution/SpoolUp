@@ -28,13 +28,6 @@ function clipValue(e, full) {
   return parseFloat(e) * 0.9;
 }
 
-// keyart draws the folder badge in the bottom-right corner, where a long label ("EMERGENCY",
-// "THEMES") runs under it at real key size. The pack's keys carry it in the top-right corner
-// instead, clear of the label and inside every theme's cut or rounded corners. If keyart
-// draws its badge some other way, the key is left as it is.
-const BADGE_AT = 'd="M112 116h8l3 3h9v13h-20Z"';
-const badgeUp = (drawn) => drawn.replace(BADGE_AT, 'd="M104 18h8l3 3h9v13h-20Z"');
-
 function createArt({ icons, themes, tokens }) {
   const themeCache = new Map();
   const theme = (id) => {
@@ -57,10 +50,10 @@ function createArt({ icons, themes, tokens }) {
     return keyart.key({ theme: th, icon: icon(a.icon), label: a.label, color: a.color, lit, status });
   }
   const sceneKey = (th, scene, lit) => keyart.key({ theme: th, icon: icon(scene.icon), label: scene.short || scene.name, color: scene.color, lit });
-  const folderKey = (th, folder) => badgeUp(keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder" }));
+  const folderKey = (th, folder) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder" });
   const navKey = (th, kind) => {
     const k = { back: ["back", "Back"], next: ["page-next", "Next"], prev: ["page-prev", "Previous"], more: ["page-next", "More"], home: ["home", "Home"] }[kind];
-    return badgeUp(keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined }));
+    return keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined });
   };
   // A theme's key is drawn in that theme, so the folder previews every look.
   function themeKey(id, lit = false) {

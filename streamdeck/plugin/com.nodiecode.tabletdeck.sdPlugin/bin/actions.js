@@ -152,7 +152,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   function release(ctx) {
     unhold(ctx);
     talk(ctx, false);
-    if (ctx.queue) { clearTimeout(ctx.queue.timer); ctx.queue = null; }
+    ctx.queue = null;
     ctx.pressed = false;
   }
   function releaseWhere(test) {
@@ -162,12 +162,13 @@ function createActions({ sd, tablet, data, draw, log }) {
   // The Tablet Deck link dropped: the server let go of everything already.
   tablet.on("drop", () => {
     holds.clear();
+    waiting.length = 0;
     talkers.clear();
     listening = false;
     for (const c of contexts.values()) {
       c.holding = null;
       c.talking = false;
-      if (c.queue) { clearTimeout(c.queue.timer); c.queue = null; }
+      c.queue = null;
       endHoldAnim(c);
       c.pressed = false;
     }
@@ -384,17 +385,67 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (Object.keys(payload).length) sd.send({ event: "setTriggerDescription", context: ctx.context, payload });
   }
 
-  // Presses one detent's worth from the queue, then waits long enough for the server to
-  // have let go of the keys (its tap holds them ~60 ms, a combo's keys go down and up 15 ms
-  // apart), so each detent is a separate press in the game.
-  function pump(ctx) {
-    const q = ctx.queue;
-    if (!q || q.timer || q.left <= 0) return;
-    if (!tablet.send({ t: "tap", id: q.id })) { ctx.queue = null; return; }
-    q.left -= 1;
-    q.timer = setTimeout(() => { q.timer = null; if (q.left > 0) pump(ctx); else if (ctx.queue === q) ctx.queue = null; }, q.gap);
+  // A dial's presses (its detents, and a push or touch) wait their turn in one line shared
+  // by every dial, each going once the last one's keys are surely up: Tablet Deck holds a
+  // tap's keys for its tap time (a timed button's for its ms) and presses a combo's keys
+  // 15 ms apart, and presses that overlap reach the game as one (a turn back on Weapons:
+  // F5, then LAlt+F5) or under another dial's modifier (Weapons + while Shields − holds
+  // LAlt reads as Weapons −). Dials take turns, one press each.
+  let freeAt = 0, lineTimer = null;
+  const waiting = []; // dial contexts with presses queued, in turn order
+  const gapFor = (def) => {
+    const n = String(def.keys || "").split("+").length;
+    const held = def.mode === "timed" ? Number(def.ms) || 600 : tablet.tapMs || 60;
+    return Math.max(120, held + 30 * (n - 1) + 60);
+  };
+  function line(ctx, def, dir, n) {
+    if (!ctx.queue) ctx.queue = [];
+    for (let i = 0; i < n; i++) ctx.queue.push({ id: def.id, gap: gapFor(def), dir });
+    if (!waiting.includes(ctx)) waiting.push(ctx);
+    runLine();
   }
-  const gapFor = (def) => Math.max(120, 60 + 30 * String(def.keys || "").split("+").length + 40);
+  function runLine() {
+    clearTimeout(lineTimer);
+    lineTimer = null;
+    for (;;) {
+      while (waiting.length && !(waiting[0].queue && waiting[0].queue.length)) waiting.shift();
+      if (!waiting.length) return;
+      const wait = freeAt - Date.now();
+      if (wait > 0) { lineTimer = setTimeout(runLine, wait); return; }
+      const ctx = waiting.shift();
+      const p = ctx.queue.shift();
+      if (!tablet.send({ t: "tap", id: p.id })) { ctx.queue = null; continue; }
+      freeAt = Date.now() + p.gap;
+      if (ctx.queue.length) waiting.push(ctx); else ctx.queue = null;
+    }
+  }
+
+  // A spun scene dial switches at most once per SCENE_MS, adding up the steps in between:
+  // each switch makes Stream Deck rebuild the page (36 keys and 6 strips on a + XL), and
+  // every key on it gets a new picture.
+  const SCENE_MS = 250;
+  const sceneSteps = new Map(); // device -> { n, ctx, timer, at }
+  function stepScene(ctx, n) {
+    let s = sceneSteps.get(ctx.device);
+    if (!s) sceneSteps.set(ctx.device, (s = { n: 0, ctx, timer: null, at: 0 }));
+    s.n += n;
+    s.ctx = ctx;
+    if (s.timer) return;
+    const go = () => {
+      s.timer = null;
+      const steps = s.n;
+      s.n = 0;
+      if (!steps) return;
+      s.at = now();
+      const c = s.ctx;
+      const cur = sceneOn.has(c.device) ? sceneOn.get(c.device) : 0;
+      if (!goToScene(c, cur + steps) && contexts.has(c.context)) sd.send({ event: "showAlert", context: c.context });
+      if (contexts.has(c.context)) paint(c);
+      s.timer = setTimeout(go, SCENE_MS);
+    };
+    const wait = s.at + SCENE_MS - now();
+    if (wait > 0) s.timer = setTimeout(go, wait); else go();
+  }
 
   function rotate(ctx, ticks) {
     const d = dialOf(ctx);
@@ -404,21 +455,15 @@ function createActions({ sd, tablet, data, draw, log }) {
     const ref = dir > 0 ? d.cw : d.ccw;
     const r = resolve(ref);
     if (!r) return;
-    if (r.kind === "scene-step") {
-      const cur = sceneOn.has(ctx.device) ? sceneOn.get(ctx.device) : 0;
-      if (!goToScene(ctx, cur + r.step * n)) sd.send({ event: "showAlert", context: ctx.context });
-      paint(ctx);
-      return;
-    }
+    if (r.kind === "scene-step") { stepScene(ctx, r.step * n); return; }
     if (r.kind === "theme-next") { nextTheme(dir); return; }
     if (r.kind === "theme") { setTheme(r.id); return; }
     if (r.kind === "scene") { if (!goToScene(ctx, r.index)) sd.send({ event: "showAlert", context: ctx.context }); return; }
     if (r.kind !== "deck" || !online()) { sd.send({ event: "showAlert", context: ctx.context }); paint(ctx); return; }
-    // A turn the other way drops what's still waiting from the last one.
-    if (ctx.queue && ctx.queue.dir !== dir) { clearTimeout(ctx.queue.timer); ctx.queue = null; }
-    if (!ctx.queue) ctx.queue = { dir, id: r.def.id, left: 0, timer: null, gap: gapFor(r.def) };
-    ctx.queue.left = Math.min(MAX_DETENTS, ctx.queue.left + n);
-    pump(ctx);
+    // A turn the other way drops what's still waiting from the last one; at most 5 wait.
+    if (ctx.queue) ctx.queue = ctx.queue.filter((p) => p.dir !== -dir);
+    const queued = ctx.queue ? ctx.queue.filter((p) => p.dir).length : 0;
+    line(ctx, r.def, dir, Math.max(0, Math.min(n, MAX_DETENTS - queued)));
     ctx.last = { word: wordFor(ctx, ref), n };
     ctx.flashAt = now();
     paint(ctx);
@@ -437,8 +482,8 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (r.kind === "scene") { if (!goToScene(ctx, r.index)) sd.send({ event: "showAlert", context: ctx.context }); return; }
     if (r.kind === "scene-step") { const cur = sceneOn.get(ctx.device) || 0; goToScene(ctx, cur + r.step); return; }
     if (r.kind !== "deck" || !online()) { sd.send({ event: "showAlert", context: ctx.context }); paint(ctx); return; }
-    const ok = !touch && r.def.mode === "hold" ? hold(ctx, r.def.id) : tablet.send({ t: "tap", id: r.def.id });
-    if (!ok) { sd.send({ event: "showAlert", context: ctx.context }); return; }
+    if (!touch && r.def.mode === "hold") { if (!hold(ctx, r.def.id)) { sd.send({ event: "showAlert", context: ctx.context }); return; } }
+    else line(ctx, r.def, 0, 1);
     ctx.last = { word: wordFor(ctx, d.press), n: 1 };
     ctx.flashAt = now();
     paint(ctx);
@@ -567,7 +612,7 @@ function createActions({ sd, tablet, data, draw, log }) {
           animate(c);
         }
         for (const c of dialsFor(msg.id)) {
-          if (c.queue) { clearTimeout(c.queue.timer); c.queue = null; } // don't keep turning into the wrong window
+          c.queue = null; // don't keep turning into the wrong window
           c.blockedUntil = until;
           sd.send({ event: "showAlert", context: c.context });
           paint(c);

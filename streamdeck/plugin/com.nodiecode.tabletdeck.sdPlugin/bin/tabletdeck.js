@@ -67,7 +67,9 @@ class TabletDeck {
     const port = validPort(this.settings.port) || (auto && auto.port) || DEFAULT_PORT;
     const list = [];
     if (this.settings.code) list.push({ port, code: this.settings.code, source: "settings" });
-    if (auto && !list.some((t) => t.port === port && t.code === auto.code)) list.push({ port: validPort(this.settings.port) || auto.port, code: auto.code, source: "auto" });
+    // Tablet Deck's own code on its own port, then on the typed one (a server started with
+    // --port doesn't write it to config.json).
+    if (auto) for (const p of [auto.port, validPort(this.settings.port)]) if (p && !list.some((t) => t.port === p && t.code === auto.code)) list.push({ port: p, code: auto.code, source: "auto" });
     this.setLink({ found: Boolean(auto) });
     return list;
   }
@@ -116,7 +118,7 @@ class TabletDeck {
     this.attempt(list, 0);
   }
 
-  attempt(list, i) {
+  attempt(list, i, worst = "down") {
     const target = list[i];
     const gen = ++this.gen;
     if (this.link.state !== "connected") this.setLink({ state: this.link.state === "offline" ? "offline" : "connecting", port: target.port, source: target.source });
@@ -153,6 +155,8 @@ class TabletDeck {
         }
         return;
       }
+      // How long Tablet Deck holds a tap (its Tap time setting), for spacing dial detents.
+      if (msg.t === "hello") { const ms = Number(msg.tapMs); this.tapMs = Number.isInteger(ms) && ms >= 20 && ms <= 1000 ? ms : 60; }
       this.emit("message", msg);
     };
     sock.onclose = () => ended();
@@ -168,9 +172,13 @@ class TabletDeck {
         return;
       }
       // Never opened: ask once over HTTP why, so a wrong code isn't retried in a loop.
-      checkPairing(target).then((result) => {
+      checkPairing(target).then((answer) => {
+        let result = answer;
         if (gen !== this.gen || this.ws || this.closing) return;
-        if (result === "wrong" && i + 1 < list.length) { this.attempt(list, i + 1); return; }
+        // Try the next port and code; say the most telling reason once all have failed.
+        const why = [result, worst].includes("locked") ? "locked" : [result, worst].includes("wrong") ? "wrong" : result;
+        if (i + 1 < list.length) { this.attempt(list, i + 1, why); return; }
+        result = why;
         if (result === "wrong") { this.setLink({ state: "wrong-code", rtt: null }); this.retry(15000); }
         else if (result === "locked") { this.setLink({ state: "locked", rtt: null }); this.retry(60000); }
         else { this.setLink({ state: "offline", rtt: null }); this.retry(2000); }

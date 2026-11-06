@@ -148,25 +148,6 @@ class ImageStore {
 
 // ---------- layout ----------
 
-// Stream Deck keeps a folder's Back key in the top-left corner: every folder the app writes
-// has it at 0,0 (research/navigation.verified.md 2.2), and in the one script-written profile
-// seen again after the app had it, Back keys placed elsewhere had moved to 0,0 and the key
-// that was there was gone. So Back goes to 0,0 here and that key takes Back's old slot
-// (theme slots keep reading order); a folder with Back at 0,0 already is left alone.
-function backAtOrigin(layout) {
-  const folders = {};
-  for (const [id, pages] of Object.entries(layout.folders)) folders[id] = pages.map((p) => {
-    const back = Object.keys(p.keys).find((k) => p.keys[k] === "@back");
-    if (!back || back === "0,0") return p;
-    const keys = { ...p.keys, "0,0": "@back" };
-    if (p.keys["0,0"]) keys[back] = p.keys["0,0"]; else delete keys[back];
-    const page = { ...p, keys };
-    if (p.themes) page.themes = p.themes.map(([c, r]) => (c === 0 && r === 0 ? back.split(",").map(Number) : [c, r])).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
-    return page;
-  });
-  return { ...layout, folders };
-}
-
 // The themes folder lists all twelve themes; scenes.js gives the slots on one page, and on
 // small decks they're chained into More pages here.
 function withThemePages(layout, themeIds) {
@@ -185,7 +166,7 @@ function withThemePages(layout, themeIds) {
   }
   return { ...layout, folders: { ...layout.folders, themes: pages } };
 }
-const layoutOf = (modelId, themeIds) => withThemePages(backAtOrigin(scenes.layoutFor(modelId)), themeIds);
+const layoutOf = (modelId, themeIds) => withThemePages(scenes.layoutFor(modelId), themeIds);
 
 // What a dial's refs do, shortened for its touch-strip panel ("Weapons −" on the Weapons
 // dial is just "−").
@@ -799,7 +780,11 @@ function checkLayouts(env) {
     }
     for (const [fid, pages] of Object.entries(layout.folders)) pages.forEach((p, n) => {
       checkKeys(p.keys, `folder ${fid}.${n}`);
+      // Stream Deck keeps a folder's Back key top left: every folder the app writes has it at
+      // 0,0 (research/navigation.verified.md 2.2), and one script-written profile seen again
+      // after the app had it had its Back keys moved there, over the key at 0,0.
       if (!Object.values(p.keys).includes("@back")) errors.push(`${modelId} folder ${fid}.${n}: no Back key`);
+      else if (p.keys["0,0"] !== "@back") errors.push(`${modelId} folder ${fid}.${n}: Back isn't at 0,0`);
     });
   }
   for (const s of scenes.SCENES) if (!env.icons[s.icon]) warnings.push(`scene ${s.id}: no icon "${s.icon}"`);
