@@ -18,7 +18,7 @@ Imperium Games.
 | `public/` | the deck, the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud.json` is the source, most others are generated |
 | `keybinds/` | the Tablet Deck Keyboard profile (generated) |
-| `native/` | C# sources: the app window, the key sender, the voice listener |
+| `native/` | C# sources: the app window, the key sender, the voice listener, the sound player |
 | `tools/`, `scripts/` | generators, the installer build, release notes |
 | `site/` | the website on GitHub Pages |
 
@@ -94,7 +94,7 @@ done:
 5. For the website or the "Try it" page: `node scripts/build-site.js` and serve
    `_site/`. The deck's demo mode is `public/index.html?demo`.
 
-Say what you couldn't check. Windows-only parts (the key sender, voice, the app
+Say what you couldn't check. Windows-only parts (the key sender, voice, the sound player, the app
 window, the installer) can't be run on other systems; never report them as
 tested if they weren't.
 

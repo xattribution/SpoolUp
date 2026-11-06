@@ -199,8 +199,8 @@ var
   Settings: String;
   Code: Integer;
 begin
-  // Close a running copy (the window, the server, and the key sender and voice listener
-  // it started) so its files can be removed: politely first, then by force (old versions had no window).
+  // Close a running copy (the window, the server, and the key sender, voice listener and
+  // sound player it started) so its files can be removed: politely first, then by force (old versions had no window).
   if CurUninstallStep = usUninstall then
   begin
     CloseRunningApp();

@@ -20,8 +20,9 @@ signing, the website and the demo recording. For using Tablet Deck, see the
 
 You need Windows 10 or 11, [Node.js](https://nodejs.org) 18 or newer, and a
 tablet on the same network. No `npm install` is needed to run it: the server
-uses only Node's built-in modules. The key sender (`native/keysender.cs`) and the
-voice listener (`native/voice.cs`) compile themselves on first run with the C#
+uses only Node's built-in modules. The key sender (`native/keysender.cs`), the
+voice listener (`native/voice.cs`) and the sound player (`native/sound.cs`, started
+when a tablet plays its sounds on the PC) compile themselves on first run with the C#
 compiler that ships with Windows.
 
 1. Clone the repository (or **Code → Download ZIP** and extract it).
@@ -85,7 +86,7 @@ layout from `layouts/`, and presses only play their animations. The website's
 | `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud-phone.json` and the starter layouts are generated |
 | `keybinds/` | the Tablet Deck Keyboard profile for Star Citizen (generated) |
-| `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs` |
+| `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
 | `tools/` | generators for the phone layout, starter layouts and keybind profile, and the demo recorder |
 | `scripts/` | the installer build and release notes |
 | `installer/` | the Inno Setup script |
@@ -205,7 +206,7 @@ and Node.js 20 or newer. `scripts/build.js`:
 1. checks the keybind profile is up to date;
 2. makes the icon from `public/icon-512.png`;
 3. compiles the app window (`native/launcher.cs` → `TabletDeck.exe`), the key
-   sender and the voice listener, with version info;
+   sender, the voice listener and the sound player, with version info;
 4. packs `server.js`, `qr.js`, `public/`, `layouts/` and `keybinds/` into
    `TabletDeckServer.exe` with Node's
    [single executable application](https://nodejs.org/api/single-executable-applications.html)

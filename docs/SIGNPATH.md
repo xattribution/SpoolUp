@@ -37,7 +37,7 @@ Apply on [signpath.org](https://signpath.org). Answers for the form:
 | Licence | MIT, for all of the project's own code |
 | Code signing policy | https://github.com/nodieCode/tablet-deck/blob/main/CODE_SIGNING.md |
 | Build system | GitHub Actions on GitHub-hosted Windows runners (`.github/workflows/release.yml`) |
-| What gets signed | Windows executables: the installer `TabletDeck-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe` and `native/voice.exe` |
+| What gets signed | Windows executables: the installer `TabletDeck-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe`, `native/voice.exe` and `native/sound.exe` |
 
 **Description** (adjust to taste):
 
