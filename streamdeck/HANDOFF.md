@@ -35,58 +35,100 @@ agent can pick up the work.
 
 ## Decisions so far
 
-- **Where it lives:** `streamdeck/` in this repo (sources) and `tools/make-streamdeck.js`
-  (generator, planned). Built packs go to `dist/streamdeck/` (not committed: the mega
-  pack is large). Same branch and PR as the rest of this session's work.
-- **No new runtime dependencies**, as for the server: the plugin is plain Node (no
-  `@elgato/streamdeck`, no bundler) if the raw Stream Deck WebSocket protocol allows it
-  (being confirmed by research). The generator renders PNGs by driving an installed
-  Edge/Chrome over the DevTools protocol, like `tools/record-demo.js`, so no npm
-  packages either.
-- **Key art:** `streamdeck/keyart.js` (done, committed). 144x144 SVG keys from simple
-  shapes only (Stream Deck's SVG renderer is limited: no filters/masks/CSS; glows are
-  layered strokes). Reads each theme's tokens straight from `public/themes.css`.
-  Pre-rendered images use the theme's Google font (fetched at build time, like the
-  tablet does); live plugin keys use Windows fonts (Bahnschrift, Georgia, Impact...).
-- **New icons** go into `public/icons.js`, so the tablet's layout editor gets them too.
-  Original designs only: no Discord/OBS/brand logos (docs/DESIGN.md).
-- **Ground rule to confirm with the owner:** "one press per tap". Plan: a dial detent
-  counts as one tap (one press per detent). No macros/multi-actions in the pack.
-- **Standalone vs integrated themes:** without the plugin, images are static, so each
-  theme is its own profile per model and the Themes folder's keys switch profiles; with
-  the plugin, the Themes keys re-skin every key live.
+Facts behind these are in [research/](research/README.md) (sources and confidence for each).
+
+- **Where it lives:** `streamdeck/` (sources), `tools/make-streamdeck.js` (generator,
+  planned). Built packs go to `dist/streamdeck/` (not committed: the mega pack is large).
+  Same branch and PR as the rest of this session's work.
+- **Models** (`research/devices.verified.md`). Profiles are generated for 7, keyed by SDK
+  `DeviceType` and profile `Device.Model`:
+  - Mini 3x2 (1, `20GAI9901`)
+  - Neo 4x2 + Infobar (9, `20GBJ9901`)
+  - 15-key MK.2/Scissor 5x3 (0, `20GAA9901`)
+  - Stream Deck + 4x2 + 4 dials + 800x100 strip (7, `20GBD9901`)
+  - **Stream Deck + XL** 9x4 + 6 dials + 1200x100 strip (13, `20GBX9901`, new in 2026; the
+    owner asked for it to get extra love: treat it as the flagship layout)
+  - XL 8x4 (2, `20GAT9901`)
+  - Mobile (3, `VSD2/WiFi`)
+  
+  No profiles for Studio (Elgato: not supported by Stream Deck app profiles), Pedal,
+  Galleon 100 SD and Virtual Stream Deck (model IDs unconfirmed); the plugin's actions still
+  work on them, and the docs suggest uses (pedals: push to talk, PTT; Studio: Companion).
+- **Profiles:** v2 format (plain ZIP: `<UUID>.sdProfile/manifest.json`,
+  `Profiles/<base32 page id>/manifest.json`, `Images/*.png`), which Stream Deck 6.x and 7.x
+  both import (`research/profiles.md` sections 0, 2.2, 10). Key images **PNG 144x144**
+  (SVG in profiles isn't confirmed; animated GIF/WebP are, see navigation.md 8). At most 10
+  pages per profile; folders don't count (they're extra page folders reached by
+  `profile.openchild`). In-profile links: `page.goto` (1-based `PageIndex`), `page.next`,
+  `page.previous`, `profile.openchild` / `profile.backtoparent`.
+- **Scenes** = pages of one profile per model: Flight, Combat, Mining, Salvage, Hauling &
+  Exploration, On Foot, Comms, plus folders (Emotes, more actions, Themes). Each page has a
+  consistent navigation zone.
+- **Themes without the plugin:** one profile per model per theme (7 x 12 = 84). The Themes
+  folder's keys are Switch Profile (`profile.rotate`) with fixed, generated profile UUIDs.
+  Whether a UUID survives import isn't confirmed (navigation.md 5.2); document "if a theme
+  key doesn't switch, pick the target in the key's settings once".
+- **Themes with the plugin:** one bundled profile per model; Theme keys re-skin every
+  plugin key live (global setting), reliable.
+- **Standalone hotkeys don't pass Tablet Deck's focus check** (Elgato's app presses them,
+  into whatever window has focus). Say so in the docs; the plugin route goes through Tablet
+  Deck and keeps the check.
+- **Plugin:** plain Node with the raw Stream Deck WebSocket protocol, no `@elgato/streamdeck`
+  and no bundler (officially supported: `research/sdk.verified.md` 0, 5.4). `Nodejs.Version`
+  "24" (global `WebSocket`), `Software.MinimumVersion` "7.1", `SDKVersion` 3, Windows only.
+  `setImage` takes SVG/PNG data URLs but no animated formats, at most ~10 updates a second:
+  animation = frames from `streamdeck/keyart.js`.
+- **No new npm dependencies.** The generator renders PNGs by driving an installed
+  Edge/Chrome over the DevTools protocol, like `tools/record-demo.js`, with the theme's Google
+  font (the tablet already loads those fonts); writes ZIPs with Node's zlib.
+- **Key art:** `streamdeck/keyart.js` (done). Simple SVG shapes only, glows as layered
+  strokes; reads each theme's tokens from `public/themes.css`.
+- **Icons:** new ones go into `public/icons.js` (the layout editor lists them too). Original
+  designs only, no brand logos.
+- **Comms page** (`research/plugins.md` 0, 16): Discord Mute/Deafen/Push to Talk/Push to Mute
+  from Elgato's Discord plugin (`com.elgato.discord.mute` etc., empty settings, a one-time
+  Authorize in Discord); built-in Multimedia (volume, media keys), timer/clock, websites
+  (UEX, Erkul, SPViewer, SCMDB); Star Citizen's own comms binds (`research/starcitizen.md` 3:
+  push to talk Numpad +, proximity PTT LAlt+Numpad +, chat F12, CommLink F11, hail 9...).
+  There's no game bind for VoIP mute. Missing plugins show "?" and offer an install; they
+  never break the import.
+- **Ground rules:** no Multi Action, Text, Delay or Key Logic double/hold actions (they
+  automate). A dial detent counts as one tap (one press per detent): confirm with the owner.
+- **Star Citizen 4.x keys:** research found the deck still sends several 3.x defaults (Decoy
+  `g` → `h`, Noise `h` → `j`, Flight Ready `r` → `ralt+r`, Request Docking → `ralt+n`, five
+  scActions that no longer exist, profile binds that collide with 4.10 defaults). Verified
+  against the game's 4.10 `defaultProfile.xml`. A workflow is fixing `layouts/hud.json` and
+  `tools/make-profile.js` (audit, skeptic, apply, re-audit); the pack's hotkeys come from the
+  fixed keys.
 
 ## Status
 
 | piece | state | where |
 |---|---|---|
-| Key art renderer | done (first pass), previewed across all 12 themes | `streamdeck/keyart.js` |
-| New icons (~70: emotes, ship, comms/media, scenes/navigation) | being designed by a workflow (designers, art director, fix pass); not merged yet | scratch `icons-new/*.json` → merge into `public/icons.js` |
-| Research: SDK/protocol, devices, profile format, icon packs, navigation actions, Discord & standard plugins, Star Citizen comms binds | drafts written, fact-checks running | scratch `streamdeck-research/*.md` → to be copied to `streamdeck/research/` |
-| Action catalog (every action, with icon, colour, keys, category) | not started | planned `streamdeck/catalog.js` |
-| Scene layouts per model | not started (waiting for the verified device matrix) | planned `streamdeck/scenes.js` |
-| Plugin | not started | planned `streamdeck/plugin/` |
-| Generator (icon pack, mega pack, plugin package) | not started | planned `tools/make-streamdeck.js` |
-| Server support for the plugin | not started | `server.js` (a `device=streamdeck` client, scene messages) |
-| Docs (README, CHANGELOG, DEVELOPMENT, DESIGN) | not started | |
+| Key art renderer | done, previewed across all 12 themes | `streamdeck/keyart.js` |
+| Research (7 topics) | done; fact-checks mostly done | `streamdeck/research/` |
+| New icons (~70) | designed + art-directed by a workflow; merge pending | scratch, then `public/icons.js` |
+| Star Citizen 4.x key fixes | workflow running | `layouts/hud.json`, `tools/make-profile.js` |
+| PC sounds player review fixes | workflow running (C#) | `native/sound.cs` |
+| Action catalog | next (by the main session) | `streamdeck/catalog.js` |
+| Scene layouts per model | after the catalog | `streamdeck/scenes.js` |
+| Generator | after the catalog | `tools/make-streamdeck.js` |
+| Plugin | after the catalog | `streamdeck/plugin/` |
+| Server support for the plugin | not started | `server.js` |
+| Docs | not started | README, CHANGELOG, DEVELOPMENT, DESIGN |
 
-Scratch paths are under this session's scratchpad, which goes away with the container:
-copy anything worth keeping into the repo (the research notes especially).
+The session's scratchpad (downloads, test harnesses) goes away with the container.
 
 ## Next steps
 
-1. Read the verified research (`streamdeck/research/*.verified.md` once copied) and fix
-   the formats: plugin manifest and protocol, device grids and key sizes, profile file
-   layout and the Hotkey/folder/page/switch-profile action settings, icon pack layout.
-2. Merge the new icons into `public/icons.js` (check names don't collide; the editor
-   lists them all).
-3. Write the catalog and the scene layouts per model (Mini 3x2 ... XL 8x4, Plus with 4
-   dials and touch strip, Studio, Neo, Pedal, Mobile), with navigation keys, a Themes
-   folder and a Comms page.
-4. Write the generator; build the icon pack and one model's profile first, then check
-   the files against the research's real exported profiles before generating all of
-   them.
-5. The plugin, then the server support, then docs; commit as each piece works.
+1. Merge the new icons into `public/icons.js` (names must not collide).
+2. Write `streamdeck/catalog.js`: every action (all `layouts/hud.json` buttons, deduplicated,
+   plus Stream Deck extras), with icon, colour, category, keys, mode, animation.
+3. Write `streamdeck/scenes.js` (pages per model; navigation zone; dials and touch strip for
+   + and + XL), then the generator; build one model and check it against real exported
+   profiles before generating all 84 + 7.
+4. The plugin, server support (a `device=streamdeck` client, scene and theme messages),
+   docs. Commit each piece as it works.
 
 ## Earlier work in this session (for context)
 
