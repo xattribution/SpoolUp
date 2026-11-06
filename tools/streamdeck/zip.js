@@ -27,14 +27,15 @@ const UTF8 = 0x0800;
 
 // entries: [{ name, data? (Buffer|string), dir? }] in the order they should appear.
 // Directory names end in "/". Files are deflated (Stream Deck's own exports and Elgato's CLI
-// both deflate); zlib falls back to stored blocks for data that doesn't shrink, like PNGs.
+// both deflate); zlib falls back to stored blocks for data that doesn't shrink, like PNGs and
+// the profiles and icon packs inside a release zip, which get the quick level.
 function zip(entries) {
   const locals = [], centrals = [];
   let offset = 0;
   for (const e of entries) {
     const name = Buffer.from(e.dir && !e.name.endsWith("/") ? `${e.name}/` : e.name, "utf8");
     const data = e.dir ? Buffer.alloc(0) : Buffer.isBuffer(e.data) ? e.data : Buffer.from(String(e.data), "utf8");
-    const packed = e.dir ? data : zlib.deflateRawSync(data, { level: /\.(png|gif|jpe?g|webp)$/i.test(e.name) ? 1 : 9 });
+    const packed = e.dir ? data : zlib.deflateRawSync(data, { level: /\.(png|gif|jpe?g|webp|zip|streamDeck\w+)$/i.test(e.name) ? 1 : 9 });
     const method = e.dir ? 0 : 8;
     const crc = e.dir ? 0 : crc32(data);
     const local = Buffer.alloc(30);

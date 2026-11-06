@@ -9,6 +9,7 @@
 //   node tools/make-streamdeck.js --skip icons,plugin  (also: profiles, preview)
 //   node tools/make-streamdeck.js --browser <path>     (or set TABLETDECK_BROWSER)
 //   node tools/make-streamdeck.js --out <folder>
+//   node tools/make-streamdeck.js --release           also zip the downloads into <out>/release/
 //   node tools/make-streamdeck.js --check              validate layouts and what's built; no browser
 //
 // Sources: streamdeck/catalog.js (actions), streamdeck/scenes.js (pages per model),
@@ -67,7 +68,7 @@ const mb = (n) => `${(n / 1048576).toFixed(n < 1048576 ? 2 : 1)} MB`;
 // ---------- options ----------
 
 function parseArgs(argv) {
-  const o = { out: path.join(ROOT, "dist", "streamdeck"), themes: null, models: null, skip: new Set(), check: false, browser: null };
+  const o = { out: path.join(ROOT, "dist", "streamdeck"), themes: null, models: null, skip: new Set(), check: false, browser: null, release: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i], next = () => { if (i + 1 >= argv.length) throw usage(`${a} needs a value`); return argv[++i]; };
     if (a === "--out") o.out = path.resolve(next());
@@ -76,7 +77,8 @@ function parseArgs(argv) {
     else if (a === "--skip") next().split(",").map((s) => s.trim()).filter(Boolean).forEach((s) => o.skip.add(s));
     else if (a === "--browser") o.browser = next();
     else if (a === "--check") o.check = true;
-    else if (a === "--help" || a === "-h") { console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(5, 13).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")); process.exit(0); }
+    else if (a === "--release") o.release = true;
+    else if (a === "--help" || a === "-h") { console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(5, 14).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")); process.exit(0); }
     else throw usage(`Unknown option ${a} (see --help)`);
   }
   for (const s of o.skip) if (!["icons", "profiles", "plugin", "preview"].includes(s)) throw usage(`--skip takes icons, profiles, plugin, preview (not "${s}")`);
@@ -673,6 +675,65 @@ function writeKeybinds(out) {
   return path.join(dir, KEYBINDS);
 }
 
+// ---------- release downloads ----------
+
+// --release: the downloads a GitHub release carries, in <out>/release/: a zip of each model's
+// profiles (every theme built, with the keybind profile they rely on and a readme), one of all
+// the icon packs, and the plugin as it is. Made from the files just written.
+const RELEASE_NAME = { mini: "Mini", neo: "Neo", std: "15-Key", mobile: "Mobile", plus: "Plus", xl: "XL", plusxl: "Plus-XL" };
+const PROFILES_README = `Tablet Deck: Stream Deck profiles for {model}
+
+One profile per manufacturer theme. Double-click one to add it to Stream Deck, and add every
+theme you want to switch between: the Themes folder opens the same page in another theme's
+profile (if a theme key doesn't switch, pick that profile once in the key's settings).
+
+Each profile has a page per scene (Flight, Combat, Mining, Salvage, Hauling & Exploration,
+On Foot, Comms) and folders for emergencies, shields, power, emotes, websites and themes.
+
+Before you fly, load the Tablet Deck Keyboard keybinds in Star Citizen: see keybinds\\README.txt.
+
+The keys are Stream Deck Hotkeys, which Stream Deck presses into whichever window is in
+front. Keys marked PLUGIN hold a key or press it for a set time, which a Hotkey can't do:
+they need the Tablet Deck plugin (com.nodiecode.tabletdeck.streamDeckPlugin) and Tablet Deck
+running on this PC. Discord and OBS keys need Elgato's Discord and OBS Studio plugins;
+Stream Deck offers to install them.
+
+More: https://github.com/nodieCode/tablet-deck#stream-deck
+`;
+function writeRelease(out, models) {
+  const dir = path.join(out, "release");
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+  const filesIn = (sub, ext) => {
+    const d = path.join(out, sub);
+    return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith(ext) && fs.statSync(path.join(d, f)).isFile()).sort().map((f) => path.join(d, f)) : [];
+  };
+  const entry = (name, file) => ({ name, data: fs.readFileSync(file) });
+  const keybinds = filesIn("keybinds", "").map((f) => entry(`keybinds/${path.basename(f)}`, f));
+  const written = [];
+  for (const m of models) {
+    const model = scenes.MODELS[m];
+    const profiles = filesIn(path.join("profiles", model.name), ".streamDeckProfile");
+    if (!profiles.length) continue;
+    const file = path.join(dir, `TabletDeck-StreamDeck-Profiles-${RELEASE_NAME[m] || m}.zip`);
+    const readme = { name: "README.txt", data: PROFILES_README.replace("{model}", model.name).replace(/\n/g, "\r\n") };
+    fs.writeFileSync(file, zip([readme, ...profiles.map((f) => entry(path.basename(f), f)), ...keybinds]));
+    written.push(file);
+  }
+  const packs = filesIn("icons", ".streamDeckIconPack");
+  if (packs.length) {
+    const file = path.join(dir, "TabletDeck-StreamDeck-IconPacks.zip");
+    fs.writeFileSync(file, zip(packs.map((f) => entry(path.basename(f), f))));
+    written.push(file);
+  }
+  const plugin = path.join(out, `${PLUGIN_UUID}.streamDeckPlugin`);
+  if (fs.existsSync(plugin)) {
+    fs.copyFileSync(plugin, path.join(dir, path.basename(plugin)));
+    written.push(path.join(dir, path.basename(plugin)));
+  }
+  return written;
+}
+
 // Stream Deck versions as numbers to compare ("7.10" after "7.9").
 const versionAtLeast = (v, min) => {
   const a = String(v || "0").split(".").map(Number), b = min.split(".").map(Number);
@@ -1037,17 +1098,23 @@ async function main() {
   } finally {
     await renderer.close();
   }
+  if (opts.release) {
+    t = Date.now();
+    for (const file of writeRelease(opts.out, models)) results.files.push({ kind: "download", file });
+    lap("release", t);
+  }
 
   // ---------- summary ----------
   const by = (kind) => results.files.filter((f) => f.kind === kind);
   const total = (list) => list.reduce((n, f) => n + fs.statSync(f.file).size, 0);
   console.log("");
-  for (const kind of ["icon pack", "profile", "keybind profile", "plugin", "preview"]) {
+  for (const kind of ["icon pack", "profile", "keybind profile", "plugin", "preview", "download"]) {
     const list = by(kind);
     if (!list.length) continue;
     console.log(`${list.length} ${kind}${list.length > 1 ? "s" : ""}, ${mb(total(list))}`);
-    for (const f of list.slice(0, kind === "profile" ? 4 : 3)) console.log(`  ${path.relative(opts.out, f.file)}  ${mb(fs.statSync(f.file).size)}${f.count ? `, ${f.count} ${kind === "icon pack" ? "icons" : kind === "plugin" ? "files" : "pages"}` : ""}${f.images ? `, ${f.images} images` : ""}`);
-    if (list.length > (kind === "profile" ? 4 : 3)) console.log(`  ... and ${list.length - (kind === "profile" ? 4 : 3)} more`);
+    const shown = kind === "profile" ? 4 : kind === "download" ? 9 : 3;
+    for (const f of list.slice(0, shown)) console.log(`  ${path.relative(opts.out, f.file)}  ${mb(fs.statSync(f.file).size)}${f.count ? `, ${f.count} ${kind === "icon pack" ? "icons" : kind === "plugin" ? "files" : "pages"}` : ""}${f.images ? `, ${f.images} images` : ""}`);
+    if (list.length > shown) console.log(`  ... and ${list.length - shown} more`);
   }
   const counted = standalone.reduce((a, s) => ({ keys: a.keys + s.counts.keys, dials: a.dials + s.counts.dials, folders: a.folders + s.counts.folders }), { keys: 0, dials: 0, folders: 0 });
   if (standalone.length) console.log(`Profiles hold ${counted.keys} keys, ${counted.dials} dials and ${counted.folders} folder pages.`);

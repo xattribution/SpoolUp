@@ -180,6 +180,18 @@ jobs:
             dist/*.exe
             dist/*.sha256
 
+      # The Stream Deck pack (tools/make-streamdeck.js): profiles per model, icon packs and the
+      # plugin, drawn in the runner's Edge. Nothing in it is an executable, so nothing to sign.
+      - name: Build the Stream Deck pack
+        run: |
+          node tools/make-streamdeck.js --skip preview --release
+          node tools/make-streamdeck.js --check
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: TabletDeck-StreamDeck
+          path: dist/streamdeck/release/*
+
       - name: Publish the release
         if: env.RELEASE_TAG != ''
         shell: pwsh
@@ -199,6 +211,8 @@ jobs:
 
           Download **TabletDeck-Setup-$version.exe** below and run it. No Node.js needed. Already have Tablet Deck? Run it over your copy; your settings are kept. After that it offers updates itself.
 
+          **Stream Deck:** **TabletDeck-StreamDeck-Profiles-&lt;model&gt;.zip** has your model's profile in all 12 themes, **TabletDeck-StreamDeck-IconPacks.zip** the icon packs, and **com.nodiecode.tabletdeck.streamDeckPlugin** the Tablet Deck plugin. See [Stream Deck](https://github.com/nodieCode/tablet-deck#stream-deck) in the README.
+
           If Windows shows "Windows protected your PC" (unknown publisher), click **More info**, then **Run anyway**. See the README for details.
 
           Releases aren't code-signed yet; check the installer against the SHA-256 below. See the [code signing policy](https://github.com/nodieCode/tablet-deck/blob/main/CODE_SIGNING.md).
@@ -207,5 +221,6 @@ jobs:
 
           > Fan project. Not affiliated with or endorsed by Cloud Imperium Games.
           "@
+          $streamdeck = (Get-ChildItem dist/streamdeck/release -File | Sort-Object Name).FullName
           # --target tags this commit when the tag doesn't exist yet (a run by hand).
-          gh release create $env:RELEASE_TAG $setup "$setup.sha256" --target "${{ github.sha }}" --title "Tablet Deck $version" --notes $notes
+          gh release create $env:RELEASE_TAG $setup "$setup.sha256" @streamdeck --target "${{ github.sha }}" --title "Tablet Deck $version" --notes $notes
