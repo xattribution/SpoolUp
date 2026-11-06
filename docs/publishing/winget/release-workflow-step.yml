@@ -1,0 +1,76 @@
+# Draft for .github/workflows/release.yml (not applied). Two edits:
+#
+# 1. In the existing `build` job, expose the release tag as a job output:
+#
+#  build:
+#    runs-on: windows-latest
+#    outputs:
+#      release-tag: ${{ steps.release.outputs.tag }}
+#    ...
+#      - name: Work out the release
+#        id: release
+#        ...
+#          "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
+#          "tag=$tag" >> $env:GITHUB_OUTPUT
+#
+# 2. Add this job after `build`. It has to live in this workflow: the release is created
+#    with the workflow's GITHUB_TOKEN, and events made with that token don't start other
+#    workflows, so a separate `on: release` workflow would never run.
+
+  # ---- WinGet (optional) ----
+  # Sends the new version to the WinGet community repository (microsoft/winget-pkgs) as a
+  # pull request. wingetcreate can only update a package that's already there, so the first
+  # version goes in by hand. Then set:
+  #   variable WINGET_PACKAGE_ID   the package's identifier in WinGet, e.g. xattribution.SpoolUp
+  #   secret   WINGET_TOKEN        a classic token with the public_repo scope (fine-grained tokens
+  #                                don't work), from the account the pull requests come from;
+  #                                wingetcreate forks microsoft/winget-pkgs there if needed
+  # It runs in its own job, so the build's tools never see the token, and a failure here
+  # doesn't touch the release, which is already published.
+  winget:
+    needs: build
+    if: needs.build.outputs.release-tag != '' && vars.WINGET_PACKAGE_ID != ''
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Submit the release to WinGet
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.release-tag }}
+          PACKAGE_ID: ${{ vars.WINGET_PACKAGE_ID }}
+          WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          if (-not $env:WINGET_CREATE_GITHUB_TOKEN) { throw "Set the WINGET_TOKEN secret (see the comment above this job)." }
+          $version = $env:TAG.TrimStart("v")
+          # The installer this release published, whatever the app is called in this version.
+          $setup = gh release view $env:TAG --repo "${{ github.repository }}" --json assets --jq '.assets[].name' |
+            Where-Object { $_ -match '-Setup-.+\.exe$' } | Select-Object -First 1
+          if (-not $setup) { throw "Release $env:TAG has no *-Setup-*.exe." }
+          $url = "https://github.com/${{ github.repository }}/releases/download/$env:TAG/$setup"
+          # wingetcreate is pinned the way jsign is: a fixed release, checked against the SHA-256
+          # that its own WinGet manifest (Microsoft.WingetCreate 1.12.13.0) lists. It needs the
+          # .NET 9 runtime, which windows-latest has.
+          $exe = Join-Path $env:RUNNER_TEMP "wingetcreate.exe"
+          Invoke-WebRequest "https://github.com/microsoft/winget-create/releases/download/v1.12.13.0/wingetcreate.exe" -OutFile $exe
+          if ((Get-FileHash $exe -Algorithm SHA256).Hash -ne "24042BD37915805615E6CF969AC57C6439124C3FE85823327F5F3FB24BD9FFEA") { throw "wingetcreate.exe doesn't match its SHA-256" }
+          # Keeps everything else in the last merged manifest (the Custom switch, scope, elevation,
+          # ProductCode) and replaces the version, URL, hash, release date and release notes link.
+          & $exe update $env:PACKAGE_ID --version $version --urls $url `
+            --release-notes-url "https://github.com/${{ github.repository }}/releases/tag/$env:TAG" `
+            --submit --no-open
+          if ($LASTEXITCODE -ne 0) { throw "wingetcreate update failed with exit code $LASTEXITCODE" }
+
+# Alternative to the step above: WinGet Releaser, which runs Komac. Needs the same variable and
+# a classic token with public_repo (plus workflow, so it can sync the fork), and a fork of
+# microsoft/winget-pkgs under fork-user. It installs cargo-binstall from @main and the latest
+# Komac on every run, so pin the action to a commit SHA.
+#
+#      - uses: vedantmgoyal9/winget-releaser@main
+#        with:
+#          identifier: ${{ vars.WINGET_PACKAGE_ID }}
+#          release-tag: ${{ needs.build.outputs.release-tag }}
+#          installers-regex: '-Setup-.+\.exe$'
+#          fork-user: <account that owns the winget-pkgs fork>
+#          token: ${{ secrets.WINGET_TOKEN }}

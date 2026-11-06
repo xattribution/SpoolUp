@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: xattribution.SpoolUp
+PackageVersion: 1.8.0
+InstallerLocale: en-US
+Platform:
+- Windows.Desktop
+MinimumOSVersion: 10.0.0.0
+InstallerType: inno
+Scope: machine
+InstallModes:
+- interactive
+- silent
+- silentWithProgress
+InstallerSwitches:
+  Custom: /MERGETASKS=!scprofile
+UpgradeBehavior: install
+ProductCode: '{A7A9440D-F358-4D02-81DE-04193AAA6A52}_is1'
+ReleaseDate: <RELEASE_DATE_YYYY-MM-DD>
+ElevationRequirement: elevationRequired
+InstallationMetadata:
+  DefaultInstallLocation: '%ProgramFiles%\Tablet Deck'
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/xattribution/tablet-deck-spooned/releases/download/v1.8.0/SpoolUp-Setup-1.8.0.exe
+  InstallerSha256: <SHA256_OF_SpoolUp-Setup-1.8.0.exe_UPPERCASE>
+ManifestType: installer
+ManifestVersion: 1.28.0
