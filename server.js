@@ -469,6 +469,25 @@ async function tapButton(btn, client, ms = btn.ms || config.tapMs, kind = btn.mo
   await releaseCombo(btn.scancodes);
 }
 
+// Taps of the same keys run one after another: two overlapping taps would share one
+// key-down and the game would see a single, longer press. A few may wait their turn; more
+// are dropped rather than pressed long after they were asked for, and a tap whose tablet
+// disconnected while it waited is dropped too.
+const TAPS_WAITING = 4;
+const tapQueues = new Map(); // scancodes -> { last, count }
+function queueTap(btn, client, ...rest) {
+  const k = btn.scancodes.map((sc) => sc.join(":")).join("+");
+  const q = tapQueues.get(k) || { last: Promise.resolve(), count: 0 };
+  if (q.count >= TAPS_WAITING) return q.last;
+  q.count++;
+  tapQueues.set(k, q);
+  q.last = q.last
+    .then(() => (client?.gone ? undefined : tapButton(btn, client, ...rest)))
+    .catch((err) => console.error(`${btn.label}: ${err.message}`))
+    .finally(() => { if (--q.count === 0) tapQueues.delete(k); });
+  return q.last;
+}
+
 // ---------- voice commands ----------
 
 // Button label as a spoken phrase: "Shields +" -> "shields up", "Master: SCM" -> "master scm".
@@ -601,7 +620,7 @@ async function onVoice(id, confidence, text) {
   ui({ t: "heard", result: "accepted", text, label: btn.label, confidence });
   client?.send({ t: "heard", id: btn.id, label: btn.label, text });
   // Hold buttons (quantum engage, laser power) get a longer press, set per button.
-  await tapButton(btn, client, btn.voiceMs || btn.ms || config.tapMs, "voice");
+  await queueTap(btn, client, btn.voiceMs || btn.ms || config.tapMs, "voice");
 }
 
 // ---------- button sounds on the PC ----------
@@ -780,6 +799,10 @@ function wsReader(socket, onText, onClose) {
       else if (opcode === 0x9 && data.length < 126) socket.write(Buffer.concat([Buffer.from([0x8a, data.length]), data]));
     }
   });
+  // The HTTP server leaves sockets half-open, so a client that goes away without a close
+  // frame (a killed tab, Stream Deck stopping its plugin) would otherwise keep its held
+  // keys down until the watchdog notices, seconds later.
+  socket.on("end", () => socket.destroy());
   socket.on("close", onClose);
   socket.on("error", () => socket.destroy());
 }
@@ -1012,7 +1035,7 @@ server.on("upgrade", (req, socket) => {
     close: () => socket.destroy(),
   };
   tablets.add(client);
-  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates), soundStatus: soundState });
+  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates), soundStatus: soundState, tapMs: config.tapMs });
 
   const held = new Map(); // button id -> { sc } currently pressed by this tablet
   // Its button sounds playing on the PC: its id -> { id: the player's id, ends }, and when
@@ -1064,7 +1087,11 @@ server.on("upgrade", (req, socket) => {
     await releaseCombo(hold.sc);
   };
   const releaseAll = async () => {
-    for (const [id, hold] of held) { held.delete(id); await releaseHold(hold); }
+    for (const [id, hold] of held) {
+      held.delete(id);
+      report(buttons.get(id) || { id, label: id }, "up", { released: true });
+      await releaseHold(hold);
+    }
   };
   // If the tablet sleeps or drops Wi-Fi mid-hold, don't leave keys stuck down.
   const watchdog = setInterval(() => {
@@ -1141,11 +1168,12 @@ server.on("upgrade", (req, socket) => {
       report(btn, "up");
       await releaseHold(hold);
     } else if (msg.t === "tap") {
-      await tapButton(btn, client);
+      await queueTap(btn, client);
     }
   }, () => {
     clearInterval(watchdog);
     tablets.delete(client);
+    client.gone = true;
     void releaseAll();
     for (const id of [...sounds.keys()]) stopSound(id);
     if (voiceOwner === client) { voice?.stdin.write("stop\n"); voiceOwner = null; }

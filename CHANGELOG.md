@@ -7,6 +7,11 @@ before tagging a release.
 
 ## Unreleased
 
+- **Two quick taps are two presses.** Taps of the same button now take turns
+  instead of overlapping, which the game saw as one longer press.
+- **Keys let go sooner when a tablet vanishes mid-press.** A tab that's closed
+  without saying goodbye releases its held buttons straight away, not 5 seconds
+  later.
 - **A keybind Tablet Deck can't press no longer stops it from starting.** If
   your actionmaps.xml binds an action to a key it has no code for, that button
   keeps its own key and the console says which one.
