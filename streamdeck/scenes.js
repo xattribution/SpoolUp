@@ -303,21 +303,28 @@ function dialFor(name) {
   return typeof d === "string" ? { action: d } : { ...d };
 }
 
-// A folder's pages: its items in the content area, Back where the model's navigation is,
-// and a "More" key on the last free slot chaining to the next page when they don't fit.
+// A folder's pages: Back top left, its items in the rest, and a "More" key on the last
+// free slot chaining to the next page when they don't fit. Back goes top left on every
+// model because that's where the Stream Deck app puts it in every folder it writes.
 function folderPages(modelId, id, folder) {
   const m = MODELS[modelId];
-  const back = m.nav === "tabs" ? [0, 0] : m.nav === "rail" ? [m.cols - 1, 0] : [m.cols - 1, m.rows - 1];
+  const back = [0, 0];
   const slots = [];
   for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) if (!(c === back[0] && r === back[1])) slots.push([c, r]);
   if (folder.grid) {
-    // A block: placed whole when it fits, else as a list.
-    const block = BLOCKS[folder.grid];
-    const fitsW = block[0].length <= m.cols - (m.nav === "rail" ? 1 : 0), fitsH = block.length <= m.rows - (m.nav === "tabs" ? 1 : 0);
-    if (fitsW && fitsH) {
+    // A block goes whole, centred beside Back (under the top row on the XLs, whose top row
+    // is their navigation, else right of the first column). When it only fits turned on
+    // its side, each of its columns becomes a row read from its bottom up, so Power's
+    // weapons, thrusters and shields each run min to max. Else it's a list.
+    const top = m.nav === "tabs" ? 1 : 0, left = top ? 0 : 1;
+    const fits = (b) => b[0].length <= m.cols - left && b.length <= m.rows - top;
+    const upright = BLOCKS[folder.grid];
+    const turned = upright[0].map((_, c) => upright.map((row) => row[c]).reverse());
+    const block = fits(upright) ? upright : fits(turned) ? turned : null;
+    if (block) {
       const keys = { [`${back[0]},${back[1]}`]: "@back" };
-      const top = m.nav === "tabs" ? 1 : 0;
-      block.forEach((row, r) => row.forEach((ref, c) => { keys[`${c},${r + top}`] = ref; }));
+      const x = left + Math.floor((m.cols - left - block[0].length) / 2);
+      block.forEach((row, r) => row.forEach((ref, c) => { keys[`${c + x},${r + top}`] = ref; }));
       return [{ keys }];
     }
   }
@@ -328,7 +335,7 @@ function folderPages(modelId, id, folder) {
   const pages = [];
   let rest = [...items];
   while (rest.length) {
-    const keys = { [`${back[0]},${back[1]}`]: pages.length ? "@back" : "@back" };
+    const keys = { [`${back[0]},${back[1]}`]: "@back" };
     const room = rest.length > slots.length ? slots.length - 1 : slots.length;
     rest.splice(0, room).forEach((ref, i) => { keys[`${slots[i][0]},${slots[i][1]}`] = ref; });
     if (rest.length) { const last = slots[slots.length - 1]; keys[`${last[0]},${last[1]}`] = `@more:${id}:${pages.length + 1}`; }

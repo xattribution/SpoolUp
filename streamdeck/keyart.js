@@ -244,7 +244,7 @@ function fitLabel(label, th, width, maxSize) {
   return { lines: [text], size };
 }
 
-function label(text, th, cx, bottom, { color, maxSize = 21, width = 122, font = th.font.family } = {}) {
+function label(text, th, cx, bottom, { color, maxSize = 21, width = 110, font = th.font.family } = {}) {
   if (!text) return "";
   const fit = fitLabel(text, th, width, maxSize);
   const lh = fit.size * 1.08;
@@ -391,15 +391,18 @@ function key(opts) {
   if (showLabel) parts.push(label(opts.label, th, 72, opts.status ? 110 : 122, { color: opts.offline ? th.dim : th.text, font }));
   if (opts.status) parts.push(`<text x="72" y="128" text-anchor="middle" font-family="${esc(font)}" font-size="11" font-weight="700" letter-spacing="1.6" fill="${opts.lit ? c : th.dim}">${esc(opts.status)}</text>`);
   if (opts.keys) parts.push(`<text x="${136 - th.edge}" y="22" text-anchor="end" font-family="${esc(th.font.windows)}" font-size="10" font-weight="600" letter-spacing=".8" fill="${th.dim}">${esc(String(opts.keys).toUpperCase())}</text>`);
-  if (opts.badge === "folder") parts.push(`<path d="M112 116h8l3 3h9v13h-20Z" fill="none" stroke="${th.accent}" stroke-width="2" stroke-linejoin="round" opacity=".9"/>`);
-  if (opts.badge === "back") parts.push(`<path d="M128 124h-16m5-5-5 5 5 5" fill="none" stroke="${th.accent}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`);
+  // Badges sit top right, clear of the label and of corners some themes cut (Drake's).
+  const bx = 128 - th.edge;
+  if (opts.badge === "folder") parts.push(`<path d="M${bx - 20} 15h8l3 3h9v13h-20Z" fill="none" stroke="${th.accent}" stroke-width="2" stroke-linejoin="round" opacity=".9"/>`);
+  if (opts.badge === "back") parts.push(`<path d="M${bx} 23h-16m5-5-5 5 5 5" fill="none" stroke="${th.accent}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`);
   if (opts.offline) parts.push(`<path d="M114 20l14 14m0-14-14 14" stroke="${th.colors.red}" stroke-width="2.6" stroke-linecap="round"/>`);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${parts.join("")}</svg>`;
 }
 
-// A plain backdrop key for empty slots, so a page reads as one panel.
+// A plain backdrop key for empty slots, so a page reads as one panel. Light themes use
+// their page colour, not the white of a key's face, which glares on a lit device.
 function blank(th) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? th.panel : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? mix(th.bg, th.line, 0.5) : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
 module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix, arcsToCubics };
