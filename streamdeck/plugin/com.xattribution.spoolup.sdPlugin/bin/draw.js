@@ -73,10 +73,13 @@ function createDraw(data) {
     const col = Math.max(0, Math.min(count - 1, place.column || 0));
     const first = col === 0, last = col === count - 1;
     const id = `s${th.id}${col}`;
-    const top = th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55);
+    // The maker's key face and material (keyart), as one panel across the dials. Themes
+    // from an older themes.json, without face tokens, keep the old blend.
+    const top = th.faceHi || keyart.mix(th.panelHi, th.bg, 0.55), bottom = th.faceLo || th.bg;
     const p = [];
-    p.push(`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${th.bg}"/></linearGradient></defs>`);
+    p.push(`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs>`);
     p.push(`<rect width="${W}" height="${H}" fill="url(#${id})"/>`);
+    if (keyart.material) p.push(keyart.material(th, { x: 0, y: 0, w: W, h: H, shape: `M0 0H${W}V${H}H0Z` }, c, { id: `${id}m` }));
     if (th.stripes) for (let y = 6; y < H; y += 5) p.push(`<rect x="0" y="${y}" width="${W}" height="1.2" fill="#fff" opacity=".025"/>`);
     if (th.grid) for (let x = 22; x < W; x += 22) p.push(`<rect x="${x}" y="0" width="1" height="${H}" fill="#fff" opacity=".03"/>`);
     // Rules along the top and bottom, unbroken from segment to segment.
@@ -86,10 +89,12 @@ function createDraw(data) {
     p.push(`<rect x="14" y="3" width="48" height="3" fill="${c}"/>`);
     // Between dials: a thin divider with ticks.
     if (!first) p.push(`<rect x="0" y="16" width="1" height="68" fill="${th.line}"/><rect x="0" y="4" width="5" height="1" fill="${th.lineHi}"/><rect x="0" y="95" width="5" height="1" fill="${th.lineHi}"/>`);
-    // Corner brackets at the strip's two ends only.
+    // RSI's corner brackets, at the strip's two ends only.
     const br = (d) => `<path d="${d}" fill="none" stroke="${th.accent}" stroke-width="2" stroke-linecap="square" opacity=".75"/>`;
-    if (first) p.push(br("M3 18V3H18"), br("M3 82V97H18"));
-    if (last) p.push(br("M197 18V3H182"), br("M197 82V97H182"));
+    if (!th.material || th.material === "glass") {
+      if (first) p.push(br("M3 18V3H18"), br("M3 82V97H18"));
+      if (last) p.push(br("M197 18V3H182"), br("M197 82V97H182"));
+    }
     if (flash > 0) p.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="${c}" opacity="${(0.28 * flash).toFixed(2)}"/>`);
     if (blocked) p.push(`<rect x="1.5" y="1.5" width="${W - 3}" height="${H - 3}" fill="none" stroke="${th.colors.red}" stroke-width="3"/>`);
     if (offline) p.push(`<path d="M178 14l10 10m0-10-10 10" stroke="${th.colors.red}" stroke-width="2.4" stroke-linecap="round"/>`);

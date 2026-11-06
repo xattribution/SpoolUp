@@ -75,6 +75,13 @@ function glyphWidths(family, weight) {
 }
 
 const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
+// Relative luminance of a #rrggbb colour (0 black, 1 white).
+function luminance(c) {
+  const h = String(c || "#000").replace("#", "");
+  const f = h.length === 3 ? h.split("").map((x) => x + x).join("") : h;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b || 0;
+}
 
 // Turns a theme's CSS tokens into what a key needs.
 function theme(tokens, id = "") {
@@ -88,11 +95,17 @@ function theme(tokens, id = "") {
   const widths = glyphWidths(display, weight);
   const letters = widths ? [...(upper ? GLYPHS.slice(0, 26) : LOWER)].map((ch) => widths[ch]).filter((w) => w !== undefined) : [];
   // The backdrop's first glow: its colour and where it sits.
-  const glow = /radial-gradient\(ellipse [^,]*at ([\d.-]+)% ([\d.-]+)%, (rgba?\([^)]+\))/.exec(t["bg-art"] || "");
+  // Light pages are lit from above, not glowing: only dark ones get it on their keys.
+  const light = /light/.test(t["color-scheme"] || "");
+  const glow = light ? null : /radial-gradient\(ellipse [^,]*at ([\d.-]+)% ([\d.-]+)%, (rgba?\([^)]+\))/.exec(t["bg-art"] || "");
+  const faceHi = t["face-hi"] || t["panel-hi"], faceLo = t["face-lo"] || t.panel;
   return {
     id,
-    light: /light/.test(t["color-scheme"] || ""),
+    light, // the page is light (the space around a key, blank keys)
+    faceLight: luminance(faceLo) > 0.45, // the key face is light (Crusader's pearl)
+    material: t.material || "glass",
     bg: t.bg, panel: t.panel, panelHi: t["panel-hi"], line: t.line, lineHi: t["line-hi"], text: t.text, dim: t.dim,
+    faceHi, faceLo, ink: t.ink || t.text, inkDim: t["ink-dim"] || t.dim,
     colors: { "": t.accent, green: t.green, amber: t.amber, red: t.red, blue: t.blue },
     accent: t.accent,
     radius,
@@ -323,16 +336,97 @@ function hash(text) {
   return (h >>> 0).toString(36);
 }
 
+// ---------- materials ----------
+// Each maker's surface, drawn over a face in `box` ({ x, y, w, h, shape }), the way
+// public/makers.css draws the deck's buttons. Shapes stay clear of cut corners, since
+// small renderers have no clipping.
+
+// A few scratches, each a light line with a dark groove beside it, in a unit square.
+const SCRATCHES = [[0.1, 0.22, 0.46, 0.3], [0.58, 0.12, 0.9, 0.3], [0.14, 0.78, 0.44, 0.64], [0.56, 0.86, 0.84, 0.8], [0.38, 0.47, 0.6, 0.52], [0.86, 0.44, 0.76, 0.68]];
+function scratches({ x, y, w, h }, strength = 1) {
+  return SCRATCHES.map(([a, b, c, d]) => {
+    const p = `M${(x + a * w).toFixed(1)} ${(y + b * h).toFixed(1)}L${(x + c * w).toFixed(1)} ${(y + d * h).toFixed(1)}`;
+    return `<path d="${p}" stroke="#fff" stroke-opacity="${(0.09 * strength).toFixed(3)}" stroke-width="1" fill="none"/><path d="${p}" transform="translate(.8 1)" stroke="#000" stroke-opacity="${(0.32 * strength).toFixed(3)}" stroke-width="1" fill="none"/>`;
+  }).join("");
+}
+const rivet = (cx, cy, r, metal) => `<circle cx="${cx}" cy="${cy}" r="${r + 1}" fill="#000" opacity=".55"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${metal}"/><circle cx="${cx - r * 0.3}" cy="${cy - r * 0.3}" r="${(r * 0.4).toFixed(2)}" fill="#fff" opacity=".28"/>`;
+const screw = (cx, cy) => `${rivet(cx, cy, 3.4, "#5f6849")}<path d="M${cx - 2.4} ${cy + 1.2}L${cx + 2.4} ${cy - 1.2}" stroke="#262b1e" stroke-width="1.2"/>`;
+// A horizontal band of hazard stripes.
+const hazard = (x, y, w, h, color, dark = "#14130f") => {
+  let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${dark}"/>`;
+  for (let sx = x - h; sx < x + w; sx += h * 2) {
+    const a = Math.max(sx, x), b = Math.min(sx + h, x + w);
+    if (b > a) s += `<path d="M${a} ${y + h}L${Math.min(a + h, x + w)} ${y}H${Math.min(b + h, x + w)}L${b} ${y + h}Z" fill="${color}"/>`;
+  }
+  return s;
+};
+// 45-degree lines across the box, kept inside it (Aegis's weave).
+function weave({ x, y, w, h }, step, inset, color, opacity, dir) {
+  const L = x + inset, R = x + w - inset, T = y + inset, B = y + h - inset, out = [];
+  for (let k = -(B - T); k < R - L; k += step) {
+    const t0 = Math.max(0, -k), t1 = Math.min(B - T, R - L - k);
+    if (t1 <= t0) continue;
+    const x0 = dir > 0 ? L + k + t0 : R - k - t0, x1 = dir > 0 ? L + k + t1 : R - k - t1;
+    out.push(`M${x0.toFixed(1)} ${(T + t0).toFixed(1)}L${x1.toFixed(1)} ${(T + t1).toFixed(1)}`);
+  }
+  return `<path d="${out.join("")}" stroke="${color}" stroke-opacity="${opacity}" stroke-width="1.4" fill="none"/>`;
+}
+// A soft sheen: the shape filled with a gradient of white that fades out.
+const sheen = (box, id, stops, { x2 = 0, y2 = 1 } = {}) =>
+  `<defs><linearGradient id="m${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map(([o, op, col = "#fff"]) => `<stop offset="${o}" stop-color="${col}" stop-opacity="${op}"/>`).join("")}</linearGradient></defs><path d="${box.shape}" fill="url(#m${id})"/>`;
+const glowDot = (id, cx, cy, r, color, opacity) =>
+  `<defs><radialGradient id="d${id}" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${color}" stop-opacity="${opacity}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#d${id})"/>`;
+
+function material(th, box, c, { id = "" } = {}) {
+  const { x, y, w, h } = box, r = x + w, b = y + h;
+  switch (th.material) {
+    case "glass": return `<path d="M${x} ${y}H${x + w * 0.55}L${x} ${y + h * 0.6}Z" fill="#fff" opacity=".045"/>`;
+    case "plate": return scratches(box) + rivet(x + 8, y + 8, 2, "#7c7461") + rivet(r - 8, y + 8, 2, "#7c7461") + rivet(x + 8, b - 8, 2, "#7c7461");
+    case "carbon": return weave(box, 7, 10, "#fff", 0.04, 1) + weave(box, 7, 10, "#000", 0.28, -1);
+    case "armour": return scratches(box, 0.8) + `<circle cx="${x + 14}" cy="${y + 14}" r="4" fill="#1c2016"/><circle cx="${x + 14}" cy="${y + 14}" r="4.6" fill="none" stroke="#fff" stroke-opacity=".12"/>` + screw(r - 12, b - 12);
+    case "gloss": return sheen(box, id, [[0, 0.16], [0.47, 0.03], [0.5, 0]]);
+    case "enamel": return `<rect x="${r - 50}" y="${y}" width="36" height="3.5" fill="${th.accent}"/><rect x="${x + w * 0.27}" y="${b - 3}" width="${w * 0.46}" height="2" fill="#000" opacity=".32"/>`;
+    case "pearl": return sheen(box, id, [[0, 0.95], [0.45, 0]]) + `<rect x="${x + w * 0.28}" y="${b - 3}" width="${w * 0.44}" height="2" fill="#c3d1de"/>`;
+    case "lacquer": return glowDot(id, x + w * 0.28, y + h * 0.16, w * 0.42, "#ffd7af", 0.16);
+    case "shell": return glowDot(id, x + w * 0.32, y + 2, w * 0.5, "#8cffd7", 0.2);
+    case "hazard": return scratches(box) + rivet(x + 8, y + 8, 1.6, "#555") + rivet(r - 8, y + 8, 1.6, "#555");
+    case "clay": return sheen(box, id, [[0, 0.07], [0.4, 0]]);
+    case "silk": return sheen(box, id, [[0, 0.06], [0.4, 0]], { x2: 1, y2: 1 })
+      + `<defs><linearGradient id="h${id}" x1="0" y1="0" x2="1" y2="0"><stop offset=".45" stop-color="${th.accent}" stop-opacity="0"/><stop offset="1" stop-color="${th.accent}" stop-opacity=".6"/></linearGradient></defs><rect x="${x}" y="${b - 1.5}" width="${w}" height="1.5" fill="url(#h${id})"/>`;
+    default: return "";
+  }
+}
+// What a lit key adds, per maker: Drake's hazard band, Anvil's lamp, Origin's gold bar...
+function litMark(th, box, c, { id = "" } = {}) {
+  const { x, y, w, h } = box, r = x + w, b = y + h;
+  const bar = (bw, bh, by = b - bh) => `<rect x="${(x + (w - bw) / 2).toFixed(1)}" y="${by}" width="${bw.toFixed(1)}" height="${bh}" fill="${c}"/>`;
+  switch (th.material) {
+    case "glass": return bar(w * 0.4, 2.5);
+    case "plate": return hazard(x + 1, y + 1, w - 2, 7, c);
+    case "carbon": return [[r, y, -1, 1], [x, b, 1, -1]].map(([cx, cy, sx, sy]) => `<path d="M${cx + sx * 18} ${cy}H${cx}V${cy + sy * 18}" fill="none" stroke="${c}" stroke-width="3"/>`).join("");
+    case "armour": return glowDot(`l${id}`, x + 14, y + 14, 11, c, 0.7) + `<circle cx="${x + 14}" cy="${y + 14}" r="3.4" fill="${c}"/><circle cx="${x + 13}" cy="${y + 13}" r="1.2" fill="#fff"/>`;
+    case "gloss": return bar(w * 0.4, 2.5, b - 3);
+    case "enamel": return bar(w * 0.46, 2.5, b - 3) + `<rect x="${x + 10}" y="${y}" width="28" height="3.5" fill="${c}"/>`;
+    case "pearl": return bar(w * 0.44, 2.5, b - 3);
+    case "lacquer": return glowDot(`l${id}`, x + w / 2, b, w * 0.6, c, 0.45);
+    case "shell": return glowDot(`l${id}`, r - 16, b - 16, 14, c, 0.75) + `<circle cx="${r - 16}" cy="${b - 16}" r="3.2" fill="${c}"/>`;
+    case "hazard": return `<rect x="${x}" y="${b - 7}" width="${w}" height="7" fill="${c}"/>`;
+    case "clay": return `<defs><linearGradient id="s${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c}"/><stop offset="1" stop-color="#ffb03b"/></linearGradient></defs><rect x="${x + 4}" y="${y + 1}" width="${w - 8}" height="5" fill="url(#s${id})"/>`;
+    case "silk": return sheen(box, `l${id}`, [[0.3, 0, c], [0.75, 0.24, c], [1, 0, c]], { x2: 1, y2: 0.4 })
+      + `<rect x="${x + w * 0.2}" y="${b - 2.5}" width="${w * 0.8}" height="2.5" fill="${c}" opacity=".9"/>`;
+    default: return "";
+  }
+}
+
 // Background, frame, theme decoration; `c` is the button's colour. A tab's frame is quiet
 // until it's lit.
 function face(th, c, { lit = false, pressed = false, blocked = false, dim = false, tab = false } = {}) {
   const id = hash(`${th.id}|${c}|${lit}|${pressed}|${blocked}|${dim}`);
   const f = 6, w = SIZE - 2 * f, h = SIZE - 2 * f;
   const shape = outline(th, f, f, w, h);
-  const ring = blocked ? th.colors.red : lit || pressed ? c : tab ? mix(th.dim, th.bg, 0.6) : mix(th.lineHi, c, 0.75);
-  const bgTop = th.light ? th.panel : mix(th.panelHi, th.bg, 0.55);
-  const bgBottom = th.light ? mix(th.bg, th.panel, 0.45) : th.bg;
-  const tint = (lit ? 0.26 : pressed ? 0.34 : blocked ? 0.3 : 0) * (th.light ? 0.6 : 1);
+  const ring = blocked ? th.colors.red : lit || pressed ? c : tab ? mix(th.dim, th.faceLo, 0.6) : mix(th.lineHi, c, 0.75);
+  const bgTop = th.faceHi, bgBottom = th.faceLo;
+  const tint = (lit ? 0.26 : pressed ? 0.34 : blocked ? 0.3 : 0) * (th.faceLight ? 0.6 : 1);
   const tintColor = blocked ? th.colors.red : c;
   const parts = [];
   parts.push(`<defs>
@@ -341,13 +435,17 @@ function face(th, c, { lit = false, pressed = false, blocked = false, dim = fals
     <radialGradient id="t${id}" cx="0.5" cy="0.42" r="0.7"><stop offset="0" stop-color="${tintColor}" stop-opacity="${tint}"/><stop offset="1" stop-color="${tintColor}" stop-opacity="${tint * 0.25}"/></radialGradient>
   </defs>`);
   // The space around the face (the key's corners) in the page colour.
-  parts.push(`<rect width="${SIZE}" height="${SIZE}" fill="${th.light ? th.bg : "#000"}"/>`);
+  parts.push(`<rect width="${SIZE}" height="${SIZE}" fill="${th.bg}"/>`);
   parts.push(`<path d="${shape}" fill="url(#k${id})"/>`);
-  parts.push(`<path d="${shape}" fill="url(#g${id})"/>`);
-  // Theme texture: Drake's scan lines, Aegis's grid.
+  if (th.backdrop) parts.push(`<path d="${shape}" fill="url(#g${id})"/>`);
+  // Theme texture: MISC's brushed enamel, RSI's grid.
   if (th.stripes) for (let y = f + 4; y < SIZE - f; y += 5) parts.push(`<rect x="${f}" y="${y}" width="${w}" height="1.4" fill="#fff" opacity=".025"/>`);
   if (th.grid) for (let v = f + 22; v < SIZE - f; v += 22) parts.push(`<rect x="${v}" y="${f}" width="1" height="${h}" fill="#fff" opacity=".035"/><rect x="${f}" y="${v}" width="${w}" height="1" fill="#fff" opacity=".035"/>`);
+  // The maker's material (rivets, weave, gloss...), as on the deck's buttons.
+  const box = { x: f, y: f, w, h, shape };
+  parts.push(material(th, box, c, { id }));
   if (tint) parts.push(`<path d="${shape}" fill="url(#t${id})"/>`);
+  if (lit) parts.push(litMark(th, box, c, { id }));
   // Top strip (--key-top): hazard stripes, a segment, a fading line, or one centred.
   const tk = th.top;
   if (tk.kind !== "none" && tk.height) {
@@ -368,8 +466,8 @@ function face(th, c, { lit = false, pressed = false, blocked = false, dim = fals
   // The frame, with a soft outer glow when lit.
   if (lit || blocked) parts.push(`<path d="${shape}" fill="none" stroke="${ring}" stroke-width="7" opacity=".22"/>`);
   parts.push(`<path d="${shape}" fill="none" stroke="${ring}" stroke-width="${lit || blocked || pressed ? 2.6 : 1.6}" opacity="${lit || blocked || pressed ? 1 : 0.85}"/>`);
-  // HUD corner brackets, in the theme's accent (corners the theme cuts are left off).
-  if (!th.clip) {
+  // HUD corner brackets, RSI's mark, in the theme's accent.
+  if (th.material === "glass" && !th.clip) {
     const b = 13, o = f + 5, e = SIZE - f - 5, col = lit ? c : th.accent;
     const br = (d) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="square" opacity="${lit ? 0.95 : 0.55}"/>`;
     if (th.radius[0] < 12) parts.push(br(`M${o} ${o + b}V${o}H${o + b}`));
@@ -450,8 +548,8 @@ function key(opts) {
   const box = showLabel ? { cx: 72, cy: opts.status ? 52 : 56, size: opts.status ? 52 : 58 } : { cx: 72, cy: 72, size: 78 };
   const parts = [face(th, c, opts)];
   // On a light face thin strokes in pale colours fade: heavier and darker there.
-  const ink = opts.offline ? th.dim : quiet ? mix(c, th.dim, 0.4) : th.light ? mix(c, th.text, 0.65) : c;
-  const ith = th.light ? { ...th, stroke: Math.max(th.stroke, 2.4) } : th;
+  const ink = opts.offline ? th.dim : quiet ? mix(c, th.dim, 0.4) : th.faceLight ? mix(c, th.text, 0.65) : c;
+  const ith = th.faceLight ? { ...th, stroke: Math.max(th.stroke, 2.4) } : th;
   parts.push(icon(opts.icon, ith, box.cx, box.cy, box.size, ink, { glow: quiet ? false : th.glow, strength: opts.lit || opts.pressed ? 1.8 : 1 }));
   parts.push(animation(opts.anim, th, c, box));
   if (showLabel) parts.push(label(opts.label, th, 72, opts.status ? 110 : 122, { color: opts.offline || quiet ? th.dim : th.text, font }));
@@ -466,10 +564,10 @@ function key(opts) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${parts.join("")}</svg>`;
 }
 
-// A plain backdrop key for empty slots, so a page reads as one panel. Light themes use
-// their page colour, not the white of a key's face, which glares on a lit device.
+// A plain backdrop key for empty slots, in the page colour, so a page reads as one panel
+// (light themes too: a white key face would glare on a lit device).
 function blank(th) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? mix(th.bg, th.line, 0.5) : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.bg}"/><path d="M66 72h12M72 66v12" stroke="${mix(th.inkDim, th.bg, 0.45)}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
-module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, textWidth, face, mix, arcsToCubics, outline };
+module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, textWidth, face, material, litMark, mix, arcsToCubics, outline };
