@@ -1,7 +1,8 @@
 // Builds the Stream Deck pack from the deck's own designs: an icon pack per theme, ready-made
-// profiles for every model in every theme, and the Tablet Deck plugin with its bundled
-// profiles. Nothing here needs npm packages: the key art (streamdeck/keyart.js) is drawn to
-// PNG by an installed Edge or Chrome, and the files are plain ZIPs written with zlib.
+// profiles for every model in every theme (with the keybind profile their hotkeys expect),
+// and the Tablet Deck plugin with its bundled profiles. Nothing here needs npm packages: the
+// key art (streamdeck/keyart.js) is drawn to PNG by an installed Edge or Chrome, and the
+// files are plain ZIPs written with zlib.
 //
 //   node tools/make-streamdeck.js                     build everything into dist/streamdeck/
 //   node tools/make-streamdeck.js --themes rsi,drake --models std,plusxl
@@ -39,13 +40,13 @@ const PLUGIN_UUID = "com.nodiecode.tabletdeck";
 const PLUGIN_SRC = path.join(ROOT, "streamdeck", "plugin", `${PLUGIN_UUID}.sdPlugin`);
 const ICONPACK_ID = (theme) => `com.nodiecode.tabletdeck.icons.${theme}`;
 const MAX_PAGES = 10; // Stream Deck's limit per profile; folders don't count
-// Profile keys are drawn at each model's own key size (research/devices.verified.md): sharper
-// than letting the app shrink a 144 px picture, and a profile repeats its keys on every page,
-// so small decks' profiles get several times smaller. Mobile phones get 144. Icon packs and
-// the plugin always use 144 (their rules ask for it).
-const KEY_PX = { mini: 80, neo: 96, std: 72, mobile: 144, plus: 120, xl: 96, plusxl: 112 };
-const keyPx = (modelId) => scenes.MODELS[modelId].keyPx || KEY_PX[modelId] || 144;
+// Profile keys are 144 px on every model, as in the profiles the Stream Deck app writes itself
+// (Elgato's default + profile included; research/profiles.verified.md 5.4). The app shrinks
+// them to each device's own key size, and the picture stays sharp in the app's window on a
+// high-DPI screen. A model in scenes.MODELS may set keyPx to try another size.
+const keyPx = (modelId) => scenes.MODELS[modelId].keyPx || 144;
 const DIAL_ICON_PX = 72;
+const PLUGIN_DIAL_REFS = new Set(["@next", "@prev", "@folder:themes"]);
 // Plugins whose state 0 is the active one (OBS: recording, live) and 1 idle: their lit picture
 // goes first and keys start in state 1 (research/plugins.verified.md correction 3). Discord's
 // are the other way round, like the rest.
@@ -75,7 +76,7 @@ function parseArgs(argv) {
     else if (a === "--skip") next().split(",").map((s) => s.trim()).filter(Boolean).forEach((s) => o.skip.add(s));
     else if (a === "--browser") o.browser = next();
     else if (a === "--check") o.check = true;
-    else if (a === "--help" || a === "-h") { console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(4, 12).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")); process.exit(0); }
+    else if (a === "--help" || a === "-h") { console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(5, 13).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")); process.exit(0); }
     else throw usage(`Unknown option ${a} (see --help)`);
   }
   for (const s of o.skip) if (!["icons", "profiles", "plugin", "preview"].includes(s)) throw usage(`--skip takes icons, profiles, plugin, preview (not "${s}")`);
@@ -169,8 +170,8 @@ function withThemePages(layout, themeIds) {
 const layoutOf = (modelId, themeIds) => withThemePages(scenes.layoutFor(modelId), themeIds);
 
 // What a dial's refs do, shortened for its touch-strip panel ("Weapons −" on the Weapons
-// dial is just "−").
-function hintFor(ref, dialLabel) {
+// dial is just "−"; "Voice Channel" on the Voice Channel dial is "Next").
+function hintFor(ref, dialLabel, dir) {
   if (!ref) return "";
   if (ref === "@prev") return "Prev";
   if (ref === "@next") return "Next";
@@ -179,7 +180,7 @@ function hintFor(ref, dialLabel) {
   if (!a) return "";
   const drop = new Set(String(dialLabel).toLowerCase().split(/\s+/));
   const short = a.label.split(/\s+/).filter((w) => !drop.has(w.toLowerCase())).join(" ");
-  return (short || a.label).replace(/^Previous\b/, "Prev");
+  return (short || { ccw: "Prev", cw: "Next", press: "Push" }[dir] || a.label).replace(/^Previous\b/, "Prev");
 }
 // `standalone`: which of the dial's turns and push go through the Tablet Deck plugin there.
 const dialArt = (d, standalone) => {
@@ -189,7 +190,7 @@ const dialArt = (d, standalone) => {
   }
   const refs = { ccw: d.ccw, cw: d.cw, press: d.press };
   const plugin = standalone ? Object.keys(refs).filter((k) => viaPlugin(refs[k] && catalog.byId.get(refs[k]), k !== "press")) : [];
-  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hintFor(d.ccw, d.label), cw: hintFor(d.cw, d.label), press: hintFor(d.press, d.label) }, plugin };
+  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hintFor(d.ccw, d.label, "ccw"), cw: hintFor(d.cw, d.label, "cw"), press: hintFor(d.press, d.label, "press") }, plugin };
 };
 
 // ---------- profiles ----------
@@ -230,9 +231,12 @@ function buildProfile(env, modelId, variant, theme) {
     return { json: P.action(id(where), "com.elgato.streamdeck.system.hotkey", { settings: hotkeySettings(null), states: [P.keyState(k)] }), img: k };
   };
   // One of our plugin's actions. Without `states` it draws itself (bundled profiles); a
-  // standalone profile gives it the key's picture, marked PLUGIN.
-  const ours = (where, suffix, name, settings = {}, states = null) => P.action(id(where), `${PLUGIN_UUID}.${suffix}`, {
-    name, plugin: { Name: "Tablet Deck", UUID: PLUGIN_UUID, Version: plugin.version }, settings,
+  // standalone profile gives it the key's picture, marked PLUGIN. On a bundled profile's scene
+  // page each one also carries that scene as `page`, so the plugin knows which scene is showing
+  // after Stream Deck's own page keys or dials have moved it (folders have none).
+  const ours = (at, where, suffix, name, settings = {}, states = null) => P.action(id(where), `${PLUGIN_UUID}.${suffix}`, {
+    name, plugin: { Name: "Tablet Deck", UUID: PLUGIN_UUID, Version: plugin.version },
+    settings: !standalone && at.page ? { ...settings, page: at.page } : settings,
     states: states || Array.from({ length: plugin.states(`${PLUGIN_UUID}.${suffix}`) }, () => ({})),
   });
   const themeTarget = (themeId) => profileUuid("standalone", themeId, modelId);
@@ -251,7 +255,7 @@ function buildProfile(env, modelId, variant, theme) {
       if (kind === "@scene") {
         const idx = scenes.SCENES.findIndex((s) => s.id === arg);
         if (idx < 0) { warn(`${modelId}: unknown scene in ${ref}`); return blank(where); }
-        if (!standalone) return { json: ours(where, "scene", "Scene", { scene: arg }), img: null };
+        if (!standalone) return { json: ours(at, where, "scene", "Scene", { scene: arg }), img: null };
         const s = withImg(art.sceneKey(th, scenes.SCENES[idx], idx === at.sceneIndex), scenes.SCENES[idx].name);
         return { json: P.action(id(where), "com.elgato.streamdeck.page.goto", { settings: { PageIndex: idx + 1 }, states: s.states }), img: s.img };
       }
@@ -273,7 +277,7 @@ function buildProfile(env, modelId, variant, theme) {
       }
       if (kind === "@theme") {
         if (!themes.some((t) => t.id === arg)) { warn(`${modelId}: unknown theme in ${ref}`); return blank(where); }
-        if (!standalone) return { json: ours(where, "theme", "Theme", { theme: arg }), img: null };
+        if (!standalone) return { json: ours(at, where, "theme", "Theme", { theme: arg }), img: null };
         // Opens the same model's profile in that theme, on the scene the folder was opened from.
         const s = withImg(art.themeKey(arg, arg === theme.id), themes.find((t) => t.id === arg).name);
         return { json: P.action(id(where), "com.elgato.streamdeck.profile.rotate", { settings: { DeviceUUID: "", PageIndex: (at.sceneIndex || 0) + 1, ProfileUUID: themeTarget(arg) }, states: s.states }), img: s.img };
@@ -293,11 +297,11 @@ function buildProfile(env, modelId, variant, theme) {
     // Our plugin's action in a standalone profile, with a picture saying it needs the plugin.
     const viaOurs = (suffix, settings) => {
       const k = idle("PLUGIN");
-      return { json: ours(where, suffix, a.label, settings, k ? [P.keyState(k, a.label)] : null), img: k };
+      return { json: ours(at, where, suffix, a.label, settings, k ? [P.keyState(k, a.label)] : null), img: k };
     };
     switch (a.kind) {
       case "deck": {
-        if (!standalone) return { json: ours(where, "key", a.label, { action: a.id }), img: null };
+        if (!standalone) return { json: ours(at, where, "key", a.label, { action: a.id }), img: null };
         if (viaPlugin(a, at.turn)) return viaOurs("key", { action: a.id });
         let combo;
         try { hotkey(a.keys); combo = a.keys; } catch (err) { warn(`${a.id}: ${err.message}`); return blank(where); }
@@ -337,7 +341,7 @@ function buildProfile(env, modelId, variant, theme) {
       case "tabletdeck": {
         const suffix = { talk: "talk", status: "status", "lights-reset": "lights", theme: "theme", scene: "scene" }[a.tabletdeck];
         if (!suffix) return at.child ? null : blank(where);
-        if (!standalone) return { json: ours(where, suffix, a.label), img: null };
+        if (!standalone) return { json: ours(at, where, suffix, a.label), img: null };
         // A standalone profile has Hold to Talk through the plugin, like the held buttons.
         // Status and Reset Lights show and clear the lights of the plugin's own keys, which
         // these profiles hardly use, and themes and scenes have built-in keys here: blank.
@@ -365,9 +369,11 @@ function buildProfile(env, modelId, variant, theme) {
       return { json: P.action(id(where), a.plugin.action, { name: a.label, plugin: { Name: a.plugin.name, UUID: a.plugin.uuid, Version: a.plugin.version }, settings: a.plugin.settings || {}, states: [{}] }), look: null, icon };
     }
     const refs = [d.ccw, d.press, d.cw];
-    const deckOnly = refs.every((r) => !r || (catalog.byId.get(r) || {}).kind === "deck");
-    if (!standalone && deckOnly) {
-      return { json: ours(where, "dial", d.label, { dial: { label: d.label, icon: d.icon, color: d.color || "", ccw: d.ccw || null, cw: d.cw || null, press: d.press || null } }), look, icon };
+    // The plugin's dial presses deck buttons and steps through scenes and themes itself
+    // (@next/@prev/@folder:themes); a dial with media or other plugins' actions stays built in.
+    const pluginCan = (r) => !r || PLUGIN_DIAL_REFS.has(r) || (catalog.byId.get(r) || {}).kind === "deck";
+    if (!standalone && refs.every(pluginCan)) {
+      return { json: ours(at, where, "dial", d.label, { dial: { label: d.label, icon: d.icon, color: d.color || "", ccw: d.ccw || null, cw: d.cw || null, press: d.press || null } }), look, icon };
     }
     const children = refs.map((r, n) => {
       const child = r ? resolve(r, { ...at, where: `${where}/${n}`, child: true, turn: n !== 1 }) : null;
@@ -427,7 +433,7 @@ function buildProfile(env, modelId, variant, theme) {
     if (!p) { warn(`${modelId}: no page for scene ${scene.id}`); return; }
     const page = { uuid: P.uuidFrom(`page|${key}|scene:${scene.id}`), name: scene.name, controllers: null };
     profile.pages.push(page);
-    const at = { path: `scene:${scene.id}`, sceneIndex: i };
+    const at = { path: `scene:${scene.id}`, sceneIndex: i, page: scene.id };
     const { keys, imgs } = fillKeys(p.keys, at);
     let dials = null, strip = null, dialLooks = null;
     if (model.dials) {
@@ -553,13 +559,14 @@ function deckLabels() {
 }
 
 // What the plugin's source manifest declares, so bundled profiles give each of our actions
-// as many states as it has; works (with one state each) before the plugin exists.
+// as many states as it has; works (with one state each) before the plugin exists. The packed
+// plugin's version is Tablet Deck's own (package.json), whatever the source manifest says.
 function pluginInfo() {
   const file = path.join(PLUGIN_SRC, "manifest.json");
   let manifest = null;
   try { manifest = JSON.parse(fs.readFileSync(file, "utf8")); } catch (err) { if (fs.existsSync(file)) console.warn(`  ! ${path.relative(ROOT, file)}: ${err.message}`); }
   const states = new Map(((manifest && manifest.Actions) || []).map((a) => [a.UUID, (a.States || []).length || 1]));
-  return { manifest, version: (manifest && manifest.Version) || `${VERSION}.0`, states: (uuid) => states.get(uuid) || 1 };
+  return { manifest, version: `${VERSION}.0`, states: (uuid) => states.get(uuid) || 1 };
 }
 
 // Images the manifest points at (paths without extension) that the source folder lacks:
@@ -620,7 +627,7 @@ function writePlugin(env, info, images, bundled) {
   for (const b of bundled) files.set(`profiles/${bundledName(b.model)}.streamDeckProfile`, b.buffer);
   if (info.manifest) {
     // The source manifest has no Profiles: they're listed here, one per model's DeviceType.
-    const manifest = { ...info.manifest, Profiles: bundled.map((b) => ({ Name: `profiles/${bundledName(b.model)}`, DeviceType: b.model.type, Readonly: false, DontAutoSwitchWhenInstalled: true, AutoInstall: false })) };
+    const manifest = { ...info.manifest, Version: info.version, Profiles: bundled.map((b) => ({ Name: `profiles/${bundledName(b.model)}`, DeviceType: b.model.type, Readonly: false, DontAutoSwitchWhenInstalled: true, AutoInstall: false })) };
     files.set("manifest.json", Buffer.from(`${JSON.stringify(manifest, null, "\t")}\n`));
   }
   for (const [rel, buf] of files) { fs.mkdirSync(path.dirname(path.join(stage, rel)), { recursive: true }); fs.writeFileSync(path.join(stage, rel), buf); }

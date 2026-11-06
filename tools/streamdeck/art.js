@@ -123,9 +123,9 @@ function createArt({ icons, themes, tokens }) {
     const tag = (tx, y) => text(th, tx, y, "PLUGIN", { ...small, size: 9, anchor: "end" });
     if (via.has("ccw") || via.has("cw")) parts.push(tag(x + 188, 17));
     if (oneLine) {
-      const look = { ...small, size: big ? 18 : 13, fill: big ? th.text : th.dim };
-      if (l) { const t = fitText(l, th, 46, look.size, 9); parts.push(arrow(x + 82, 56, -1), text(th, x + 87, big ? 62 : 60, t.text, { ...look, size: t.size })); }
-      if (r) { const t = fitText(r, th, 46, look.size, 9); parts.push(arrow(x + 184, 56, 1), text(th, x + 179, big ? 62 : 60, t.text, { ...look, size: t.size, anchor: "end" })); }
+      const look = { ...small, size: big ? 18 : 13, fill: big ? th.text : th.dim }, room = l && r ? 46 : 92;
+      if (l) { const t = fitText(l, th, room, look.size, 9); parts.push(arrow(x + 82, 56, -1), text(th, x + 87, big ? 62 : 60, t.text, { ...look, size: t.size })); }
+      if (r) { const t = fitText(r, th, room, look.size, 9); parts.push(arrow(x + 184, 56, 1), text(th, x + 179, big ? 62 : 60, t.text, { ...look, size: t.size, anchor: "end" })); }
     } else {
       const a = fitText(l, th, 100, 12, 8), b = fitText(r, th, 100, 12, 8);
       parts.push(arrow(x + 82, 49, -1), text(th, x + 88, 53, a.text, { ...small, size: a.size }));

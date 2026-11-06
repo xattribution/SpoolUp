@@ -95,6 +95,8 @@ const DIAL = {
   tracks: { label: "Media", icon: "play-pause", ccw: "sd-prev-track", cw: "sd-next-track", press: "sd-play-pause" },
   volume: { label: "Volume", icon: "volume-up", ccw: "sd-volume-down", cw: "sd-volume-up", press: "sd-volume-mute" },
   channel: { label: "Voice Channel", icon: "voice-channel", color: "blue", cw: "cm-channel", press: "cm-hail" },
+  // A yes/no rocker for party and group invites; a press opens Contacts, where they come from.
+  invites: { label: "Invites", icon: "party", color: "green", ccw: "cm-decline", cw: "cm-accept", press: "top-contacts" },
   discord: "sd-discord-volume",
   // Turns through the scenes; a press opens the theme folder.
   scenes: { label: "Scenes", icon: "grid", ccw: "@prev", cw: "@next", press: "@folder:themes" },
@@ -151,7 +153,7 @@ const PLUSXL = {
       ["cm-visor", "cm-pit", "top-chat", "cm-accept", "cm-decline", "em-wave", "em-salute", "em-point", "@folder:emotes"],
       ["em-greet", "em-cheer", "em-clap", "em-dance", "em-laugh", "em-sit", "em-wait", "em-flex", "td-talk"],
     ],
-    dials: ["discord", "tracks", null, null, "volume", "scenes"],
+    dials: ["discord", "tracks", "channel", "invites", "volume", "scenes"],
   },
   comms: {
     keys: [
@@ -159,7 +161,7 @@ const PLUSXL = {
       ["sd-discord-mute", "sd-discord-deafen", "sd-discord-ptt", "sd-discord-ptm", "sd-discord-mode", "sd-obs-record", "sd-obs-stream", "sd-obs-replay", "sd-obs-screenshot"],
       ["sd-prev-track", "sd-play-pause", "sd-next-track", "sd-volume-down", "sd-volume-up", "sd-volume-mute", "@folder:websites", "td-status", "td-lights-reset"],
     ],
-    dials: ["discord", "tracks", "channel", null, "volume", "scenes"],
+    dials: ["discord", "tracks", "channel", "invites", "volume", "scenes"],
   },
 };
 

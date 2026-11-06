@@ -122,8 +122,8 @@ const EXTRAS = [
   // Streaming (Elgato's OBS Studio plugin).
   { id: "sd-obs-record", label: "Record", icon: "record", color: "red", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.record", { states: 2 }) },
   { id: "sd-obs-stream", label: "Go Live", icon: "live", color: "red", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.stream", { states: 2, settings: { isInMultiAction: false, longpress: true } }) },
-  { id: "sd-obs-replay", label: "Save Replay", icon: "replay", color: "amber", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.replaybuffer.save") },
-  { id: "sd-obs-screenshot", label: "OBS Screenshot", icon: "screenshot", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.screenshot") },
+  { id: "sd-obs-replay", label: "Save Replay", icon: "replay", color: "amber", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.replaybuffer.save", { states: 2 }) },
+  { id: "sd-obs-screenshot", label: "OBS Screenshot", icon: "screenshot", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.screenshot", { states: 2 }) },
 
   // Websites (the same as Tablet Deck's "Open on PC" defaults).
   { id: "sd-uex", label: "UEX", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://uexcorp.space/" },
