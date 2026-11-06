@@ -164,6 +164,35 @@ still. Fields you type into or pick from stay real Windows controls, in the
 house colours inside a drawn frame that lights up in the accent colour while it
 has focus.
 
+## Stream Deck keys
+
+The Stream Deck pack's keys (`streamdeck/keyart.js`) are the deck's buttons
+redrawn as 144×144 pictures, in the theme's own tokens, so a key looks like the
+same button on the tablet:
+
+- **Built from `public/themes.css`**: the key's face, frame, corner radius or
+  cut, top strip (Drake's hazard stripes, Argo's segment), backdrop glow, texture
+  (scan lines, grid), icon stroke and fonts all come from the theme's tokens.
+  Don't draw a theme by hand; add the token, and both the deck and the keys get it.
+- **Icon above, label below, one status word under it** (DEPLOYED, ON, PLUGIN).
+  Labels wrap to two lines and shrink to fit 110 px, clear of the frame and the
+  accent bars; status words stay short (the plugin's translations have their
+  own short forms).
+- **Colours mean the same as on the deck**: red danger and combat, green power and
+  on, amber mining and salvage, blue the rest. A lit key takes its colour's tint
+  and ring; a skipped press flashes red; offline keys go dim with a red cross.
+- **Badges sit top right**: a folder for keys that open a folder, an arrow for Back.
+- **Empty slots are blank keys** in the page colour with a small cross, so a page
+  reads as one panel. The light theme (Origin) uses its page colour there, not
+  white.
+- **Touch strips** (Stream Deck + and + XL) are one HUD panel across all the
+  dials: each dial's 200×100 part has its label, icon and colour, and says what
+  turning each way and pushing do.
+- **Simple SVG only**: paths, strokes and gradients, no filters or arcs (Stream
+  Deck's SVG renderer is SVG Tiny), with glows drawn as layered strokes.
+- **Original icons**, no brand logos: the Discord and OBS keys use the deck's own
+  icons, and theme keys use each manufacturer's emblem from the deck.
+
 ## Motion, night mode and layering
 
 - **Keep motion short.** UI transitions (paging, sheets, toasts) take about

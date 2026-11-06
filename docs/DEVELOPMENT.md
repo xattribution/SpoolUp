@@ -88,7 +88,8 @@ layout from `layouts/`, and presses only play their animations. The website's
 | `layouts/` | built-in layouts; `hud-phone.json` and the starter layouts are generated |
 | `keybinds/` | the Tablet Deck Keyboard profile for Star Citizen (generated) |
 | `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
-| `tools/` | generators for the phone layout, starter layouts and keybind profile, and the demo recorder |
+| `tools/` | generators for the phone layout, starter layouts, keybind profile and Stream Deck pack (`make-streamdeck.js`, helpers in `tools/streamdeck/`), and the demo recorder |
+| `streamdeck/` | the Stream Deck pack's sources: action catalog, scene layouts, key art, the plugin, research and handoff notes |
 | `scripts/` | the installer build and release notes |
 | `installer/` | the Inno Setup script |
 | `site/` | the website (GitHub Pages) |
@@ -199,6 +200,59 @@ keyboard key for an action whose game default is on the mouse (Engage Quantum,
 Fire Laser, Fracture/Extract, Laser Power +, Speed Range + / −), and it isn't
 known yet whether that key replaces the mouse bind, or (Launch Missile) the
 held press hasn't been tried in the game.
+
+## The Stream Deck pack
+
+The pack is generated from the deck's own buttons, icons and themes:
+
+| file | what it holds |
+|---|---|
+| `streamdeck/catalog.js` | every action a Stream Deck key can be: the deck's buttons (from `layouts/hud.json`), plus Discord, OBS, media, websites, navigation and the plugin's own |
+| `streamdeck/scenes.js` | the models, the scenes (a page each), the folders, the dial presets and a hand-made grid per scene for the 15-key, XL, + and + XL; the Mini and Neo take the first keys of the 15-key's |
+| `streamdeck/keyart.js` | draws a key, a 144×144 SVG, from a theme's tokens in `public/themes.css` and an icon from `public/icons.js` |
+| `streamdeck/plugin/` | the plugin, `com.nodiecode.tabletdeck.sdPlugin`, and its tests |
+| `streamdeck/CONTRACT.md` | what the generator and the plugin agree on: action UUIDs, settings, data files |
+| `streamdeck/research/` | the Stream Deck and Star Citizen facts the formats follow, with sources (`*.verified.md` are fact-checked) |
+| `streamdeck/HANDOFF.md` | decisions, status and next steps |
+
+Build it with Microsoft Edge or Google Chrome installed (it draws the keys there,
+headless; no npm packages):
+
+```
+node tools/make-streamdeck.js
+```
+
+That takes about two minutes and writes `dist/streamdeck/`: `icons/` (an icon
+pack per theme), `profiles/<model>/` (a profile per theme), `keybinds/`, the
+plugin `com.nodiecode.tabletdeck.streamDeckPlugin` and `preview/` (a sheet per
+model and theme, and `index.html`; look at these after a layout change).
+`--themes rsi,origin --models std,plusxl` builds a few, `--skip icons,plugin,preview`
+leaves parts out, `--release` also zips the downloads into `dist/streamdeck/release/`,
+and `--check` validates the layouts and a build without a browser. The same
+command twice gives the same files.
+
+**A new deck button** reaches the catalog by itself. Put it on a page in
+`streamdeck/scenes.js` if it should be on one; every action is in the icon packs
+either way. A button that holds a key (`"mode": "hold"` or `"timed"`) becomes the
+plugin's key action, marked PLUGIN, in the standalone profiles, because Stream
+Deck's own Hotkey can only tap.
+
+**The plugin** is plain Node (Stream Deck runs it on its own Node 24) with no
+npm packages. At run time it reads `data/*.json` and `bin/keyart.js`, which the
+generator writes when it packs the plugin; to try the source folder, write them
+with `node streamdeck/plugin/test/make-test-data.js`. Its tests run against a
+fake Stream Deck and a dry-run server:
+
+```
+node streamdeck/plugin/test/check.js
+node streamdeck/plugin/test/run.js
+node streamdeck/plugin/test/rules.js
+```
+
+`load.js` checks the 10-pictures-a-second limit, `words.js` that every status
+word fits in all four languages, and `inspector.js` the settings page in
+Chromium (with `NODE_PATH` pointing at a Playwright install). The plugin's own
+words are in `en.json`, `es.json`, `fr.json` and `de.json` in its folder.
 
 ## Building the installer
 

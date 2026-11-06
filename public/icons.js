@@ -320,6 +320,8 @@ window.DECK_ICONS = {
 
   "volume-up": `<path d="M6 18h7l10-8v28l-10-8H6Z"/><path d="M13 18v12" opacity=".55"/><path d="M30 24h12M36 18v12"/>`,
 
+  // A control deck with keys and a dial (the Stream Deck pack; not a product's look).
+  keypad: `<rect x="5" y="11" width="38" height="27" rx="4"/><rect x="10" y="16" width="6" height="6" rx="1.2"/><rect x="19" y="16" width="6" height="6" rx="1.2"/><rect x="10" y="26" width="6" height="6" rx="1.2"/><rect x="19" y="26" width="6" height="6" rx="1.2" fill="currentColor" stroke="none" opacity=".55"/><circle cx="34.5" cy="24.5" r="5"/><path d="M34.5 19.5v3"/>`,
   default: `<path d="M24 5 40 14v20L24 43 8 34V14Z"/><circle cx="24" cy="24" r="5" fill="currentColor" stroke="none" opacity=".6"/>`,
 };
 
