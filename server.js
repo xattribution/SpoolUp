@@ -627,6 +627,8 @@ function wsSend(socket, text) {
   socket.write(Buffer.concat([header, payload]));
 }
 
+const MAX_FRAME = 64 * 1024;
+
 // Calls onText for each complete text frame; handles ping and close.
 function wsReader(socket, onText, onClose) {
   let buf = Buffer.alloc(0);
@@ -639,6 +641,8 @@ function wsReader(socket, onText, onClose) {
       let off = 2;
       if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); off = 4; }
       else if (len === 127) { if (buf.length < 10) return; len = Number(buf.readBigUInt64BE(2)); off = 10; }
+      // The deck's messages are a few dozen bytes; don't buffer a frame claiming megabytes.
+      if (len > MAX_FRAME) { socket.destroy(); return; }
       const maskOff = off;
       if (masked) off += 4;
       if (buf.length < off + len) return;
@@ -647,7 +651,7 @@ function wsReader(socket, onText, onClose) {
       buf = buf.subarray(off + len);
       if (opcode === 0x1) onText(data.toString("utf8"));
       else if (opcode === 0x8) { socket.end(Buffer.from([0x88, 0])); return; }
-      else if (opcode === 0x9) socket.write(Buffer.concat([Buffer.from([0x8a, data.length]), data]));
+      else if (opcode === 0x9 && data.length < 126) socket.write(Buffer.concat([Buffer.from([0x8a, data.length]), data]));
     }
   });
   socket.on("close", onClose);
