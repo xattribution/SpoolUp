@@ -105,11 +105,11 @@ const EXTRAS = [
   // Comms: Discord (Elgato's Discord plugin; one-time "Authorize" in Discord).
   { id: "sd-discord-mute", label: "Discord Mute", icon: "mic-off", color: "red", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.mute", { states: 2 }) },
   { id: "sd-discord-deafen", label: "Discord Deafen", icon: "deafen", color: "red", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.deafen", { states: 2 }) },
-  { id: "sd-discord-ptt", label: "Discord Push to Talk", icon: "push-to-talk", color: "green", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.pushto.talk", { states: 2 }) },
+  { id: "sd-discord-ptt", label: "Discord PTT", icon: "push-to-talk", color: "green", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.pushto.talk", { states: 2 }) },
   { id: "sd-discord-mode", label: "Voice Mode", icon: "voice-channel", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.pushtotalktoggle", { states: 2 }) },
   // On a dial: turn for Discord's input or output volume, press to mute.
   { id: "sd-discord-volume", label: "Discord Volume", icon: "headset", category: "comms", kind: "plugin", dial: true, plugin: plug(DISCORD, "com.elgato.discord.volumecontrol", { settings: { device: "output" } }) },
-  { id: "sd-discord-ptm", label: "Discord Push to Mute", icon: "push-to-mute", color: "amber", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.pushto.mute", { states: 2 }) },
+  { id: "sd-discord-ptm", label: "Discord PTM", icon: "push-to-mute", color: "amber", category: "comms", kind: "plugin", plugin: plug(DISCORD, "com.elgato.discord.pushto.mute", { states: 2 }) },
 
   // Media and system audio (built in).
   { id: "sd-play-pause", label: "Play / Pause", icon: "play-pause", category: "media", kind: "system", system: media(1) },

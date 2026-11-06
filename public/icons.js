@@ -138,6 +138,188 @@ window.DECK_ICONS = {
   help: `<circle cx="24" cy="24" r="17"/><path d="M18.5 19a5.5 5.5 0 1 1 8 4.9c-1.8.9-2.5 2-2.5 3.6V29"/>
     <circle cx="24" cy="35" r="1.8" fill="currentColor" stroke="none"/>`,
 
+  // ---------- Emotes: a small figure or face for each Star Citizen emote, one family (round head, single-line limbs, dot eyes, the sign top right). ----------
+
+  "emote-agree": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><path d="M15.5 30.5c3 3.6 8 3.6 11 0"/><path d="M38.5 5v10.5M35.5 8l3-3 3 3M35.5 12.5l3 3 3-3"/>`,
+
+  "emote-angry": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="25" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="25" r="1.8" fill="currentColor" stroke="none"/><path d="m12.5 19.5 6 3M29.5 19.5l-6 3"/><path d="M15.5 34.5c3-3.2 8-3.2 11 0"/><path d="M34.5 9c2 0 2.5-.5 2.5-2.5M40 6.5c0 2 .5 2.5 2.5 2.5M42.5 12c-2 0-2.5.5-2.5 2.5M37 14.5c0-2-.5-2.5-2.5-2.5"/>`,
+
+  "emote-atease": `<circle cx="24" cy="9" r="4.5"/><path d="M24 16v13M18 43l6-14 6 14"/><path d="M24 19l-6.5 5.5 4.5 4M24 19l6.5 5.5-4.5 4"/>`,
+
+  "emote-attention": `<circle cx="24" cy="9" r="4.5"/><path d="M24 16v13M21 43l3-14 3 14"/><path d="M24 19l-4.5 2.5V32M24 19l4.5 2.5V32"/><path d="M13 7v8M35 7v8" opacity=".55"/>`,
+
+  "emote-blah": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><ellipse cx="21" cy="32.5" rx="3.4" ry="2.2"/><path d="M32 4.5h10.5c1 0 1.5.5 1.5 1.5v7c0 1-.5 1.5-1.5 1.5h-6l-3.5 3v-3H32c-1 0-1.5-.5-1.5-1.5V6c0-1 .5-1.5 1.5-1.5Z"/><path d="m33.5 11.5 2-3.5 2 3.5 2-3.5 2 3.5" opacity=".7"/>`,
+
+  "emote-bored": `<circle cx="21" cy="27" r="13"/><path d="M13.5 23.5h5M22.5 23.5h5"/><circle cx="16" cy="25.2" r="1.5" fill="currentColor" stroke="none"/><circle cx="25" cy="25.2" r="1.5" fill="currentColor" stroke="none"/><path d="M17 33h8"/><circle cx="33" cy="11" r="1.5" fill="currentColor" stroke="none"/><circle cx="37.5" cy="11" r="1.5" fill="currentColor" stroke="none"/><circle cx="42" cy="11" r="1.5" fill="currentColor" stroke="none"/>`,
+
+  "emote-bow": `<circle cx="35" cy="26" r="4.5"/><path d="M18 29 30 20.5"/><path d="M29 21.5l-.5 9.5"/><path d="M16.5 43 18 29l2.5 14"/><path d="M27 10.5c5-1 10 1 13 5M40.5 16l-.2-4.2M40.5 16l-4-1.3" opacity=".55"/>`,
+
+  "emote-burp": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><ellipse cx="23.5" cy="32.5" rx="2.2" ry="1.8"/><path d="M37 37h4.5c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2c0-1.7-1.4-3-3-3s-2.8 1.1-3 2.6c-1.3 0-2.3 1-2.3 2.3S35.6 37 37 37Z"/>`,
+
+  "emote-cheer": `<circle cx="24" cy="9" r="4.5"/><path d="M24 16v13M17 43l7-14 7 14"/><path d="M24 19 14 7.5M24 19 34 7.5"/><path d="m10.5 5-2.5-1M9.5 10h-3M37.5 5l2.5-1M38.5 10h3" opacity=".55"/>`,
+
+  "emote-chicken": `<circle cx="24" cy="27" r="13"/><path d="M18.5 15c-1.3-3.3 2-5.4 4-3.2.6-3 5-3 5.4 0 2-1.8 5 .3 3.6 3.4"/><circle cx="19.5" cy="25" r="2" fill="currentColor" stroke="none"/><circle cx="28.5" cy="25" r="2" fill="currentColor" stroke="none"/><path d="M20 29.5h8l-4 5Z" fill="currentColor" stroke="none"/><path d="M11 32c-3 .3-5.6-1-7-3.5M37 32c3 .3 5.6-1 7-3.5"/><path d="M6 35.5 4 37M42 35.5l2 1.5" opacity=".55"/>`,
+
+  "emote-clap": `<g transform="rotate(-24 35.5 41)"><path d="M30.5 41V26c0-2.8 2.2-5 5-5s5 2.2 5 5v15"/><path d="M33.8 21.6v5M37.2 21.6v5" opacity=".55"/><path d="M29.5 41h12"/><path d="M40.5 35.5l3-3.5"/></g><g transform="matrix(-1 0 0 1 48 0)"><g transform="rotate(-24 35.5 41)"><path d="M30.5 41V26c0-2.8 2.2-5 5-5s5 2.2 5 5v15"/><path d="M33.8 21.6v5M37.2 21.6v5" opacity=".55"/><path d="M29.5 41h12"/><path d="M40.5 35.5l3-3.5"/></g></g><path d="M24 5v5M16.5 7.5l2 3.5M31.5 7.5l-2 3.5"/>`,
+
+  "emote-come": `<circle cx="16" cy="9" r="4.5"/><path d="M16 16v13M11 43l5-14 5 14"/><path d="M16 19l-4 14"/><path d="M16 19l8 3 3-7.5c.6-1.6 2.8-1.6 3 0"/><path d="m37 17-4.5 5 4.5 5"/><path d="m43 17-4.5 5 4.5 5" opacity=".55"/>`,
+
+  "emote-cry": `<circle cx="24" cy="27" r="13"/><path d="M16.5 25c1.5-1.8 3.5-1.8 5 0M26.5 25c1.5-1.8 3.5-1.8 5 0"/><path d="M19 28c-1.5 2.5-2.5 4-2.5 5.2 0 1.4 1.1 2.5 2.5 2.5s2.5-1.1 2.5-2.5c0-1.2-1-2.7-2.5-5.2Z" fill="currentColor" stroke="none"/><path d="M21 36.8c.9-1.4 1.9-1.9 3-1.9s2.1.5 3 1.9"/>`,
+
+  "emote-dance": `<circle cx="22" cy="9" r="4.5"/><path d="M23 16l2 13"/><path d="M23.5 19 34 8.5M23.5 19 18 23.5l5.5 4.5"/><path d="m25 29-5 14M25 29l7 5-2 9"/><ellipse cx="8.5" cy="14" rx="2.8" ry="2.1" transform="rotate(-20 8.5 14)" fill="currentColor" stroke="none"/><path d="M11 13V5c2 1.2 4.5 2.4 4.5 5.5"/>`,
+
+  "emote-disagree": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><path d="M16.5 33c2.8-1.2 6.2-1.2 9 0"/><path d="M32 10h11.5M35 7l-3 3 3 3M40.5 7l3 3-3 3"/>`,
+
+  "emote-failure": `<circle cx="21" cy="17" r="10"/><path d="M16.5 24.2c1.8-1.2 4.2-1.2 6 0"/><g transform="rotate(-18 21 15)"><rect x="16" y="12" width="10" height="6.5" rx="3" fill="currentColor" stroke="none"/><path d="M16.2 13.5V8M19.4 12.5V6M22.6 12.5V6.5M25.8 13.5V8.5"/></g><path d="M27 19.5 32 34l-1 9"/><path d="M6 43c0-6 4-10.5 10-11.5M37 36c1.5 2 2.3 4.5 2.5 7" opacity=".55"/>`,
+
+  "emote-flex": `<circle cx="24" cy="9" r="4.5"/><path d="M24 16v13"/><path d="M24 19h-3.5c-1.2-3.2-4.8-3.2-6 0H13l1.5-9M24 19h3.5c1.2-3.2 4.8-3.2 6 0H35l-1.5-9"/><path d="m24 29-6 7-1 7M24 29l6 7 1 7"/>`,
+
+  "emote-flirt": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><path d="M23 25.2c1.4-1.9 3.6-1.9 5 0"/><path d="M15.5 30.5c3 3.6 8 3.6 11 0"/><path d="M38 15.5c-4-2.7-6-5-6-7.4 0-1.8 1.3-3.1 3-3.1 1.4 0 2.4.8 3 2 .6-1.2 1.6-2 3-2 1.7 0 3 1.3 3 3.1 0 2.4-2 4.7-6 7.4Z" fill="currentColor" stroke="none"/>`,
+
+  "emote-gasp": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><path d="M13.5 19.8c1.4-1.3 3.4-1.5 4.8-.6M23.7 19.2c1.4-.9 3.4-.7 4.8.6" opacity=".55"/><ellipse cx="21" cy="32.5" rx="2.6" ry="3.3"/><path d="M38 5v7"/><circle cx="38" cy="16" r="1.7" fill="currentColor" stroke="none"/>`,
+
+  "emote-gloat": `<circle cx="21" cy="27" r="13"/><path d="M13.5 23.5l5.5.6M22.5 23.3l5.5-.4"/><circle cx="18" cy="25.4" r="1.5" fill="currentColor" stroke="none"/><circle cx="27" cy="25.1" r="1.5" fill="currentColor" stroke="none"/><path d="M13.5 20c1.6-.6 3.5-.6 5 0M23 18.6c1.7-1.2 3.7-1.3 5.3-.4" opacity=".55"/><path d="M16 32.5c3.3 1.1 7 .5 10.5-2.8"/><path d="M38 4c.5 2.6 1.4 3.5 4 4-2.6.5-3.5 1.4-4 4-.5-2.6-1.4-3.5-4-4 2.6-.5 3.5-1.4 4-4Z" fill="currentColor" stroke="none"/>`,
+
+  "emote-greet": `<circle cx="12" cy="9" r="4.5"/><circle cx="36" cy="9" r="4.5"/><path d="M12 16V29M36 16V29"/><path d="M12 19l-3 13M36 19l3 13"/><path d="M12 19l5 7 5.5-1.5M36 19l-5 7-5.5-1.5"/><path d="m12 29-4 14M12 29l4 14M36 29l-4 14M36 29l4 14"/><circle cx="24" cy="24.5" r="2.4" fill="currentColor" stroke="none"/>`,
+
+  "emote-laugh": `<g transform="rotate(-10 21 27)"><circle cx="21" cy="27" r="13"/><path d="M14 25.5l2.5-2.5 2.5 2.5M23 25.5l2.5-2.5 2.5 2.5"/><path d="M14.5 29.5h13c-.6 4.6-3.3 7-6.5 7s-5.9-2.4-6.5-7Z"/></g><path d="M35 11.5l3.5-3M37.5 17l4.5-1M33 8l.8-2.5" opacity=".55"/>`,
+
+  "emote-launch": `<circle cx="16" cy="9" r="4.5"/><path d="M16 16V29"/><path d="M16 19l-7 6"/><path d="M16 19l7-4 4-8"/><path d="m16 29-6 14M16 29l6 6v8"/><path d="M28 6.2c1.2-.6 2.4-1 3.6-1.2M34.6 4.9c1.5.1 2.9.6 4 1.4" opacity=".55"/><circle cx="41.2" cy="10" r="2.6" fill="currentColor" stroke="none"/>`,
+
+  "emote-point": `<circle cx="16" cy="9" r="4.5"/><path d="M16 16V29"/><path d="M16 19l-4 13"/><path d="M16 19 33 17.5"/><path d="m16 29-5 14M16 29l6 14"/><path d="M37 17.2h2M42 17h2" opacity=".55"/>`,
+
+  "emote-rude": `<circle cx="21" cy="27" r="13"/><path d="M13.5 22l3.5 2.5-3.5 2.5M28.5 22 25 24.5l3.5 2.5"/><path d="M14.5 31h13"/><path d="M17.5 31h7v3.5c0 2-1.6 3.5-3.5 3.5s-3.5-1.5-3.5-3.5Z" fill="currentColor" stroke="none"/><path d="M36.5 30.5l4-1.5M37 34.5h4.5M36.5 38.5l3.5 1.5"/>`,
+
+  "emote-salute": `<circle cx="24" cy="9" r="4.5"/><path d="M24 16V29"/><path d="M24 19l4.5 2.5V32"/><path d="M24 19 13.5 18.5l6-11 4-1.5"/><path d="M24 29l-3 14M24 29l3 14"/>`,
+
+  "emote-sit": `<circle cx="24" cy="12" r="4.5"/><path d="M24 19V32h10l1 11"/><path d="M24 22l4.5 6 5.5 1.5"/><rect x="13" y="33" width="15" height="10" rx="1.5"/><path d="M13 38h15" opacity=".55"/>`,
+
+  "emote-sleep": `<circle cx="21" cy="27" r="13"/><path d="M13.5 24.5c1.6 1.6 4.4 1.6 6 0M22.5 24.5c1.6 1.6 4.4 1.6 6 0"/><path d="M19.5 32.5h3"/><path d="M36 4h7l-7 8h7"/><path d="M30.5 12h4l-4 4.5h4"/>`,
+
+  "emote-smell": `<circle cx="21" cy="27" r="13"/><path d="M13.5 23.5l5 .8M28.5 23.5l-5 .8"/><path d="M20.5 26.5c-.8 1.5-.4 2.7 1.5 2.7" opacity=".55"/><path d="M15 33c1.5-1.6 3-1.6 4 0s2.5 1.6 4 0 2.5-1.6 4 0"/><path d="M35 17c-1.6-2 1.6-3.5 0-5.5s1.6-3.5 0-5.5M41 18c-1.6-2 1.6-3.5 0-5.5s1.6-3.5 0-5.5"/>`,
+
+  "emote-taunt": `<circle cx="24" cy="27" r="13"/><circle cx="18.5" cy="24" r="2" fill="currentColor" stroke="none"/><circle cx="29.5" cy="24" r="2" fill="currentColor" stroke="none"/><path d="M18.5 31c3 3.5 8 3.5 11 0"/><g transform="translate(10.8 22) rotate(-15)"><rect x="-3.5" y="-7" width="7" height="7" rx="2.5"/><path d="M-2.2-7.2-3-11.5M0-7.4v-5M2.2-7.2 3-11.5M3.5-3l2.5-2"/></g><g transform="matrix(-1 0 0 1 48 0)"><g transform="translate(10.8 22) rotate(-15)"><rect x="-3.5" y="-7" width="7" height="7" rx="2.5"/><path d="M-2.2-7.2-3-11.5M0-7.4v-5M2.2-7.2 3-11.5M3.5-3l2.5-2"/></g></g>`,
+
+  "emote-threaten": `<path d="M13 25V14c0-2.2 1.3-3.5 3-3.5s3 1.3 3 3.5c0-2.2 1.3-3.5 3-3.5s3 1.3 3 3.5c0-2.2 1.3-3.5 3-3.5s3 1.3 3 3.5c0-2.2 1.3-3.5 3-3.5s3 1.3 3 3.5v12c0 5.5-4 9-9.5 9h-5C17 35 13 31 13 25.5Z"/><path d="M19 14v5M25 14v5M31 14v5" opacity=".55"/><path d="M13 24h11.5c1.9 0 3.5 1.6 3.5 3.5S26.4 31 24.5 31H21"/><path d="M18 33.6V41M32 33.4V41M16.5 41h17"/><path d="M7.5 11.5 10 13.5M6.5 18.5H10M41.5 7.5 39 10"/>`,
+
+  "emote-wait": `<circle cx="19" cy="9" r="4.5"/><path d="M19 16V29"/><path d="M19 19l-4 13"/><path d="M19 19l8 3v-9.5"/><path d="m19 29-5 14M19 29l5 14"/><path d="M35 5h8l-8 12h8Z"/><path d="M37.5 16h3l-1.5-2.2Z" fill="currentColor" stroke="none"/>`,
+
+  "emote-wave": `<circle cx="22" cy="9" r="4.5"/><path d="M22 16V29"/><path d="M22 19l-4 13"/><path d="M22 19l8 1.5 3-10"/><path d="m22 29-5 14M22 29l5 14"/><path d="M37 5c1.6 1.8 2 4.4 1 7"/><path d="M40.5 4c2.2 2.6 2.8 6.2 1.4 9.6" opacity=".55"/>`,
+
+  "emote-whistle": `<circle cx="21" cy="27" r="13"/><circle cx="16.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="25.5" cy="24.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="23.5" cy="32.5" r="1.9"/><circle cx="35.5" cy="14" r="2.4" fill="currentColor" stroke="none"/><path d="M37.9 14V4.5l5 1.8"/>`,
+
+  // ---------- Ship actions the HUD shows as text only, and Stream Deck scenes (cargo for hauling, explore). ----------
+
+  atc: `<path d="M10 14h28l-5 10H15Z"/><path d="M19 14l1.5 10M29 14l-1.5 10" opacity=".5"/>
+    <path d="M10 14l3-4h22l3 4"/><path d="M24 10V7"/><circle cx="24" cy="6" r="1.6" fill="currentColor" stroke="none"/>
+    <path d="M19 24l-2 18M29 24l2 18M12 42h24"/><path d="M21 32h6M20.5 37h7" opacity=".45"/>`,
+
+  autoland: `<path d="M24 6l4.5 10 6.5 3.6v2.2l-7.2-1.3-1.3 4h-5l-1.3-4-7.2 1.3v-2.2l6.5-3.6Z"/>
+    <path d="m19 29 5 3 5-3" opacity=".7"/>
+    <ellipse cx="24" cy="39" rx="16" ry="4.5"/><path d="M20 39h8" opacity=".55"/>
+    <path d="M11 36.5 16 26M37 36.5 32 26" opacity=".45"/>`,
+
+  cargo: `<rect x="5" y="26" width="18" height="16" rx="1.5"/><rect x="25" y="26" width="18" height="16" rx="1.5"/>
+    <rect x="15" y="8" width="18" height="16" rx="1.5"/>
+    <path d="M9 30l10 8M19 30 9 38M29 30l10 8M39 30l-10 8M19 12l10 8M29 12l-10 8" opacity=".45"/>`,
+
+  "dock-camera": `<path d="M5 13V5h8M35 5h8v8M43 35v8h-8M13 43H5v-8"/>
+    <ellipse cx="24" cy="24" rx="6.5" ry="12"/><ellipse cx="24" cy="24" rx="2.8" ry="6" opacity=".55"/>`,
+
+  docking: `<ellipse cx="24" cy="24" rx="6.5" ry="13"/><ellipse cx="24" cy="24" rx="3" ry="7" opacity=".55"/>
+    <path d="M5 24h9m-4-4 4 4-4 4M43 24h-9m4-4-4 4 4 4"/>`,
+
+  eject: `<path d="m17 9.5 7-5.5 7 5.5"/><path d="m19.5 14 4.5-3.5 4.5 3.5" opacity=".55"/>
+    <path d="M15 17v11a5 5 0 0 0 5 5h13"/><path d="M15 21h4v7h14"/>
+    <path d="M19 37v4M25 37v6M31 37v4" opacity=".55"/>`,
+
+  explore: `<circle cx="19" cy="30" r="10"/>
+    <path d="M26.2 23.1A15.5 5 -20 1 1 9 29.3"/>
+    <path d="M36 21s-5.5-5.6-5.5-10a5.5 5.5 0 0 1 11 0c0 4.4-5.5 10-5.5 10Z"/><circle cx="36" cy="11" r="1.8" fill="currentColor" stroke="none"/>`,
+
+  hail: `<path d="M8 17a16 16 0 0 0 19 19Z"/><path d="M17.5 26.5 24 20"/><circle cx="25" cy="19" r="2" fill="currentColor" stroke="none"/>
+    <path d="M14 33l2 8M10 42h12" opacity=".7"/>
+    <path d="M27.4 12.4A7 7 0 0 1 31.6 16.6"/><path d="M29.4 6.8A13 13 0 0 1 37.2 14.6" opacity=".6"/>`,
+
+  headtrack: `<path d="M17 43v-8c-3-2.5-5-6-5-10.5C12 16.5 17.8 11 25 11c6.5 0 11.5 4.6 11.5 11l3 5.5-3 1V33a3 3 0 0 1-3 3H31v7"/>
+    <circle cx="30" cy="21" r="1.6" fill="currentColor" stroke="none"/>
+    <path d="M11 8.5Q24 3 37 8.5" opacity=".65"/><path d="M14.4 9.2 11 8.5l1.9-3M33.6 9.2 37 8.5l-1.9-3" opacity=".65"/>`,
+
+  "scan-ping": `<circle cx="24" cy="24" r="3" fill="currentColor" stroke="none"/><circle cx="24" cy="24" r="8"/>
+    <path d="M35.2 16.5a13.5 13.5 0 0 1 0 15M31.5 35.2a13.5 13.5 0 0 1-15 0M12.8 31.5a13.5 13.5 0 0 1 0-15M16.5 12.8a13.5 13.5 0 0 1 15 0" opacity=".6"/>
+    <path d="M40.5 14.5a19 19 0 0 1 0 19M33.5 40.5a19 19 0 0 1-19 0M7.5 33.5a19 19 0 0 1 0-19M14.5 7.5a19 19 0 0 1 19 0" opacity=".3"/>`,
+
+  "scm-nav": `<path d="M7 27A17 17 0 0 1 21 10.3" opacity=".5"/><path d="M27 10.3A17 17 0 0 1 41 27"/>
+    <path d="M24 27l7.5-9"/><path d="M24 27l-7.5-9" opacity=".45"/><circle cx="24" cy="27" r="3" fill="currentColor" stroke="none"/>
+    <path d="M14 36h20m-4-3 4 3-4 3M18 33l-4 3 4 3" opacity=".7"/>`,
+
+  "self-destruct": `<g transform="rotate(-9 14 31) translate(-1.5 1)"><path d="M24 5 25.5 13 22.5 21 25 29 23 41H21L19 30 6 32V28L18 21Z"/></g>
+    <g transform="rotate(9 34 31) translate(1.5 1)"><path d="M24 5 30 21 42 28V32L29 30 27 41H23L25 29 22.5 21 25.5 13Z"/></g>
+    <path d="M23.8 14.4l.75 2.65 1.45.75-1.45.75-.75 2.65-.75-2.65-1.45-.75 1.45-.75Z" fill="currentColor" stroke="none"/>`,
+
+  voip: `<path d="M8 8h32a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3H21l-9 8v-8H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z"/>
+    <path d="M14 18v6M19.5 15v12M25 12.5v17M30.5 16v10M36 19v4"/>`,
+
+  // ---------- Comms, audio, streaming and Stream Deck navigation. Generic concepts, never a brand's logo. ----------
+
+  app: `<path d="M26 9H12C10.34 9 9 10.34 9 12V36C9 37.66 10.34 39 12 39H36C37.66 39 39 37.66 39 36V22"/><path d="M8 17h18" opacity=".55"/><path d="M23 25 40 8M31 8h9v9"/>`,
+
+  back: `<path d="M17 9 8 18l9 9"/><path d="M8 18h20C33.52 18 38 22.48 38 28C38 33.52 33.52 38 28 38H17"/>`,
+
+  brightness: `<circle cx="24" cy="24" r="8"/><path d="M24 11L24 5M33.55 14.45L36.37 11.63M37 24L43 24M33.55 33.55L36.37 36.37M24 37L24 43M14.45 33.55L11.63 36.37M11 24L5 24M14.45 14.45L11.63 11.63"/><path d="M24 16C19.58 16 16 19.58 16 24C16 28.42 19.58 32 24 32Z" fill="currentColor" stroke="none"/>`,
+
+  clock: `<circle cx="24" cy="24" r="18"/><path d="M24 13v11l7.5 5"/><circle cx="24" cy="24" r="2.2" fill="currentColor" stroke="none"/><path d="M24 8v2M40 24h-2M24 40v-2M8 24h2" opacity=".55"/>`,
+
+  comms: `<path d="M9 27V24C9 15.72 15.72 9 24 9C32.28 9 39 15.72 39 24V27"/><rect x="5" y="24" width="8" height="13" rx="3"/><rect x="35" y="24" width="8" height="13" rx="3"/><circle cx="24" cy="24" r="2.4" fill="currentColor" stroke="none"/><path d="M19.4 27.86C17.53 25.63 17.53 22.37 19.4 20.14M28.6 20.14C30.47 22.37 30.47 25.63 28.6 27.86"/><path d="M9 37C9 41 12 42.5 17 42.5H20"/>`,
+
+  deafen: `<path d="M10 26.5V22.5C10 14.77 16.27 8.5 24 8.5C31.73 8.5 38 14.77 38 22.5V26.5"/><rect x="6" y="22.5" width="8" height="13" rx="3"/><rect x="34" y="22.5" width="8" height="13" rx="3"/><path d="M8 8 40 40"/>`,
+
+  folder: `<path d="M6 11h13l4 5h19v20l-4 4H6Z"/><path d="M6 21h36" opacity=".55"/>`,
+
+  headset: `<path d="M10 26.5V22.5C10 14.77 16.27 8.5 24 8.5C31.73 8.5 38 14.77 38 22.5V26.5"/><rect x="6" y="22.5" width="8" height="13" rx="3"/><rect x="34" y="22.5" width="8" height="13" rx="3"/><path d="M10 35.5C10 39.5 13 41 18 41H20"/><circle cx="22.4" cy="41" r="2.2" fill="currentColor" stroke="none"/>`,
+
+  home: `<path d="M6 23 24 8l18 15"/><path d="M11 19v21h26V19"/><path d="M20 40V30h8v10"/><circle cx="24" cy="18.5" r="1.8" fill="currentColor" stroke="none"/>`,
+
+  link: `<path d="M9.72 31.21L18.21 22.72C20.16 20.77 23.33 20.77 25.28 22.72C27.23 24.67 27.23 27.84 25.28 29.79L16.79 38.28C14.84 40.23 11.67 40.23 9.72 38.28C7.77 36.33 7.77 33.16 9.72 31.21Z"/><path d="M22.72 18.21L31.21 9.72C33.16 7.77 36.33 7.77 38.28 9.72C40.23 11.67 40.23 14.84 38.28 16.79L29.79 25.28C27.84 27.23 24.67 27.23 22.72 25.28C20.77 23.33 20.77 20.16 22.72 18.21Z"/>`,
+
+  live: `<circle cx="24" cy="24" r="3" fill="currentColor" stroke="none"/><path d="M17.87 29.14C15.38 26.17 15.38 21.83 17.87 18.86M30.13 18.86C32.62 21.83 32.62 26.17 30.13 29.14"/><path d="M12.53 32.03C9.16 27.21 9.16 20.79 12.53 15.97M35.47 15.97C38.84 20.79 38.84 27.21 35.47 32.03" opacity=".55"/><path d="M7.2 35C2.9 28.2 2.9 19.8 7.2 13M40.8 13C45.1 19.8 45.1 28.2 40.8 35" opacity=".45"/>`,
+
+  "mic-off": `<rect x="17" y="5" width="14" height="24" rx="7"/><path d="M10 22C10 29.73 16.27 36 24 36C31.73 36 38 29.73 38 22M24 36V43M17 43h14"/><path d="M9 7 39 41"/>`,
+
+  "next-track": `<path d="M8 13v22l13-11Z"/><path d="M21 13v22l13-11Z"/><path d="M39 13v22"/>`,
+
+  "page-next": `<path d="M9 6h30v25L28 42H9Z"/><path d="M39 31H28v11"/><path d="M15 20h15m-5.5-5.5L30 20l-5.5 5.5"/>`,
+
+  "page-prev": `<path d="M39 6H9v25l11 11h19Z"/><path d="M9 31h11v11"/><path d="M33 20H18m5.5-5.5L18 20l5.5 5.5"/>`,
+
+  palette: `<path d="M24 7C33.9 7 42 13.9 42 22.4c0 5.2-4.2 7.6-8.2 6.4-3.1-.9-5.3 1.6-4.5 4.5 1 3.6-1.3 6.7-5.3 6.7C14.1 40 6 32.4 6 23.5S14.1 7 24 7Z"/><circle cx="15" cy="21" r="2.3" fill="currentColor" stroke="none"/><circle cx="21.5" cy="14.5" r="2.3" fill="currentColor" stroke="none"/><circle cx="30.5" cy="15" r="2.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="30" r="2.3" opacity=".55"/>`,
+
+  "play-pause": `<path d="M7 13v22l15-11Z"/><path d="M31 13v22M40 13v22"/>`,
+
+  "prev-track": `<path d="M40 13v22L27 24Z"/><path d="M27 13v22L14 24Z"/><path d="M9 13v22"/>`,
+
+  "push-to-mute": `<rect x="10.84" y="5" width="12.32" height="21.12" rx="6.16"/><path d="M4.68 19.96C4.68 26.76 10.2 32.28 17 32.28C23.8 32.28 29.32 26.76 29.32 19.96M17 32.28V38.44M10.84 38.44h12.32"/><path d="M5.5 8 29.5 39"/><path d="M37.3 5v13m-4-4 4 4 4-4"/><path d="M33.4 24.5h7.8c.6 0 1.1.4 1.2 1L44 34.5c.1.6-.3 1-.9 1H31.5c-.6 0-1-.4-.9-1l1.6-9c.1-.6.6-1 1.2-1Z"/><path d="M34 27.5h6.6l-.6 4.5h-5.4Z" opacity=".55"/>`,
+
+  "push-to-talk": `<rect x="10.84" y="5" width="12.32" height="21.12" rx="6.16"/><path d="M4.68 19.96C4.68 26.76 10.2 32.28 17 32.28C23.8 32.28 29.32 26.76 29.32 19.96M17 32.28V38.44M10.84 38.44h12.32"/><path d="M10.84 13.8h5.28M10.84 19.08h5.28" opacity=".55"/><path d="M37.3 5v13m-4-4 4 4 4-4"/><path d="M33.4 24.5h7.8c.6 0 1.1.4 1.2 1L44 34.5c.1.6-.3 1-.9 1H31.5c-.6 0-1-.4-.9-1l1.6-9c.1-.6.6-1 1.2-1Z"/><path d="M34 27.5h6.6l-.6 4.5h-5.4Z" opacity=".55"/>`,
+
+  record: `<circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="6.5" fill="currentColor" stroke="none"/>`,
+
+  replay: `<path d="M10.14 17C6.52 23.27 7.57 31.19 12.69 36.31C17.81 41.43 25.73 42.48 32 38.86C38.27 35.24 41.33 27.85 39.45 20.86C37.58 13.86 31.24 9 24 9"/><path d="M28 5 24 9l4 4"/><path d="M20.5 19v12l9.5-6Z"/>`,
+
+  screenshot: `<path d="M6 14V6h8M34 6h8v8M42 34v8h-8M14 42H6v-8"/><path d="M14 19h5l2-3h6l2 3h5v14H14Z"/><circle cx="24" cy="26" r="4"/><circle cx="31" cy="22" r="1.4" fill="currentColor" stroke="none"/>`,
+
+  "text-channel": `<path d="M10 8H38C40.21 8 42 9.79 42 12V30C42 32.21 40.21 34 38 34H35v7l-8-7H10C7.79 34 6 32.21 6 30V12C6 9.79 7.79 8 10 8Z"/><path d="M21.5 13l-2.5 16M29.5 13 27 29M15 18.5h18M14 23.5h18"/>`,
+
+  timer: `<circle cx="24" cy="27" r="15"/><path d="M20 6h8M24 6v6"/><path d="m35 13 3-3"/><path d="M24 27V19"/><circle cx="24" cy="27" r="2.4" fill="currentColor" stroke="none"/><path d="M24 15v1.5M36 27h-1.5M24 39v-1.5M12 27h1.5" opacity=".55"/>`,
+
+  "voice-channel": `<path d="M13 10h4l6-5v17l-6-5h-4Z"/><path d="M26.21 9.67C27.35 10.62 28 12.02 28 13.5C28 14.98 27.35 16.38 26.21 17.33"/><path d="M29.11 6.22C31.26 8.03 32.5 10.69 32.5 13.5C32.5 16.31 31.26 18.97 29.11 20.78" opacity=".55"/><circle cx="15" cy="30" r="3.36"/><path d="M8.7 41.55C8.7 36.83 11.33 35.25 15 35.25S21.3 36.83 21.3 41.55"/><circle cx="33" cy="30" r="3.36" opacity=".55"/><path d="M26.7 41.55C26.7 36.83 29.33 35.25 33 35.25S39.3 36.83 39.3 41.55" opacity=".55"/>`,
+
+  "volume-down": `<path d="M6 18h7l10-8v28l-10-8H6Z"/><path d="M13 18v12" opacity=".55"/><path d="M30 24h12"/>`,
+
+  "volume-mute": `<path d="M6 18h7l10-8v28l-10-8H6Z"/><path d="M13 18v12" opacity=".55"/><path d="m31 19 10 10m0-10-10 10"/>`,
+
+  "volume-up": `<path d="M6 18h7l10-8v28l-10-8H6Z"/><path d="M13 18v12" opacity=".55"/><path d="M30 24h12M36 18v12"/>`,
+
   default: `<path d="M24 5 40 14v20L24 43 8 34V14Z"/><circle cx="24" cy="24" r="5" fill="currentColor" stroke="none" opacity=".6"/>`,
 };
 

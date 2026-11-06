@@ -91,6 +91,80 @@ function theme(tokens, id = "") {
 
 // ---------- helpers ----------
 
+// Elliptical arcs ("A"/"a" in path data) aren't in SVG Tiny, the profile small renderers
+// follow, so every arc in an icon becomes cubic curves (the same shape to well under a
+// pixel). Path data is parsed in full: absolute and relative commands, implicit repeats.
+function arcsToCubics(d) {
+  if (!/[Aa]/.test(d)) return d;
+  const tokens = String(d).match(/[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) || [];
+  const ARGS = { M: 2, L: 2, H: 1, V: 1, C: 6, S: 4, Q: 4, T: 2, A: 7, Z: 0 };
+  const out = [];
+  let i = 0, cmd = "", x = 0, y = 0, sx = 0, sy = 0;
+  const n = () => parseFloat(tokens[i++]);
+  while (i < tokens.length) {
+    if (/[A-Za-z]/.test(tokens[i])) cmd = tokens[i++];
+    const up = cmd.toUpperCase(), rel = cmd !== up, count = ARGS[up];
+    if (up === "Z") { out.push("Z"); x = sx; y = sy; continue; }
+    if (i >= tokens.length || /[A-Za-z]/.test(tokens[i])) continue;
+    const a = Array.from({ length: count }, n);
+    if (up === "A") {
+      const [rx, ry, rot, large, sweep] = a;
+      const ex = rel ? x + a[5] : a[5], ey = rel ? y + a[6] : a[6];
+      out.push(...arcSegments(x, y, rx, ry, rot, large, sweep, ex, ey));
+      x = ex; y = ey;
+      continue;
+    }
+    // Everything else is written back as it was, absolute, so positions stay tracked.
+    const abs = a.map((v, k) => {
+      if (!rel) return v;
+      if (up === "H") return v + x;
+      if (up === "V") return v + y;
+      return v + (k % 2 === 0 ? x : y);
+    });
+    out.push(`${up}${abs.map((v) => +v.toFixed(3)).join(" ")}`);
+    if (up === "H") x = abs[0];
+    else if (up === "V") y = abs[0];
+    else { x = abs[abs.length - 2]; y = abs[abs.length - 1]; }
+    if (up === "M") { sx = x; sy = y; cmd = rel ? "l" : "L"; }
+  }
+  return out.join("");
+}
+// One arc (SVG endpoint form) as cubic curves of at most 90 degrees each (SVG 1.1 F.6.5).
+function arcSegments(x1, y1, rx, ry, rotDeg, large, sweep, x2, y2) {
+  if ((x1 === x2 && y1 === y2)) return [];
+  rx = Math.abs(rx); ry = Math.abs(ry);
+  if (!rx || !ry) return [`L${x2} ${y2}`];
+  const phi = (rotDeg * Math.PI) / 180, cos = Math.cos(phi), sin = Math.sin(phi);
+  const dx = (x1 - x2) / 2, dy = (y1 - y2) / 2;
+  const xp = cos * dx + sin * dy, yp = -sin * dx + cos * dy;
+  const lambda = (xp * xp) / (rx * rx) + (yp * yp) / (ry * ry);
+  if (lambda > 1) { rx *= Math.sqrt(lambda); ry *= Math.sqrt(lambda); }
+  const sign = Number(large) === Number(sweep) ? -1 : 1;
+  const num = rx * rx * ry * ry - rx * rx * yp * yp - ry * ry * xp * xp;
+  const coef = sign * Math.sqrt(Math.max(0, num / (rx * rx * yp * yp + ry * ry * xp * xp)));
+  const cxp = (coef * rx * yp) / ry, cyp = (-coef * ry * xp) / rx;
+  const cx = cos * cxp - sin * cyp + (x1 + x2) / 2, cy = sin * cxp + cos * cyp + (y1 + y2) / 2;
+  const angle = (ux, uy, vx, vy) => { const a = Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy); return a; };
+  let t1 = angle(1, 0, (xp - cxp) / rx, (yp - cyp) / ry);
+  let dt = angle((xp - cxp) / rx, (yp - cyp) / ry, (-xp - cxp) / rx, (-yp - cyp) / ry);
+  if (!Number(sweep) && dt > 0) dt -= 2 * Math.PI;
+  else if (Number(sweep) && dt < 0) dt += 2 * Math.PI;
+  const parts = Math.max(1, Math.ceil(Math.abs(dt) / (Math.PI / 2) - 1e-9));
+  const step = dt / parts, k = (4 / 3) * Math.tan(step / 4);
+  const point = (t) => [cx + rx * Math.cos(t) * cos - ry * Math.sin(t) * sin, cy + rx * Math.cos(t) * sin + ry * Math.sin(t) * cos];
+  const deriv = (t) => [-rx * Math.sin(t) * cos - ry * Math.cos(t) * sin, -rx * Math.sin(t) * sin + ry * Math.cos(t) * cos];
+  const segs = [];
+  for (let p = 0; p < parts; p++) {
+    const a = t1 + p * step, b = a + step;
+    const [ax, ay] = point(a), [bx, by] = p === parts - 1 ? [x2, y2] : point(b);
+    const [dax, day] = deriv(a), [dbx, dby] = deriv(b);
+    const f = (v) => +v.toFixed(3);
+    segs.push(`C${f(ax + k * dax)} ${f(ay + k * day)} ${f(bx - k * dbx)} ${f(by - k * dby)} ${f(bx)} ${f(by)}`);
+  }
+  return segs;
+}
+const tinyPaths = (svg) => String(svg).replace(/\sd="([^"]*)"/g, (m, d) => ` d="${arcsToCubics(d)}"`);
+
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // "rgba(64,150,255,.22)" -> ["rgb(64,150,255)", 0.22]; "#4fb3ff" -> ["#4fb3ff", 1]
 function paint(c) {
@@ -129,7 +203,7 @@ function outline(th, x, y, w, h) {
     }
   }
   const [tl, tr, br, bl] = th.radius.map((r) => Math.min(r, w / 2, h / 2));
-  return `M${x + tl} ${y}H${x + w - tr}${tr ? `A${tr} ${tr} 0 0 1 ${x + w} ${y + tr}` : ""}V${y + h - br}${br ? `A${br} ${br} 0 0 1 ${x + w - br} ${y + h}` : ""}H${x + bl}${bl ? `A${bl} ${bl} 0 0 1 ${x} ${y + h - bl}` : ""}V${y + tl}${tl ? `A${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ""}Z`;
+  return arcsToCubics(`M${x + tl} ${y}H${x + w - tr}${tr ? `A${tr} ${tr} 0 0 1 ${x + w} ${y + tr}` : ""}V${y + h - br}${br ? `A${br} ${br} 0 0 1 ${x + w - br} ${y + h}` : ""}H${x + bl}${bl ? `A${bl} ${bl} 0 0 1 ${x} ${y + h - bl}` : ""}V${y + tl}${tl ? `A${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ""}Z`);
 }
 
 // An icon from icons.js (48x48, currentColor) placed at (cx, cy), `size` px wide, in `color`.
@@ -137,7 +211,7 @@ function outline(th, x, y, w, h) {
 function icon(body, th, cx, cy, size, color, { glow = th.glow, strength = 1 } = {}) {
   if (!body) return "";
   const s = size / 48;
-  const art = String(body).replace(/currentColor/g, color);
+  const art = tinyPaths(String(body).replace(/currentColor/g, color));
   const at = `translate(${(cx - size / 2).toFixed(2)} ${(cy - size / 2).toFixed(2)}) scale(${s.toFixed(4)})`;
   const layer = (width, opacity) => `<g transform="${at}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" opacity="${opacity}">${art}</g>`;
   return (glow ? layer(th.stroke + 6, 0.07 * strength) + layer(th.stroke + 3, 0.14 * strength) : "") + layer(th.stroke, 1);
@@ -328,4 +402,4 @@ function blank(th) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? th.panel : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
-module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix };
+module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix, arcsToCubics };
