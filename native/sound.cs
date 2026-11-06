@@ -92,7 +92,9 @@ public static class Synth
             string sustain = f[7].Trim();
             if (sustain != "0" && sustain != "1") throw new FormatException(which + "sustain isn't 0 or 1");
             k.Sustain = sustain == "1";
-            k.Release = Number(f[8], 0, 1, which + "release"); // sent, but unused, without sustain
+            // Unused without sustain and left out of the length then, as server.js does, so both
+            // take the same sounds.
+            k.Release = Number(f[8], 0, 1, which + "release");
             k.Lp0 = Cutoff(f[9], which + "lp0");
             k.Lp1 = Cutoff(f[10], which + "lp1");
             if ((k.Lp0 == 0) != (k.Lp1 == 0)) throw new FormatException(which + "lowpass needs both cutoffs or neither");
@@ -192,8 +194,16 @@ public static class Synth
         }
     }
 
-    // The first sample at or after `seconds`.
-    static int Edge(double seconds) { return (int)Math.Ceiling(seconds * Rate); }
+    // The first sample at or after `seconds`, going by (double)n / Rate, the sum Add uses for a
+    // block's time. seconds * Rate can round the other way by a sample, and a block that starts
+    // there would still take the attack's rise and run it 16 samples past the peak.
+    static int Edge(double seconds)
+    {
+        int n = (int)Math.Ceiling(seconds * Rate);
+        while ((double)n / Rate < seconds) n++;
+        while (n > 0 && (double)(n - 1) / Rate >= seconds) n--;
+        return n;
+    }
 
     // The envelope at t s into the tone, and what it's multiplied by from one sample to the
     // next. Every ramp is exponential between Floor and level, like Web Audio's
@@ -493,6 +503,9 @@ static class Sound
 
     static void Begin(Playing sound, string device, List<Tone> tones, double volume)
     {
+        // A name that isn't one of the outputs plays in the default output's stream, so there's
+        // at most one stream per real output, whatever names a tablet sends.
+        if (device.Length > 0 && Resolve(device) == WAVE_MAPPER) device = "";
         float[] samples;
         try { samples = Synth.Render(tones, volume); }
         catch
@@ -548,7 +561,21 @@ static class Sound
     {
         var caps = new WAVEOUTCAPS();
         if (waveOutGetDevCaps(new UIntPtr(index), ref caps, (uint)Marshal.SizeOf(typeof(WAVEOUTCAPS))) != 0) return null;
-        return OneLine(caps.szPname ?? "");
+        return OneLine(Whole(caps.szPname ?? ""));
+    }
+
+    // WinMM's cut at 31 characters can split an emoji in a renamed output, and the half left
+    // over reaches the server as U+FFFD, as UTF-8 has no way to write it. The name comes back
+    // that way, so it's made the same here, or Resolve would never find that output again.
+    static string Whole(string text)
+    {
+        var chars = text.ToCharArray();
+        for (int i = 0; i < chars.Length; i++)
+        {
+            if (char.IsHighSurrogate(chars[i]) && i + 1 < chars.Length && char.IsLowSurrogate(chars[i + 1])) i++;
+            else if (char.IsSurrogate(chars[i])) chars[i] = '\uFFFD';
+        }
+        return new string(chars);
     }
 
     // The waveOut index of the output with this name, looked up each time a stream opens since
@@ -561,8 +588,9 @@ static class Sound
         bool first;
         lock (missing)
         {
-            first = !missing.ContainsKey(name);
-            missing[name] = true;
+            // Said once per name, for the first few names only: they come from tablets.
+            first = !missing.ContainsKey(name) && missing.Count < 20;
+            if (first) missing[name] = true;
         }
         if (first) Say("missing\t" + name);
         return WAVE_MAPPER;
@@ -580,7 +608,8 @@ static class Sound
         int until = Environment.TickCount + 1000;
         foreach (var output in open)
         {
-            output.Wake.Set();
+            try { output.Wake.Set(); }
+            catch (ObjectDisposedException) { } // it went quiet and closed itself just now
             int left = until - Environment.TickCount;
             if (left > 0 && output.Thread != null) output.Thread.Join(left);
         }
@@ -783,6 +812,7 @@ static class Sound
             wave = IntPtr.Zero;
             // Keeps the event WinMM may still set from being collected and its handle reused.
             if (stuck) lock (stranded) stranded.Add(this);
+            else Wake.Close(); // WinMM is done with it, so it needn't wait for a collection
         }
 
         // True while WinMM holds any buffer; notes the ones it has handed back.
