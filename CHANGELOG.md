@@ -7,6 +7,9 @@ before tagging a release.
 
 ## 1.9.0 (2026-11-06)
 
+- **Silent installs leave your keybinds alone.** Installing SpoolUp silently
+  (winget, the Microsoft Store) no longer copies the keybind profile into the
+  game unless you chose it in an earlier install.
 - **Every manufacturer theme is its own design**, not the same deck in other
   colours. Each maker has its own surfaces, plates, button shapes, section
   titles, dials, switches, eject slider and framed buttons, and its own lit,
