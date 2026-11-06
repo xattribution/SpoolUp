@@ -1,5 +1,5 @@
 @echo off
-title Tablet Deck
+title StarPit
 cd /d "%~dp0"
 node server.js %*
 pause

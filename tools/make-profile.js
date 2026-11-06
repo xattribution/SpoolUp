@@ -1,4 +1,4 @@
-// Builds the "Tablet Deck Keyboard" Star Citizen control profile from the layouts, so
+// Builds the "StarPit Keyboard" Star Citizen control profile from the layouts, so
 // every button with an scAction has a keyboard bind without any third-party profile.
 //
 //   node tools/make-profile.js           write keybinds/TabletDeck-StarCitizen.xml
@@ -14,7 +14,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "keybinds", "TabletDeck-StarCitizen.xml");
-const PROFILE_NAME = "Tablet Deck Keyboard";
+const PROFILE_NAME = "StarPit Keyboard";
 
 // Star Citizen actionmap(s) for each action the layouts use. Some actions exist in more
 // than one map (doors work in ships and ground vehicles) and are bound in each.

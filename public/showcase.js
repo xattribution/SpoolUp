@@ -164,7 +164,7 @@
         warn("This server isn't running with --dry-run, so taps on this page send real keys to the PC and there's no key log. Start it with --dry-run (or the deck-sandbox launch config) to use the sandbox.");
       } else if (r && r.status === 403) {
         setMode("Not paired", "bad");
-        warn("That pairing code didn't match. Check config.json or the Tablet Deck window on the PC.");
+        warn("That pairing code didn't match. Check config.json or the StarPit window on the PC.");
       } else {
         setMode("Reconnecting…");
         setTimeout(connectEvents, 2000);

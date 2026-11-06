@@ -556,7 +556,7 @@
         const base = file.replace(/^layouts\//, "").replace(/\.json$/, "");
         $("saveName").value = layout.custom ? base : `my-${base}`;
         $("useLabel").textContent = kindOf(layout) === "phone" ? "Use on phones" : "Use on tablets";
-        document.title = `${layout.name || base} - Tablet Deck layout editor`;
+        document.title = `${layout.name || base} - StarPit layout editor`;
         fitStage();
         $("canvas").innerHTML = "";
         deck = window.renderCanvas(layout, D);
@@ -613,7 +613,7 @@
       $("saveName").value = freeName(picked.name);
       $("useIt").checked = false;
       $("useLabel").textContent = kindOf(layout) === "phone" ? "Use on phones" : "Use on tablets";
-      document.title = `${layout.name || picked.name} - Tablet Deck layout editor`;
+      document.title = `${layout.name || picked.name} - StarPit layout editor`;
       fitStage();
       $("canvas").innerHTML = "";
       deck = window.renderCanvas(layout, D);

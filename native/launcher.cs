@@ -1,4 +1,4 @@
-// Tablet Deck's app window. It starts TabletDeckServer.exe (server.js packed by
+// StarPit's app window. It starts TabletDeckServer.exe (server.js packed by
 // scripts/build.js) hidden, with --ui, and shows its address, pairing code, QR code,
 // status and log instead of a console window. Minimizing hides it to a tray icon; closing
 // it stops the server, which releases any held keys first.
@@ -12,7 +12,7 @@
 // Updates: unless turned off, the window asks GitHub for the latest release when it starts
 // and once a day. A newer version shows a banner; "Update now" downloads the installer,
 // checks it against the release's SHA-256 file and runs it quietly. The installer asks this
-// window to quit (TabletDeck.Quit), installs, and starts Tablet Deck again.
+// window to quit (TabletDeck.Quit), installs, and starts StarPit again.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -43,7 +43,7 @@ static class Program
     [DllImport("user32.dll")]
     static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
-    // Sent to every window when Tablet Deck is opened a second time; the running copy shows itself.
+    // Sent to every window when StarPit is opened a second time; the running copy shows itself.
     public static readonly int ShowWindowMessage = RegisterWindowMessage("TabletDeck.ShowWindow");
     // Sent by the installer (installer/TabletDeck.iss) before it updates or removes the files.
     public static readonly int QuitMessage = RegisterWindowMessage("TabletDeck.Quit");
@@ -76,7 +76,7 @@ static class Program
     public static readonly string CrashLog = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TabletDeck", "crash.log");
     static bool failing;
 
-    // Any error nothing else caught: saved to crash.log, shown, and Tablet Deck closes. The
+    // Any error nothing else caught: saved to crash.log, shown, and StarPit closes. The
     // server notices its window is gone and stops, releasing any held keys.
     static void Fail(Exception ex)
     {
@@ -86,15 +86,15 @@ static class Program
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(CrashLog));
-            File.AppendAllText(CrashLog, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + "  Tablet Deck " + Application.ProductVersion
+            File.AppendAllText(CrashLog, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + "  StarPit " + Application.ProductVersion
                 + " on " + Environment.OSVersion + "\r\n" + text + "\r\n\r\n");
         }
         catch (Exception) { }
         try
         {
-            MessageBox.Show("Tablet Deck ran into a problem and has to close:\n\n" + (ex == null ? text : ex.Message) +
+            MessageBox.Show("StarPit ran into a problem and has to close:\n\n" + (ex == null ? text : ex.Message) +
                 "\n\nThe details are saved in " + CrashLog + ". Please attach that file to an issue on GitHub " +
-                "(github.com/nodieCode/tablet-deck/issues).", "Tablet Deck", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                "(github.com/xattribution/tablet-deck-spooned/issues).", "StarPit", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception) { }
         Environment.Exit(1);
@@ -107,6 +107,7 @@ static class Program
 // AI; corrections from native speakers are welcome.
 static class Lang
 {
+    // The app's old name (Tablet Deck), kept so the language chosen in older versions carries over.
     const string Key = @"Software\Tablet Deck";
     // [code, name] in the order the Settings window lists them; "" is Automatic.
     public static readonly string[][] Choices = {
@@ -200,7 +201,7 @@ static class Lang
         { "Running", new[] { "En marcha", "En marche", "Läuft" } },
         { "Running in test mode (dry run): no keys are sent", new[] { "En modo de prueba (dry run): no se envían teclas", "En mode test (dry run) : aucune touche n'est envoyée", "Läuft im Testmodus (Dry Run): Es werden keine Tasten gesendet" } },
         { "Stopped: {0}", new[] { "Detenido: {0}", "Arrêté : {0}", "Gestoppt: {0}" } },
-        { "{0} is missing. Reinstall Tablet Deck.", new[] { "Falta {0}. Reinstala Tablet Deck.", "{0} est introuvable. Réinstallez Tablet Deck.", "{0} fehlt. Installiere Tablet Deck neu." } },
+        { "{0} is missing. Reinstall StarPit.", new[] { "Falta {0}. Reinstala StarPit.", "{0} est introuvable. Réinstallez StarPit.", "{0} fehlt. Installiere StarPit neu." } },
         { "Couldn't start the server: {0}", new[] { "No se pudo iniciar el servidor: {0}", "Impossible de démarrer le serveur : {0}", "Der Server konnte nicht starten: {0}" } },
         { "The server stopped (exit code {0}). See the log below.", new[] { "El servidor se detuvo (código {0}). Mira el registro de abajo.", "Le serveur s'est arrêté (code {0}). Voir le journal ci-dessous.", "Der Server wurde beendet (Code {0}). Siehe das Protokoll unten." } },
         { "Off", new[] { "Desactivado", "Désactivé", "Aus" } },
@@ -212,16 +213,16 @@ static class Lang
         { "Last heard: \"{0}\", {1}% sure. Pressed {2}.", new[] { "Último oído: \"{0}\", {1} % seguro. Pulsado: {2}.", "Dernière écoute : \"{0}\", sûr à {1} %. Appuyé : {2}.", "Zuletzt gehört: \"{0}\", {1} % sicher. Gedrückt: {2}." } },
         { "Last heard: \"{0}\", {1}% sure. Below {2}%, so it was ignored.", new[] { "Último oído: \"{0}\", {1} % seguro. Por debajo del {2} %, así que se ignoró.", "Dernière écoute : \"{0}\", sûr à {1} %. Sous {2} %, donc ignoré.", "Zuletzt gehört: \"{0}\", {1} % sicher. Unter {2} %, daher ignoriert." } },
         { "Last heard: something that isn't one of the commands.", new[] { "Último oído: algo que no es uno de los comandos.", "Dernière écoute : quelque chose qui n'est pas une commande.", "Zuletzt gehört: etwas, das kein Befehl ist." } },
-        { "Tablet Deck (stopped)", new[] { "Tablet Deck (detenido)", "Tablet Deck (arrêté)", "Tablet Deck (gestoppt)" } },
+        { "StarPit (stopped)", new[] { "StarPit (detenido)", "StarPit (arrêté)", "StarPit (gestoppt)" } },
         { " (test mode)", new[] { " (modo prueba)", " (mode test)", " (Testmodus)" } },
         { "Windows treats \"{0}\" as a Public network, so tablets can't connect. In Windows: Settings > Network & Internet > {0} > set it to Private.", new[] { "Windows trata \"{0}\" como red pública, así que las tablets no pueden conectarse. En Windows: Configuración > Red e Internet > {0} > ponla como privada.", "Windows considère \"{0}\" comme un réseau public, donc les tablettes ne peuvent pas se connecter. Dans Windows : Paramètres > Réseau et Internet > {0} > réglez-le sur Privé.", "Windows behandelt \"{0}\" als öffentliches Netzwerk, daher können Tablets sich nicht verbinden. In Windows: Einstellungen > Netzwerk und Internet > {0} > auf Privat stellen." } },
         { "Tablets can't connect", new[] { "Las tablets no pueden conectarse", "Les tablettes ne peuvent pas se connecter", "Tablets können sich nicht verbinden" } },
-        { "Windows treats \"{0}\" as a Public network. Open Tablet Deck to fix it.", new[] { "Windows trata \"{0}\" como red pública. Abre Tablet Deck para arreglarlo.", "Windows considère \"{0}\" comme un réseau public. Ouvrez Tablet Deck pour corriger cela.", "Windows behandelt \"{0}\" als öffentliches Netzwerk. Öffne Tablet Deck, um das zu beheben." } },
+        { "Windows treats \"{0}\" as a Public network. Open StarPit to fix it.", new[] { "Windows trata \"{0}\" como red pública. Abre StarPit para arreglarlo.", "Windows considère \"{0}\" comme un réseau public. Ouvrez StarPit pour corriger cela.", "Windows behandelt \"{0}\" als öffentliches Netzwerk. Öffne StarPit, um das zu beheben." } },
         { "Restarting the server for the new settings...", new[] { "Reiniciando el servidor con los nuevos ajustes...", "Redémarrage du serveur avec les nouveaux réglages...", "Server startet mit den neuen Einstellungen neu..." } },
         { "Couldn't save the settings: {0}", new[] { "No se pudieron guardar los ajustes: {0}", "Impossible d'enregistrer les réglages : {0}", "Die Einstellungen konnten nicht gespeichert werden: {0}" } },
-        { "Tablet Deck isn't running", new[] { "Tablet Deck no está en marcha", "Tablet Deck n'est pas lancé", "Tablet Deck läuft nicht" } },
+        { "StarPit isn't running", new[] { "StarPit no está en marcha", "StarPit n'est pas lancé", "StarPit läuft nicht" } },
         { "Start it first; the layout editor is part of the server.", new[] { "Inícialo primero; el editor de diseños forma parte del servidor.", "Lancez-le d'abord ; l'éditeur de disposition fait partie du serveur.", "Starte es zuerst; der Layout-Editor gehört zum Server." } },
-        { "Tablet Deck is still running", new[] { "Tablet Deck sigue en marcha", "Tablet Deck tourne toujours", "Tablet Deck läuft weiter" } },
+        { "StarPit is still running", new[] { "StarPit sigue en marcha", "StarPit tourne toujours", "StarPit läuft weiter" } },
         { "Double-click the tray icon to open it, or right-click it to quit.", new[] { "Haz doble clic en el icono de la bandeja para abrirlo, o clic derecho para salir.", "Double-cliquez sur l'icône de la zone de notification pour l'ouvrir, ou faites un clic droit pour quitter.", "Doppelklicke auf das Symbol im Infobereich, um es zu öffnen, oder klicke rechts, um es zu beenden." } },
 
         // ---- the main window's buttons, switches and links ----
@@ -241,14 +242,14 @@ static class Lang
         { "Update now", new[] { "Actualizar ahora", "Mettre à jour", "Jetzt aktualisieren" } },
         { "Later", new[] { "Más tarde", "Plus tard", "Später" } },
         { "Close", new[] { "Cerrar", "Fermer", "Schließen" } },
-        { "Show Tablet Deck", new[] { "Mostrar Tablet Deck", "Afficher Tablet Deck", "Tablet Deck anzeigen" } },
+        { "Show StarPit", new[] { "Mostrar StarPit", "Afficher StarPit", "StarPit anzeigen" } },
         { "Quit", new[] { "Salir", "Quitter", "Beenden" } },
         { "Opens the deck in this PC's browser", new[] { "Abre el deck en el navegador de este PC", "Ouvre le deck dans le navigateur de ce PC", "Öffnet das Deck im Browser dieses PCs" } },
         { "Copies the address with the pairing code, to send to a tablet", new[] { "Copia la dirección con el código de emparejamiento, para enviarla a una tablet", "Copie l'adresse avec le code d'appairage, à envoyer à une tablette", "Kopiert die Adresse mit dem Kopplungscode, um sie an ein Tablet zu schicken" } },
         { "Pairing code, port, focus check, tap length, voice language and the Star Citizen keybind profile", new[] { "Código de emparejamiento, puerto, control de foco, duración del toque, idioma de voz y el perfil de teclas de Star Citizen", "Code d'appairage, port, contrôle du focus, durée d'appui, langue vocale et profil de touches Star Citizen", "Kopplungscode, Port, Fokusprüfung, Tippdauer, Sprachbefehl-Sprache und das Star-Citizen-Tastenprofil" } },
         { "Opens the layout editor in your browser: move buttons, change their keys, labels and icons", new[] { "Abre el editor de diseños en tu navegador: mueve botones y cambia sus teclas, nombres e iconos", "Ouvre l'éditeur de disposition dans votre navigateur : déplacez les boutons, changez leurs touches, libellés et icônes", "Öffnet den Layout-Editor im Browser: Tasten verschieben, ihre Tasten, Beschriftungen und Symbole ändern" } },
         { "Everything you can say, and the button each one presses", new[] { "Todo lo que puedes decir y el botón que pulsa cada frase", "Tout ce que vous pouvez dire, et le bouton que chaque phrase active", "Alles, was du sagen kannst, und welche Taste jeder Befehl drückt" } },
-        { "Looks for a new version on GitHub when Tablet Deck starts and once a day. Updates only install when you click Update now.", new[] { "Busca una versión nueva en GitHub al iniciar Tablet Deck y una vez al día. Solo se instala cuando pulsas Actualizar ahora.", "Cherche une nouvelle version sur GitHub au démarrage de Tablet Deck et une fois par jour. Rien ne s'installe sans un clic sur Mettre à jour.", "Sucht beim Start von Tablet Deck und einmal am Tag auf GitHub nach einer neuen Version. Installiert wird nur, wenn du auf Jetzt aktualisieren klickst." } },
+        { "Looks for a new version on GitHub when StarPit starts and once a day. Updates only install when you click Update now.", new[] { "Busca una versión nueva en GitHub al iniciar StarPit y una vez al día. Solo se instala cuando pulsas Actualizar ahora.", "Cherche une nouvelle version sur GitHub au démarrage de StarPit et une fois par jour. Rien ne s'installe sans un clic sur Mettre à jour.", "Sucht beim Start von StarPit und einmal am Tag auf GitHub nach einer neuen Version. Installiert wird nur, wenn du auf Jetzt aktualisieren klickst." } },
         { "Opens the folder with config.json and your own layouts", new[] { "Abre la carpeta con config.json y tus propios diseños", "Ouvre le dossier contenant config.json et vos propres dispositions", "Öffnet den Ordner mit config.json und deinen eigenen Layouts" } },
         { "Report a problem or suggest an idea on GitHub", new[] { "Informa de un problema o propón una idea en GitHub", "Signalez un problème ou proposez une idée sur GitHub", "Melde ein Problem oder schlag eine Idee auf GitHub vor" } },
         { "Pick your network there and set its network profile to Private", new[] { "Elige ahí tu red y pon su perfil de red como privado", "Choisissez votre réseau et réglez son profil réseau sur Privé", "Wähle dort dein Netzwerk und stelle sein Netzwerkprofil auf Privat" } },
@@ -256,16 +257,16 @@ static class Lang
         // ---- updates ----
         { "Couldn't check for updates", new[] { "No se pudo buscar actualizaciones", "Impossible de rechercher les mises à jour", "Konnte nicht nach Updates suchen" } },
         { "GitHub didn't answer.", new[] { "GitHub no respondió.", "GitHub n'a pas répondu.", "GitHub hat nicht geantwortet." } },
-        { "Tablet Deck is up to date", new[] { "Tablet Deck está actualizado", "Tablet Deck est à jour", "Tablet Deck ist aktuell" } },
+        { "StarPit is up to date", new[] { "StarPit está actualizado", "StarPit est à jour", "StarPit ist aktuell" } },
         { "You have version {0}, the latest.", new[] { "Tienes la versión {0}, la más reciente.", "Vous avez la version {0}, la plus récente.", "Du hast Version {0}, die neueste." } },
         { "Update not ready yet", new[] { "La actualización aún no está lista", "Mise à jour pas encore prête", "Update noch nicht bereit" } },
         { "Version {0} is out, but its installer isn't attached yet. Try again in a few minutes.", new[] { "La versión {0} ya salió, pero su instalador aún no está adjunto. Inténtalo en unos minutos.", "La version {0} est sortie, mais son installateur n'est pas encore joint. Réessayez dans quelques minutes.", "Version {0} ist erschienen, aber der Installer ist noch nicht angehängt. Versuch es in ein paar Minuten erneut." } },
-        { "Tablet Deck {0} is available (you have {1}).", new[] { "Tablet Deck {0} está disponible (tienes la {1}).", "Tablet Deck {0} est disponible (vous avez la {1}).", "Tablet Deck {0} ist verfügbar (du hast {1})." } },
-        { "Tablet Deck {0} is available", new[] { "Tablet Deck {0} está disponible", "Tablet Deck {0} est disponible", "Tablet Deck {0} ist verfügbar" } },
-        { "Open Tablet Deck and click Update now.", new[] { "Abre Tablet Deck y pulsa Actualizar ahora.", "Ouvrez Tablet Deck et cliquez sur Mettre à jour.", "Öffne Tablet Deck und klicke auf Jetzt aktualisieren." } },
-        { "Downloading Tablet Deck {0}...", new[] { "Descargando Tablet Deck {0}...", "Téléchargement de Tablet Deck {0}...", "Tablet Deck {0} wird heruntergeladen..." } },
+        { "StarPit {0} is available (you have {1}).", new[] { "StarPit {0} está disponible (tienes la {1}).", "StarPit {0} est disponible (vous avez la {1}).", "StarPit {0} ist verfügbar (du hast {1})." } },
+        { "StarPit {0} is available", new[] { "StarPit {0} está disponible", "StarPit {0} est disponible", "StarPit {0} ist verfügbar" } },
+        { "Open StarPit and click Update now.", new[] { "Abre StarPit y pulsa Actualizar ahora.", "Ouvrez StarPit et cliquez sur Mettre à jour.", "Öffne StarPit und klicke auf Jetzt aktualisieren." } },
+        { "Downloading StarPit {0}...", new[] { "Descargando StarPit {0}...", "Téléchargement de StarPit {0}...", "StarPit {0} wird heruntergeladen..." } },
         { "Checking the download...", new[] { "Comprobando la descarga...", "Vérification du téléchargement...", "Download wird geprüft..." } },
-        { "Installing Tablet Deck {0}. Allow the Windows prompt to continue.", new[] { "Instalando Tablet Deck {0}. Acepta el aviso de Windows para continuar.", "Installation de Tablet Deck {0}. Autorisez la demande de Windows pour continuer.", "Tablet Deck {0} wird installiert. Bestätige die Windows-Abfrage, um fortzufahren." } },
+        { "Installing StarPit {0}. Allow the Windows prompt to continue.", new[] { "Instalando StarPit {0}. Acepta el aviso de Windows para continuar.", "Installation de StarPit {0}. Autorisez la demande de Windows pour continuer.", "StarPit {0} wird installiert. Bestätige die Windows-Abfrage, um fortzufahren." } },
         { "the download failed ({0})", new[] { "la descarga falló ({0})", "le téléchargement a échoué ({0})", "der Download ist fehlgeschlagen ({0})" } },
         { "the download didn't match its checksum, so it wasn't installed", new[] { "la descarga no coincidía con su suma de comprobación, así que no se instaló", "le téléchargement ne correspondait pas à sa somme de contrôle, il n'a donc pas été installé", "der Download passte nicht zu seiner Prüfsumme und wurde daher nicht installiert" } },
         { "couldn't check the download ({0})", new[] { "no se pudo comprobar la descarga ({0})", "impossible de vérifier le téléchargement ({0})", "der Download konnte nicht geprüft werden ({0})" } },
@@ -273,7 +274,7 @@ static class Lang
         { "the installer finished without updating", new[] { "el instalador terminó sin actualizar", "l'installateur s'est terminé sans mettre à jour", "der Installer wurde ohne Update beendet" } },
         { "the installer stopped (code {0}). Was the Windows prompt cancelled?", new[] { "el instalador se detuvo (código {0}). ¿Se canceló el aviso de Windows?", "l'installateur s'est arrêté (code {0}). La demande de Windows a-t-elle été annulée ?", "der Installer wurde beendet (Code {0}). Wurde die Windows-Abfrage abgebrochen?" } },
         { "Update failed: {0}", new[] { "La actualización falló: {0}", "Échec de la mise à jour : {0}", "Update fehlgeschlagen: {0}" } },
-        { "Updated to Tablet Deck {0}.", new[] { "Actualizado a Tablet Deck {0}.", "Mis à jour vers Tablet Deck {0}.", "Auf Tablet Deck {0} aktualisiert." } },
+        { "Updated to StarPit {0}.", new[] { "Actualizado a StarPit {0}.", "Mis à jour vers StarPit {0}.", "Auf StarPit {0} aktualisiert." } },
 
         // ---- Voice commands window ----
         { "Voice commands", new[] { "Comandos de voz", "Commandes vocales", "Sprachbefehle" } },
@@ -289,11 +290,11 @@ static class Lang
         // ---- Install keybind profile window ----
         { "Install keybind profile", new[] { "Instalar perfil de teclas", "Installer le profil de touches", "Tastenprofil installieren" } },
         { "STAR CITIZEN COPIES", new[] { "COPIAS DE STAR CITIZEN", "COPIES DE STAR CITIZEN", "STAR-CITIZEN-KOPIEN" } },
-        { "Copies the Tablet Deck Keyboard profile into Star Citizen, so buttons for actions with no default key work. Tick the copies of the game to install it into.", new[] { "Copia el perfil Tablet Deck Keyboard en Star Citizen, para que funcionen los botones de acciones sin tecla por defecto. Marca las copias del juego donde instalarlo.", "Copie le profil Tablet Deck Keyboard dans Star Citizen, pour que les boutons des actions sans touche par défaut fonctionnent. Cochez les copies du jeu où l'installer.", "Kopiert das Profil Tablet Deck Keyboard in Star Citizen, damit Tasten für Aktionen ohne Standardbelegung funktionieren. Hake die Spielkopien an, in die es soll." } },
+        { "Copies the StarPit Keyboard profile into Star Citizen, so buttons for actions with no default key work. Tick the copies of the game to install it into.", new[] { "Copia el perfil StarPit Keyboard en Star Citizen, para que funcionen los botones de acciones sin tecla por defecto. Marca las copias del juego donde instalarlo.", "Copie le profil StarPit Keyboard dans Star Citizen, pour que les boutons des actions sans touche par défaut fonctionnent. Cochez les copies du jeu où l'installer.", "Kopiert das Profil StarPit Keyboard in Star Citizen, damit Tasten für Aktionen ohne Standardbelegung funktionieren. Hake die Spielkopien an, in die es soll." } },
         { "Choose game folder...", new[] { "Elegir carpeta del juego...", "Choisir le dossier du jeu...", "Spielordner wählen..." } },
         { "STATUS", new[] { "ESTADO", "ÉTAT", "STATUS" } },
         { "Install", new[] { "Instalar", "Installer", "Installieren" } },
-        { "The profile file is missing ({0}). Reinstall Tablet Deck.", new[] { "Falta el archivo del perfil ({0}). Reinstala Tablet Deck.", "Le fichier du profil est introuvable ({0}). Réinstallez Tablet Deck.", "Die Profildatei fehlt ({0}). Installiere Tablet Deck neu." } },
+        { "The profile file is missing ({0}). Reinstall StarPit.", new[] { "Falta el archivo del perfil ({0}). Reinstala StarPit.", "Le fichier du profil est introuvable ({0}). Réinstallez StarPit.", "Die Profildatei fehlt ({0}). Installiere StarPit neu." } },
         { "Star Citizen wasn't found in the usual places. Click \"Choose game folder...\" and pick the StarCitizen folder (the one with LIVE in it).", new[] { "No se encontró Star Citizen en los sitios habituales. Pulsa \"Elegir carpeta del juego...\" y elige la carpeta StarCitizen (la que contiene LIVE).", "Star Citizen est introuvable aux emplacements habituels. Cliquez sur \"Choisir le dossier du jeu...\" et choisissez le dossier StarCitizen (celui qui contient LIVE).", "Star Citizen wurde an den üblichen Orten nicht gefunden. Klicke auf \"Spielordner wählen...\" und wähle den Ordner StarCitizen (der mit LIVE darin)." } },
         { "Found {0} copy of the game. Missing one? Click \"Choose game folder...\".", new[] { "Se encontró {0} copia del juego. ¿Falta alguna? Pulsa \"Elegir carpeta del juego...\".", "{0} copie du jeu trouvée. Il en manque une ? Cliquez sur \"Choisir le dossier du jeu...\".", "{0} Spielkopie gefunden. Fehlt eine? Klicke auf \"Spielordner wählen...\"." } },
         { "Found {0} copies of the game. Missing one? Click \"Choose game folder...\".", new[] { "Se encontraron {0} copias del juego. ¿Falta alguna? Pulsa \"Elegir carpeta del juego...\".", "{0} copies du jeu trouvées. Il en manque une ? Cliquez sur \"Choisir le dossier du jeu...\".", "{0} Spielkopien gefunden. Fehlt eine? Klicke auf \"Spielordner wählen...\"." } },
@@ -305,18 +306,18 @@ static class Lang
         { "Added. Tick the copies of the game to install the profile into, then click Install.", new[] { "Añadido. Marca las copias del juego donde instalar el perfil y pulsa Instalar.", "Ajouté. Cochez les copies du jeu où installer le profil, puis cliquez sur Installer.", "Hinzugefügt. Hake die Spielkopien an, in die das Profil soll, und klicke auf Installieren." } },
         { "Nothing ticked. Tick the copies of the game to install the profile into.", new[] { "No hay nada marcado. Marca las copias del juego donde instalar el perfil.", "Rien n'est coché. Cochez les copies du jeu où installer le profil.", "Nichts angehakt. Hake die Spielkopien an, in die das Profil soll." } },
         { "Installed into {0}. ", new[] { "Instalado en {0}. ", "Installé dans {0}. ", "Installiert in {0}. " } },
-        { "Now, in Star Citizen: Options > Keybindings > Control Profiles, load \"Tablet Deck Keyboard\". ", new[] { "Ahora, en Star Citizen: Opciones > Asignación de teclas > Perfiles de control, carga \"Tablet Deck Keyboard\". ", "Ensuite, dans Star Citizen : Options > Raccourcis > Profils de contrôle, chargez \"Tablet Deck Keyboard\". ", "Jetzt in Star Citizen: Optionen > Tastenbelegung > Steuerungsprofile, \"Tablet Deck Keyboard\" laden. " } },
+        { "Now, in Star Citizen: Options > Keybindings > Control Profiles, load \"StarPit Keyboard\". ", new[] { "Ahora, en Star Citizen: Opciones > Asignación de teclas > Perfiles de control, carga \"StarPit Keyboard\". ", "Ensuite, dans Star Citizen : Options > Raccourcis > Profils de contrôle, chargez \"StarPit Keyboard\". ", "Jetzt in Star Citizen: Optionen > Tastenbelegung > Steuerungsprofile, \"StarPit Keyboard\" laden. " } },
         { "This replaces your current custom binds, so note any you want to keep and set them again afterwards.", new[] { "Esto sustituye tus asignaciones personalizadas actuales, así que apunta las que quieras conservar y vuelve a ponerlas después.", "Cela remplace vos raccourcis personnalisés actuels : notez ceux que vous voulez garder et refaites-les ensuite.", "Das ersetzt deine aktuellen eigenen Belegungen. Notiere dir, was du behalten willst, und stelle es danach wieder ein." } },
-        { "Couldn't copy into {0}. Try running Tablet Deck as administrator, or copy {1} by hand.", new[] { "No se pudo copiar en {0}. Prueba a ejecutar Tablet Deck como administrador o copia {1} a mano.", "Impossible de copier dans {0}. Essayez de lancer Tablet Deck en administrateur, ou copiez {1} à la main.", "Kopieren nach {0} fehlgeschlagen. Starte Tablet Deck als Administrator oder kopiere {1} von Hand." } },
+        { "Couldn't copy into {0}. Try running StarPit as administrator, or copy {1} by hand.", new[] { "No se pudo copiar en {0}. Prueba a ejecutar StarPit como administrador o copia {1} a mano.", "Impossible de copier dans {0}. Essayez de lancer StarPit en administrateur, ou copiez {1} à la main.", "Kopieren nach {0} fehlgeschlagen. Starte StarPit als Administrator oder kopiere {1} von Hand." } },
 
         // ---- Settings window ----
-        { "Tablet Deck settings", new[] { "Ajustes de Tablet Deck", "Réglages de Tablet Deck", "Tablet-Deck-Einstellungen" } },
+        { "StarPit settings", new[] { "Ajustes de StarPit", "Réglages de StarPit", "StarPit-Einstellungen" } },
         { "PAIRING", new[] { "EMPAREJAMIENTO", "APPAIRAGE", "KOPPLUNG" } },
         { "Pairing code", new[] { "Código de emparejamiento", "Code d'appairage", "Kopplungscode" } },
         { "New random code", new[] { "Nuevo código", "Nouveau code", "Neuer Code" } },
         { "Letters and numbers. Tablets already paired keep working until they reload; new ones need the new code.", new[] { "Letras y números. Las tablets ya emparejadas funcionan hasta recargar; las nuevas usan el código nuevo.", "Lettres et chiffres. Les tablettes appairées marchent jusqu'à leur rechargement, les nouvelles ont besoin du code.", "Buchstaben und Ziffern. Gekoppelte Tablets laufen bis zum Neuladen weiter; neue brauchen den neuen Code." } },
         { "Port", new[] { "Puerto", "Port", "Port" } },
-        { "Set with --port when Tablet Deck was started, so it can't be changed here.", new[] { "Fijado con --port al iniciar Tablet Deck; no se puede cambiar aquí.", "Défini avec --port au lancement ; non modifiable ici.", "Beim Start mit --port gesetzt, daher hier nicht änderbar." } },
+        { "Set with --port when StarPit was started, so it can't be changed here.", new[] { "Fijado con --port al iniciar StarPit; no se puede cambiar aquí.", "Défini avec --port au lancement ; non modifiable ici.", "Beim Start mit --port gesetzt, daher hier nicht änderbar." } },
         { "Changing it restarts the server. Tablets then need the new address or QR code.", new[] { "Reinicia el servidor. Las tablets necesitarán la nueva dirección o el QR.", "Redémarre le serveur. Les tablettes devront reprendre l'adresse ou le QR.", "Startet den Server neu. Tablets brauchen dann neue Adresse oder QR-Code." } },
         { "KEYS", new[] { "TECLAS", "TOUCHES", "TASTEN" } },
         { "Only press keys while Star Citizen is in front", new[] { "Pulsar teclas solo con Star Citizen en primer plano", "Seulement si Star Citizen est devant", "Tasten nur drücken, wenn Star Citizen vorne ist" } },
@@ -1234,6 +1235,7 @@ class HudDialog : Form
 class DeckWindow : Form
 {
     const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    // The old name, so "Start with Windows" turned on in an older version stays on.
     const string RunValue = "Tablet Deck";
     // The window's size in 96-dpi pixels; it scales with the screen.
     const int DesignWidth = 900, DesignHeight = 640;
@@ -1274,7 +1276,7 @@ class DeckWindow : Form
     // The adapter Windows treats as a Public network (tablets can't connect), or "".
     string publicNetwork = "";
     bool publicNetworkNoticed;
-    const string FeedbackPage = "https://github.com/nodieCode/tablet-deck/issues/new/choose";
+    const string FeedbackPage = "https://github.com/xattribution/tablet-deck-spooned/issues/new/choose";
     readonly HudView.Item bannerWhatsNew, bannerUpdate, bannerLater;
     string editorUrl = ""; // the layout editor on this PC, set when the server is ready
     bool serverReady; // the server has said "ready" and takes settings on stdin
@@ -1289,10 +1291,10 @@ class DeckWindow : Form
     VoiceCommandsWindow commandsWindow;
 
     // ---- updates ----
-    const string LatestReleaseApi = "https://api.github.com/repos/nodieCode/tablet-deck/releases/latest";
-    const string ReleasesPage = "https://github.com/nodieCode/tablet-deck/releases";
-    const string DownloadPrefix = "https://github.com/nodieCode/tablet-deck/releases/download/";
-    const string AppKey = @"Software\Tablet Deck";
+    const string LatestReleaseApi = "https://api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest";
+    const string ReleasesPage = "https://github.com/xattribution/tablet-deck-spooned/releases";
+    const string DownloadPrefix = "https://github.com/xattribution/tablet-deck-spooned/releases/download/";
+    const string AppKey = @"Software\Tablet Deck"; // the old name, like Lang's key
     // This window's version, e.g. "1.1.0" (AssemblyInformationalVersion, set by scripts/build.js).
     static readonly string CurrentVersion = Application.ProductVersion;
     bool checkedAtStart;
@@ -1300,7 +1302,7 @@ class DeckWindow : Form
     readonly System.Windows.Forms.Timer dailyCheck = new System.Windows.Forms.Timer();
     bool bannerShown;
     Func<string> bannerText = () => "";
-    Func<string> trayText = () => "Tablet Deck";
+    Func<string> trayText = () => "StarPit";
     string whatsNewUrl = "";
     string updateVersion = "", updateSetupUrl = "", updateShaUrl = "", dismissedVersion = "";
     Process installer;
@@ -1316,7 +1318,7 @@ class DeckWindow : Form
         serverArgs = ("--ui " + string.Join(" ", passOn)).Trim();
 
         SuspendLayout();
-        Text = "Tablet Deck";
+        Text = "StarPit";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         BackColor = Hud.Back;
         ForeColor = Hud.Ink;
@@ -1367,7 +1369,7 @@ class DeckWindow : Form
             SendToServer("set autoUpdate " + (autoUpdate.On ? "on" : "off"));
             if (autoUpdate.On) CheckForUpdates(false);
         };
-        autoUpdate.Tip = "Looks for a new version on GitHub when Tablet Deck starts and once a day. Updates only install when you click Update now.";
+        autoUpdate.Tip = "Looks for a new version on GitHub when StarPit starts and once a day. Updates only install when you click Update now.";
         folderLink = hud.Add(HudView.Kind.Link, "Settings folder", delegate { OpenSettingsFolder(); });
         folderLink.Tip = "Opens the folder with config.json and your own layouts";
         checkLink = hud.Add(HudView.Kind.Link, "Check for updates now", delegate { CheckForUpdates(true); });
@@ -1522,7 +1524,7 @@ class DeckWindow : Form
         using (var pen = new Pen(Hud.Accent, 1.5f)) g.DrawPolygon(pen, hex);
         using (var brush = new SolidBrush(Hud.Accent))
             g.FillPolygon(brush, new[] { new PointF(38, 25), new PointF(44, 40), new PointF(38, 36), new PointF(32, 40) });
-        float tw = Hud.Spaced(g, "TABLET DECK", Hud.Head(24), Hud.Accent, 64, 17, 3f);
+        float tw = Hud.Spaced(g, "STARPIT", Hud.Head(24), Hud.Accent, 64, 17, 3f);
         if (version != "") Hud.Spaced(g, "V" + version, Hud.Label(11.5f), Hud.Dim, 64 + tw + 12, 29, 1.2f);
         Hud.Spaced(g, Lang.T("STAR CITIZEN CONTROL DECK"), Hud.Label(11.5f), Hud.Dim, 65, 45, 2.4f);
 
@@ -1678,7 +1680,7 @@ class DeckWindow : Form
         string exe = Path.Combine(appDir, "TabletDeckServer.exe");
         if (!File.Exists(exe))
         {
-            Stopped(() => Lang.F("{0} is missing. Reinstall Tablet Deck.", exe));
+            Stopped(() => Lang.F("{0} is missing. Reinstall StarPit.", exe));
             return;
         }
         var psi = new ProcessStartInfo(exe, serverArgs)
@@ -1772,7 +1774,7 @@ class DeckWindow : Form
         tabletCount = 0;
         voiceText = () => Lang.T("Off");
         voiceColor = Hud.Dim;
-        ShowTrayText(() => Lang.T("Tablet Deck (stopped)"));
+        ShowTrayText(() => Lang.T("StarPit (stopped)"));
     }
 
     void OnLine(string line, bool error)
@@ -1809,7 +1811,7 @@ class DeckWindow : Form
                 foreach (var r in List(ev, "qr")) rows.Add(Convert.ToString(r, CultureInfo.InvariantCulture));
                 qrRows = rows.ToArray();
                 version = Str(ev, "version");
-                Text = "Tablet Deck " + version;
+                Text = "StarPit " + version;
                 dryRun = Bool(ev, "dryRun");
                 focusCheck = Bool(ev, "focusCheck");
                 // A new pairing code or port restarts nothing, so the uptime keeps counting.
@@ -1818,7 +1820,7 @@ class DeckWindow : Form
                 SetState(dryRun ? "TEST MODE" : "ONLINE", () => Lang.T(running), dryRun ? Hud.Warn : Hud.Good);
                 string trayVersion = version;
                 bool trayTest = dryRun;
-                ShowTrayText(() => "Tablet Deck " + trayVersion + (trayTest ? Lang.T(" (test mode)") : ""));
+                ShowTrayText(() => "StarPit " + trayVersion + (trayTest ? Lang.T(" (test mode)") : ""));
                 ShowStrictness(Num(ev, "voiceConfidence"));
                 autoUpdate.On = Bool(ev, "autoUpdate");
                 if (!checkedAtStart && autoUpdate.On) CheckForUpdates(false);
@@ -1899,7 +1901,7 @@ class DeckWindow : Form
                 {
                     publicNetworkNoticed = true;
                     AppendLog(Lang.F("Windows treats \"{0}\" as a Public network, so tablets can't connect. In Windows: Settings > Network & Internet > {0} > set it to Private.", publicNetwork), Hud.Warn);
-                    if (!Visible) Notify(Lang.T("Tablets can't connect"), Lang.F("Windows treats \"{0}\" as a Public network. Open Tablet Deck to fix it.", publicNetwork));
+                    if (!Visible) Notify(Lang.T("Tablets can't connect"), Lang.F("Windows treats \"{0}\" as a Public network. Open StarPit to fix it.", publicNetwork));
                 }
                 break;
             case "fatal":
@@ -2015,7 +2017,7 @@ class DeckWindow : Form
     static WebClient NewWebClient()
     {
         var web = new WebClient { Encoding = Encoding.UTF8 };
-        web.Headers[HttpRequestHeader.UserAgent] = "TabletDeck/" + CurrentVersion; // GitHub requires one
+        web.Headers[HttpRequestHeader.UserAgent] = "StarPit/" + CurrentVersion; // GitHub requires one
         return web;
     }
 
@@ -2063,11 +2065,11 @@ class DeckWindow : Form
         Version remote = ParseVersion(latest), local = ParseVersion(CurrentVersion);
         if (remote == null || local == null || remote <= local)
         {
-            if (userAsked) Notify(Lang.T("Tablet Deck is up to date"), Lang.F("You have version {0}, the latest.", CurrentVersion));
+            if (userAsked) Notify(Lang.T("StarPit is up to date"), Lang.F("You have version {0}, the latest.", CurrentVersion));
             return;
         }
         // The installer and its checksum, attached to the release by .github/workflows/release.yml.
-        string setupName = "TabletDeck-Setup-" + latest + ".exe";
+        string setupName = "StarPit-Setup-" + latest + ".exe";
         string setupUrl = "", shaUrl = "";
         foreach (var a in List(release, "assets"))
         {
@@ -2088,8 +2090,8 @@ class DeckWindow : Form
         updateSetupUrl = setupUrl;
         updateShaUrl = shaUrl;
         whatsNewUrl = Str(release, "html_url") != "" ? Str(release, "html_url") : ReleasesPage;
-        ShowBanner(() => Lang.F("Tablet Deck {0} is available (you have {1}).", latest, CurrentVersion), "update");
-        if (!Visible) Notify(Lang.F("Tablet Deck {0} is available", latest), Lang.T("Open Tablet Deck and click Update now."));
+        ShowBanner(() => Lang.F("StarPit {0} is available (you have {1}).", latest, CurrentVersion), "update");
+        if (!Visible) Notify(Lang.F("StarPit {0} is available", latest), Lang.T("Open StarPit and click Update now."));
     }
 
     void Notify(string title, string text)
@@ -2107,7 +2109,7 @@ class DeckWindow : Form
     {
         var old = tray.ContextMenuStrip;
         var menu = new ContextMenuStrip();
-        menu.Items.Add(Lang.T("Show Tablet Deck"), null, delegate { ShowFromTray(); });
+        menu.Items.Add(Lang.T("Show StarPit"), null, delegate { ShowFromTray(); });
         menu.Items.Add(Lang.T("Copy link"), null, delegate { CopyLink(); });
         menu.Items.Add(Lang.T("Edit layout"), null, delegate { OpenEditor(); });
         menu.Items.Add(Lang.T("Check for updates now"), null, delegate { CheckForUpdates(true); });
@@ -2133,16 +2135,16 @@ class DeckWindow : Form
     {
         if (updateSetupUrl == "") return;
         string downloading = updateVersion;
-        ShowBanner(() => Lang.F("Downloading Tablet Deck {0}...", downloading), "busy");
+        ShowBanner(() => Lang.F("Downloading StarPit {0}...", downloading), "busy");
         string dir = UpdateFolder;
-        string file = Path.Combine(dir, "TabletDeck-Setup-" + updateVersion + ".exe");
+        string file = Path.Combine(dir, "StarPit-Setup-" + updateVersion + ".exe");
         try { Directory.CreateDirectory(dir); }
         catch (Exception ex) { UpdateFailed(() => ex.Message); return; }
         var web = NewWebClient();
         web.DownloadProgressChanged += (s, e) =>
         {
             int percent = e.ProgressPercentage;
-            SetBannerText(() => Lang.F("Downloading Tablet Deck {0}...", downloading) + " " + percent + "%");
+            SetBannerText(() => Lang.F("Downloading StarPit {0}...", downloading) + " " + percent + "%");
         };
         web.DownloadFileCompleted += (s, e) =>
         {
@@ -2155,7 +2157,7 @@ class DeckWindow : Form
 
     // Checks the download against the release's SHA-256 file, then runs the installer
     // quietly. It asks this window to quit before it replaces the files, and starts
-    // Tablet Deck again afterwards. Until then the deck keeps working.
+    // StarPit again afterwards. Until then the deck keeps working.
     void VerifyAndInstall(string file)
     {
         SetBannerText(() => Lang.T("Checking the download..."));
@@ -2181,7 +2183,7 @@ class DeckWindow : Form
             return;
         }
         string installing = updateVersion;
-        SetBannerText(() => Lang.F("Installing Tablet Deck {0}. Allow the Windows prompt to continue.", installing));
+        SetBannerText(() => Lang.F("Installing StarPit {0}. Allow the Windows prompt to continue.", installing));
         try
         {
             installer = Process.Start(new ProcessStartInfo(file, "/SILENT /SUPPRESSMSGBOXES /NORESTART /RELAUNCH=1") { UseShellExecute = true });
@@ -2215,7 +2217,8 @@ class DeckWindow : Form
         AppendLog(text(), Hud.Warn);
     }
 
-    // Where Update now saves the installer; emptied when the window next starts.
+    // Where Update now saves the installer; emptied when the window next starts. It keeps
+    // the old name: an older version updating to this one downloads into it too.
     static readonly string UpdateFolder = Path.Combine(Path.GetTempPath(), "TabletDeck-Update");
 
     // After an update, offers the new version's notes once and removes the used installer.
@@ -2231,7 +2234,7 @@ class DeckWindow : Form
                 if (last != null && last != CurrentVersion)
                 {
                     whatsNewUrl = ReleasesPage + "/tag/v" + CurrentVersion;
-                    ShowBanner(() => Lang.F("Updated to Tablet Deck {0}.", CurrentVersion), "news");
+                    ShowBanner(() => Lang.F("Updated to StarPit {0}.", CurrentVersion), "news");
                 }
                 key.SetValue("LastVersion", CurrentVersion);
             }
@@ -2243,7 +2246,7 @@ class DeckWindow : Form
     {
         if (editorUrl == "" || !serverReady)
         {
-            Notify(Lang.T("Tablet Deck isn't running"), Lang.T("Start it first; the layout editor is part of the server."));
+            Notify(Lang.T("StarPit isn't running"), Lang.T("Start it first; the layout editor is part of the server."));
             return;
         }
         Process.Start(editorUrl);
@@ -2376,7 +2379,7 @@ class DeckWindow : Form
         if (!trayHintShown)
         {
             trayHintShown = true;
-            tray.ShowBalloonTip(3000, Lang.T("Tablet Deck is still running"), Lang.T("Double-click the tray icon to open it, or right-click it to quit."), ToolTipIcon.Info);
+            tray.ShowBalloonTip(3000, Lang.T("StarPit is still running"), Lang.T("Double-click the tray icon to open it, or right-click it to quit."), ToolTipIcon.Info);
         }
     }
 
@@ -2474,7 +2477,7 @@ class VoiceCommandsWindow : HudDialog
     }
 }
 
-// Copies the Tablet Deck Keyboard profile (keybinds\TabletDeck-StarCitizen.xml in the
+// Copies the StarPit Keyboard profile (keybinds\TabletDeck-StarCitizen.xml in the
 // install folder) into Star Citizen's Controls\Mappings folder, for each copy of the game
 // (LIVE, PTU and so on) the player ticks. Found by searching the drives, or picked by hand.
 class KeybindProfileWindow : HudDialog
@@ -2495,7 +2498,7 @@ class KeybindProfileWindow : HudDialog
         MinimizeBox = false;
 
         Panel("STAR CITIZEN COPIES", 16, 16, 528, 248);
-        var intro = Hint("Copies the Tablet Deck Keyboard profile into Star Citizen, so buttons for actions with no default key work. " +
+        var intro = Hint("Copies the StarPit Keyboard profile into Star Citizen, so buttons for actions with no default key work. " +
             "Tick the copies of the game to install it into.", 32, 44, 496, 36);
         intro.Color = Hud.Ink;
         Field(list, 32, 86, 496, 126);
@@ -2514,7 +2517,7 @@ class KeybindProfileWindow : HudDialog
 
         if (!File.Exists(profile))
         {
-            ShowStatus(Lang.F("The profile file is missing ({0}). Reinstall Tablet Deck.", profile), Hud.Bad);
+            ShowStatus(Lang.F("The profile file is missing ({0}). Reinstall StarPit.", profile), Hud.Bad);
             install.Enabled = false;
             return;
         }
@@ -2638,11 +2641,11 @@ class KeybindProfileWindow : HudDialog
         if (done.Count > 0)
         {
             text.Append(Lang.F("Installed into {0}. ", string.Join(", ", done.ToArray())));
-            text.Append(Lang.T("Now, in Star Citizen: Options > Keybindings > Control Profiles, load \"Tablet Deck Keyboard\". "));
+            text.Append(Lang.T("Now, in Star Citizen: Options > Keybindings > Control Profiles, load \"StarPit Keyboard\". "));
             text.Append(Lang.T("This replaces your current custom binds, so note any you want to keep and set them again afterwards."));
         }
         if (failed.Count > 0)
-            text.Append((done.Count > 0 ? "\n\n" : "") + Lang.F("Couldn't copy into {0}. Try running Tablet Deck as administrator, or copy {1} by hand.",
+            text.Append((done.Count > 0 ? "\n\n" : "") + Lang.F("Couldn't copy into {0}. Try running StarPit as administrator, or copy {1} by hand.",
                 string.Join("; ", failed.ToArray()), profile));
         ShowStatus(text.ToString(), failed.Count > 0 ? Hud.Warn : Hud.Good);
         // Refresh the states shown in the list.
@@ -2701,12 +2704,12 @@ class SettingsWindow : HudDialog
             if (name == "" || name.Length > 24 || name.IndexOfAny(new[] { '<', '>', '"' }) >= 0
                 || !System.Text.RegularExpressions.Regex.IsMatch(url, "^https://[^\\s\"<>]{3,300}$"))
             {
-                MessageBox.Show(this, Lang.F("This link isn't right:\n\n{0}\n\nWrite each one as: Name | https://address (names up to 24 characters).", line), "Tablet Deck", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, Lang.F("This link isn't right:\n\n{0}\n\nWrite each one as: Name | https://address (names up to 24 characters).", line), "StarPit", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
             list.Add(new Dictionary<string, string> { { "name", name }, { "url", url } });
         }
-        if (list.Count > 12) { MessageBox.Show(this, Lang.T("Up to 12 links, please."), "Tablet Deck", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
+        if (list.Count > 12) { MessageBox.Show(this, Lang.T("Up to 12 links, please."), "StarPit", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
         return new JavaScriptSerializer().Serialize(list);
     }
     readonly HudView.Item pttSound, shortEmotes, pttButton;
@@ -2762,7 +2765,7 @@ class SettingsWindow : HudDialog
     // Two columns of panels: pairing, keys and voice on the left, push-to-talk and links on
     // the right, and the buttons along the bottom.
     public SettingsWindow(Dictionary<string, object> current, bool portFromCommandLine, Icon icon, string keybindProfile)
-        : base("Tablet Deck settings", icon, 800, 584)
+        : base("StarPit settings", icon, 800, 584)
     {
         this.current = current;
         FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -2783,7 +2786,7 @@ class SettingsWindow : HudDialog
         port.Maximum = 65535;
         port.Value = Math.Max(1024, Math.Min(65535, GetNumber("port", 8765)));
         port.Enabled = !portFromCommandLine;
-        Hint(portFromCommandLine ? "Set with --port when Tablet Deck was started, so it can't be changed here."
+        Hint(portFromCommandLine ? "Set with --port when StarPit was started, so it can't be changed here."
             : "Changing it restarts the server. Tablets then need the new address or QR code.", 134, 150, 242, 34);
 
         Panel("KEYS", 16, 212, 376, 132);
@@ -2895,14 +2898,14 @@ class SettingsWindow : HudDialog
         string newCode = code.Text.Trim().ToLowerInvariant();
         if (!System.Text.RegularExpressions.Regex.IsMatch(newCode, "^[a-z0-9]{1,32}$"))
         {
-            MessageBox.Show(this, Lang.T("The pairing code can only have letters and numbers (up to 32)."), "Tablet Deck", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, Lang.T("The pairing code can only have letters and numbers (up to 32)."), "StarPit", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             code.Focus();
             return;
         }
         string newLanguage = language.Text.Trim();
         if (!System.Text.RegularExpressions.Regex.IsMatch(newLanguage, "^[a-z]{2}(-[A-Za-z]{2,4})?$"))
         {
-            MessageBox.Show(this, Lang.T("The voice language should look like en-US."), "Tablet Deck", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, Lang.T("The voice language should look like en-US."), "StarPit", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             language.Focus();
             return;
         }
