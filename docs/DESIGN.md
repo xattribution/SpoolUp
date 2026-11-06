@@ -107,6 +107,15 @@ state:
 | `--deny` | the flash of a press the PC skipped (Drake's red hazard, Aegis's red scanlines) |
 | `--veil` (on `#canvas`) | what covers the plates while the PC is offline |
 
+The cockpit controls (2.0) are drawn the same way, with a section per maker:
+the gear lever's slot, knob and lamps (`.hud-lever`, `.lv-*`), the level
+sliders' and fader's track and knob (`.lvl-track`, `.lvl-knob`, `.hud-fader`),
+and the mode dial's face, ticks, needle and hub (`.hud-rotary`, `.rt-*`). A
+new maker draws all four, so each looks like that maker's own hardware
+(Drake's riveted hazard lever, Origin's cream fader knob, Anvil's knurled dial).
+Whatever a finger grabs stays at least 44 points, and the high-contrast block at
+the end resets them like the buttons.
+
 Keep it to gradients and borders: no filters or animations per frame, so the
 deck stays smooth on an iPad. Marks go where the state text and key labels
 aren't (a slot bar sits on the very bottom edge, under "RETRACTED"). High

@@ -224,6 +224,7 @@ html[data-large] .hud-header { font-size: 13px; }
 html[data-large] .hud-pager .title span { font-size: 19px; }
 html[data-large] .hud-lever .lv-lbl .t { font-size: 14px; font-weight: 700; }
 html[data-large] .hud-lever .lv-state { font-size: 10.5px; }
+html[data-large] .compact .hud-lever .lv-lbl .t { font-size: 11.5px; }
 html[data-large] .label { font-size: 21px; font-weight: 700; }
 html[data-large] .keycap { font-size: 13px; }
 
