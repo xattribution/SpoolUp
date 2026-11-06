@@ -70,6 +70,15 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   key doesn't switch, pick the target in the key's settings once".
 - **Themes with the plugin:** one bundled profile per model; Theme keys re-skin every
   plugin key live (global setting), reliable.
+- **The built-in Hotkey only taps** (`research/profiles.verified.md` correction 1): it
+  can't hold a key. Star Citizen actions that need a hold or a >= 0.25 s press (voice push
+  to talk, Engage Quantum, Look Behind, the `delayed_press` binds such as SCM/NAV, docking
+  camera, Max/Min power) can't work as standalone Hotkeys. In the standalone pack they use
+  the Tablet Deck plugin's key action instead, drawn with a "PLUGIN" mark, rather than a
+  tap that silently does nothing. (Possible later: the keybind profile could rebind those
+  actions with a press activation mode, if Star Citizen's actionmaps accept that; unverified.)
+- **Animated icon pack images must be GIF**, with a PNG of the same name next to each
+  (`research/iconpacks.verified.md` correction 2); WebP fails Elgato's tool.
 - **Standalone hotkeys don't pass Tablet Deck's focus check** (Elgato's app presses them,
   into whatever window has focus). Say so in the docs; the plugin route goes through Tablet
   Deck and keeps the check.
