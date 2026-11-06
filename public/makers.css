@@ -1,0 +1,558 @@
+/* Each manufacturer's own drawing of the HUD: its plates, bezel, buttons, headers and
+   widgets, and its lit, pressed, blocked and offline looks. Colours come from the theme's
+   tokens (themes.css); this file says what a token can't: shapes, materials, marks.
+   Buttons are drawn from variables set on the button (see .hud-btn in hud.css), so a
+   maker's look keeps working with every state and with the button's colour (--c).
+   Everything is gradients and borders: nothing here animates or filters per frame. */
+
+/* ====================================================================================
+   RSI: navy glass, HUD corner brackets, gold section titles
+   ==================================================================================== */
+[data-theme="rsi"] .hud-region::before {
+  background:
+    linear-gradient(var(--accent), var(--accent)) 0 0 / 18px 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 0 0 / 2px 18px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 100% 100% / 18px 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 100% 100% / 2px 18px no-repeat,
+    var(--plate);
+}
+[data-theme="rsi"] .hud-btn {
+  --mark: linear-gradient(115deg, rgba(255,255,255,.07), transparent 42%),
+    linear-gradient(color-mix(in srgb, var(--c) 60%, transparent), color-mix(in srgb, var(--c) 60%, transparent)) 5px 5px / 8px 1.5px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 60%, transparent), color-mix(in srgb, var(--c) 60%, transparent)) 5px 5px / 1.5px 8px no-repeat;
+  --lit: linear-gradient(var(--c), var(--c)) 50% 100% / 40% 2px no-repeat,
+    radial-gradient(ellipse 70% 90% at 50% 100%, color-mix(in srgb, var(--c) 24%, transparent), transparent 70%);
+  --lit-ring: inset 0 0 0 1px var(--c), 0 0 18px -6px var(--c);
+}
+[data-theme="rsi"] .hud-header span, [data-theme="rsi"] .hud-header .a { color: #f0c069; }
+[data-theme="rsi"] #canvas { --veil: repeating-linear-gradient(0deg, rgba(79,179,255,.07) 0 1px, transparent 1px 4px); }
+
+/* ====================================================================================
+   Drake: scratched gunmetal slabs, rivets, hazard stripes, stencil type
+   ==================================================================================== */
+[data-theme="drake"] #canvas {
+  --bezel: inset 0 0 0 1px #000, inset 0 0 40px rgba(0,0,0,.6);
+  --veil: repeating-linear-gradient(-45deg, rgba(242,194,48,.08) 0 16px, transparent 16px 32px);
+}
+[data-theme="drake"] #canvas:not(.compact) {
+  --bezel-art: repeating-linear-gradient(-45deg, #f2c230 0 12px, #14130f 12px 24px) 0 100% / 100% 9px no-repeat;
+}
+[data-theme="drake"] .hud-region::before {
+  border-radius: 0; border-color: #0b0a08;
+  background:
+    repeating-linear-gradient(-45deg, var(--accent) 0 6px, #14130f 6px 12px) 12px 0 / 110px 6px no-repeat,
+    radial-gradient(circle, #6f6856 0 1.6px, rgba(0,0,0,.7) 2.2px, transparent 2.9px) 4px 100% / 26px 8px repeat-x,
+    radial-gradient(circle, #6f6856 0 1.6px, rgba(0,0,0,.7) 2.2px, transparent 2.9px) 100% 100% / 8px 26px repeat-y,
+    var(--plate);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), inset 0 0 0 3px rgba(0,0,0,.25);
+}
+[data-theme="drake"] .hud-btn {
+  --rivet: #7c7461;
+  --edge: #0c0b09;
+  --mark:
+    radial-gradient(circle at 6px 6px, var(--rivet) 0 1.3px, rgba(0,0,0,.7) 1.9px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 6px) 6px, var(--rivet) 0 1.3px, rgba(0,0,0,.7) 1.9px, transparent 2.5px),
+    radial-gradient(circle at 6px calc(100% - 6px), var(--rivet) 0 1.3px, rgba(0,0,0,.7) 1.9px, transparent 2.5px),
+    var(--scratches);
+  --bevel: inset 0 1px 0 rgba(255,255,255,.09), inset 0 -3px 0 rgba(0,0,0,.5), inset 1px 0 0 rgba(255,255,255,.03);
+  --lit: repeating-linear-gradient(-45deg, var(--c) 0 5px, #14130f 5px 10px) 0 0 / 100% 5px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 9%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px var(--c), inset 0 -3px 0 rgba(0,0,0,.5);
+  --press-move: translateY(2px);
+  --press-ring: inset 0 3px 0 rgba(0,0,0,.55), inset 0 0 0 1px var(--c);
+  --press: linear-gradient(color-mix(in srgb, var(--c) 22%, transparent) 0 0);
+  --deny: repeating-linear-gradient(-45deg, rgba(239,91,45,.45) 0 7px, rgba(0,0,0,.3) 7px 14px);
+}
+[data-theme="drake"] .hud-header { font-family: var(--font-display); font-weight: 400; font-size: 12px; letter-spacing: .12em; }
+[data-theme="drake"] .hud-header b {
+  display: inline-block; width: 24px; height: 9px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 4px, #14130f 4px 8px);
+}
+[data-theme="drake"] .s-dial .dial {
+  border: 0; border-radius: 0; background: #0f0e0b;
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  box-shadow: inset 0 0 0 2px #3d392f;
+}
+[data-theme="drake"] .s-hero, [data-theme="drake"] .s-quantum {
+  --mark: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 85%, transparent) 0 7px, #14130f 7px 14px) 0 0 / 100% 6px no-repeat,
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 85%, transparent) 0 7px, #14130f 7px 14px) 0 100% / 100% 6px no-repeat,
+    var(--scratches);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
+}
+[data-theme="drake"] .s-switch { --face: linear-gradient(#0f0e0b, #0f0e0b); --mark: linear-gradient(var(--accent), var(--accent)) 0 0 / 4px 100% no-repeat; padding-left: 10px; }
+[data-theme="drake"] .hud-slider .knob { background: repeating-linear-gradient(0deg, #f2c230 0 5px, #14130f 5px 10px); border-radius: 0; box-shadow: 0 0 0 2px #0b0a08; }
+[data-theme="drake"] .hud-danger { border-radius: 0; background: repeating-linear-gradient(-45deg, rgba(242,194,48,.16) 0 12px, rgba(0,0,0,.25) 12px 24px); border-color: rgba(242,194,48,.5); }
+[data-theme="drake"] .hud-pager .title span { letter-spacing: .18em; }
+[data-theme="drake"] .hud-pager .dots i { height: 4px; width: 10px; transform: skewX(-30deg); }
+[data-theme="drake"] .hud-vlabel { border-color: #3d392f; background: #0f0e0b; }
+
+/* ====================================================================================
+   Aegis: carbon weave, graphite with cut corners, red tactical marks
+   ==================================================================================== */
+[data-theme="aegis"] #canvas {
+  --veil: repeating-linear-gradient(0deg, rgba(255,59,59,.07) 0 2px, transparent 2px 5px);
+}
+[data-theme="aegis"] #canvas:not(.compact) {
+  --bezel-art: linear-gradient(var(--accent), var(--accent)) 14px calc(100% - 5px) / 220px 3px no-repeat,
+    linear-gradient(#3a3f47, #3a3f47) 240px calc(100% - 4px) / 60px 1px no-repeat;
+}
+[data-theme="aegis"] .hud-region::before {
+  border-radius: 0;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  background:
+    linear-gradient(var(--accent), var(--accent)) calc(100% - 12px) 6px / 26px 3px no-repeat,
+    linear-gradient(135deg, transparent 0 calc(50% - 1px), #3a3f47 0 calc(50% + 1px), transparent 0) 0 0 / 16px 16px no-repeat,
+    var(--plate);
+}
+[data-theme="aegis"] .hud-btn {
+  --edge: #3a3f47;
+  --mark: linear-gradient(135deg, transparent 0 calc(50% - .8px), #6a717c 0 calc(50% + .8px), transparent 0) 0 0 / 9px 9px no-repeat,
+    linear-gradient(135deg, transparent 0 calc(50% - .8px), #3a3f47 0 calc(50% + .8px), transparent 0) 100% 100% / 9px 9px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent 30%);
+  --lit: linear-gradient(var(--c), var(--c)) 100% 0 / 16px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 2px 16px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 16px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 2px 16px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 10%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent);
+  --press-move: scale(.98);
+  --deny: repeating-linear-gradient(0deg, rgba(255,59,59,.35) 0 2px, transparent 2px 4px);
+}
+[data-theme="aegis"] .hud-header b {
+  display: inline-block; width: 3px; height: 11px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; background: var(--accent);
+}
+[data-theme="aegis"] .hud-header > span::after, [data-theme="aegis"] .hud-header.state .a::after {
+  content: ""; display: inline-block; width: 16px; height: 2px; margin-left: 8px; vertical-align: middle; background: var(--accent);
+}
+[data-theme="aegis"] .s-dial .dial { border-radius: 0; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+[data-theme="aegis"] .s-hero, [data-theme="aegis"] .s-quantum {
+  clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
+  --mark: linear-gradient(var(--c), var(--c)) 40px 0 / 90px 3px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent 30%);
+}
+[data-theme="aegis"] .hud-slider .knob { border-radius: 0; background: var(--accent); box-shadow: 0 0 10px rgba(255,59,59,.5); }
+[data-theme="aegis"] .hud-slider .track { border-radius: 0; }
+[data-theme="aegis"] .hud-danger { border-radius: 0; background: repeating-linear-gradient(90deg, rgba(255,59,59,.12) 0 2px, transparent 2px 8px), rgba(255,59,59,.06); }
+[data-theme="aegis"] .hud-pager .dots i { width: 18px; height: 2px; }
+[data-theme="aegis"] .hud-rule { border-top-width: 1px; }
+
+/* ====================================================================================
+   Anvil: olive drab armour, screwed plates, indicator lamps, stencil type
+   ==================================================================================== */
+[data-theme="anvil"] #canvas {
+  --bezel: inset 0 0 0 2px #1c2016, inset 0 0 50px rgba(0,0,0,.35);
+  --veil: repeating-linear-gradient(45deg, rgba(20,24,14,.35) 0 10px, transparent 10px 20px);
+}
+[data-theme="anvil"] .hud-region::before {
+  border-radius: 0; border: 2px solid var(--plate-line);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  background:
+    radial-gradient(circle at 9px 9px, #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    radial-gradient(circle at 9px calc(100% - 22px), #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 22px) 9px, #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    var(--plate);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.06), inset 0 -2px 0 rgba(0,0,0,.3);
+}
+[data-theme="anvil"] .hud-btn {
+  --edge: #1f2419;
+  --mark: radial-gradient(circle at 9px 9px, #232819 0 2.6px, rgba(255,255,255,.12) 3.1px, transparent 3.7px), var(--scratches);
+  --bevel: inset 0 0 0 1px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.08), inset 0 -2px 0 rgba(0,0,0,.4);
+  --lit: radial-gradient(circle at 9px 9px, #fff 0 1px, var(--c) 1.6px 2.8px, color-mix(in srgb, var(--c) 40%, transparent) 3.4px, transparent 8px),
+    linear-gradient(color-mix(in srgb, var(--c) 9%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px var(--c), inset 0 -2px 0 rgba(0,0,0,.4);
+  --press-move: translateY(1px);
+  --press-ring: inset 0 2px 6px rgba(0,0,0,.55), inset 0 0 0 1px var(--c);
+}
+/* The top bar's icons and the chevrons have no room for a lamp. */
+[data-theme="anvil"] .s-top, [data-theme="anvil"] .s-pg { --mark: var(--scratches); --lit: linear-gradient(color-mix(in srgb, var(--c) 12%, transparent) 0 0); }
+[data-theme="anvil"] .hud-header { font-family: var(--font-display); font-weight: 400; font-size: 12px; letter-spacing: .1em; }
+[data-theme="anvil"] .hud-header b { display: inline-block; width: 9px; height: 9px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; background: var(--accent); }
+[data-theme="anvil"] .s-dial .dial {
+  border: 2px solid #1f2419;
+  background: repeating-conic-gradient(#4c553f 0 6deg, #2f3528 6deg 12deg);
+}
+[data-theme="anvil"] .s-dial .dial svg { background: radial-gradient(circle, #2f3528 0 58%, transparent 60%); border-radius: 50%; }
+[data-theme="anvil"] .s-hero, [data-theme="anvil"] .s-quantum {
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
+  --mark: radial-gradient(circle at 12px 12px, #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #9aa47c 0 1.4px, #5f6849 1.9px 3.4px, rgba(0,0,0,.6) 3.9px, transparent 4.6px),
+    var(--scratches);
+}
+[data-theme="anvil"] .s-switch { --face: linear-gradient(#232819, #232819); --edge: var(--accent); color: var(--accent); }
+[data-theme="anvil"] .hud-slider .knob { border-radius: 0; background: repeating-linear-gradient(90deg, var(--accent) 0 3px, #8a5d17 3px 5px); box-shadow: 0 0 0 2px #1c2016; }
+[data-theme="anvil"] .hud-danger { border-radius: 0; background: repeating-linear-gradient(-45deg, rgba(232,93,63,.18) 0 10px, rgba(0,0,0,.22) 10px 20px); }
+[data-theme="anvil"] .hud-pager .title span { font-size: 16px; }
+[data-theme="anvil"] .hud-pager .dots i { width: 8px; height: 8px; }
+[data-theme="anvil"] .hud-vlabel { background: #232819; border-color: #1f2419; }
+
+/* ====================================================================================
+   Origin: cream luxury, black gloss controls, gold hairlines, a cream dial
+   ==================================================================================== */
+[data-theme="origin"] #canvas {
+  --bezel: inset 0 0 0 1px rgba(201,164,104,.45), inset 0 0 0 6px rgba(255,255,255,.35);
+  --veil: linear-gradient(rgba(235,228,214,.4), rgba(235,228,214,.4));
+}
+[data-theme="origin"] .hud-region::before {
+  border-radius: 16px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent) 50% 0 / 60% 1px no-repeat, var(--plate);
+  box-shadow: 0 10px 30px rgba(90,70,30,.12), inset 0 1px 0 #fff;
+}
+[data-theme="origin"] .hud-btn {
+  --edge: #000;
+  --mark: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.03) 48%, transparent 52%);
+  --bevel: 0 3px 8px rgba(60,40,10,.28), inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.7);
+  --lit: linear-gradient(var(--c), var(--c)) 50% calc(100% - 1px) / 40% 2px no-repeat,
+    radial-gradient(ellipse 60% 60% at 50% 100%, color-mix(in srgb, var(--c) 20%, transparent), transparent 70%);
+  --lit-ring: 0 0 0 1px var(--c), 0 4px 12px color-mix(in srgb, var(--c) 35%, transparent);
+  --press: linear-gradient(0deg, rgba(255,255,255,.07), transparent 50%), linear-gradient(color-mix(in srgb, var(--c) 16%, transparent) 0 0);
+  --press-ring: inset 0 2px 7px rgba(0,0,0,.7), 0 0 0 1px var(--c);
+  --press-move: scale(.98);
+  --deny: linear-gradient(rgba(236,113,102,.28), rgba(236,113,102,.28));
+}
+[data-theme="origin"] .hud-header { font-weight: 500; letter-spacing: .3em; font-size: 10.5px; }
+[data-theme="origin"] .hud-header b {
+  display: inline-block; width: 6px; height: 6px; margin: 0 10px 0 2px; font-size: 0; vertical-align: middle; position: relative; top: -1px;
+  background: var(--accent); transform: rotate(45deg);
+}
+[data-theme="origin"] .hud-header em { color: #3f8f69; }
+[data-theme="origin"] .s-dial .dial {
+  border: 0;
+  background: radial-gradient(circle at 36% 30%, #fff, #f2ead9 42%, #cfc2a6 100%);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 -2px 4px rgba(90,70,30,.2);
+}
+[data-theme="origin"] .s-dial .dial circle { stroke: rgba(60,45,20,.15); }
+[data-theme="origin"] .s-dial .dial path { stroke: #9a7638; }
+[data-theme="origin"] .s-hero, [data-theme="origin"] .s-quantum {
+  clip-path: none; border-radius: 18px; --edge: #000;
+  --mark: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.03) 48%, transparent 52%);
+}
+[data-theme="origin"] .s-hero::before, [data-theme="origin"] .s-quantum::before { border-color: rgba(202,164,104,.45); }
+[data-theme="origin"] .s-quantum::after {
+  width: 52px; background: radial-gradient(circle, var(--accent) 0 2px, transparent 2.5px) 0 50% / 10px 6px repeat-x;
+}
+/* The mode switch is an ivory key on the plate, so it reads as a selector, not an action. */
+[data-theme="origin"] .s-switch {
+  --face: linear-gradient(#fffdf8, #efe7d8); --edge: #d3c5aa; --mark: none;
+  --bevel: 0 2px 5px rgba(90,70,30,.14), inset 0 1px 0 #fff;
+  color: var(--ink); border-radius: 999px;
+}
+[data-theme="origin"] .s-switch .hud-lbl { text-shadow: none; }
+[data-theme="origin"] .hud-slider .track { border-radius: 999px; border-color: #000; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--red) 45%, transparent) var(--fill), transparent var(--fill)), linear-gradient(#2c2c30, #131315); }
+[data-theme="origin"] .hud-slider .txt { border-radius: 999px; background: #131315; }
+[data-theme="origin"] .hud-slider .knob {
+  left: 2px; top: 2px; bottom: auto; width: 54px; height: 54px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #fff, #f2ead9 42%, #cfc2a6 100%); box-shadow: 0 3px 8px rgba(0,0,0,.45);
+}
+[data-theme="origin"] .hud-danger { border-radius: 16px; border-color: rgba(236,113,102,.4); background: rgba(236,113,102,.08); }
+[data-theme="origin"] .hud-pager .title { border-color: #000; box-shadow: 0 3px 8px rgba(60,40,10,.25), inset 0 1px 0 rgba(255,255,255,.14); }
+[data-theme="origin"] .hud-pager .title span { font-weight: 500; letter-spacing: .3em; font-size: 14px; font-family: var(--font-body); }
+[data-theme="origin"] .hud-pager .dots i { width: 5px; height: 5px; border-radius: 50%; }
+[data-theme="origin"] .hud-vlabel { border-color: #d8ccb4; background: rgba(255,255,255,.4); border-radius: 8px; }
+[data-theme="origin"] .hud-bracket svg { stroke: #c9a66b; }
+[data-theme="origin"] .hud-rule { border-top-width: 1px; border-top-color: #c9a66b; }
+
+/* ====================================================================================
+   MISC: teal-slate enamel, grey bezel, orange tabs, gauge dials
+   ==================================================================================== */
+[data-theme="misc"] #canvas { --veil: linear-gradient(rgba(150,160,160,.22), rgba(150,160,160,.22)); }
+[data-theme="misc"] #canvas:not(.compact) { --bezel: inset 0 0 0 4px #b4baba, inset 0 0 0 5px #7c8686, inset 0 0 30px rgba(0,0,0,.3); }
+[data-theme="misc"] .hud-region::before {
+  background:
+    linear-gradient(var(--accent), var(--accent)) calc(100% - 36px) 0 / 64px 4px no-repeat,
+    linear-gradient(rgba(255,255,255,.08), rgba(255,255,255,.08)) 0 0 / 100% 1px no-repeat,
+    var(--plate);
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.2);
+}
+[data-theme="misc"] .hud-btn {
+  --edge: #1e3637;
+  --mark: linear-gradient(rgba(0,0,0,.32), rgba(0,0,0,.32)) 50% calc(100% - 1px) / 46% 2px no-repeat;
+  --bevel: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 0 rgba(0,0,0,.25), 0 2px 0 rgba(0,0,0,.2);
+  --lit: linear-gradient(var(--c), var(--c)) 50% calc(100% - 1px) / 46% 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 8px 0 / 24px 3px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 10%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px var(--c), inset 0 1px 0 rgba(255,255,255,.14);
+  --press-move: translateY(1px);
+}
+[data-theme="misc"] .hud-header b { display: inline-block; width: 12px; height: 4px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; background: var(--accent); }
+[data-theme="misc"] .s-dial .dial {
+  border: 2px solid #b4baba;
+  background: repeating-conic-gradient(from -2deg, rgba(255,255,255,.35) 0 4deg, transparent 4deg 30deg), #1e3637;
+}
+[data-theme="misc"] .s-hero, [data-theme="misc"] .s-quantum {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 28px 100%, 0 calc(100% - 28px));
+  --mark: linear-gradient(var(--accent), var(--accent)) calc(100% - 30px) 0 / 70px 4px no-repeat;
+}
+[data-theme="misc"] .s-switch { --face: linear-gradient(#b4baba, #9aa2a2); --edge: #6d7777; color: #1e3637; }
+[data-theme="misc"] .s-switch .hud-lbl { text-shadow: none; }
+[data-theme="misc"] .hud-slider .knob { border-radius: 2px; background: var(--accent); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+[data-theme="misc"] .hud-danger { background: repeating-linear-gradient(-45deg, rgba(255,138,42,.16) 0 10px, transparent 10px 20px); }
+[data-theme="misc"] .hud-vlabel { background: #1e3637; border-color: #4d7477; }
+
+/* ====================================================================================
+   Crusader: open sky, frosted plates, pearl-white capsules
+   ==================================================================================== */
+[data-theme="crusader"] #canvas { --veil: linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.42)); }
+[data-theme="crusader"] .hud-region::before {
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(40,90,140,.16), inset 0 1px 0 #fff;
+}
+[data-theme="crusader"] .hud-btn {
+  --edge: #c6d6e6;
+  --mark: linear-gradient(#c3d1de, #c3d1de) 50% calc(100% - 1px) / 44% 2px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.9), transparent 45%);
+  --bevel: 0 2px 0 #bfd0e0, 0 6px 14px rgba(40,90,140,.14), inset 0 1px 0 #fff;
+  --lit: linear-gradient(var(--c), var(--c)) 50% calc(100% - 1px) / 44% 2px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 8%, transparent) 0 0);
+  --lit-ring: 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent), 0 6px 16px color-mix(in srgb, var(--c) 25%, transparent);
+  --press: linear-gradient(color-mix(in srgb, var(--c) 14%, transparent) 0 0);
+  --press-ring: inset 0 2px 6px rgba(40,90,140,.3), 0 0 0 1px var(--c);
+  --press-move: translateY(2px);
+  --deny: linear-gradient(rgba(207,63,76,.16), rgba(207,63,76,.16));
+}
+[data-theme="crusader"] .hud-header { letter-spacing: .14em; font-size: 11.5px; }
+[data-theme="crusader"] .hud-header b { display: inline-block; width: 8px; height: 8px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; border-radius: 50%; background: var(--accent); }
+[data-theme="crusader"] .hud-header em { color: var(--green); }
+[data-theme="crusader"] .hud-rule { border-top-color: rgba(21,48,77,.3); border-top-width: 1px; }
+[data-theme="crusader"] .s-dial .dial { border: 0; background: radial-gradient(circle at 36% 30%, #fff, #e8f0f7 50%, #b7c8d8); box-shadow: 0 2px 5px rgba(40,90,140,.3); }
+[data-theme="crusader"] .s-dial .dial circle { stroke: #d2dde8; }
+[data-theme="crusader"] .s-hero, [data-theme="crusader"] .s-quantum { clip-path: none; border-radius: 999px; }
+[data-theme="crusader"] .s-hero::before, [data-theme="crusader"] .s-quantum::before { border-color: color-mix(in srgb, var(--c) 35%, transparent); }
+[data-theme="crusader"] .s-quantum::after { background: radial-gradient(circle, var(--c) 0 2.5px, transparent 3px) 0 50% / 10px 6px repeat-x; }
+[data-theme="crusader"] .s-danger { --face: linear-gradient(#e25a66, #c63a47); --edge: #a92f3b; --mark: none; }
+[data-theme="crusader"] .s-switch { --face: linear-gradient(#3d8ad6, #2a78c8); --edge: #2366aa; --mark: none; color: #fff; border-radius: 999px; }
+[data-theme="crusader"] .s-switch .hud-lbl { text-shadow: none; }
+[data-theme="crusader"] .hud-slider .track { border-radius: 999px; border-color: #c6d6e6; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--red) 35%, transparent) var(--fill), transparent var(--fill)),
+  radial-gradient(circle, color-mix(in srgb, var(--red) 40%, transparent) 1px, transparent 1.6px) 0 50% / 9px 9px, #f4f8fc; }
+[data-theme="crusader"] .hud-slider .txt { border-radius: 999px; background: #fff; }
+[data-theme="crusader"] .hud-slider .knob { border-radius: 999px; background: #fff; box-shadow: 0 2px 6px rgba(40,90,140,.35), inset 0 0 0 2px var(--accent); }
+[data-theme="crusader"] .hud-danger { border-radius: 18px; background: rgba(207,63,76,.08); }
+[data-theme="crusader"] .hud-pager .title { border-color: #c6d6e6; box-shadow: 0 2px 0 #bfd0e0; }
+[data-theme="crusader"] .hud-pager .dots i { width: 6px; height: 6px; border-radius: 50%; }
+[data-theme="crusader"] .hud-vlabel { border-radius: 10px; background: rgba(255,255,255,.5); border-color: #fff; }
+
+/* ====================================================================================
+   Banu: plum lacquer on carved wood, soft seed shapes, warm glow
+   ==================================================================================== */
+[data-theme="banu"] #canvas {
+  --bezel: inset 0 0 70px rgba(0,0,0,.55);
+  --veil: radial-gradient(ellipse at 50% 50%, rgba(20,8,4,.15), rgba(20,8,4,.5));
+}
+[data-theme="banu"] .hud-region::before {
+  border-radius: 28px 10px 28px 10px;
+  box-shadow: inset 0 0 24px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.3);
+}
+[data-theme="banu"] .hud-btn {
+  --edge: #6a3f63;
+  --mark: radial-gradient(ellipse 60% 55% at 25% 12%, rgba(255,215,175,.15), transparent 70%);
+  --bevel: 0 3px 0 #1f0d1c, 0 6px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,220,200,.12);
+  --lit: radial-gradient(ellipse 80% 75% at 50% 100%, color-mix(in srgb, var(--c) 36%, transparent), transparent 72%);
+  --lit-ring: 0 0 0 1px var(--c), 0 0 16px color-mix(in srgb, var(--c) 45%, transparent), 0 3px 0 #1f0d1c;
+  --press-move: scale(.96);
+  --press-ring: inset 0 0 18px color-mix(in srgb, var(--c) 55%, transparent), 0 0 0 1px var(--c);
+}
+[data-theme="banu"] .hud-header { font-size: 12.5px; letter-spacing: .06em; text-transform: none; font-family: var(--font-display); text-shadow: -1px 0 rgba(255,101,147,.35), 1px 0 rgba(63,209,180,.35); }
+[data-theme="banu"] .hud-header b { display: inline-block; width: 9px; height: 9px; margin-right: 9px; font-size: 0; vertical-align: middle; position: relative; top: -1px; border-radius: 50% 0; background: var(--accent); }
+[data-theme="banu"] .s-dial .dial { border-radius: 50% 6px; border-color: #a06a9a; background: #2a1328; }
+[data-theme="banu"] .s-hero, [data-theme="banu"] .s-quantum { clip-path: none; border-radius: 34px 10px 34px 10px; }
+[data-theme="banu"] .s-quantum::after { background: radial-gradient(circle, var(--c) 0 2.5px, transparent 3px) 0 50% / 10px 6px repeat-x; }
+[data-theme="banu"] .s-switch { --face: linear-gradient(#2a1328, #2a1328); border-radius: 12px 4px; }
+[data-theme="banu"] .hud-slider .track { border-radius: 26px 8px; }
+[data-theme="banu"] .hud-slider .knob { border-radius: 50% 4px; background: var(--green); box-shadow: 0 0 14px color-mix(in srgb, var(--green) 60%, transparent); }
+[data-theme="banu"] .hud-danger { border-radius: 26px 8px 26px 8px; }
+[data-theme="banu"] .hud-pager .title span { text-transform: none; letter-spacing: .08em; }
+[data-theme="banu"] .hud-pager .dots i { width: 7px; height: 7px; border-radius: 50% 0; }
+[data-theme="banu"] .hud-vlabel { border-radius: 14px 4px; }
+
+/* ====================================================================================
+   Aopoa: jade light, flowing plates, deep green forms with a living rim
+   ==================================================================================== */
+[data-theme="aopoa"] #canvas { --veil: linear-gradient(rgba(214,233,225,.45), rgba(214,233,225,.45)); }
+[data-theme="aopoa"] .hud-region::before {
+  border-radius: 30px 30px 34px 10px;
+  box-shadow: 0 10px 30px rgba(20,80,64,.12), inset 0 1px 0 rgba(255,255,255,.8);
+}
+[data-theme="aopoa"] .hud-btn {
+  --edge: #0b2720;
+  --mark: radial-gradient(ellipse 70% 45% at 30% 0, rgba(140,255,215,.18), transparent 70%);
+  --bevel: 0 4px 10px rgba(10,60,45,.25), inset 0 1px 0 rgba(160,255,220,.18);
+  --lit: radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), var(--c) 0 2.5px, color-mix(in srgb, var(--c) 35%, transparent) 4px, transparent 12px),
+    linear-gradient(color-mix(in srgb, var(--c) 10%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px var(--c), inset 0 0 14px color-mix(in srgb, var(--c) 40%, transparent), 0 4px 12px color-mix(in srgb, var(--c) 30%, transparent);
+  --press-move: scale(.95);
+  --press-ring: inset 0 0 20px color-mix(in srgb, var(--c) 55%, transparent), inset 0 0 0 1px var(--c);
+}
+[data-theme="aopoa"] .hud-header { letter-spacing: .08em; font-size: 11.5px; text-transform: none; }
+[data-theme="aopoa"] .hud-header b { display: inline-block; width: 11px; height: 11px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; border-radius: 0 100% 0 100%; background: #1e6b57; }
+[data-theme="aopoa"] .hud-header em { color: #157a5c; }
+[data-theme="aopoa"] .hud-rule { border-top-width: 1px; border-top-color: rgba(18,57,47,.35); }
+[data-theme="aopoa"] .s-dial .dial { border-color: #3fae8a; background: conic-gradient(from 200deg, #0f3129, #1e5245, #0f3129); }
+[data-theme="aopoa"] .s-hero, [data-theme="aopoa"] .s-quantum { clip-path: none; border-radius: 40px 12px 40px 12px; }
+[data-theme="aopoa"] .s-quantum::after { background: radial-gradient(circle, var(--c) 0 2.5px, transparent 3px) 0 50% / 10px 6px repeat-x; }
+[data-theme="aopoa"] .s-switch { --face: linear-gradient(#e9f6f0, #d4ebe1); --edge: #9cc8b8; --mark: none; color: var(--ink); border-radius: 14px 5px; }
+[data-theme="aopoa"] .s-switch .hud-lbl { text-shadow: none; }
+[data-theme="aopoa"] .hud-slider .track { border-radius: 26px 8px; border-color: #0b2720; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--red) 45%, transparent) var(--fill), transparent var(--fill)), linear-gradient(#1e5245, #0f3129); }
+[data-theme="aopoa"] .hud-slider .knob { border-radius: 0 100% 0 100%; width: 22px; background: var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+[data-theme="aopoa"] .hud-danger { border-radius: 26px 8px; }
+[data-theme="aopoa"] .hud-pager .title span { text-transform: none; letter-spacing: .06em; }
+[data-theme="aopoa"] .hud-pager .dots i { width: 6px; height: 6px; border-radius: 50%; }
+[data-theme="aopoa"] .hud-vlabel { border-radius: 14px 4px; border-color: rgba(23,82,68,.2); background: rgba(255,255,255,.45); }
+
+/* ====================================================================================
+   Argo: safety-yellow work panels, black utility keys, hazard bands, big codes
+   ==================================================================================== */
+[data-theme="argo"] #canvas { --veil: repeating-linear-gradient(-45deg, rgba(0,0,0,.12) 0 14px, transparent 14px 28px); }
+[data-theme="argo"] #canvas:not(.compact) {
+  --bezel-art: repeating-linear-gradient(-45deg, #1a1505 0 12px, #e9b62c 12px 24px) 0 0 / 100% 7px no-repeat,
+    repeating-linear-gradient(-45deg, #1a1505 0 12px, #e9b62c 12px 24px) 0 100% / 100% 10px no-repeat;
+}
+[data-theme="argo"] .hud-region::before {
+  border-radius: 2px; border: 2px solid rgba(60,40,0,.45);
+  background:
+    radial-gradient(circle, rgba(0,0,0,.4) 0 2px, rgba(255,240,180,.4) 2.6px, transparent 3.2px) 6px 3px / 24px 8px repeat-x,
+    radial-gradient(circle, rgba(0,0,0,.4) 0 2px, rgba(255,240,180,.4) 2.6px, transparent 3.2px) 6px calc(100% - 3px) / 24px 8px repeat-x,
+    var(--scratches), linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,.06));
+  box-shadow: inset 0 0 0 1px rgba(255,240,180,.35);
+}
+[data-theme="argo"] .hud-btn {
+  --edge: #000;
+  --mark: radial-gradient(circle at 6px 6px, #555 0 1.4px, transparent 2px),
+    radial-gradient(circle at calc(100% - 6px) 6px, #555 0 1.4px, transparent 2px), var(--scratches);
+  --bevel: 0 4px 0 rgba(60,40,0,.45), inset 0 1px 0 rgba(255,255,255,.09);
+  --lit: linear-gradient(var(--c), var(--c)) 0 100% / 100% 6px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 10%, transparent) 0 0);
+  --lit-ring: 0 4px 0 rgba(60,40,0,.45), inset 0 0 0 1px var(--c);
+  --press-move: translateY(3px);
+  --press-ring: 0 1px 0 rgba(60,40,0,.45), inset 0 0 0 1px var(--c);
+  --deny: repeating-linear-gradient(-45deg, rgba(255,96,56,.45) 0 8px, rgba(0,0,0,.35) 8px 16px);
+}
+[data-theme="argo"] .hud-header { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; }
+[data-theme="argo"] .hud-header b { display: inline-block; width: 10px; height: 10px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; background: var(--ink); }
+[data-theme="argo"] .hud-header em { color: #1f5d10; }
+[data-theme="argo"] .hud-status .dot { box-shadow: 0 0 0 2px rgba(0,0,0,.4); }
+[data-theme="argo"] .s-dial .dial { border: 3px solid var(--accent); background: #111; }
+[data-theme="argo"] .s-hero, [data-theme="argo"] .s-quantum {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  --mark: repeating-linear-gradient(-45deg, var(--accent) 0 8px, #111 8px 16px) 0 0 / 100% 8px no-repeat, var(--scratches);
+}
+[data-theme="argo"] .s-hero::before, [data-theme="argo"] .s-quantum::before { inset: 12px 5px 5px; }
+[data-theme="argo"] .s-switch { --face: linear-gradient(#ffd34d, #f0b81c); --edge: #000; --mark: none; color: #1a1505; }
+[data-theme="argo"] .s-switch .hud-lbl { text-shadow: none; }
+[data-theme="argo"] .hud-slider .track { border: 2px solid #000; border-radius: 2px; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--red) 55%, transparent) var(--fill), transparent var(--fill)), #171717; }
+[data-theme="argo"] .hud-slider .knob { border-radius: 2px; background: var(--accent); box-shadow: 0 0 0 2px #000; }
+[data-theme="argo"] .hud-danger { border-radius: 2px; border: 2px solid #000; background: repeating-linear-gradient(-45deg, #1a1505 0 14px, #e9b62c 14px 28px); }
+[data-theme="argo"] .hud-pager .title { border-color: #000; }
+[data-theme="argo"] .hud-pager .title span { font-weight: 700; font-family: var(--font-body); font-size: 18px; }
+[data-theme="argo"] .hud-vlabel { background: #171717; border-color: #000; }
+[data-theme="argo"] .hud-vlabel span { color: var(--accent); }
+[data-theme="argo"] .hud-bracket svg { stroke: #1a1505; }
+[data-theme="argo"] .hud-bracket .f { fill: #1a1505; }
+
+/* ====================================================================================
+   Consolidated Outland: desert sand, sunset stripes, warm brown kit
+   ==================================================================================== */
+[data-theme="cnou"] #canvas { --veil: linear-gradient(rgba(239,224,196,.45), rgba(239,224,196,.45)); }
+[data-theme="cnou"] .hud-region::before {
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, #ff6a13, #ffb03b) 0 0 / 100% 4px no-repeat,
+    linear-gradient(90deg, #ff6a13, #ffb03b) 0 7px / 100% 1.5px no-repeat,
+    var(--plate);
+  box-shadow: 0 8px 22px rgba(120,70,20,.14);
+}
+[data-theme="cnou"] .hud-btn {
+  --edge: #1f1813;
+  --mark: linear-gradient(var(--accent), var(--accent)) 9px 0 / 26px 3px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent 40%);
+  --bevel: 0 3px 0 #1f1813, 0 6px 12px rgba(90,50,20,.2), inset 0 1px 0 rgba(255,255,255,.08);
+  --lit: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 40%, #ffb03b)) 0 0 / 100% 4px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 11%, transparent) 0 0);
+  --lit-ring: inset 0 0 0 1px var(--c), 0 3px 0 #1f1813, 0 0 14px color-mix(in srgb, var(--c) 30%, transparent);
+  --press-move: translateY(2px);
+  --press-ring: 0 1px 0 #1f1813, inset 0 0 0 1px var(--c), inset 0 2px 8px rgba(0,0,0,.4);
+}
+[data-theme="cnou"] .hud-header { font-weight: 700; letter-spacing: .08em; }
+[data-theme="cnou"] .hud-header b { display: inline-block; width: 10px; height: 10px; margin-right: 8px; font-size: 0; vertical-align: middle; position: relative; top: -1px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 70%, #ffb03b, #ff6a13); }
+[data-theme="cnou"] .hud-header em { color: #2e8a4c; }
+[data-theme="cnou"] .s-dial .dial { border: 0; background: radial-gradient(circle at 50% 60%, #ffb03b, #ff6a13 55%, #b9531e); }
+[data-theme="cnou"] .s-dial .dial circle { stroke: rgba(0,0,0,.25); }
+[data-theme="cnou"] .s-dial .dial path { stroke: #fff4e8; }
+[data-theme="cnou"] .s-hero, [data-theme="cnou"] .s-quantum {
+  clip-path: none; border-radius: 14px;
+  --mark: linear-gradient(90deg, #ff6a13, #ffb03b) 0 0 / 100% 4px no-repeat, linear-gradient(180deg, rgba(255,255,255,.06), transparent 40%);
+}
+[data-theme="cnou"] .s-switch { --face: linear-gradient(#ff7d2e, #f0600c); --edge: #b9531e; --mark: none; color: #fff; }
+[data-theme="cnou"] .hud-slider .track { border-radius: 8px; border-color: #1f1813; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--red) 50%, transparent) var(--fill), transparent var(--fill)), linear-gradient(#4b3c32, #2f251f); }
+[data-theme="cnou"] .hud-slider .knob { border-radius: 6px; background: linear-gradient(#ffb03b, #ff6a13); box-shadow: 0 2px 0 #b9531e; }
+[data-theme="cnou"] .hud-danger { border-radius: 12px; }
+[data-theme="cnou"] .hud-pager .dots i { width: 12px; border-radius: 2px; }
+[data-theme="cnou"] .hud-vlabel { border-radius: 8px; background: rgba(255,255,255,.4); border-color: #dcc4a0; }
+
+/* ====================================================================================
+   Esperia: Tevarin plum night, swept blade shapes, coral light with a prism edge
+   ==================================================================================== */
+[data-theme="esperia"] #canvas { --veil: linear-gradient(rgba(21,12,28,.45), rgba(21,12,28,.45)); }
+[data-theme="esperia"] .hud-region::before {
+  border-radius: 2px 26px 2px 26px;
+  background: linear-gradient(90deg, transparent 35%, var(--accent)) 0 100% / 100% 1px no-repeat, var(--plate);
+  box-shadow: inset 0 0 30px rgba(150,80,200,.12);
+}
+[data-theme="esperia"] .hud-btn {
+  --edge: #4d3557;
+  --mark: linear-gradient(90deg, transparent 45%, color-mix(in srgb, var(--accent) 55%, transparent)) 0 100% / 100% 1px no-repeat,
+    linear-gradient(160deg, rgba(255,255,255,.06), transparent 40%);
+  --lit: linear-gradient(110deg, transparent 30%, color-mix(in srgb, var(--c) 22%, transparent) 75%, transparent),
+    linear-gradient(90deg, transparent 20%, var(--c)) 0 100% / 100% 2px no-repeat;
+  --lit-ring: inset 0 0 0 1px var(--c), 0 0 18px -4px var(--c);
+  --press-move: scale(.97) skewX(-2deg);
+}
+[data-theme="esperia"] .hud-header { color: var(--accent); letter-spacing: .16em; text-shadow: -1px 0 rgba(255,60,100,.55), 1px 0 rgba(110,200,255,.45); }
+[data-theme="esperia"] .hud-header b {
+  display: inline-block; width: 9px; height: 9px; margin-right: 9px; font-size: 0; vertical-align: middle; position: relative; top: -1px;
+  background: var(--accent); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+[data-theme="esperia"] .hud-header .b { text-shadow: none; }
+[data-theme="esperia"] .s-dial .dial { border: 2px solid transparent; border-top-color: var(--accent); border-right-color: color-mix(in srgb, var(--accent) 45%, transparent); background: #170d1e; }
+[data-theme="esperia"] .s-hero, [data-theme="esperia"] .s-quantum { clip-path: none; border-radius: 4px 36px 4px 36px; }
+[data-theme="esperia"] .s-quantum::after { width: 60px; background: linear-gradient(90deg, transparent, var(--c), transparent) 0 50% / 100% 2px no-repeat; }
+[data-theme="esperia"] .s-switch { --face: linear-gradient(#170d1e, #170d1e); --edge: var(--accent); color: var(--accent); border-radius: 2px 10px; }
+[data-theme="esperia"] .hud-slider .track { border-radius: 2px 20px; }
+[data-theme="esperia"] .hud-slider .knob { border-radius: 2px 12px; background: linear-gradient(160deg, #ffb3a0, var(--accent)); box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); }
+[data-theme="esperia"] .hud-danger { border-radius: 2px 22px; }
+[data-theme="esperia"] .hud-pager .title span { color: var(--accent); }
+[data-theme="esperia"] .hud-pager .dots i { width: 10px; height: 2px; transform: skewX(-40deg); }
+[data-theme="esperia"] .hud-vlabel { border-radius: 2px 12px; }
+
+/* ====================================================================================
+   High contrast (Deck settings) gives every maker the same plain black, white and strong
+   colours: no materials, marks or bezels, solid faces. The theme's shapes stay.
+   ==================================================================================== */
+html[data-contrast] #canvas .hud-btn {
+  --face: linear-gradient(#000, #000); --mark: none; --edge: #bdbdbd; --bevel: none;
+  --lit: none; --lit-ring: inset 0 0 0 2px var(--c);
+  --press: linear-gradient(#262626, #262626); --press-ring: inset 0 0 0 2px var(--c); --deny: none;
+  text-shadow: none;
+}
+html[data-contrast] #canvas::after, html[data-contrast] .hud-region::after { display: none; }
+html[data-contrast] #canvas .hud-region::before { background: none; border: 1px solid #555; box-shadow: none; }
+html[data-contrast] #canvas .hud-header, html[data-contrast] #canvas .hud-header span,
+html[data-contrast] #canvas .hud-header .a { color: #fff; text-shadow: none; }
+html[data-contrast] #canvas .hud-header b { background: var(--accent); }
+html[data-contrast] #canvas .hud-header em { color: var(--green); }
+html[data-contrast] #canvas .s-dial .dial { background: #000; border: 1px solid #fff; box-shadow: none; }
+html[data-contrast] #canvas .s-dial .dial path { stroke: var(--c); }
+html[data-contrast] #canvas .s-dial .dial circle { stroke: #fff; }
+html[data-contrast] #canvas .s-switch { color: #fff; }
+html[data-contrast] #canvas .hud-slider .track { background: #000; border-color: #fff; }
+html[data-contrast] #canvas .hud-slider .knob { background: var(--accent); box-shadow: none; }
+html[data-contrast] #canvas .hud-danger { background: #000; border-color: var(--red); }
+html[data-contrast] #canvas .hud-vlabel { background: #000; border-color: #bdbdbd; }
+html[data-contrast] #canvas .hud-vlabel span { color: #fff; }
+html[data-contrast] #canvas .hud-pager .title { background: #000; box-shadow: none; border-color: #bdbdbd; }
+html[data-contrast] #canvas .hud-pager .title span { color: #fff; }

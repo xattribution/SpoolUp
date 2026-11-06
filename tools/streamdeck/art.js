@@ -98,22 +98,23 @@ function createArt({ icons, themes, tokens }) {
   function panelBody(th, d, id, { x = 0 } = {}) {
     const c = d ? colorOf(th, d.color) : th.dim;
     const W = 200, H = 100, f = 3, shape = outline(th, x + f, f, W - 2 * f, H - 2 * f);
-    // An unused dial on a light theme is flat, in its blank keys' colour: a white face
-    // glares on a lit strip.
-    const flat = !d && th.light && keyart.mix(th.bg, th.line, 0.5);
-    const bgTop = flat || (th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55));
-    const bgBottom = flat || (th.light ? keyart.mix(th.bg, th.panel, 0.45) : th.bg);
+    // An unused dial is flat, in its blank keys' (page) colour: a face there would read
+    // as a control, and a white one glares on a lit strip.
+    const flat = !d && th.bg;
+    const bgTop = flat || th.faceHi;
+    const bgBottom = flat || th.faceLo;
     const parts = [`<defs><linearGradient id="pb${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bgTop}"/><stop offset="1" stop-color="${bgBottom}"/></linearGradient>
       <radialGradient id="pg${id}" cx="0.2" cy="0.1" r="0.9"><stop offset="0" stop-color="${c}" stop-opacity="${d ? 0.22 : 0.06}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>`];
-    parts.push(`<rect x="${x}" width="${W}" height="${H}" fill="${th.light ? th.bg : "#000"}"/>`);
-    parts.push(`<path d="${shape}" fill="url(#pb${id})"/><path d="${shape}" fill="url(#pg${id})"/>`);
+    parts.push(`<rect x="${x}" width="${W}" height="${H}" fill="${th.bg}"/>`);
+    parts.push(`<path d="${shape}" fill="url(#pb${id})"/>`);
+    if (d) parts.push(`<path d="${shape}" fill="url(#pg${id})"/>`, keyart.material(th, { x: x + f, y: f, w: W - 2 * f, h: H - 2 * f, shape }, c, { id: `${id}m` }));
     if (th.stripes) for (let y = f + 4; y < H - f; y += 5) parts.push(`<rect x="${x + f}" y="${y}" width="${W - 2 * f}" height="1.2" fill="#fff" opacity=".025"/>`);
     if (th.grid) for (let v = f + 20; v < W - f; v += 20) parts.push(`<rect x="${x + v}" y="${f}" width="1" height="${H - 2 * f}" fill="#fff" opacity=".035"/>`);
     if (d) {
       if (th.top.kind !== "none" && th.top.height) parts.push(`<rect x="${x + 14}" y="${f + 1}" width="${th.top.kind === "centre" ? 172 : 64}" height="${Math.max(th.top.height * 0.9, 1.5)}" fill="${c}" opacity=".9"/>`);
       if (th.edge) parts.push(`<rect x="${x + f}" y="${f + 8}" width="${th.edge}" height="${H - 2 * f - 16}" fill="${c}"/>`);
     }
-    parts.push(`<path d="${shape}" fill="none" stroke="${d ? keyart.mix(th.lineHi, c, 0.6) : th.line}" stroke-width="1.6" opacity=".9"/>`);
+    parts.push(`<path d="${shape}" fill="none" stroke="${d ? keyart.mix(th.lineHi, c, 0.6) : keyart.mix(th.inkDim, th.bg, 0.25)}" stroke-width="1.6" opacity=".9"/>`);
     if (!d || d.external) return parts.join("");
     parts.push(keyart.icon(icon(d.icon), th, x + 40, 56, 50, c));
     const title = fitText(d.label, th, 112, d.titleSize || 18, 11);
@@ -148,7 +149,7 @@ function createArt({ icons, themes, tokens }) {
       parts.push(text(th, x + 91, y, t.text, { ...small, size: t.size, fill: th.text }));
       if (via.has("press")) parts.push(tag(x + 188, y));
     }
-    if (th.radius[0] < 12 && !th.clip) parts.push(`<path d="M${x + 8} 20V8H${x + 20}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/><path d="M${x + 192} 80V92H${x + 180}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/>`);
+    if (th.material === "glass" && !th.clip) parts.push(`<path d="M${x + 8} 20V8H${x + 20}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/><path d="M${x + 192} 80V92H${x + 180}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/>`);
     return parts.join("");
   }
   // d: { label, icon, color, hints: { ccw, cw, press }, plugin: [hints that need the plugin] }
@@ -162,8 +163,9 @@ function createArt({ icons, themes, tokens }) {
   function folderStrip(th, folder, count, hint = "Back to leave") {
     const W = 200 * count, c = colorOf(th, folder.color), shape = outline(th, 3, 3, W - 6, 94);
     const title = fitText(folder.name, th, W - 260, 24, 12);
-    return svg(W, 100, `<defs><linearGradient id="fb${th.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55)}"/><stop offset="1" stop-color="${th.bg}"/></linearGradient></defs>
-      <rect width="${W}" height="100" fill="${th.light ? th.bg : "#000"}"/><path d="${shape}" fill="url(#fb${th.id})"/>
+    return svg(W, 100, `<defs><linearGradient id="fb${th.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${th.faceHi}"/><stop offset="1" stop-color="${th.faceLo}"/></linearGradient></defs>
+      <rect width="${W}" height="100" fill="${th.bg}"/><path d="${shape}" fill="url(#fb${th.id})"/>
+      ${keyart.material(th, { x: 3, y: 3, w: W - 6, h: 94, shape }, c, { id: `${th.id}f` })}
       <path d="${shape}" fill="none" stroke="${keyart.mix(th.lineHi, c, 0.6)}" stroke-width="1.6"/>
       ${keyart.icon(icon(folder.icon), th, 50, 50, 56, c)}
       ${text(th, 96, 58, title.text, { size: title.size, fill: th.text })}

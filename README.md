@@ -54,7 +54,10 @@ panels. Phones get their own layout. In English, Español, Français or Deutsch.
 
 ### 🎨 12 manufacturer themes
 RSI, Drake, Aegis, Anvil, Origin, MISC, Crusader, Banu, Aopoa, Argo,
-Consolidated Outland and Esperia, plus night mode. Press animations for
+Consolidated Outland and Esperia, each its own design down to the dials,
+switches and lit buttons: Drake's riveted, hazard-striped metal, Origin's cream
+and black gloss, Argo's safety-yellow work panels, Banu's lacquer on carved
+wood. The Stream Deck keys match. Plus night mode. Press animations for
 landing-gear struts, the quantum charge ring, decoy sparks, sliding doors and
 more, with HUD sounds on the tablet or in your headset.
 
@@ -393,7 +396,26 @@ and how sure it was, so you can tune it.
 ### Themes
 
 Tap the sliders button (top right) and pick a manufacturer theme under **Theme**
-in **Deck settings**. Each tablet remembers its own. Under **Display**:
+in **Deck settings**. Each tablet remembers its own. Every maker has its own
+design, not just its own colours: its own surfaces, button shapes, dials,
+switches, and lit, pressed and offline looks.
+
+| theme | looks like |
+|---|---|
+| RSI | navy glass with HUD corner brackets and gold section titles |
+| Drake | scratched gunmetal slabs with rivets, hazard stripes and stencil type |
+| Aegis | graphite on carbon weave, hard cut corners, red tactical marks |
+| Anvil | olive armour plates with screws, indicator lamps that light up |
+| Origin | cream and gold with black gloss buttons and a cream dial |
+| MISC | teal enamel in a grey bezel, orange tabs, gauge dials |
+| Crusader | open sky, frosted panels and pearl-white capsule buttons |
+| Banu | plum lacquer on carved wood, soft seed shapes, warm glow |
+| Aopoa | jade light, flowing panels, deep green forms with a living rim |
+| Argo | safety-yellow work panels with black utility keys and hazard bands |
+| Consolidated Outland | desert sand and sunset stripes, warm brown kit |
+| Esperia | plum night, swept blade shapes, coral light with a prism edge |
+
+Under **Display**:
 
 - **Night mode** dims the whole deck for a dark room.
 - **Large text** makes labels bigger and bolder, easier to read at a glance.

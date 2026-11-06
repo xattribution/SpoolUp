@@ -49,7 +49,7 @@ class FakeStreamDeck extends EventEmitter {
     this.pluginUUID = `PLUGIN${crypto.randomBytes(8).toString("hex").toUpperCase()}`;
     this.info = {
       application: { font: "Segoe UI", language, platform: "windows", platformVersion: "10.0.22631", version: "7.6.0.22000" },
-      colors: {}, devicePixelRatio: 1, devices: [], plugin: { uuid: "com.xattribution.spoolup", version: "1.8.0.0" }, ...info,
+      colors: {}, devicePixelRatio: 1, devices: [], plugin: { uuid: "com.xattribution.spoolup", version: "1.9.0.0" }, ...info,
     };
     this.env = env;
     this.commands = []; // { time, msg } from the plugin

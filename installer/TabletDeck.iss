@@ -71,7 +71,7 @@ Source: "{#BuildDir}\app\keybinds\TabletDeck-StarCitizen.xml"; DestDir: "{app}\k
 Source: "LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
 Source: "{#BuildDir}\app\THIRD-PARTY-NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; The copy in the game folder stays on uninstall: the player may have it loaded in-game.
-Source: "{#BuildDir}\app\keybinds\TabletDeck-StarCitizen.xml"; DestDir: "{code:MappingsDir}"; Tasks: scprofile; Check: HasStarCitizen; Flags: ignoreversion uninsneveruninstall
+Source: "{#BuildDir}\app\keybinds\TabletDeck-StarCitizen.xml"; DestDir: "{code:MappingsDir}"; Tasks: scprofile; Check: HasStarCitizen and ProfileAllowed; Flags: ignoreversion uninsneveruninstall
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"
@@ -167,6 +167,19 @@ end;
 function HasStarCitizen(): Boolean;
 begin
   Result := StarCitizenDir <> '';
+end;
+
+// The keybind profile goes into the game only when the player asked for it. A silent
+// install (winget, the Microsoft Store, the app's Update now) can't ask, so a first silent
+// install never copies it; a silent upgrade keeps the task's answer from the last install.
+function ProfileAllowed(): Boolean;
+var
+  Key: String;
+begin
+  Result := True;
+  if not WizardSilent() then exit;
+  Key := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{A7A9440D-F358-4D02-81DE-04193AAA6A52}_is1';
+  Result := RegKeyExists(HKEY_LOCAL_MACHINE_32, Key) or (IsWin64() and RegKeyExists(HKEY_LOCAL_MACHINE_64, Key));
 end;
 
 function MappingsDir(Param: String): String;

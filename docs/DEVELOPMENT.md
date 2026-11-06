@@ -146,9 +146,11 @@ any screen whose short side is under 500 points as a phone; add
 
 ### Themes
 
-Themes are CSS variables in `public/themes.css`. Add one by copying a block
-there and adding an entry to `THEMES` in `public/app.js`. Theme fonts come from
-Google Fonts.
+Themes are CSS variables in `public/themes.css`, and each maker's own drawing
+of the HUD (plates, button materials, widgets, lit looks) is in
+`public/makers.css`. Add one by copying a block in each and adding an entry to
+`THEMES` in `public/app.js`; [DESIGN.md](DESIGN.md#adding-a-theme) has the
+steps. Theme fonts come from Google Fonts.
 
 ## Translations
 

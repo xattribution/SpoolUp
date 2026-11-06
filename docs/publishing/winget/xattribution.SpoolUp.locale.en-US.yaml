@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: xattribution.SpoolUp
+PackageVersion: 1.8.0
+PackageLocale: en-US
+Publisher: xattribution
+PublisherUrl: https://github.com/xattribution
+PublisherSupportUrl: https://github.com/xattribution/tablet-deck-spooned/issues
+PrivacyUrl: https://github.com/xattribution/tablet-deck-spooned#safety-and-privacy
+Author: nodieCode and xattribution
+PackageName: SpoolUp
+PackageUrl: https://github.com/xattribution/tablet-deck-spooned
+License: MIT
+LicenseUrl: https://github.com/xattribution/tablet-deck-spooned/blob/v1.8.0/LICENSE
+Copyright: Copyright (c) 2026 nodieCode
+ShortDescription: Turns a tablet or phone on your home network into a touch control panel for Star Citizen.
+Description: |-
+  SpoolUp (formerly Tablet Deck) is a HUD-style button deck that runs in the web browser of a tablet or phone on the same network as the gaming PC. Each button press is sent to the PC, which presses that button's key once, and only while Star Citizen is the window in front.
+  The PC app serves the deck, pairs devices with a QR code and pairing code, follows the player's own keybinds and offers hold-to-talk voice commands, a layout editor and 12 manufacturer themes. No account is needed and nothing is installed on the tablet. An optional Stream Deck pack is a separate download on the releases page.
+  Setup adds a Windows Firewall rule so tablets can connect on private networks.
+  Fan project. Not affiliated with or endorsed by Cloud Imperium Games.
+Moniker: spoolup
+Tags:
+- button-box
+- control-panel
+- hotkeys
+- hud
+- keybinds
+- phone
+- star-citizen
+- stream-deck
+- tablet
+- tablet-deck
+- touchscreen
+- voice-commands
+ReleaseNotesUrl: https://github.com/xattribution/tablet-deck-spooned/releases/tag/v1.8.0
+InstallationNotes: |-
+  Open SpoolUp from the Start menu: its window shows the QR code, address and pairing code for your tablet.
+  WinGet doesn't copy the Star Citizen keybind profile into the game; add it with Settings > Install keybind profile... in the SpoolUp window, then load "SpoolUp Keyboard" in the game.
+Documentations:
+- DocumentLabel: Get started
+  DocumentUrl: https://github.com/xattribution/tablet-deck-spooned#get-started
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
