@@ -347,6 +347,15 @@
   document.addEventListener("pointerup", lift, true);
   document.addEventListener("pointercancel", lift, true);
 
+  // Follow Stream Deck scenes: on unless turned off on this device.
+  const followScenes = () => store.get("follow-scenes") !== "off";
+  $("followBtn").setAttribute("aria-checked", String(followScenes()));
+  $("followBtn").onclick = () => {
+    const on = !followScenes();
+    store.set("follow-scenes", on ? "" : "off");
+    $("followBtn").setAttribute("aria-checked", String(on));
+  };
+
   function applySwipe(on) {
     store.set(swipeKey, on ? "on" : "off");
     $("swipeBtn").setAttribute("aria-checked", String(on));
@@ -474,6 +483,8 @@
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
       else if (msg.t === "sound-status") S.status(msg);
+      // A scene picked on a Stream Deck (its Tablet Deck plugin): flip to its panels.
+      else if (msg.t === "scene") { if (followScenes() && deckCanvas && deckCanvas.showPanels(msg)) window.DeckSound.play("page"); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
       else if (msg.t === "voice-status") applyVoiceStatus(msg);

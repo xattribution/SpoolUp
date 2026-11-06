@@ -7,6 +7,9 @@ before tagging a release.
 
 ## Unreleased
 
+- **Follow Stream Deck scenes** (a switch under Display in Deck settings, on
+  unless turned off): picking a scene on a Stream Deck with the new Tablet Deck
+  plugin flips the tablet's HUD halves to that scene's panels.
 - **Key labels** (a switch under Display in Deck settings): each HUD button
   shows the key it presses in a corner, taken from your keybinds, so in-game
   rebinds show up too.

@@ -337,6 +337,24 @@
         }
         return false;
       },
+      // Pages each half to a panel by id, for a Stream Deck scene ({ left, right }). Phone
+      // layouts name some panels differently ("landing" for "power-landing", "emotes-1"), so
+      // a panel matches by its id, a word of it, or its start. A half with no match stays.
+      showPanels(want) {
+        let changed = false;
+        for (const region of layout.regions) {
+          const id = want && want[region.id];
+          if (!id) continue;
+          const words = id.split("-");
+          let idx = region.panels.indexOf(id);
+          if (idx < 0) idx = region.panels.findIndex((p) => words.includes(p) || p.startsWith(id));
+          if (idx < 0 || Math.min(state.panels[region.id] || 0, region.panels.length - 1) === idx) continue;
+          state.panels[region.id] = idx;
+          changed = true;
+        }
+        if (changed) { save(); render(); }
+        return changed;
+      },
       scale: scaleNow,
       // Stops this deck redrawing itself, before another layout is drawn or a grid layout shown.
       dispose() {

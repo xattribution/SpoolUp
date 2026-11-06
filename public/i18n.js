@@ -25,6 +25,8 @@
     "Bigger, bolder labels, easier to read at a glance.": ["Etiquetas más grandes y gruesas, fáciles de leer de un vistazo.", "Libellés plus grands et plus gras, lisibles d'un coup d'œil.", "Größere, fettere Beschriftungen, auf einen Blick lesbar."],
     "High contrast": ["Alto contraste", "Contraste élevé", "Hoher Kontrast"],
     "Black and white with strong colours, over any theme.": ["Blanco y negro con colores intensos, sobre cualquier tema.", "Noir et blanc aux couleurs vives, avec n'importe quel thème.", "Schwarz-Weiß mit kräftigen Farben, für jedes Theme."],
+    "Follow Stream Deck scenes": ["Seguir escenas del Stream Deck", "Suivre les scènes du Stream Deck", "Stream-Deck-Szenen folgen"],
+    "Picking a scene on a Stream Deck with the Tablet Deck plugin flips this deck to its panels.": ["Al elegir una escena en un Stream Deck con el plugin de Tablet Deck, este deck cambia a sus paneles.", "Choisir une scène sur un Stream Deck avec le plugin Tablet Deck affiche ses panneaux sur ce deck.", "Wählst du auf einem Stream Deck mit dem Tablet-Deck-Plugin eine Szene, wechselt dieses Deck zu ihren Panels."],
     "Key labels": ["Teclas en los botones", "Touches sur les boutons", "Tasten anzeigen"],
     "Show the key each button presses, from your game keybinds.": ["Muestra la tecla que pulsa cada botón, según tus asignaciones del juego.", "Affiche la touche de chaque bouton, d'après vos raccourcis du jeu.", "Zeigt, welche Taste jeder Button drückt, laut deiner Tastenbelegung im Spiel."],
     "Button sounds": ["Sonidos de botones", "Sons des boutons", "Tastentöne"],

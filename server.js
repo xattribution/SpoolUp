@@ -983,7 +983,10 @@ server.on("upgrade", (req, socket) => {
   wsAccept(req, socket);
   const who = socket.remoteAddress;
   const device = url.searchParams.get("device") || "tablet";
-  console.log(`Tablet connected: ${who}`);
+  // The Stream Deck plugin (streamdeck/plugin) connects like a tablet and presses the same
+  // buttons through the same checks; only its name in the log differs.
+  const kind = device === "streamdeck" ? "Stream Deck" : "Tablet";
+  console.log(`${kind} connected: ${who}`);
   emit({ t: "client", on: true, device });
   ui({ t: "clients", count: ++connectedTablets });
   const client = {
@@ -1072,6 +1075,16 @@ server.on("upgrade", (req, socket) => {
       return;
     }
     if (msg.t === "open") { openLink(msg.index, client); return; }
+    // A Stream Deck scene key: tablets that follow scenes page their HUD halves to its
+    // panels. Only a scene name and panel ids pass through; a tablet skips panels its
+    // layout doesn't have.
+    if (msg.t === "scene") {
+      const name = (v) => (typeof v === "string" && /^[a-z0-9-]{1,40}$/.test(v) ? v : undefined);
+      if (!name(msg.scene)) return;
+      const scene = { t: "scene", scene: msg.scene, left: name(msg.left), right: name(msg.right) };
+      for (const c of tablets) if (c !== client) c.send(scene);
+      return;
+    }
     if (msg.t === "sound") { playSound(msg); return; }
     if (msg.t === "sound-stop") { stopSound(msg.id); return; }
     if (msg.t === "sound-out") {
@@ -1119,7 +1132,7 @@ server.on("upgrade", (req, socket) => {
     void releaseAll();
     for (const id of [...sounds.keys()]) stopSound(id);
     if (voiceOwner === client) { voice?.stdin.write("stop\n"); voiceOwner = null; }
-    console.log(`Tablet disconnected: ${who}`);
+    console.log(`${kind} disconnected: ${who}`);
     emit({ t: "client", on: false, device });
     ui({ t: "clients", count: --connectedTablets });
   });
