@@ -29,6 +29,10 @@ before tagging a release.
 - **Keys let go sooner when a tablet vanishes mid-press.** A tab that's closed
   without saying goodbye releases its held buttons straight away, not 5 seconds
   later.
+- **A held button lets go even if the HUD redraws under it.** Holding Engage
+  Quantum, push to talk or another hold button while the HUD redrew (the other
+  half paged with a second finger, a Stream Deck scene, the screen turned) left
+  its keys down on the PC until you pressed it again.
 - **A keybind Tablet Deck can't press no longer stops it from starting.** If
   your actionmaps.xml binds an action to a key it has no code for, that button
   keeps its own key and the console says which one.

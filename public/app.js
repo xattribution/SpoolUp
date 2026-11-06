@@ -617,6 +617,12 @@
     for (const el of document.querySelectorAll("[data-btn]")) if (el.dataset.btn === id) el._deny();
   }
 
+  // While a finger holds a button or the mic, its lift is heard on the document too: a
+  // redraw (paging with another finger, a Stream Deck scene, turning the screen) can take
+  // the element away meanwhile, and the pointerup then goes to whatever is there now, which
+  // would leave a hold button's keys down on the PC.
+  const hearLift = (end, on) => { for (const type of ["pointerup", "pointercancel"]) document[on ? "addEventListener" : "removeEventListener"](type, end, true); };
+
   function bindButton(el, btn) {
     const fx = window.DeckFX.attach(el, btn);
     el.dataset.btn = btn.id;
@@ -643,13 +649,15 @@
       if (pointer !== null || swipe) return; // fingers that are part of a swipe press nothing
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      hearLift(end, true);
       if (!swipeOn()) { press(e); return; }
-      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; };
+      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; hearLift(end, false); };
       waiting = { cancel, timer: setTimeout(() => { pendingPresses.delete(cancel); press(e); }, SWIPE_WAIT_MS) };
       pendingPresses.add(cancel);
     });
     const end = (e) => {
       if (e.pointerId !== pointer) return;
+      hearLift(end, false);
       if (waiting) {
         // Lifted before the wait was over: still a press, just a quick one. A touch the
         // browser cancelled presses nothing.
@@ -677,6 +685,7 @@
       if (pointer !== null) return;
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      hearLift(end, true);
       el.classList.add("listening");
       buzz();
       window.DeckSound.play("listen");
@@ -685,6 +694,7 @@
     });
     const end = (e) => {
       if (e.pointerId !== pointer) return;
+      hearLift(end, false);
       pointer = null;
       el.classList.remove("listening");
       send({ t: "voice", on: false });
