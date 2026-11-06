@@ -230,6 +230,67 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 }
 .hud-slider.fired .track { background: color-mix(in srgb, var(--red) 70%, transparent); }
 
+/* ---------- cockpit controls (2.0) ----------
+   Drawn from the theme's tokens here; each maker gives them its own shapes and materials in
+   makers.css. Every part a finger grabs is at least 44px. */
+.hud-lever, .hud-level, .hud-fader, .hud-rotary { --c: var(--accent); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: none; }
+.hud-lever[data-color="green"], .hud-level[data-color="green"], .hud-fader[data-color="green"] { --c: var(--green); }
+.hud-lever[data-color="amber"], .hud-level[data-color="amber"], .hud-fader[data-color="amber"] { --c: var(--amber); }
+.hud-lever[data-color="red"], .hud-level[data-color="red"], .hud-fader[data-color="red"] { --c: var(--red); }
+.hud-lever[data-color="blue"], .hud-level[data-color="blue"], .hud-fader[data-color="blue"] { --c: var(--blue); }
+
+/* Landing-gear lever: a slot, a ball knob that rests at the top (retracted) or the bottom
+   (deployed), three lamps and the label with its state. */
+.hud-lever {
+  --pos: 0; --knob: 46px;
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding-top: 2px; cursor: grab;
+}
+.hud-lever .lv-slot {
+  position: relative; flex: 1; width: 22px; min-height: 60px;
+  background: linear-gradient(90deg, rgba(0,0,0,.55), var(--face-lo) 45%, rgba(0,0,0,.55));
+  border: 1px solid var(--line-hi); border-radius: 11px;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.6);
+}
+.hud-lever .lv-end { position: absolute; left: -9px; right: -9px; height: 2px; background: var(--line-hi); }
+.hud-lever .lv-end.up { top: calc(var(--knob) / 2 - 1px); }
+.hud-lever .lv-end.down { bottom: calc(var(--knob) / 2 - 1px); }
+.hud-lever .lv-knob {
+  position: absolute; left: 50%; top: calc((100% - var(--knob)) * var(--pos));
+  width: var(--knob); height: var(--knob); margin-left: calc(var(--knob) / -2);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid rgba(0,0,0,.35);
+  background: radial-gradient(circle at 36% 30%, #fff, #d4d8de 42%, #7c838d 100%);
+  box-shadow: 0 5px 12px rgba(0,0,0,.55), inset 0 -3px 4px rgba(0,0,0,.25);
+  transition: top .45s cubic-bezier(.3,.7,.2,1);
+}
+.hud-lever .lv-knob .hud-ico { color: #1d2128; filter: none; }
+.hud-lever .lv-knob .hud-ico svg { width: 24px; height: 24px; stroke-width: 2.6; }
+.hud-lever.dragging { cursor: grabbing; }
+.hud-lever.dragging .lv-knob { transition: none; }
+.hud-lever.transit .lv-knob { transition-duration: 2.2s; transition-timing-function: cubic-bezier(.45,.05,.3,1); }
+.hud-lever:focus-visible .lv-knob { outline: 2px solid var(--accent); outline-offset: 3px; }
+.hud-lever .lv-lamps { display: flex; gap: 7px; }
+.hud-lever .lv-lamps i {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 14%, var(--bg)); box-shadow: inset 0 1px 2px rgba(0,0,0,.6);
+}
+.hud-lever.lit.down .lv-lamps i { background: var(--green); box-shadow: 0 0 9px var(--green), inset 0 -1px 2px rgba(0,0,0,.3); }
+.hud-lever.lit.transit .lv-lamps i { background: var(--red); box-shadow: 0 0 9px var(--red), inset 0 -1px 2px rgba(0,0,0,.3); animation: lv-blink .9s steps(2, jump-none) infinite; }
+@keyframes lv-blink { 50% { opacity: .35; } }
+.hud-lever .lv-lbl { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+.hud-lever .lv-lbl .t {
+  font: var(--label-weight) 12px/1.1 var(--font-body); color: var(--ink); white-space: nowrap;
+  text-transform: var(--label-case); letter-spacing: min(var(--label-track), .08em);
+}
+.hud-lever .lv-state { font: 600 9px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+.hud-lever.transit .lv-state { color: var(--red); }
+.hud-lever.denied .lv-slot { animation: lv-deny .45s ease-out; }
+@keyframes lv-deny { 0%, 60% { border-color: var(--red); box-shadow: inset 0 3px 8px rgba(0,0,0,.6), 0 0 12px var(--red); } }
+html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
+.compact .hud-lever { gap: 4px; --knob: 44px; }
+.compact .hud-lever .lv-lbl .t { font-size: 10.5px; }
+.compact .hud-lever .lv-lamps i { width: 9px; height: 9px; }
+
 /* ---------- regions, panels, pager ---------- */
 .hud-panel { left: 0; top: 0; right: 0; }
 /* Paging: the new panel slides in from the side you paged towards, with a short flicker. */
@@ -245,7 +306,11 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
   35% { opacity: .7; } 50% { opacity: .35; }
   100% { opacity: 1; transform: none; }
 }
-@media (prefers-reduced-motion: reduce) { .hud-panel.enter-next, .hud-panel.enter-prev { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .hud-panel.enter-next, .hud-panel.enter-prev { animation: none; }
+  .hud-lever .lv-knob, .hud-lever.transit .lv-knob { transition-duration: .01s; }
+  .hud-lever.lit.transit .lv-lamps i, .hud-lever.denied .lv-slot { animation: none; }
+}
 .hud-pager { left: 0; right: 0; bottom: 0; height: var(--pager-h, 44px); }
 .hud-pager .prev { left: 0; }
 .hud-pager .next { right: 0; }

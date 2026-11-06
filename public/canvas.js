@@ -237,6 +237,30 @@
         return el;
       },
 
+      // Landing-gear lever: pull the knob down to deploy, push it up to retract. A pull or
+      // push past halfway is one tap of its button (the gear key); the knob then travels and
+      // the three lamps show red until the PC's state for the gear says it's there (green
+      // down, dark up). The lamps follow Button lights; the knob always shows the state.
+      lever(e) {
+        const b = e.button;
+        const el = box(make("div", "hud-lever",
+          `<div class="lv-slot"><i class="lv-end up"></i><i class="lv-end down"></i><div class="lv-knob"><span class="hud-ico">${D.deckIcon(e.icon || b.icon || "gear")}</span></div></div>
+           <div class="lv-lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+           <div class="lv-lbl"><span class="t"></span><span class="lv-state"></span></div>`), e);
+        el.dataset.color = b.color || "";
+        text(el, ".t", e.label || b.label);
+        text(el, ".lv-state", "RETRACTED");
+        if (b.keys) {
+          const key = make("span", "hud-key");
+          key.setAttribute("aria-hidden", "true");
+          key.textContent = keyText(b.keys);
+          el.appendChild(key);
+        }
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        lever(el, b);
+        return el;
+      },
+
       grid(e) {
         const wrap = box(make("div", `hud-grid${e.compact ? " compact" : ""}`), e);
         const rows = Math.ceil(e.buttons.length / e.cols);
@@ -250,6 +274,114 @@
       },
     };
 
+
+    // ---------- cockpit controls: gestures ----------
+
+    // How long the gear lever's knob travels, and its lamps stay red, after a pull: about
+    // what the game's gear takes. Only the picture waits; the key was tapped at the pull.
+    const TRANSIT_MS = 2600;
+    const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function lever(el, b) {
+      const knob = el.querySelector(".lv-knob");
+      const slot = el.querySelector(".lv-slot");
+      const word = el.querySelector(".lv-state");
+      let actual = false;  // the PC's state for the gear: true while deployed
+      let lit = true;      // Button lights (Deck settings)
+      let shown = false;   // where the knob rests: true at the bottom (deployed)
+      let transit = null;  // { target, confirmed, timer } while the gear travels
+      const label = () => tr(el.querySelector(".t").textContent);
+      const setPos = (frac) => el.style.setProperty("--pos", String(frac));
+      const paint = () => {
+        el.classList.toggle("transit", Boolean(transit));
+        el.classList.toggle("down", !transit && shown);
+        el.classList.toggle("lit", lit);
+        const w = transit ? "IN TRANSIT" : shown ? "DEPLOYED" : "RETRACTED";
+        word.textContent = tr(w);
+        el.setAttribute("aria-label", `${label()}: ${tr(w)}. ${tr(shown ? "Push up to retract" : "Pull down to deploy")}`);
+      };
+      const settle = (to) => {
+        if (transit) clearTimeout(transit.timer);
+        transit = null;
+        shown = to;
+        setPos(to ? 1 : 0);
+        paint();
+      };
+      // Travel towards `target`; settles when the time is up and the PC agrees, or after a
+      // while regardless, on whatever the PC last said.
+      const travel = (target, confirmed) => {
+        if (transit) clearTimeout(transit.timer);
+        transit = { target, confirmed, timer: 0 };
+        shown = target;
+        setPos(target ? 1 : 0);
+        paint();
+        const t = transit;
+        t.timer = setTimeout(() => {
+          if (transit !== t) return;
+          if (t.confirmed) { settle(t.target); return; }
+          t.timer = setTimeout(() => { if (transit === t) settle(actual); }, 3000);
+        }, still() ? 600 : TRANSIT_MS);
+      };
+      D.bindControl(el, {
+        group: b.state && b.state.group,
+        ids: [b.id],
+        show(on, animate, lights) {
+          actual = on;
+          lit = lights !== false;
+          if (transit && transit.target === on) { transit.confirmed = true; paint(); return; }
+          if (animate && on !== shown) travel(on, true);
+          else if (!transit) settle(on);
+          else paint();
+        },
+        deny() {
+          settle(actual);
+          el.classList.remove("denied"); void el.offsetWidth; el.classList.add("denied");
+        },
+      });
+      // The knob starts travelling first, so a state that comes back at once (demo mode)
+      // finds it on its way.
+      const pull = (target) => {
+        travel(target, false);
+        if (!D.tapStep(b)) settle(actual);
+      };
+
+      // Drag the knob (or anywhere on the lever) along the slot.
+      let drag = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (drag) return;
+        el.setPointerCapture(ev.pointerId);
+        const span = Math.max(1, slot.clientHeight - knob.offsetHeight);
+        drag = { id: ev.pointerId, y: ev.clientY, from: shown ? 1 : 0, span, frac: shown ? 1 : 0 };
+        el.classList.add("dragging");
+      });
+      el.addEventListener("pointermove", (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        drag.frac = Math.max(0, Math.min(1, drag.from + (ev.clientY - drag.y) / scaleNow() / drag.span));
+        setPos(drag.frac);
+      });
+      const end = (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        const d = drag;
+        drag = null;
+        el.classList.remove("dragging");
+        const target = d.frac > d.from;
+        if (ev.type === "pointerup" && Math.abs(d.frac - d.from) >= 0.5) pull(target);
+        else setPos(shown ? 1 : 0);
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      // From a keyboard: Enter or Space moves it to the other end, the arrows to theirs.
+      el.tabIndex = 0;
+      el.setAttribute("role", "button");
+      el.addEventListener("keydown", (ev) => {
+        const to = ev.key === "ArrowDown" ? true : ev.key === "ArrowUp" ? false : (ev.key === "Enter" || ev.key === " ") ? !shown : null;
+        if (to === null) return;
+        ev.preventDefault();
+        if (to !== shown) pull(to);
+      });
+      paint();
+    }
 
     function openMenu(e) {
       window.DeckSound?.play("page");

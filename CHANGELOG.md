@@ -5,6 +5,14 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/tablet-deck-spooned/releases), so add one
 before tagging a release.
 
+## 2.0.0 (2026-11-06)
+
+- **A landing-gear lever.** The Landing Gear button is now a lever: pull the
+  knob down to deploy, push it up to retract. Each pull or push taps the gear
+  key once. Its three lamps blink red while the gear is in transit and turn
+  green when it's down; like the button lights, they follow what SpoolUp
+  pressed, not the game.
+
 ## 1.9.0 (2026-11-06)
 
 - **Silent installs leave your keybinds alone.** Installing SpoolUp silently

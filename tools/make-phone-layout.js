@@ -70,9 +70,9 @@ const panels = {
     elements: [
       { ...stateHeader, x: 2, y: 2 },
       { ...sw, x: 259, y: 0, w: 100, h: 24 },
-      at("pl-gear", 0, 32, 175, 62, { when: landing }),
-      at("pl-vtol", 184, 32, 175, 62, { when: landing }),
-      at("pl-autoland", 0, 102, 359, 54, { when: landing }),
+      at("pl-gear-lever", 0, 28, 84, 130, { when: landing }),
+      at("pl-vtol", 94, 32, 265, 58, { when: landing }),
+      at("pl-autoland", 94, 98, 265, 58, { when: landing }),
       at("pl-request-dock", 0, 32, 175, 62, { when: docking }),
       at("pl-dock-vtol", 184, 32, 175, 62, { when: docking }),
       at("pl-dock-cam", 0, 102, 359, 54, { when: docking }),

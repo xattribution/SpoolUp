@@ -28,9 +28,9 @@
           "labels": { "landing": "Landing mode", "docking": "Docking mode" } },
         { "type": "switch", "group": "approach", "values": ["landing", "docking"], "label": "Switch mode", "x": 367, "y": 8, "w": 112, "h": 28 },
 
-        { "type": "button", "when": ["approach", "landing"], "id": "pl-gear", "anim": "gear", "label": "Landing Gear", "state": {"group": "gear"}, "voice": ["gear", "gear up", "gear down", "deploy landing gear", "retract landing gear"], "keys": "n", "scAction": "v_toggle_landing_system", "mode": "tap", "x": 4, "y": 45, "w": 232, "h": 48 },
-        { "type": "button", "when": ["approach", "landing"], "id": "pl-vtol", "anim": "streak", "label": "VTOL", "state": {"group": "vtol"}, "voice": ["toggle vtol"], "keys": "k", "scAction": "v_vtol_toggle", "mode": "tap", "x": 244, "y": 45, "w": 232, "h": 48 },
-        { "type": "button", "when": ["approach", "landing"], "style": "dial", "id": "pl-autoland", "label": "Engage Auto Land", "voice": ["auto land", "land the ship"], "keys": "n", "scAction": "v_autoland", "mode": "timed", "ms": 1500, "x": 4, "y": 101, "w": 472, "h": 48 },
+        { "type": "lever", "when": ["approach", "landing"], "id": "pl-gear-lever", "label": "Landing Gear", "x": 2, "y": 38, "w": 100, "h": 142, "button": {"id": "pl-gear", "anim": "gear", "label": "Landing Gear", "state": {"group": "gear"}, "voice": ["gear", "gear up", "gear down", "deploy landing gear", "retract landing gear"], "keys": "n", "scAction": "v_toggle_landing_system", "mode": "tap"} },
+        { "type": "button", "when": ["approach", "landing"], "id": "pl-vtol", "anim": "streak", "label": "VTOL", "state": {"group": "vtol"}, "voice": ["toggle vtol"], "keys": "k", "scAction": "v_vtol_toggle", "mode": "tap", "x": 110, "y": 42, "w": 366, "h": 62 },
+        { "type": "button", "when": ["approach", "landing"], "style": "dial", "id": "pl-autoland", "label": "Engage Auto Land", "voice": ["auto land", "land the ship"], "keys": "n", "scAction": "v_autoland", "mode": "timed", "ms": 1500, "x": 110, "y": 112, "w": 366, "h": 64 },
 
         { "type": "button", "when": ["approach", "docking"], "id": "pl-request-dock", "label": "Request Docking", "voice": ["dock", "request dock"], "keys": "ralt+n", "scAction": "v_toggle_docking_request", "mode": "tap", "x": 4, "y": 45, "w": 232, "h": 48 },
         { "type": "button", "when": ["approach", "docking"], "id": "pl-dock-vtol", "anim": "streak", "label": "VTOL", "state": {"group": "vtol"}, "keys": "k", "scAction": "v_vtol_toggle", "mode": "tap", "x": 244, "y": 45, "w": 232, "h": 48 },

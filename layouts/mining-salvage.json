@@ -208,31 +208,35 @@
           "h": 28
         },
         {
-          "type": "button",
+          "type": "lever",
           "when": [
             "approach",
             "landing"
           ],
-          "id": "pl-gear",
-          "anim": "gear",
+          "id": "pl-gear-lever",
           "label": "Landing Gear",
-          "state": {
-            "group": "gear"
-          },
-          "voice": [
-            "gear",
-            "gear up",
-            "gear down",
-            "deploy landing gear",
-            "retract landing gear"
-          ],
-          "keys": "n",
-          "scAction": "v_toggle_landing_system",
-          "mode": "tap",
-          "x": 4,
-          "y": 45,
-          "w": 232,
-          "h": 48
+          "x": 2,
+          "y": 38,
+          "w": 100,
+          "h": 142,
+          "button": {
+            "id": "pl-gear",
+            "anim": "gear",
+            "label": "Landing Gear",
+            "state": {
+              "group": "gear"
+            },
+            "voice": [
+              "gear",
+              "gear up",
+              "gear down",
+              "deploy landing gear",
+              "retract landing gear"
+            ],
+            "keys": "n",
+            "scAction": "v_toggle_landing_system",
+            "mode": "tap"
+          }
         },
         {
           "type": "button",
@@ -252,10 +256,10 @@
           "keys": "k",
           "scAction": "v_vtol_toggle",
           "mode": "tap",
-          "x": 244,
-          "y": 45,
-          "w": 232,
-          "h": 48
+          "x": 110,
+          "y": 42,
+          "w": 366,
+          "h": 62
         },
         {
           "type": "button",
@@ -274,10 +278,10 @@
           "scAction": "v_autoland",
           "mode": "timed",
           "ms": 1500,
-          "x": 4,
-          "y": 101,
-          "w": 472,
-          "h": 48
+          "x": 110,
+          "y": 112,
+          "w": 366,
+          "h": 64
         },
         {
           "type": "button",
