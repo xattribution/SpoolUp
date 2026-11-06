@@ -10,12 +10,18 @@ before tagging a release.
 - **Key labels** (a switch under Display in Deck settings): each HUD button
   shows the key it presses in a corner, taken from your keybinds, so in-game
   rebinds show up too.
-- **Button sounds** (a switch under Display in Deck settings, off until you turn
-  it on): soft HUD sounds made on the tablet itself, with no sound files and
-  nothing sent anywhere. Presses chirp at a pitch that follows the button's
-  colour, the quantum drive spools up and engages, self-destruct arming beeps
-  faster as it fills, panels flip, voice commands answer, and a press that
-  didn't go through buzzes.
+- **Button sounds**: soft HUD sounds, made from a few tones rather than sound
+  files. Presses chirp at a pitch that follows the button's colour, the quantum
+  drive spools up and engages, self-destruct arming beeps faster as it fills,
+  panels flip, voice commands answer, and a press that didn't go through buzzes.
+  They're on by default; a new **Sounds** section in Deck settings turns them
+  off and sets the volume, per device.
+- **Hear the deck in your headset:** under Sounds → Play on, a tablet can play
+  its sounds on one of the PC's outputs instead of on itself, e.g. your
+  headset, so you hear them over the game. The PC makes the same sounds there
+  with a small new helper (`native/sound.exe`); if that output is unplugged,
+  they play on Windows' default output, and while the tablet isn't connected,
+  on the tablet.
 - **The deck shows how quick the link to the PC is**, next to Connected
   ("Connected · 8 ms"); the dot turns amber when it's slow enough to feel.
 - **A dead connection is noticed within seconds.** If the PC goes to sleep or the

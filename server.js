@@ -585,6 +585,101 @@ async function onVoice(id, confidence, text) {
   await tapButton(btn, client, btn.voiceMs || btn.ms || config.tapMs, "voice");
 }
 
+// ---------- button sounds on the PC ----------
+
+// A tablet can have its button sounds (public/sound.js) play on this PC instead of on itself,
+// on an output it picks (a headset, to hear them over the game). It sends each sound as a
+// list of tones, which native/sound.exe synthesizes and plays. The tablet can only name one
+// of the outputs below and send short, quiet tones; nothing it sends reaches the game.
+const SOUND_TYPES = new Set(["sine", "triangle", "square", "sawtooth"]);
+const SOUND_RATE = 25, SOUND_PLAYING = 16; // per tablet: sounds per second, and at once
+let soundPlayer = null;             // native/sound.exe while it runs
+let soundState = { state: "idle" }; // for tablets: idle (not started yet), ready or unavailable
+let soundIds = 0;                   // the player's ids, across tablets
+let soundExits = [];                // when the player stopped lately, to stop restarting it
+const deviceWaiters = [];           // answers to "devices", in order
+function setSoundState(state, reason) {
+  soundState = reason ? { state, reason } : { state };
+  for (const c of tablets) c.send({ t: "sound-status", ...soundState });
+}
+
+// Started on demand: when a tablet plays sounds here, or asks for the outputs.
+function startSoundPlayer() {
+  if (soundPlayer || soundState.state === "unavailable") return soundPlayer;
+  let exe;
+  try { exe = buildNative("sound", "PC sounds"); } catch (err) {
+    console.error(`PC sounds unavailable: ${err.message}.`);
+    setSoundState("unavailable", err.message);
+    return null;
+  }
+  const proc = spawn(exe, [], { stdio: ["pipe", "pipe", "inherit"] });
+  proc.stdin.on("error", () => {}); // it stopped; "exit" deals with that
+  let pending = "", missing = new Set();
+  proc.stdout.setEncoding("utf8"); // output names can be non-ASCII ("Kopfhörer")
+  proc.stdout.on("data", (d) => {
+    const lines = (pending + d).split(/\r?\n/);
+    pending = lines.pop();
+    for (const line of lines) {
+      const [word, ...rest] = line.split("\t");
+      if (word === "ready") setSoundState("ready");
+      else if (word === "devices") deviceWaiters.shift()?.({ preferred: Number(rest[0]), devices: rest.slice(1).filter(Boolean) });
+      else if (word === "missing" && !missing.has(rest[0]) && missing.size < 20) {
+        missing.add(rest[0]);
+        console.log(`PC sounds: "${rest[0]}" isn't connected, so they play on the default output.`);
+      } else if (line.startsWith("err")) console.error("PC sounds:", line.slice(4));
+    }
+  });
+  const stopped = (why) => {
+    if (soundPlayer !== proc) return;
+    soundPlayer = null;
+    for (const answer of deviceWaiters.splice(0)) answer(null);
+    // Started again with the next sound, unless it keeps stopping.
+    soundExits = [...soundExits.filter((t) => Date.now() - t < 60_000), Date.now()];
+    if (soundExits.length >= 3) setSoundState("unavailable", `the sound player stopped (${why})`);
+    else setSoundState("idle");
+    console.error(`PC sounds stopped (${why}).`);
+  };
+  proc.on("exit", (code) => stopped(`exit ${code}`));
+  proc.on("error", (err) => stopped(err.message));
+  soundPlayer = proc;
+  return proc;
+}
+
+// The PC's outputs, for a tablet's "Play on" list: { devices: [names], preferred: index of
+// Windows' default, or -1 }, or null when the player can't say.
+function soundDevices() {
+  const proc = startSoundPlayer();
+  if (!proc) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    let done = false;
+    const answer = (list) => { if (!done) { done = true; resolve(list); } };
+    deviceWaiters.push(answer);
+    proc.stdin.write("devices\n");
+    setTimeout(() => answer(null), 3000); // a late answer still shifts it off the queue
+  });
+}
+
+const inRange = (v, min, max) => typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
+// A tablet's sound as the player's "play" line and how long it lasts (s), or null when any of
+// it is off. See the tone fields in public/sound.js.
+function soundLine(msg, id) {
+  const { tones, device, volume } = msg;
+  if (!Array.isArray(tones) || tones.length < 1 || tones.length > 48) return null;
+  if (typeof device !== "string" || device.length > 64 || /[\t\r\n]/.test(device) || !inRange(volume, 0, 1)) return null;
+  let end = 0;
+  const parts = [];
+  for (const k of tones) {
+    if (!k || !SOUND_TYPES.has(k.type) || !inRange(k.f0, 20, 12000) || !inRange(k.f1, 20, 12000)
+      || !inRange(k.len, 0.005, 4) || !inRange(k.level, 0, 1) || !inRange(k.at, 0, 4) || !inRange(k.attack, 0.001, 1)
+      || (k.sustain !== 0 && k.sustain !== 1) || !inRange(k.release, 0, 1)
+      || !((k.lp0 === 0 && k.lp1 === 0) || (inRange(k.lp0, 20, 20000) && inRange(k.lp1, 20, 20000)))) return null;
+    end = Math.max(end, k.at + k.len + (k.sustain ? k.release : 0));
+    parts.push([k.type, k.f0, k.f1, k.len, k.level, k.at, k.attack, k.sustain, k.release, k.lp0, k.lp1].join(","));
+  }
+  if (end > 6) return null;
+  return { line: `play\t${id}\t${device}\t${volume}\t${parts.join(";")}`, end };
+}
+
 // ---------- open a website on the PC ----------
 
 // A tablet asks by position in config.links, so it can only open the addresses set up on
@@ -810,6 +905,12 @@ const server = http.createServer((req, res) => {
     if (refusePairing(req, res, url)) return;
     return sendJson(res, 200, { links: (config.links || []).map((l) => l.name) });
   }
+  // The PC's outputs a tablet can play its button sounds on; it picks one by name.
+  if (url.pathname === "/sound-devices.json") {
+    if (refusePairing(req, res, url)) return;
+    soundDevices().then((list) => sendJson(res, 200, { ...soundState, devices: list ? list.devices : [], preferred: list ? list.preferred : -1 }));
+    return;
+  }
   if (url.pathname === "/voice.json") {
     if (refusePairing(req, res, url)) return;
     res.writeHead(200, { "Content-Type": MIME[".json"], "Cache-Control": "no-store" });
@@ -877,9 +978,36 @@ server.on("upgrade", (req, socket) => {
     close: () => socket.destroy(),
   };
   tablets.add(client);
-  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates) });
+  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates), soundStatus: soundState });
 
   const held = new Map(); // button id -> { sc } currently pressed by this tablet
+  // Its button sounds playing on the PC: its id -> { id: the player's id, ends }, and when
+  // the last ones came, for the rate limit.
+  const sounds = new Map();
+  let soundTimes = [];
+  let soundsHere = false;
+  const playSound = (msg) => {
+    const now = Date.now();
+    soundTimes = soundTimes.filter((t) => now - t < 1000);
+    for (const [id, s] of sounds) if (s.ends < now) sounds.delete(id);
+    if (soundTimes.length >= SOUND_RATE || sounds.size >= SOUND_PLAYING) return;
+    if (!Number.isInteger(msg.id) || msg.id < 1 || msg.id > 2147483647 || sounds.has(msg.id)) return;
+    const id = ++soundIds;
+    const sound = soundLine(msg, id);
+    if (!sound) return;
+    soundTimes.push(now);
+    emit({ t: "sound", name: /^[a-z-]{1,24}$/.test(String(msg.name)) ? msg.name : "sound", device: msg.device });
+    const player = startSoundPlayer();
+    if (!player) return;
+    player.stdin.write(`${sound.line}\n`);
+    sounds.set(msg.id, { id, ends: now + sound.end * 1000 + 200 });
+  };
+  const stopSound = (localId) => {
+    const s = sounds.get(localId);
+    if (!s) return;
+    sounds.delete(localId);
+    soundPlayer?.stdin.write(`stop\t${s.id}\n`);
+  };
   let lastSeen = Date.now();
   // Releases a hold once its press has finished, and only if it pressed anything: a
   // combo's keys go down one by one, so a quick release could otherwise land in between
@@ -918,6 +1046,14 @@ server.on("upgrade", (req, socket) => {
       return;
     }
     if (msg.t === "open") { openLink(msg.index, client); return; }
+    if (msg.t === "sound") { playSound(msg); return; }
+    if (msg.t === "sound-stop") { stopSound(msg.id); return; }
+    if (msg.t === "sound-out") {
+      const here = msg.pc === true;
+      if (here && !soundsHere) { console.log(`Button sounds from ${who} play on this PC.`); startSoundPlayer(); }
+      soundsHere = here;
+      return;
+    }
     if (msg.t === "reset-states") {
       buttonStates.clear();
       for (const c of tablets) c.send({ t: "states", states: {} });
@@ -955,6 +1091,7 @@ server.on("upgrade", (req, socket) => {
     clearInterval(watchdog);
     tablets.delete(client);
     void releaseAll();
+    for (const id of [...sounds.keys()]) stopSound(id);
     if (voiceOwner === client) { voice?.stdin.write("stop\n"); voiceOwner = null; }
     console.log(`Tablet disconnected: ${who}`);
     emit({ t: "client", on: false, device });

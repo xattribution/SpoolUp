@@ -278,11 +278,16 @@ html[data-no-lights] [data-state-group] > .fx-state { display: none; }
 #picker .sheet-note { margin: 0; color: #8aa0b8; font: 13px/1.4 "Exo 2", system-ui, sans-serif; }
 #picker .sheet-foot { margin: 22px 0 0; text-align: center; color: #8aa0b8; font: 13px/1.4 "Exo 2", system-ui, sans-serif; }
 #picker .sheet-foot a { color: #4fb3ff; }
-#layoutPick, #langPick {
+#layoutPick, #langPick, #soundOut {
   width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 8px; font: 600 15px "Exo 2", system-ui, sans-serif;
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.25); color: #e8eef5;
 }
-#layoutPick option, #langPick option { background: #0b1726; }
+#layoutPick option, #langPick option, #soundOut option { background: #0b1726; }
+#picker h3 label { font: inherit; letter-spacing: inherit; }
+.sheet-range { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.sheet-range input { flex: 1; min-width: 0; height: 32px; accent-color: #4fb3ff; }
+.sheet-range output { min-width: 3.2em; text-align: right; color: #8aa0b8; font: 600 14px "Exo 2", system-ui, sans-serif; }
+#soundOut:disabled, #soundVol:disabled { opacity: .45; }
 /* An on/off row: the whole row is the switch, so it's easy to hit. */
 .sheet-switch {
   display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; padding: 8px 12px; text-align: left;

@@ -64,7 +64,9 @@ Island and home indicator as on the real phone.
 Next to the device, a live log shows each button's label, its keys, and how it
 was pressed (tap, long press, hold and release, or voice), voice results, and
 whether the focus check would have blocked the press. Mode switches and panel
-arrows appear as "screen only", since they send nothing to the PC. The log comes
+arrows appear as "screen only", since they send nothing to the PC. Button sounds
+from a tablet set to play them on the PC show as "PC sound", with the output; a
+dry run plays them too, so you can try an output without the game. The log comes
 from `/events`, which only exists in `--dry-run` and needs the pairing code.
 Against a normal server the page warns that taps send real keys.
 

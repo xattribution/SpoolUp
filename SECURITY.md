@@ -27,7 +27,7 @@ itself and installs them when you click **Update now**.
 Tablet Deck is meant to be safe on your own home network. These are in scope:
 
 - Anything that lets someone **without the pairing code** press keys, change
-  settings, open links on the PC or read the pairing code.
+  settings, open links or play sounds on the PC, or read the pairing code.
 - Keys reaching **another window than Star Citizen** while the "only while Star
   Citizen is in front" check is on.
 - The layout editor's features working from **another device** (they're meant

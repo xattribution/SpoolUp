@@ -150,7 +150,58 @@
       cards.appendChild(card);
     }
   }
-  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); };
+  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); };
+
+  // ---------- sounds ----------
+
+  // Button sounds (sound.js), kept per device: on or off, where they play (here, or on one
+  // of the PC's outputs, e.g. a headset, to hear them over the game) and how loud. The PC
+  // lists its outputs; this device only picks one by name, and the PC plays only on those.
+  const S = window.DeckSound;
+  function fillSounds() {
+    $("soundBtn").setAttribute("aria-checked", String(S.on));
+    $("soundOut").disabled = $("soundVol").disabled = !S.on;
+    $("soundVol").value = S.volume;
+    $("soundVolText").textContent = `${S.volume}%`;
+    showOutputs(null);
+    if (DEMO) { $("soundNote").textContent = tr("With the app, sounds can also play on your PC, e.g. in your headset."); return; }
+    fetch(`/sound-devices.json?t=${encodeURIComponent(token)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(showOutputs)
+      .catch(() => {});
+  }
+  // `pc` is what the PC said (null while asking, or in demo mode).
+  function showOutputs(pc) {
+    const pick = $("soundOut");
+    pick.innerHTML = "";
+    const add = (value, text) => { const o = document.createElement("option"); o.value = value; o.textContent = text; pick.appendChild(o); };
+    add("", tr("This device"));
+    const works = pc && pc.state !== "unavailable";
+    if (works) {
+      const preferred = pc.devices[pc.preferred];
+      add("pc:", preferred ? tr("PC: default output ({0})", preferred) : tr("PC: default output"));
+      for (const name of pc.devices) add(`pc:${name}`, tr("PC: {0}", name));
+    }
+    const current = S.out === "pc" ? `pc:${S.device}` : "";
+    // Keep the choice showing while the list loads, or when that output is unplugged.
+    if (![...pick.options].some((o) => o.value === current)) {
+      add(current, S.device ? tr(works ? "PC: {0} (not connected)" : "PC: {0}", S.device) : tr("PC: default output"));
+    }
+    pick.value = current;
+    if (DEMO) return;
+    $("soundNote").textContent = pc && !works
+      ? tr("The PC can't play sounds{0}, so they play on this device.", pc.reason ? ` (${pc.reason})` : "")
+      : tr("On the PC, they play on the output you pick, e.g. your headset, so you hear them over the game.");
+  }
+  $("soundBtn").onclick = () => { S.set(!S.on); fillSounds(); };
+  $("soundOut").onchange = (e) => {
+    const v = e.target.value;
+    if (v.startsWith("pc:")) S.route("pc", v.slice(3)); else S.route("device");
+  };
+  $("soundVol").oninput = (e) => { $("soundVolText").textContent = `${e.target.value}%`; };
+  $("soundVol").onchange = (e) => S.setVolume(Number(e.target.value));
+  // Sounds for this device reach the PC over the deck's connection.
+  if (!DEMO) S.connect((msg) => { if (!connected()) return false; send(msg); return true; });
 
   // "Open on PC": websites set up on the PC (Settings → Links), opened in its browser. The
   // tablet only gets their names and asks by position, so it can't open anything else.
@@ -320,14 +371,6 @@
     apply(store.get(attr) === "1");
   }
 
-  // Button sounds: off unless turned on on this device (sound.js keeps the choice).
-  $("soundBtn").setAttribute("aria-checked", String(window.DeckSound.on));
-  $("soundBtn").onclick = () => {
-    const on = !window.DeckSound.on;
-    window.DeckSound.set(on);
-    $("soundBtn").setAttribute("aria-checked", String(on));
-  };
-
   // Button lights: on unless turned off on this device. Kept as "data-no-lights" so the
   // default (no attribute) is lit.
   function applyLights(on, refresh) {
@@ -398,6 +441,7 @@
     // A connection attempt that hangs (the PC gone from the network) counts as failed.
     const giveUp = setTimeout(() => { if (sock.readyState === WebSocket.CONNECTING) sock.close(); }, DEAD_MS);
     sock.onopen = () => {
+      S.announce(); // before the "online" sound, which may play on the PC
       opened = true;
       clearTimeout(giveUp);
       lastHeard = performance.now();
@@ -423,7 +467,8 @@
         refreshStatus();
       }
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
-      else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); }
+      else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
+      else if (msg.t === "sound-status") S.status(msg);
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
       else if (msg.t === "voice-status") applyVoiceStatus(msg);

@@ -56,7 +56,7 @@ panels. Phones get their own layout. In English, Español, Français or Deutsch.
 RSI, Drake, Aegis, Anvil, Origin, MISC, Crusader, Banu, Aopoa, Argo,
 Consolidated Outland and Esperia, plus night mode. Press animations for
 landing-gear struts, the quantum charge ring, decoy sparks, sliding doors and
-more.
+more, with HUD sounds on the tablet or in your headset.
 
 </td>
 </tr>
@@ -377,11 +377,6 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 - **Key labels** shows the key each button presses in a corner, from your
   keybinds (so a rebind in-game shows there too). Handy for learning the
   binds, or checking one when a button doesn't do what you expect.
-- **Button sounds** adds soft HUD sounds, made on the tablet: a chirp per press
-  (lower for weapons, higher for navigation), the quantum drive spooling up and
-  engaging, the self-destruct alarm, panel flips, voice results and a buzz when
-  a press didn't go through. They play on the tablet only, and are off until
-  you turn them on.
 - **Button lights** can be turned off. The deck can't read the game, so lit
   buttons only follow your taps; if you also use your keyboard or HOTAS, they can
   drift out of sync. **Reset button lights** clears them while they're on.
@@ -389,6 +384,27 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 <p align="center">
   <img src="docs/themes.jpg" alt="The deck in all 12 manufacturer themes" width="100%">
 </p>
+
+### Sounds
+
+The deck plays soft HUD sounds: a chirp per press (lower for weapons, higher for
+navigation), the quantum drive spooling up and engaging, the self-destruct
+alarm, panel flips, voice results and a buzz when a press didn't go through.
+They're made on the spot from a few tones, not sound files. Change them under
+**Sounds** in **Deck settings**, separately on each tablet and phone:
+
+- **Button sounds** turns them on or off.
+- **Play on** picks where you hear them: **This device**, or one of the PC's
+  outputs, such as your **headset**, so you hear them over the game. The PC
+  plays the same sounds there; the list shows each output Windows has, and
+  **PC: default output** follows Windows' default. If the output you picked is
+  unplugged, they play on the default one until it's back.
+- **Volume** sets how loud, wherever they play. Each change plays a chirp so you
+  can tell.
+
+A tablet can only pick one of the PC's outputs and send it short tones; the PC
+makes the sounds itself and nothing reaches the game. While the tablet isn't
+connected, its sounds play on the tablet.
 
 ### Languages
 
