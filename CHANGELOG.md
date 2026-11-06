@@ -26,6 +26,17 @@ before tagging a release.
   with a needle: turn it to a mode and let go, or tap the mode, and it taps
   that mode's key once. SCM/NAV sits in the middle. On phones the dial has
   its own panel, Master Modes, next to QT/Systems.
+- **Resize the halves.** Deck settings → Edit layout unlocks the seam between
+  the HUD's two halves: drag it to make one wider, then Lock. Reset puts it
+  back. Each tablet and phone keeps its own, and nothing is pressed while
+  you arrange it.
+- Every new control is drawn in each maker's own style (Drake's riveted
+  hazard lever, Origin's cream fader knob, Anvil's knurled dial...), works
+  with touch, mouse and keyboard, and follows Large text, High contrast,
+  night mode and Reduce motion. The layout editor places and resizes them,
+  and lists their buttons to edit.
+- Each step, pull or turn is still one press of an existing button through
+  the PC's usual checks; voice commands and Stream Deck keys are unchanged.
 
 ## 1.9.0 (2026-11-06)
 

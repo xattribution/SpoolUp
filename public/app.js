@@ -391,6 +391,12 @@
   }
   $("nightBtn").onclick = () => applyNight(!document.documentElement.hasAttribute("data-night"));
   $("resetStatesBtn").onclick = resetStates;
+  // Edit layout: unlocks the seam between the HUD's halves until Lock (canvas.js).
+  $("editPlatesBtn").onclick = () => {
+    if (!deckCanvas || !deckCanvas.editPlates(true)) { toast("This layout has no halves to resize"); return; }
+    closePicker();
+    toast("Drag the seam, then Lock", 2600);
+  };
   applyNight(store.get("night") === "1");
 
   // Large text, high contrast and key labels (each button's key in a corner, for learning

@@ -56,9 +56,9 @@
 
     // Layout coordinates are in design pixels; place them on the stretched canvas.
     const box = (el, e) => {
-      el.style.left = `${e.x * kx}px`;
+      el.style.left = `${e.x * kx * rkx}px`;
       el.style.top = `${e.y * ky}px`;
-      if (e.w !== undefined) el.style.width = `${e.w * kx}px`;
+      if (e.w !== undefined) el.style.width = `${e.w * kx * rkx}px`;
       if (e.h !== undefined) el.style.height = `${e.h * ky}px`;
       return el;
     };
@@ -160,7 +160,7 @@
       status: (e) => box(make("div", "hud-status", `<span class="js-dot dot"></span><span class="js-status">Connecting…</span>`), e),
 
       rule: (e) => box(make("div", "hud-rule", "<i></i><i></i>"), e),
-      divider: (e) => box(make("div", "hud-divider"), e),
+      divider: (e) => box(make("div", "hud-divider"), seamAt(e)),
 
       header: (e) => text(box(make("div", "hud-header", `<b>//</b><span></span>`), e), "span", e.text),
 
@@ -204,7 +204,7 @@
         const el = box(make("div", "hud-slider", `<div class="track"><span class="txt"></span></div><div class="knob"></div>`), e);
         text(el, ".txt", e.label);
         const knob = el.querySelector(".knob");
-        const max = e.w * kx - 26;
+        const max = e.w * kx * rkx - 26;
         let start = null, pos = 0;
         const setPos = (p) => { pos = Math.max(0, Math.min(max, p)); knob.style.transform = `translateX(${pos}px)`; el.style.setProperty("--fill", `${(pos / max) * 100}%`); };
         knob.addEventListener("pointerdown", (ev) => {
@@ -721,7 +721,98 @@
       D.paged?.(regionId, region.panels[state.panels[regionId]], region.panels[from]);
     }
 
-    function renderRegion(region) {
+    // ---------- Edit layout: the seam between the halves ----------
+
+    // A layout with two halves side by side can move the seam between them (Deck settings,
+    // Edit layout): one half gets wider and its panels stretch, the other narrower. It's
+    // only layout, kept per device with the page positions; nothing is pressed.
+    const halves = (() => {
+      const [a, b] = layout.regions || [];
+      if (!a || !b || layout.regions.length !== 2 || a.x + a.w > b.x) return null;
+      return { a, b, limit: Math.round(Math.min(a.w, b.w) * 0.2), gap: b.x - (a.x + a.w) };
+    })();
+    let editing = false;
+    const split = () => (halves ? Math.max(-halves.limit, Math.min(halves.limit, Math.round(Number(state.split) || 0))) : 0);
+    // A region as the seam leaves it, and how much wider its panels are drawn.
+    function placed(region) {
+      const d = split();
+      if (!d) return { r: region, f: 1 };
+      if (region === halves.a) return { r: { ...region, w: region.w + d }, f: (region.w + d) / region.w };
+      if (region === halves.b) return { r: { ...region, x: region.x + d, w: region.w - d }, f: (region.w - d) / region.w };
+      return { r: region, f: 1 };
+    }
+    // Chrome between the halves (the divider) moves with the seam.
+    function seamAt(e) {
+      const d = split();
+      if (!d || !halves) return e;
+      const lo = halves.a.x + halves.a.w - 4, hi = halves.b.x + 4;
+      return e.x >= lo && e.x <= hi ? { ...e, x: e.x + d } : e;
+    }
+    // The seam handle and the Reset / Lock bar, kept across redraws so a drag survives them.
+    let seamEl = null, barEl = null;
+    function editChrome() {
+      if (!editing || !halves) return;
+      if (!seamEl) {
+        seamEl = make("div", "plates-seam", `<i></i>`);
+        seamEl.setAttribute("role", "slider");
+        seamEl.setAttribute("aria-label", tr("Drag to resize the halves"));
+        seamEl.tabIndex = 0;
+        seamEl.addEventListener("pointerdown", (ev) => {
+          ev.preventDefault();
+          const start = { x: ev.clientX, d: split() };
+          seamEl.classList.add("dragging");
+          let frame = 0;
+          const move = (m) => {
+            state.split = Math.max(-halves.limit, Math.min(halves.limit, Math.round(start.d + (m.clientX - start.x) / scaleNow() / kx)));
+            if (!frame) frame = requestAnimationFrame(() => { frame = 0; render(); });
+          };
+          const up = () => {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", up);
+            window.removeEventListener("pointercancel", up);
+            seamEl.classList.remove("dragging");
+            save();
+            render();
+          };
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", up);
+          window.addEventListener("pointercancel", up);
+        });
+        seamEl.addEventListener("keydown", (ev) => {
+          const by = { ArrowLeft: -8, ArrowRight: 8 }[ev.key];
+          if (!by) return;
+          ev.preventDefault();
+          state.split = split() + by;
+          state.split = split();
+          save();
+          render();
+          seamEl.focus();
+        });
+        barEl = make("div", "plates-bar",
+          `<span class="t"></span><button type="button" class="reset"></button><button type="button" class="lock"></button>`);
+        barEl.querySelector(".t").textContent = tr("Edit layout: drag the seam");
+        barEl.querySelector(".reset").textContent = tr("Reset");
+        barEl.querySelector(".lock").textContent = tr("Lock");
+        barEl.querySelector(".reset").onclick = () => { state.split = 0; save(); render(); };
+        barEl.querySelector(".lock").onclick = () => editPlates(false);
+      }
+      const d = split();
+      const mid = (halves.a.x + halves.a.w + halves.gap / 2 + d) * kx;
+      Object.assign(seamEl.style, { left: `${mid - 22}px`, top: `${halves.a.y * ky}px`, height: `${halves.a.h * ky}px` });
+      seamEl.setAttribute("aria-valuenow", String(d));
+      canvas.append(make("div", "plates-veil"), seamEl, barEl);
+    }
+    function editPlates(on) {
+      if (on && !halves) return false;
+      editing = Boolean(on);
+      if (!editing) { seamEl = null; barEl = null; }
+      window.DeckSound?.play("page");
+      render();
+      return true;
+    }
+
+    function renderRegion(original) {
+      const { r: region, f } = placed(original);
       const el = box(make("div", "hud-region"), region);
       el.dataset.region = region.id;
       const pagerH = region.pager || 44; // pager bar height; phone layouts use a slimmer one
@@ -732,7 +823,8 @@
       const body = make("div", "hud-panel");
       if (slide && slide.region === region.id) body.classList.add(slide.dir > 0 ? "enter-next" : "enter-prev");
       body.style.height = `${region.h * ky - pagerH - 8}px`;
-      renderElements(body, panel.elements);
+      rkx = f;
+      try { renderElements(body, panel.elements); } finally { rkx = 1; }
       el.appendChild(body);
 
       const pager = make("div", "hud-pager",
@@ -754,6 +846,8 @@
       recentred = [];
       renderElements(canvas, layout.chrome || []);
       for (const region of layout.regions) canvas.appendChild(renderRegion(region));
+      canvas.classList.toggle("plates-edit", editing);
+      editChrome();
       D.refreshStatus();
       if (D.afterRender) D.afterRender();
     }
@@ -791,6 +885,10 @@
         return changed;
       },
       scale: scaleNow,
+      // Deck settings' Edit layout: unlocks the seam between the halves (false if the layout
+      // has no two halves side by side).
+      editPlates,
+      editing: () => editing,
       // A button was pressed on this deck: controls that follow it update.
       pressed(id) { for (const fn of followers.get(id) || []) fn(); },
       // Stops this deck redrawing itself, before another layout is drawn or a grid layout shown.
