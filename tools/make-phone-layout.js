@@ -156,6 +156,7 @@ Object.assign(panels, {
   combat: gridPanel("combat", 2),
   crew: gridPanel("crew", 2),
   "on-foot": gridPanel("on-foot", 2),
+  comms: gridPanel("comms", 3),
 });
 // 34 emotes don't fit one phone panel; split them over two.
 const emotes = tablet.panels.emotes.elements.find((e) => e.type === "grid").buttons;
@@ -172,7 +173,7 @@ const phone = {
     { id: "left", x: 0, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
       panels: ["landing", "power", "flight-assist", "shields", "targets", "salvage", "mining"] },
     { id: "right", x: 375, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
-      panels: ["systems", "emergency", "modes", "combat", "crew", "on-foot", "emotes-1", "emotes-2"] },
+      panels: ["systems", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
   ],
   panels,
 };

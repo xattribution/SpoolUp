@@ -46,7 +46,7 @@
 
 ### 🛸 A HUD for your tablet
 Landing, power management, quantum, operator modes, shields, targeting,
-salvage, mining, doors, emotes and more, on a two-half HUD that pages through
+salvage, mining, doors, comms, emotes and more, on a two-half HUD that pages through
 panels. Phones get their own layout. In English, Español, Français or Deutsch.
 
 </td>
@@ -257,8 +257,6 @@ keybinds. A few still need a look in-game:
   if it's gone, bind it again next to the keyboard key.
 - **Launch Missile** holds RAlt+\ for 0.4 s, since the game wants a held press
   to launch.
-- **Match Speed and Reset Limit** have no Star Citizen 4.10 action any more, so
-  they don't do anything useful in-game yet.
 - **Layouts you made in the layout editor** keep the keys they were saved with.
   Buttons there that carry no Star Citizen action still press the old keys
   (Decoy G, Noise H, Flight Ready R, Request Docking LAlt+N, a quick tap for
@@ -275,7 +273,7 @@ choose under **Layout**. Each tablet and phone remembers its own choice:
 
 | Layout | Opens on |
 |---|---|
-| **Tablet Deck HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot and Emotes on the right |
+| **Tablet Deck HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right |
 | **Combat** | Power/Landing, Shields, Targeting and Flight Assist first; Combat, QT/Systems, Operator Modes and Crew first |
 | **Mining & Salvage** | Mining and Salvage first; Operator Modes, QT/Systems, Crew and On Foot first |
 | **Hauling & Exploration** | Power/Landing, Flight Assist and Targeting first; QT/Systems, Crew, On Foot and Emotes first |
@@ -299,8 +297,8 @@ like its arrows. So a swipe never presses anything, a press then waits a moment
 
 Buttons that switch something on stay lit until you switch it off: **Open
 Doors** stays lit until you press **Close Doors**, **Landing Gear** shows
-DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, ESP,
-G-safety and door locks light up while they're on. Every tablet shows the same,
+DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, decoupled,
+ESP, G-safety and door locks light up while they're on. Every tablet shows the same,
 voice commands count too, and a press the focus check skips changes nothing.
 
 Tablet Deck can't see the game, so the lights only follow what Tablet Deck

@@ -7,6 +7,14 @@ before tagging a release.
 
 ## Unreleased
 
+- **A Comms panel** on the right half: push to talk and proximity push to talk
+  (held for as long as you hold the button), the voice channel, hail target,
+  accept and decline invites, chat, contacts, the inner thought wheel and wipe
+  visor.
+- **Decoupled and Throttle Mode** replace Match Speed and Reset Limit in Flight
+  Assist, which Star Citizen 4.10 no longer has. Decoupled lights while it's on.
+- **Next Hostile** joins Prev Hostile in Targeting, so the Stream Deck's Targets
+  dial cycles hostiles both ways.
 - **Buttons follow Star Citizen 4.10's keys.** Decoy is now H and Noise J,
   Flight Ready RAlt+R and Request Docking RAlt+N; SCM/NAV and the docking camera
   are held long enough to count; Engage Quantum presses RAlt+J (holding B

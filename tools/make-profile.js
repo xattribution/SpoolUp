@@ -95,10 +95,18 @@ const ACTIONMAPS = {
   v_master_mode_set_scm: ["spaceship_movement"],
   v_toggle_landing_system: ["spaceship_movement"],
   v_vtol_toggle: ["spaceship_movement"],
-  // Gone from Star Citizen 4.10 (Reset Limit and Match Speed buttons); kept until those
-  // buttons are replaced, so the build doesn't stop on them.
-  v_ifcs_speed_limiter_reset_scm: ["spaceship_movement"],
-  v_target_match_vel: ["spaceship_movement"],
+  v_ifcs_throttle_swap_mode: ["spaceship_movement"],
+  v_ifcs_vector_decoupling_toggle: ["spaceship_movement"],
+
+  // Comms (Star Citizen 4.10's own binds; the Comms panel)
+  foip_cyclechannel: ["player_input_optical_tracking"],
+  foip_pushtotalk: ["player_input_optical_tracking"],
+  foip_pushtotalk_proximity: ["player_input_optical_tracking"],
+  pc_personal_thought: ["player_choice"],
+  ui_notification_accept: ["ui_notification"],
+  ui_notification_decline: ["ui_notification"],
+  v_target_hail: ["spaceship_target_hailing"],
+  visor_wipe: ["player", "spaceship_hud", "vehicle_general"],
 
   // Quantum and docking
   v_dock_toggle_view: ["spaceship_docking"],
@@ -127,6 +135,7 @@ const ACTIONMAPS = {
   v_target_cycle_attacker_back: ["spaceship_targeting_advanced"],
   v_target_cycle_friendly_back: ["spaceship_targeting_advanced"],
   v_target_cycle_hostile_back: ["spaceship_targeting_advanced"],
+  v_target_cycle_hostile_fwd: ["spaceship_targeting_advanced"],
   v_target_cycle_in_view_back: ["spaceship_targeting_advanced"],
   v_target_cycle_subitem_back: ["spaceship_targeting_advanced"],
 
@@ -191,6 +200,18 @@ const DEFAULTS = {
   v_vtol_toggle: "k",
   v_weapon_countermeasure_decoy_launch: "h",
   v_weapon_countermeasure_noise_launch: "j",
+  // Comms, decoupled, throttle mode and next hostile: all on their 4.10 defaults.
+  foip_cyclechannel: "np_period",
+  foip_pushtotalk: "np_add",
+  foip_pushtotalk_proximity: "lalt+np_add",
+  pc_personal_thought: "lalt+f",
+  ui_notification_accept: "lbracket",
+  ui_notification_decline: "rbracket",
+  v_ifcs_throttle_swap_mode: "lalt+c",
+  v_ifcs_vector_decoupling_toggle: "c",
+  v_target_cycle_hostile_fwd: "5",
+  v_target_hail: "9",
+  visor_wipe: "lalt+x",
 };
 
 // Maps that are active together. A key combo bound to two actions in the same context
@@ -214,8 +235,11 @@ const CONTEXTS = {
   spaceship_targeting_advanced: "vehicle",
   spaceship_weapons: "vehicle",
   vehicle_general: "vehicle",
-  // UI and social maps work in a seat and on foot alike.
+  spaceship_target_hailing: "vehicle",
+  // UI, social and voice maps work in a seat and on foot alike.
   default: "global",
+  player_input_optical_tracking: "global",
+  ui_notification: "global",
 };
 
 // Star Citizen keyboard key names (the same names server.js sends).

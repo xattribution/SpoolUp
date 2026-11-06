@@ -225,9 +225,6 @@
   <action name="v_ifcs_speed_limiter_increment">
    <rebind input="kb1_lalt+pgup"/>
   </action>
-  <action name="v_ifcs_speed_limiter_reset_scm">
-   <rebind input="kb1_lalt+s"/>
-  </action>
   <action name="v_ifcs_speed_limiter_toggle">
    <rebind input="kb1_lalt+minus"/>
   </action>
@@ -242,9 +239,6 @@
   </action>
   <action name="v_master_mode_set_scm">
    <rebind input="kb1_ralt+insert"/>
-  </action>
-  <action name="v_target_match_vel">
-   <rebind input="kb1_lctrl+v"/>
   </action>
  </actionmap>
  <actionmap name="spaceship_quantum">

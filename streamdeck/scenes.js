@@ -91,7 +91,7 @@ const DIAL = {
   laser: { label: "Laser Power", icon: "laser", color: "amber", ccw: "mn-power-down", cw: "mn-power-up", press: "mn-fire" },
   beam: { label: "Beam Spacing", icon: "salvage", color: "amber", ccw: "sv-spacing-down", cw: "sv-spacing-up", press: "op-salvage" },
   modifier: { label: "Modifier", icon: "salvage", color: "amber", ccw: "sv-mod-left", cw: "sv-mod-right", press: "op-scan" },
-  targets: { label: "Targets", icon: "target", color: "red", ccw: "tg-hostile", cw: "tg-attacker", press: "tg-sub" },
+  targets: { label: "Targets", icon: "target", color: "red", ccw: "tg-hostile", cw: "tg-next-hostile", press: "tg-attacker" },
   tracks: { label: "Media", icon: "play-pause", ccw: "sd-prev-track", cw: "sd-next-track", press: "sd-play-pause" },
   volume: { label: "Volume", icon: "volume-up", ccw: "sd-volume-down", cw: "sd-volume-up", press: "sd-volume-mute" },
   channel: { label: "Voice Channel", icon: "voice-channel", color: "blue", cw: "cm-channel", press: "cm-hail" },
@@ -108,7 +108,7 @@ const PLUSXL = {
   flight: {
     keys: [
       ["qt-flight-ready", "qt-pwr", "qt-wep", "qt-thr", "qt-shld", "op-quantum", "qt-engage", "qt-scm-nav", "top-starmap"],
-      ["pl-gear", "pl-vtol", "fa-lights", "fa-esp", "fa-gsafe", "fa-scm", "fa-nav", "fa-limiter", "fa-match"],
+      ["pl-gear", "pl-vtol", "fa-lights", "fa-esp", "fa-gsafe", "fa-scm", "fa-nav", "fa-limiter", "fa-decoupled"],
       ["top-atc", "pl-request-dock", "pl-autoland", "pl-dock-cam", "fa-look-behind", "cr-doors-toggle", "top-mobiglas", "td-talk", "@folder:emergency"],
     ],
     dials: ["weapons", "thrusters", "shields", "speed", "volume", "scenes"],
@@ -124,7 +124,7 @@ const PLUSXL = {
   mining: {
     keys: [
       ["mn-mode", "mn-fire", "mn-type", "mn-module-1", "mn-module-2", "mn-module-3", "op-scan", "op-flight", "top-starmap"],
-      ["mn-power-down", "mn-power-up", "fa-limiter", "fa-lights", "pl-gear", "pl-vtol", "qt-flight-ready", "fa-esp", "fa-match"],
+      ["mn-power-down", "mn-power-up", "fa-limiter", "fa-lights", "pl-gear", "pl-vtol", "qt-flight-ready", "fa-esp", "fa-decoupled"],
       ["pw-shd-max", "pw-thr-max", "pw-reset", "top-atc", "pl-request-dock", "pl-autoland", "cr-doors-toggle", "td-talk", "@folder:emergency"],
     ],
     dials: ["laser", "thrusters", "shields", "speed", "volume", "scenes"],
@@ -132,14 +132,14 @@ const PLUSXL = {
   salvage: {
     keys: [
       ["op-salvage", "sv-mod-left", "sv-mod-right", "sv-spacing-down", "sv-spacing-up", "op-scan", "op-flight", "top-starmap", "td-talk"],
-      ["fa-lights", "pl-gear", "pl-vtol", "fa-limiter", "fa-match", "qt-flight-ready", "fa-esp", "cr-doors-toggle", "top-mobiglas"],
+      ["fa-lights", "pl-gear", "pl-vtol", "fa-limiter", "fa-decoupled", "qt-flight-ready", "fa-esp", "cr-doors-toggle", "top-mobiglas"],
       ["top-atc", "pl-request-dock", "pl-autoland", "pl-dock-cam", "pw-shd-max", "pw-thr-max", "cr-doors-open", "cr-doors-close", "@folder:emergency"],
     ],
     dials: ["beam", "modifier", "shields", "speed", "volume", "scenes"],
   },
   hauling: {
     keys: [
-      ["op-quantum", "qt-engage", "top-starmap", "op-scan", "fa-nav", "fa-scm", "qt-scm-nav", "fa-limiter", "fa-match"],
+      ["op-quantum", "qt-engage", "top-starmap", "op-scan", "fa-nav", "fa-scm", "qt-scm-nav", "fa-limiter", "fa-decoupled"],
       ["top-atc", "pl-request-dock", "pl-autoland", "pl-dock-cam", "pl-gear", "pl-vtol", "fa-lights", "qt-flight-ready", "fa-esp"],
       ["cr-doors-open", "cr-doors-close", "cr-doors-lock", "cr-doors-unlock", "cr-turret-1", "cr-turret-2", "cr-turret-3", "top-mobiglas", "@folder:emergency"],
     ],
@@ -183,7 +183,7 @@ const XL = {
   ],
   salvage: [
     ["op-salvage", "sv-mod-left", "sv-mod-right", "sv-spacing-down", "sv-spacing-up", "op-scan", "op-flight", "top-starmap"],
-    ["fa-lights", "pl-gear", "pl-vtol", "fa-limiter", "fa-match", "qt-flight-ready", "fa-esp", "cr-doors-toggle"],
+    ["fa-lights", "pl-gear", "pl-vtol", "fa-limiter", "fa-decoupled", "qt-flight-ready", "fa-esp", "cr-doors-toggle"],
     ["top-atc", "pl-request-dock", "pl-autoland", "pw-shd-max", "pw-thr-max", "pw-reset", "td-talk", "@folder:emergency"],
   ],
   hauling: [

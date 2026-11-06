@@ -179,6 +179,7 @@
         "combat",
         "crew",
         "on-foot",
+        "comms",
         "emotes-1",
         "emotes-2"
       ]
@@ -1333,15 +1334,15 @@
               "mode": "tap"
             },
             {
-              "id": "fa-limiter-reset",
-              "icon": "power-reset",
-              "label": "Reset Limit",
+              "id": "fa-throttle",
+              "icon": "speed",
+              "label": "Throttle Mode",
               "voice": [
-                "reset speed limit",
-                "reset speed limiter"
+                "throttle mode",
+                "swap throttle mode"
               ],
-              "keys": "lalt+s",
-              "scAction": "v_ifcs_speed_limiter_reset_scm",
+              "keys": "lalt+c",
+              "scAction": "v_ifcs_throttle_swap_mode",
               "mode": "tap"
             },
             {
@@ -1370,16 +1371,19 @@
               "mode": "tap"
             },
             {
-              "id": "fa-match",
-              "icon": "target",
-              "label": "Match Speed",
+              "id": "fa-decoupled",
+              "icon": "swap",
+              "label": "Decoupled",
+              "state": {
+                "group": "decoupled"
+              },
               "voice": [
-                "match velocity",
-                "match target speed",
-                "match target"
+                "decoupled",
+                "decoupled mode",
+                "toggle decoupled"
               ],
-              "keys": "lctrl+v",
-              "scAction": "v_target_match_vel",
+              "keys": "c",
+              "scAction": "v_ifcs_vector_decoupling_toggle",
               "mode": "tap"
             },
             {
@@ -1575,6 +1579,20 @@
           "cols": 2,
           "compact": true,
           "buttons": [
+            {
+              "id": "tg-next-hostile",
+              "icon": "target",
+              "label": "Next Hostile",
+              "voice": [
+                "next hostile",
+                "next enemy",
+                "target hostile"
+              ],
+              "keys": "5",
+              "scAction": "v_target_cycle_hostile_fwd",
+              "mode": "tap",
+              "color": "red"
+            },
             {
               "id": "tg-hostile",
               "icon": "target",
@@ -2097,6 +2115,135 @@
               "keys": "escape",
               "mode": "tap",
               "color": "red"
+            }
+          ]
+        }
+      ]
+    },
+    "comms": {
+      "title": "Comms",
+      "elements": [
+        {
+          "type": "grid",
+          "x": 0,
+          "y": 0,
+          "w": 359,
+          "h": 278,
+          "cols": 3,
+          "compact": true,
+          "buttons": [
+            {
+              "id": "cm-ptt",
+              "icon": "push-to-talk",
+              "label": "Push to Talk",
+              "voice": false,
+              "keys": "np_add",
+              "scAction": "foip_pushtotalk",
+              "mode": "hold",
+              "color": "green"
+            },
+            {
+              "id": "cm-ptt-prox",
+              "icon": "voip",
+              "label": "Proximity PTT",
+              "voice": false,
+              "keys": "lalt+np_add",
+              "scAction": "foip_pushtotalk_proximity",
+              "mode": "hold",
+              "color": "green"
+            },
+            {
+              "id": "cm-channel",
+              "icon": "voice-channel",
+              "label": "Voice Channel",
+              "voice": [
+                "next channel",
+                "cycle channel",
+                "voice channel"
+              ],
+              "keys": "np_period",
+              "scAction": "foip_cyclechannel",
+              "mode": "tap",
+              "color": "blue"
+            },
+            {
+              "id": "cm-hail",
+              "icon": "hail",
+              "label": "Hail Target",
+              "voice": [
+                "hail",
+                "hail target"
+              ],
+              "keys": "9",
+              "scAction": "v_target_hail",
+              "mode": "tap",
+              "color": "blue"
+            },
+            {
+              "id": "cm-accept",
+              "icon": "party",
+              "label": "Accept Invite",
+              "voice": [
+                "accept invite"
+              ],
+              "keys": "lbracket",
+              "scAction": "ui_notification_accept",
+              "mode": "tap",
+              "color": "green"
+            },
+            {
+              "id": "cm-decline",
+              "icon": "party",
+              "label": "Decline Invite",
+              "voice": [
+                "decline invite"
+              ],
+              "keys": "rbracket",
+              "scAction": "ui_notification_decline",
+              "mode": "tap",
+              "color": "red"
+            },
+            {
+              "id": "cm-chat",
+              "icon": "chat",
+              "label": "Chat",
+              "voice": false,
+              "keys": "f12",
+              "scAction": "toggle_chat",
+              "mode": "tap"
+            },
+            {
+              "id": "cm-contacts",
+              "icon": "contacts",
+              "label": "Contacts",
+              "voice": false,
+              "keys": "f11",
+              "scAction": "toggle_contact",
+              "mode": "tap"
+            },
+            {
+              "id": "cm-pit",
+              "icon": "grid",
+              "label": "Inner Thought",
+              "voice": [
+                "inner thought",
+                "interaction wheel"
+              ],
+              "keys": "lalt+f",
+              "scAction": "pc_personal_thought",
+              "mode": "tap"
+            },
+            {
+              "id": "cm-visor",
+              "icon": "eye",
+              "label": "Wipe Visor",
+              "voice": [
+                "wipe visor",
+                "clean visor"
+              ],
+              "keys": "lalt+x",
+              "scAction": "visor_wipe",
+              "mode": "tap"
             }
           ]
         }
