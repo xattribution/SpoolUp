@@ -6,6 +6,7 @@ the code, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 - [Themes are different, not recoloured](#themes-are-different-not-recoloured)
 - [Theme tokens](#theme-tokens)
+- [Maker drawings](#maker-drawings)
 - [Adding a theme](#adding-a-theme)
 - [Button colours](#button-colours)
 - [HUD style](#hud-style)
@@ -28,9 +29,10 @@ character, the way the "Tablet Deck 2" design did it:
   header looks, not only what colour it is.
 - **Its own type and motion**, where the manufacturer calls for it.
 
-The tokens below carry these; when a theme needs something no token can say,
-add the token (and its drawing in the deck and in the Stream Deck key art)
-rather than settling for a recolour.
+The tokens below carry the colours, type and material; `public/makers.css`
+carries each maker's drawing (see [Maker drawings](#maker-drawings)). When a
+theme needs something neither can say yet, add it (and its drawing in the deck
+and in the Stream Deck key art) rather than settling for a recolour.
 
 ## Theme tokens
 
@@ -47,8 +49,12 @@ tokens below, except the two marked optional.
 | `--panel-hi` | raised or pressed fill | `#122236` |
 | `--line` | borders and dividers | `#1c2c40` |
 | `--line-hi` | highlighted borders | `#35598a` |
-| `--text` | main text | `#e8f2fc` |
-| `--dim` | secondary text: states ("OFF", "RETRACTED"), captions | `#7f95ad` |
+| `--text` | text on buttons and panels | `#e8f2fc` |
+| `--dim` | secondary text on buttons: states ("OFF", "RETRACTED") | `#8ea4bc` |
+| `--ink`, `--ink-dim` | text straight on the page and the HUD's plates: section titles, captions, the status line, the intro | `#e8f2fc`, `#8197b0` |
+| `--face-hi`, `--face-lo` | a button face's top and bottom colour (HUD buttons, Stream Deck keys) | `#1e2d42`, `#111b29` |
+| `--material` | the maker's surface, one word that the Stream Deck key art draws (`glass`, `plate`, `carbon`, `armour`, `gloss`, `enamel`, `pearl`, `lacquer`, `shell`, `hazard`, `clay`, `silk`) | `glass` |
+| `--plate`, `--plate-line` | the plate each half of the HUD sits on, and its border | translucent navy |
 | `--accent` | the theme's signature colour; buttons without a `color` | `#4fb3ff` |
 | `--green`, `--amber`, `--red`, `--blue` | the four button colours (see [Button colours](#button-colours)) | `#46d79a` … |
 | `--font-display` | headings, big labels | `"Exo 2", system-ui, sans-serif` |
@@ -56,8 +62,9 @@ tokens below, except the two marked optional.
 | `--label-case` | `text-transform` of labels | `uppercase` |
 | `--label-track` | letter spacing of labels | `.06em` |
 | `--label-weight` | font weight of labels | `600` |
-| `--key-radius` | button corner radius | `6px` |
-| `--key-clip` | `clip-path` for cut corners, or `none` | `none` |
+| `--key-radius` | grid-layout button and Stream Deck key corner radius | `6px` |
+| `--key-clip` | `clip-path` for cut corners on those, or `none` | `none` |
+| `--btn-radius`, `--btn-clip` | the same for the HUD's (smaller) buttons | `5px`, `none` |
 | `--key-edge` | width of the coloured bar on a button's left edge (`0` for none) | `3px` |
 | `--key-bg` | grid-layout button fill (usually a gradient) | `linear-gradient(...)` |
 | `--key-top`, `--key-top-h` | highlight strip along a grid button's top, and its height | gradient, `2px` |
@@ -67,19 +74,52 @@ tokens below, except the two marked optional.
 | `--tab-radius` | tab shape in the tabbed grid layout | `8px 8px 0 0` |
 | `--label-shadow`, `--state-shadow` | shadow behind labels and state text; optional | dark blur by default |
 
-`:root` also defines `--stars` and `--grid`, shared backdrop pieces that themes
-can use inside `--bg-art`.
+`:root` also defines `--stars`, `--grid` and `--scratches`, shared backdrop
+pieces that themes can use inside `--bg-art`, `--plate` and `--key-bg`.
 
-**Light themes** (Origin is the only one so far) also set `color-scheme: light`,
-and must set `--label-shadow` and `--state-shadow`. The default dark blur makes
-text look smudged on light buttons; Origin uses
-`0 1px 0 rgba(255,255,255,.9)` and `none`.
+**Light pages** (Origin, Crusader, Aopoa, Argo, Consolidated Outland) set
+`color-scheme: light`, and their `--ink` is dark while `--text` stays whatever
+reads on their buttons (Origin's are black, Crusader's white). A theme with
+**light buttons** (Crusader) must also set `--label-shadow` and
+`--state-shadow`: the default dark blur makes text look smudged on them;
+Crusader uses `0 1px 0 rgba(255,255,255,.8)` and `none`.
+
+## Maker drawings
+
+`public/makers.css` has a section per maker that draws what tokens can't: the
+plates' edges and marks (Drake's hazard strip and rivets, Anvil's screws,
+CO's sunset stripe), the bezel over the whole HUD (`--bezel`, `--bezel-art`),
+the section-title mark that replaces `//`, and each widget: the dial (Origin's
+cream ball, Anvil's knurled knob, MISC's gauge), the framed buttons' shape, the
+mode switch, the eject slider's knob, the danger zone, the pager.
+
+Buttons are drawn from variables set on the button itself, which `.hud-btn` in
+`hud.css` reads, so a maker's look keeps the button's colour (`--c`) in every
+state:
+
+| variable | what it is |
+|---|---|
+| `--face` | the face's layers (gradient, texture) |
+| `--mark` | layers drawn over it: rivets, tabs, sheen, a slot bar |
+| `--edge`, `--bevel` | border colour, and the box-shadow that gives it depth |
+| `--lit`, `--lit-ring` | layers and shadow while lit: Drake's hazard band, Anvil's lamp, Origin's gold bar |
+| `--press`, `--press-ring`, `--press-move` | the same while pressed, and how it moves (Drake's slab sinks, Banu's squashes) |
+| `--deny` | the flash of a press the PC skipped (Drake's red hazard, Aegis's red scanlines) |
+| `--veil` (on `#canvas`) | what covers the plates while the PC is offline |
+
+Keep it to gradients and borders: no filters or animations per frame, so the
+deck stays smooth on an iPad. Marks go where the state text and key labels
+aren't (a slot bar sits on the very bottom edge, under "RETRACTED"). High
+contrast resets every maker at the end of the file; a new drawing with its own
+colours needs a line there.
 
 ## Adding a theme
 
 1. **Copy a block** in `public/themes.css`, give it a new id, and set every
    token in the table. Start from a theme with a similar feel: a dark one for a
-   dark theme, Origin for a light one.
+   dark theme, Crusader or Origin for a light one. Then give it its own section
+   in `public/makers.css`, and its `--material` a drawing in `material()` and
+   `litMark()` in `streamdeck/keyart.js` if no existing one fits.
 2. **Fonts:** if the theme uses a new Google font, add it to the Google Fonts
    link in both `public/index.html` and `public/editor.html`, and end the font
    stack with a system fallback (`system-ui, sans-serif`). The deck also has to
@@ -190,21 +230,24 @@ The Stream Deck pack's keys (`streamdeck/keyart.js`) are the deck's buttons
 redrawn as 144×144 pictures, in the theme's own tokens, so a key looks like the
 same button on the tablet:
 
-- **Built from `public/themes.css`**: the key's face, frame, corner radius or
-  cut, top strip (Drake's hazard stripes, Argo's segment), backdrop glow, texture
-  (scan lines, grid), icon stroke and fonts all come from the theme's tokens.
-  Don't draw a theme by hand; add the token, and both the deck and the keys get it.
+- **Built from `public/themes.css`**: the key's face (`--face-hi`, `--face-lo`)
+  on the page colour, frame, corner radius or cut, top strip (Drake's hazard
+  stripes, CO's segment), backdrop glow, icon stroke and fonts all come from the
+  theme's tokens, and `--material` picks the maker's surface and lit mark in
+  `material()` and `litMark()` (the same ideas as makers.css draws on the deck:
+  rivets, weave, lamp, gloss, tabs...). Don't draw one theme's keys by hand;
+  add a token or a material, and every key gets it.
 - **Icon above, label below, one status word under it** (DEPLOYED, ON, PLUGIN).
   Labels wrap to two lines and shrink to fit 110 px, clear of the frame and the
   accent bars; status words stay short (the plugin's translations have their
   own short forms).
 - **Colours mean the same as on the deck**: red danger and combat, green power and
   on, amber mining and salvage, blue the rest. A lit key takes its colour's tint
-  and ring; a skipped press flashes red; offline keys go dim with a red cross.
+  and ring and its maker's lit mark; a skipped press flashes red; offline keys
+  go dim with a red cross.
 - **Badges sit top right**: a folder for keys that open a folder, an arrow for Back.
 - **Empty slots are blank keys** in the page colour with a small cross, so a page
-  reads as one panel. The light theme (Origin) uses its page colour there, not
-  white.
+  reads as one panel, light themes too (never a white face).
 - **Touch strips** (Stream Deck + and + XL) are one HUD panel across all the
   dials: each dial's 200×100 part has its label, icon and colour, and says what
   turning each way and pushing do.
@@ -243,10 +286,12 @@ same button on the tablet:
 
 ## Accessibility
 
-- **Contrast:** `--text` on `--panel` should reach at least 4.5:1, and `--dim`
-  on `--panel` at least 3:1, in every theme, including the light one. All 12
-  themes do today (text 13.7:1 or more, dim 3.9:1 or more, Origin being the
-  lowest). Check a new theme with any contrast checker.
+- **Contrast:** `--text` on `--face-hi`, `--face-lo` and `--panel` should
+  reach at least 4.5:1, and `--dim` on them at least 3:1; `--ink` on `--bg` at
+  least 4.5:1 and `--ink-dim` at least 3:1, in every theme. All 12 themes do
+  today (text 6.2:1 or more, dim 4.0:1, ink 8.6:1, ink-dim 4.5:1; MISC's
+  lighter face and Origin's cream page are the lowest). Check a new theme with
+  any contrast checker.
 - **Colour is never the only signal:** a button's label says what it does,
   and its state text says whether it's on. Colour adds to that.
 - **Touch targets:** the smallest buttons are the phone's top bar, 44×36
