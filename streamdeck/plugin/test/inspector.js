@@ -16,8 +16,8 @@ const { FakeStreamDeck, ev } = require("./fake-streamdeck");
 const { write: writeData, REPO } = require("./make-test-data");
 
 // TD_PLUGIN_SRC tests another copy of the plugin folder (a patched or unpacked one).
-const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const U = "com.nodiecode.tabletdeck";
+const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const U = "com.xattribution.spoolup";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let failures = 0, passes = 0;
 function check(name, ok, detail = "") {
@@ -117,7 +117,7 @@ async function main() {
     check("  ...and the key redraws", sd.find((m) => m.event === "setImage" && m.context === "k1").length > before);
 
     console.log("\nConnection");
-    check("with no config.json and no code, the inspector says so", (await page.textContent("#linkText")) === de["No pairing code yet: enter the one the Tablet Deck window shows."], await page.textContent("#linkText"));
+    check("with no config.json and no code, the inspector says so", (await page.textContent("#linkText")) === de["No pairing code yet: enter the one the SpoolUp window shows."], await page.textContent("#linkText"));
     await page.fill("#port", String(port));
     await page.fill("#code", "deadbeef");
     await page.click("#test");

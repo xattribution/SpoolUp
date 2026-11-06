@@ -1,4 +1,4 @@
-// Tablet Deck: serve a touch button page to a tablet on the LAN and turn button
+// SpoolUp: serve a touch button page to a tablet on the LAN and turn button
 // presses into keyboard scancodes on this PC. No dependencies beyond Node itself.
 //
 //   node server.js            normal mode
@@ -46,7 +46,7 @@ function ui(event) {
   if (UI) console.log(`@ui ${JSON.stringify(event)}`);
 }
 if (INSTALLED) {
-  process.title = "Tablet Deck";
+  process.title = "SpoolUp";
   process.on("uncaughtException", (err) => fatal(err.stack || String(err)));
 }
 
@@ -253,7 +253,7 @@ function loadLayout(device, chosen) {
 // Gives every button its keys (from the keybind files when it has an scAction) and
 // scancodes, and returns them by id. Throws on an unknown key or a duplicate id, so the
 // layout editor's saves get the same checks as loading. A keybind file's key that can't
-// be pressed (one Tablet Deck has no scancode for) only costs that button its rebind: it
+// be pressed (one SpoolUp has no scancode for) only costs that button its rebind: it
 // keeps the layout's keys, and the server says so once instead of refusing to start.
 const unpressableRebinds = new Set();
 function prepareLayout(layout) {
@@ -297,7 +297,7 @@ const GAME_PROCESS = "StarCitizen";
 function buildNative(name, what, refs = []) {
   const exe = path.join(APP_DIR, "native", `${name}.exe`);
   if (INSTALLED) {
-    if (!fs.existsSync(exe)) throw new Error(`${exe} is missing; reinstall Tablet Deck`);
+    if (!fs.existsSync(exe)) throw new Error(`${exe} is missing; reinstall SpoolUp`);
     return exe;
   }
   const src = path.join(APP_DIR, "native", `${name}.cs`);
@@ -446,7 +446,7 @@ function report(btn, kind, extra = {}) {
 // lights on). The state is kept here, per group, so every tablet, voice commands and
 // redrawn panels agree; buttons light up while their group is on. "set": true or false
 // sets it (Open/Close Doors), otherwise a press flips it. The deck can't see the game, so
-// this is only what Tablet Deck pressed: it starts all off, and tablets can reset it.
+// this is only what SpoolUp pressed: it starts all off, and tablets can reset it.
 const buttonStates = new Map(); // group -> true while on
 function applyState(btn) {
   const s = btn.state;
@@ -600,7 +600,7 @@ function startVoice() {
         for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1", chime: config.pttSound !== false });
         emit({ t: "voice", result: line === "ptt 1" ? "listen" : "stop", running: true });
       } else if (line.startsWith("err")) {
-        console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/nodieCode/tablet-deck#voice-commands`);
+        console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/xattribution/tablet-deck-spooned#voice-commands`);
         ui({ t: "voice", state: "error", text: line.slice(4) });
         setTabletVoice("unavailable", line.slice(4));
       } else if (line.startsWith("heard ")) {
@@ -901,7 +901,7 @@ const reloadTablets = () => { for (const client of tablets) client.send({ t: "re
 // device on the network can't change files even with the pairing code.
 function handleEditor(req, res, url) {
   if (url.searchParams.get("t") !== config.token) return sendJson(res, 403, { error: "Wrong pairing code." });
-  if (!fromThisPC(req)) return sendJson(res, 403, { error: "The layout editor only works on the PC running Tablet Deck (open it at http://localhost)." });
+  if (!fromThisPC(req)) return sendJson(res, 403, { error: "The layout editor only works on the PC running SpoolUp (open it at http://localhost)." });
 
   if (url.pathname === "/editor/layouts") {
     const layouts = [];
@@ -1236,7 +1236,7 @@ startVoice();
 buildSoundPlayer();
 server.on("error", (err) => {
   if (err.code !== "EADDRINUSE") throw err;
-  fatal(`Port ${config.port} is already in use. Is Tablet Deck already running? Otherwise change "port" in ${CONFIG_PATH}.`);
+  fatal(`Port ${config.port} is already in use. Is SpoolUp already running? Otherwise change "port" in ${CONFIG_PATH}.`);
 });
 // Adapters a tablet can't be on: VPNs, virtual machines, WSL and Docker. Matched on the
 // name Windows gives the adapter ("vEthernet (WSL)", "NordLynx", "Tailscale", ...).
@@ -1314,7 +1314,7 @@ function checkNetwork() {
 server.listen(config.port, "0.0.0.0", () => {
   if (!UI) checkNetwork(); // with the window, sendReady checks
   const { all, ips, lan } = addresses();
-  console.log(`\nTablet Deck${VERSION ? ` ${VERSION}` : ""} running${DRY_RUN ? " (DRY RUN: no keys are sent)" : ""}.`);
+  console.log(`\nSpoolUp${VERSION ? ` ${VERSION}` : ""} running${DRY_RUN ? " (DRY RUN: no keys are sent)" : ""}.`);
   if (UI) { sendReady(); return; }
   if (INSTALLED) console.log(`Settings: ${CONFIG_PATH}`);
   console.log("Open this on your tablet (same Wi-Fi/network):");

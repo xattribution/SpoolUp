@@ -1,6 +1,6 @@
 {
-  "name": "Tablet Deck",
-  "short_name": "Tablet Deck",
+  "name": "SpoolUp",
+  "short_name": "SpoolUp",
   "description": "Star Citizen touch control panel",
   "display": "fullscreen",
   "orientation": "landscape",

@@ -44,7 +44,7 @@ function createArt({ icons, themes, tokens }) {
   // ---------- keys ----------
 
   // A catalog action. `mark`: a word under the label when not lit, such as PLUGIN on a key
-  // that only works through the Tablet Deck plugin.
+  // that only works through the SpoolUp plugin.
   function actionKey(th, a, { lit = false, mark } = {}) {
     const status = lit ? (a.state && a.state.on) || "ON" : mark;
     return keyart.key({ theme: th, icon: icon(a.icon), label: a.keyLabel || a.label, color: a.color, lit, status });
@@ -129,7 +129,7 @@ function createArt({ icons, themes, tokens }) {
     const big = [l, r].filter(Boolean).every(sym);
     const oneLine = (!l || !r || wide(l, big ? 18 : 13) + wide(r, big ? 18 : 13) + 34 <= 112);
     const arrow = (ax, y, dir) => `<path d="M${ax} ${y - 5}L${ax + dir * 6} ${y}L${ax} ${y + 5}Z" fill="${c}"/>`;
-    // A push or turn that only works through the Tablet Deck plugin says so, as its keys do.
+    // A push or turn that only works through the SpoolUp plugin says so, as its keys do.
     const via = new Set(d.plugin || []);
     const tag = (tx, y) => text(th, tx, y, "PLUGIN", { ...small, size: 9, anchor: "end" });
     if (via.has("ccw") || via.has("cw")) parts.push(tag(x + 188, 17));
@@ -176,7 +176,7 @@ function createArt({ icons, themes, tokens }) {
   // ---------- Stream Deck's action list (white on transparent) ----------
 
   const listIcon = (name, size) => svg(size, size, `<g transform="scale(${size / 48})" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">${icon(name).replace(/currentColor/g, "#fff")}</g>`);
-  // Tablet Deck's own mark (public/icon.svg, without its backdrop) for the category.
+  // SpoolUp's own mark (public/icon.svg, without its backdrop) for the category.
   const tabletMark = (size) => svg(size, size, `<g transform="scale(${size / 48})" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     <rect x="5" y="11" width="38" height="27" rx="4"/><rect x="10" y="16" width="11" height="7" rx="1.5"/><rect x="10" y="27" width="11" height="7" rx="1.5" fill="#fff" fill-opacity=".4"/>
     <circle cx="32" cy="24.5" r="6"/><circle cx="32" cy="24.5" r="1.8" fill="#fff" stroke="none"/></g>`);

@@ -1,4 +1,4 @@
-// Tablet Deck's Stream Deck plugin. Plain Node (the Node 24 runtime Stream Deck ships, with
+// SpoolUp's Stream Deck plugin. Plain Node (the Node 24 runtime Stream Deck ships, with
 // its global WebSocket) speaking Stream Deck's WebSocket protocol directly: no
 // @elgato/streamdeck, no npm packages, nothing to bundle.
 //
@@ -10,7 +10,7 @@
 "use strict";
 const { load } = require("./data");
 const { createDraw } = require("./draw");
-const { TabletDeck } = require("./tabletdeck");
+const { SpoolUp } = require("./spoolup");
 const { createActions, FRAME_MS } = require("./actions");
 
 const KNOWN = new Set(["-port", "-pluginUUID", "-registerEvent", "-info"]);
@@ -33,7 +33,7 @@ function send(msg) {
   if (socket.readyState === WebSocket.OPEN) socket.send(text);
   else if (socket.readyState === WebSocket.CONNECTING) outbox.push(text);
 }
-const log = (message) => send({ event: "logMessage", payload: { message: `Tablet Deck: ${message}` } });
+const log = (message) => send({ event: "logMessage", payload: { message: `SpoolUp: ${message}` } });
 
 // Stream Deck's guidelines allow a plugin at most 10 image updates a second per key or
 // touch strip. Every setImage and setFeedback goes through here: per context at most one
@@ -85,7 +85,7 @@ const painter = new Painter();
 
 const data = load(info.application && info.application.language);
 const draw = createDraw(data);
-const tablet = new TabletDeck({ log });
+const tablet = new SpoolUp({ log });
 const sd = {
   pluginUUID,
   send,
@@ -111,8 +111,8 @@ socket.onerror = () => { /* a close follows */ };
 socket.onclose = () => { void shutdown(0); };
 
 // Stream Deck closed the socket (it quit, or restarts the plugin): release whatever is
-// still held, let that reach Tablet Deck, then go. (If the process is killed instead,
-// Tablet Deck sees its connection close and releases the keys itself.)
+// still held, let that reach SpoolUp, then go. (If the process is killed instead,
+// SpoolUp sees its connection close and releases the keys itself.)
 let stopping = false;
 async function shutdown(code) {
   if (stopping) return;

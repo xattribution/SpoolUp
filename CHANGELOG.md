@@ -1,15 +1,25 @@
 # Changelog
 
-What changed in each version of Tablet Deck, newest first. Each version's
+What changed in each version of SpoolUp, newest first. Each version's
 section becomes the notes of its
-[GitHub release](https://github.com/nodieCode/tablet-deck/releases), so add one
+[GitHub release](https://github.com/xattribution/tablet-deck-spooned/releases), so add one
 before tagging a release.
 
-## 1.7.0 (2026-11-06)
+## 1.8.0 (2026-11-06)
 
+- **Tablet Deck is now SpoolUp**, the name everywhere you see it. The keybind
+  profile to load in-game is now **SpoolUp Keyboard**: install it again from the
+  app window (Settings → Install keybind profile...) and load it in-game. The
+  Stream Deck plugin is a new one (`com.xattribution.spoolup`), so if you
+  installed 1.7.0's Tablet Deck plugin and icon packs, remove them and install
+  the new ones. Your settings carry over, and updates now come from this
+  repository.
 - **Signed releases.** The installer, the app and its helpers are code-signed
   with Azure Artifact Signing, so Properties → Digital Signatures shows the
   publisher, and Windows and antivirus tools have a name to trust.
+
+## 1.7.0 (2026-11-06)
+
 - **A Stream Deck pack.** Profiles for every Stream Deck from the Mini to the
   new + XL, in all 12 manufacturer themes, with a page per scene (Flight, Combat,
   Mining, Salvage, Hauling & Exploration, On Foot, Comms), folders for

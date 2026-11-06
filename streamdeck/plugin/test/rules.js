@@ -1,5 +1,5 @@
 // Ground-rule edge cases for the Stream Deck plugin, timed at the key level: a dry-run
-// Tablet Deck server prints "  key d|u <code> <ext>" for every key it would send, and this
+// SpoolUp server prints "  key d|u <code> <ext>" for every key it would send, and this
 // test stamps each line as it arrives, so it can tell two presses from one merged press
 // (the server reference-counts keys, so overlapping taps of a shared key reach the game as
 // one press). Complements run.js; written for the review of the plugin.
@@ -16,8 +16,8 @@ const { FakeStreamDeck, ev } = require("./fake-streamdeck");
 const { write: writeData, REPO } = require("./make-test-data");
 
 // TD_PLUGIN_SRC tests another copy of the plugin folder (a patched or unpacked one).
-const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const U = "com.nodiecode.tabletdeck";
+const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const U = "com.xattribution.spoolup";
 const A = { key: `${U}.key`, dial: `${U}.dial`, scene: `${U}.scene`, talk: `${U}.talk`, lights: `${U}.lights`, status: `${U}.status` };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -265,7 +265,7 @@ async function main() {
     let p0 = sd.mark(), pt0 = tabMsgs.length;
     panelTo("right", "crew");
     const swH = await within(1500, () => switchesOn(FD, p0)[0]);
-    check("a tablet's right half on Crew: the Stream Deck on the profile's Flight page goes to Hauling", swH && swH.msg.payload.page === sceneIdx("hauling") && swH.msg.payload.profile === "profiles/Tablet Deck Stream Deck", JSON.stringify(swH && swH.msg.payload));
+    check("a tablet's right half on Crew: the Stream Deck on the profile's Flight page goes to Hauling", swH && swH.msg.payload.page === sceneIdx("hauling") && swH.msg.payload.profile === "profiles/SpoolUp Stream Deck", JSON.stringify(swH && swH.msg.payload));
     check("  ...the one on a profile of the player's own stays", !switchesOn(OWN, p0).length);
     // Stream Deck shows Hauling, with a page from before arriving late in between.
     hide(fk);
@@ -334,7 +334,7 @@ async function main() {
     await sleep(200);
     check("  ...the unplugged deck's late keyUp sends nothing", stream.find((e) => e.t === "press" && e.id === "qt-engage", e0).length === 2);
 
-    // The pairing code changes mid-hold (the link is rebuilt): Tablet Deck lets go at once.
+    // The pairing code changes mid-hold (the link is rebuilt): SpoolUp lets go at once.
     k0 = server.keys.length;
     press(qt, "keyDown");
     await within(2000, () => server.keys.slice(k0).some((k) => k.dir === "d"));
@@ -392,7 +392,7 @@ async function main() {
     check("no key left down", !held(server).length, JSON.stringify(held(server)));
 
     console.log("\nConnecting");
-    // A port typed in the inspector once, long ago, and no code: Tablet Deck runs on the
+    // A port typed in the inspector once, long ago, and no code: SpoolUp runs on the
     // port its config.json names. The plugin still finds it.
     const stale = await new Promise((resolve) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => resolve(p)); }); });
     sd = new FakeStreamDeck({ pluginDir, env: { APPDATA: appdata } });
@@ -405,7 +405,7 @@ async function main() {
     await sleep(600);
     const shown = sd.find((m) => m.event === "setImage" && m.context === "st").map((m) => decodeURIComponent(m.payload.image));
     const last = shown.length ? shown[shown.length - 1] : "";
-    check("a port typed once in the inspector, Tablet Deck on config.json's port: the plugin connects", Boolean(found) && !/>OFFLINE</.test(last), found ? "status key still says OFFLINE" : "never connected");
+    check("a port typed once in the inspector, SpoolUp on config.json's port: the plugin connects", Boolean(found) && !/>OFFLINE</.test(last), found ? "status key still says OFFLINE" : "never connected");
     await sd.stop();
   } finally {
     if (sd) { try { sd.server.close(); } catch { /* gone */ } }

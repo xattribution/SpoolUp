@@ -1,4 +1,4 @@
-// Draws Stream Deck keys in Tablet Deck's HUD style: a key face in a manufacturer theme, a
+// Draws Stream Deck keys in SpoolUp's HUD style: a key face in a manufacturer theme, a
 // line icon from public/icons.js in the button's colour, its label, and the deck's lit,
 // pressed, blocked and offline looks plus frames of its press animations. Everything is SVG
 // built from simple shapes (no filters, masks, CSS or patterns), because Stream Deck draws

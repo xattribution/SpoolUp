@@ -5,7 +5,7 @@ config.json
 native/*.exe
 
 # Other keybind profiles you keep locally.
-# The Tablet Deck profile lives in keybinds/ and is committed.
+# The SpoolUp keybind profile lives in keybinds/ and is committed.
 profiles/
 
 node_modules/
@@ -18,7 +18,7 @@ dist/
 _site/
 
 # Local tooling and notes, not part of the project: the working rules for AI coding
-# sessions, Claude Code's config, and drafts for posts about Tablet Deck.
+# sessions, Claude Code's config, and drafts for posts about SpoolUp.
 CLAUDE.md
 .claude/
 promo/

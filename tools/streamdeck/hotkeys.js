@@ -1,4 +1,4 @@
-// Tablet Deck key combos ("lalt+n", "np_1", "rctrl+lbracket") as the Hotkeys Stream Deck's
+// SpoolUp key combos ("lalt+n", "np_1", "rctrl+lbracket") as the Hotkeys Stream Deck's
 // built-in Hotkey action stores on Windows (research/profiles.md section 6): the Windows
 // virtual-key code (VKeyCode = NativeCode), the Qt key code the app shows the key name
 // with, and a KeyModifiers bitmask that keeps left and right modifiers apart, as Star

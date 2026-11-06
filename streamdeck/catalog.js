@@ -1,5 +1,5 @@
 // Every action the Stream Deck pack offers, for the icon pack, the generated profiles and the
-// plugin. Star Citizen actions come from layouts/hud.json, the source of every Tablet Deck
+// plugin. Star Citizen actions come from layouts/hud.json, the source of every SpoolUp
 // button, so the pack presses the same keys as the deck (and follows the same fixes).
 // Stream Deck's own actions (media keys, websites, page and folder navigation) and other
 // plugins' (Discord, OBS) are added here, since a tablet has nothing like them.
@@ -8,12 +8,12 @@
 //
 // An action: { id, label, icon, color, category, kind, ... }, with keyLabel where the pack's
 // keys say it shorter than the label (see PACK)
-//   kind "deck":    a Tablet Deck button: keys, mode (tap/hold/timed), ms, anim, state, scAction
+//   kind "deck":    a SpoolUp button: keys, mode (tap/hold/timed), ms, anim, state, scAction
 //   kind "system":  a built-in Stream Deck action: system { uuid, settings }
 //   kind "plugin":  another plugin's action: plugin { uuid, name, version, action, settings, states }
 //   kind "website": opens a site in the PC's browser: url
 //   kind "nav":     moves around the pack's own pages and folders (the generator links them)
-//   kind "tabletdeck": needs the Tablet Deck plugin (voice, lights, status, themes, scenes)
+//   kind "spoolup": needs the SpoolUp plugin (voice, lights, status, themes, scenes)
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -42,7 +42,7 @@ const CATEGORIES = [
   { id: "media", name: "Media & Audio", icon: "play-pause", panels: [] },
   { id: "stream", name: "Streaming", icon: "live", panels: [] },
   { id: "tools", name: "Tools & Websites", icon: "link", panels: [] },
-  { id: "deck", name: "Tablet Deck", icon: "sliders", panels: [] },
+  { id: "deck", name: "SpoolUp", icon: "sliders", panels: [] },
   { id: "nav", name: "Navigation", icon: "grid", panels: [] },
 ];
 
@@ -139,7 +139,7 @@ const EXTRAS = [
   { id: "sd-obs-replay", label: "Save Replay", icon: "replay", color: "amber", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.replaybuffer.save", { states: 2 }) },
   { id: "sd-obs-screenshot", label: "Screenshot", icon: "screenshot", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.screenshot", { states: 2 }) },
 
-  // Websites (the same as Tablet Deck's "Open on PC" defaults).
+  // Websites (the same as SpoolUp's "Open on PC" defaults).
   { id: "sd-uex", label: "UEX", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://uexcorp.space/" },
   { id: "sd-erkul", label: "Erkul", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://www.erkul.games/" },
   { id: "sd-spviewer", label: "SPViewer", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://www.spviewer.eu/" },
@@ -149,13 +149,13 @@ const EXTRAS = [
   { id: "sd-brightness-up", label: "Brighter", icon: "brightness", category: "tools", kind: "system", system: sys("com.elgato.streamdeck.system.keybrightness", { actionIdx: 0 }) },
   { id: "sd-brightness-down", label: "Dimmer", icon: "brightness", category: "tools", kind: "system", system: sys("com.elgato.streamdeck.system.keybrightness", { actionIdx: 1 }) },
 
-  // Tablet Deck (only with the plugin). Hold to Talk is blue, not the game's push-to-talk
+  // SpoolUp (only with the plugin). Hold to Talk is blue, not the game's push-to-talk
   // green or danger red, and its key says what it's for.
-  { id: "td-talk", label: "Hold to Talk", keyLabel: "Voice Command", icon: "mic", color: "blue", category: "deck", kind: "tabletdeck", tabletdeck: "talk" },
-  { id: "td-status", label: "Tablet Deck", icon: "sliders", category: "deck", kind: "tabletdeck", tabletdeck: "status" },
-  { id: "td-lights-reset", label: "Reset Lights", icon: "power-reset", category: "deck", kind: "tabletdeck", tabletdeck: "lights-reset" },
-  { id: "td-theme", label: "Theme", icon: "palette", category: "deck", kind: "tabletdeck", tabletdeck: "theme" },
-  { id: "td-scene", label: "Scene", icon: "grid", category: "deck", kind: "tabletdeck", tabletdeck: "scene" },
+  { id: "td-talk", label: "Hold to Talk", keyLabel: "Voice Command", icon: "mic", color: "blue", category: "deck", kind: "spoolup", spoolup: "talk" },
+  { id: "td-status", label: "SpoolUp", icon: "sliders", category: "deck", kind: "spoolup", spoolup: "status" },
+  { id: "td-lights-reset", label: "Reset Lights", icon: "power-reset", category: "deck", kind: "spoolup", spoolup: "lights-reset" },
+  { id: "td-theme", label: "Theme", icon: "palette", category: "deck", kind: "spoolup", spoolup: "theme" },
+  { id: "td-scene", label: "Scene", icon: "grid", category: "deck", kind: "spoolup", spoolup: "scene" },
 
   // Navigation inside the pack's profiles (the generator turns these into page/folder links).
   { id: "nav-next", label: "Next Page", icon: "page-next", category: "nav", kind: "nav", nav: "next" },

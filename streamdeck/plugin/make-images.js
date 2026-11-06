@@ -14,7 +14,7 @@ const path = require("path");
 const vm = require("vm");
 
 const REPO = path.join(__dirname, "..", "..");
-const IMGS = path.join(__dirname, "com.nodiecode.tabletdeck.sdPlugin", "imgs");
+const IMGS = path.join(__dirname, "com.xattribution.spoolup.sdPlugin", "imgs");
 const keyart = require(path.join(REPO, "streamdeck", "keyart.js"));
 const window = {};
 vm.runInNewContext(fs.readFileSync(path.join(REPO, "public", "icons.js"), "utf8"), { window });

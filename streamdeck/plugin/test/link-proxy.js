@@ -1,4 +1,4 @@
-// A TCP proxy between the plugin and the Tablet Deck server, so tests can see what the
+// A TCP proxy between the plugin and the SpoolUp server, so tests can see what the
 // plugin sends, slip server messages in (a "blocked" the dry run never sends on Linux),
 // cut the link, or make it go quiet without closing (a PC asleep, Wi-Fi gone).
 "use strict";

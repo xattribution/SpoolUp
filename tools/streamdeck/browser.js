@@ -14,7 +14,7 @@ const png = require("./png");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// --browser, then TABLETDECK_BROWSER, then Edge or Chrome where Windows installs them (and
+// --browser, then SPOOLUP_BROWSER, then Edge or Chrome where Windows installs them (and
 // the usual places on macOS and Linux, for building elsewhere).
 function findBrowser(explicit) {
   if (explicit) {
@@ -24,7 +24,7 @@ function findBrowser(explicit) {
   const env = process.env;
   const under = (root, ...parts) => (root ? path.join(root, ...parts) : null);
   const candidates = [
-    env.TABLETDECK_BROWSER,
+    env.SPOOLUP_BROWSER,
     env.BROWSER,
     under(env["ProgramFiles(x86)"], "Microsoft", "Edge", "Application", "msedge.exe"),
     under(env.ProgramFiles, "Microsoft", "Edge", "Application", "msedge.exe"),
@@ -36,13 +36,13 @@ function findBrowser(explicit) {
     "/usr/bin/microsoft-edge", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser",
   ];
   const found = candidates.find((p) => p && fs.existsSync(p));
-  if (!found) throw Object.assign(new Error("Microsoft Edge or Google Chrome is needed: pass --browser <path> or set TABLETDECK_BROWSER."), { usage: true });
+  if (!found) throw Object.assign(new Error("Microsoft Edge or Google Chrome is needed: pass --browser <path> or set SPOOLUP_BROWSER."), { usage: true });
   return found;
 }
 
 // Starts the browser and opens one page. Returns { send(method, params), close() }.
 async function launch(exe) {
-  const profile = fs.mkdtempSync(path.join(os.tmpdir(), "tabletdeck-sd-"));
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), "spoolup-sd-"));
   const args = [
     "--headless=new", "--remote-debugging-pipe", `--user-data-dir=${profile}`,
     "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-sync",

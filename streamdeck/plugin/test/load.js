@@ -17,8 +17,8 @@ const { FakeStreamDeck, ev } = require("./fake-streamdeck");
 const { write: writeData, REPO } = require("./make-test-data");
 
 // TD_PLUGIN_SRC tests another copy of the plugin folder (a patched or unpacked one).
-const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const U = "com.nodiecode.tabletdeck";
+const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const U = "com.xattribution.spoolup";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let failures = 0, passes = 0;
 function check(name, ok, detail = "") {

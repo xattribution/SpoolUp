@@ -1,9 +1,10 @@
 # Design
 
-How Tablet Deck looks, and the rules that keep the deck, the layout editor, the
+How SpoolUp looks, and the rules that keep the deck, the layout editor, the
 website and the Windows app looking like one product. For running and building
 the code, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
+- [Themes are different, not recoloured](#themes-are-different-not-recoloured)
 - [Theme tokens](#theme-tokens)
 - [Adding a theme](#adding-a-theme)
 - [Button colours](#button-colours)
@@ -11,6 +12,25 @@ the code, see [DEVELOPMENT.md](DEVELOPMENT.md).
 - [The other surfaces](#the-other-surfaces)
 - [Motion, night mode and layering](#motion-night-mode-and-layering)
 - [Accessibility](#accessibility)
+
+## Themes are different, not recoloured
+
+The owner's rule, and the first test for any theme: **if it's different, be
+different.** A manufacturer theme that is the same theme with another stripe of
+colour or another background shade is not a theme. Each one needs its own
+character, the way the "Tablet Deck 2" design did it:
+
+- **Solid, committed colours**, not one shared dark panel tinted per theme.
+- **Its own shapes:** buttons, frames, corners, dividers and headers that only
+  that manufacturer would draw (Drake's industrial plates, Origin's light
+  luxury, Aegis's military hard edges, Banu's and Esperia's alien forms...).
+- **Its own widgets:** how a dial, a gauge, a switch, a lit state or a state
+  header looks, not only what colour it is.
+- **Its own type and motion**, where the manufacturer calls for it.
+
+The tokens below carry these; when a theme needs something no token can say,
+add the token (and its drawing in the deck and in the Stream Deck key art)
+rather than settling for a recolour.
 
 ## Theme tokens
 

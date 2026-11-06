@@ -1,13 +1,13 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-  "UUID": "com.nodiecode.tabletdeck",
-  "Name": "Tablet Deck",
-  "Version": "1.7.0.0",
-  "Author": "nodieCode",
-  "Description": "Star Citizen controls through Tablet Deck: live key lights, press animations, dials and scenes, with Tablet Deck's focus check. Fan project, not affiliated with Cloud Imperium Games.",
-  "URL": "https://github.com/nodieCode/tablet-deck",
+  "UUID": "com.xattribution.spoolup",
+  "Name": "SpoolUp",
+  "Version": "1.8.0.0",
+  "Author": "xattribution",
+  "Description": "Star Citizen controls through SpoolUp: live key lights, press animations, dials and scenes, with SpoolUp's focus check. Fan project, not affiliated with Cloud Imperium Games.",
+  "URL": "https://github.com/xattribution/tablet-deck-spooned",
   "Icon": "imgs/plugin/icon",
-  "Category": "Tablet Deck",
+  "Category": "SpoolUp",
   "CategoryIcon": "imgs/plugin/category",
   "CodePath": "bin/plugin.js",
   "PropertyInspectorPath": "pi/index.html",
@@ -17,9 +17,9 @@
   "Nodejs": { "Version": "24" },
   "Actions": [
     {
-      "UUID": "com.nodiecode.tabletdeck.key",
+      "UUID": "com.xattribution.spoolup.key",
       "Name": "Deck Button",
-      "Tooltip": "Presses a Tablet Deck button through its focus check, with live lights.",
+      "Tooltip": "Presses a SpoolUp button through its focus check, with live lights.",
       "Icon": "imgs/actions/key/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,
@@ -29,9 +29,9 @@
       "States": [{ "Image": "imgs/actions/key/key", "ShowTitle": false }]
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.dial",
+      "UUID": "com.xattribution.spoolup.dial",
       "Name": "Deck Dial",
-      "Tooltip": "One Tablet Deck press per detent; push or touch for a third button.",
+      "Tooltip": "One SpoolUp press per detent; push or touch for a third button.",
       "Icon": "imgs/actions/dial/icon",
       "Controllers": ["Encoder"],
       "UserTitleEnabled": false,
@@ -47,9 +47,9 @@
       }
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.scene",
+      "UUID": "com.xattribution.spoolup.scene",
       "Name": "Scene",
-      "Tooltip": "Goes to a scene page of the Tablet Deck profile; tablets can follow.",
+      "Tooltip": "Goes to a scene page of the SpoolUp profile; tablets can follow.",
       "Icon": "imgs/actions/scene/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,
@@ -59,9 +59,9 @@
       "States": [{ "Image": "imgs/actions/scene/key", "ShowTitle": false }]
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.theme",
+      "UUID": "com.xattribution.spoolup.theme",
       "Name": "Theme",
-      "Tooltip": "Draws every Tablet Deck key and dial in a manufacturer theme.",
+      "Tooltip": "Draws every SpoolUp key and dial in a manufacturer theme.",
       "Icon": "imgs/actions/theme/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,
@@ -71,9 +71,9 @@
       "States": [{ "Image": "imgs/actions/theme/key", "ShowTitle": false }]
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.talk",
+      "UUID": "com.xattribution.spoolup.talk",
       "Name": "Hold to Talk",
-      "Tooltip": "Hold to speak a Tablet Deck voice command.",
+      "Tooltip": "Hold to speak a SpoolUp voice command.",
       "Icon": "imgs/actions/talk/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,
@@ -83,9 +83,9 @@
       "States": [{ "Image": "imgs/actions/talk/key", "ShowTitle": false }]
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.status",
+      "UUID": "com.xattribution.spoolup.status",
       "Name": "Status",
-      "Tooltip": "Shows the link to Tablet Deck and its round trip.",
+      "Tooltip": "Shows the link to SpoolUp and its round trip.",
       "Icon": "imgs/actions/status/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,
@@ -95,9 +95,9 @@
       "States": [{ "Image": "imgs/actions/status/key", "ShowTitle": false }]
     },
     {
-      "UUID": "com.nodiecode.tabletdeck.lights",
+      "UUID": "com.xattribution.spoolup.lights",
       "Name": "Reset Lights",
-      "Tooltip": "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed.",
+      "Tooltip": "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed.",
       "Icon": "imgs/actions/lights/icon",
       "Controllers": ["Keypad"],
       "UserTitleEnabled": false,

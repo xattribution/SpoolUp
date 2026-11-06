@@ -1,4 +1,4 @@
-/* The property inspector, in Tablet Deck's house colours (docs/DESIGN.md, "The other
+/* The property inspector, in SpoolUp's house colours (docs/DESIGN.md, "The other
    surfaces"): the same tokens as site/style.css and the app window. Oxanium and Exo 2
    only if they're installed: the inspector loads nothing from the network. */
 :root {

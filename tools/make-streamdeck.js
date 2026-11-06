@@ -1,13 +1,13 @@
 // Builds the Stream Deck pack from the deck's own designs: an icon pack per theme, ready-made
 // profiles for every model in every theme (with the keybind profile their hotkeys expect),
-// and the Tablet Deck plugin with its bundled profiles. Nothing here needs npm packages: the
+// and the SpoolUp plugin with its bundled profiles. Nothing here needs npm packages: the
 // key art (streamdeck/keyart.js) is drawn to PNG by an installed Edge or Chrome, and the
 // files are plain ZIPs written with zlib.
 //
 //   node tools/make-streamdeck.js                     build everything into dist/streamdeck/
 //   node tools/make-streamdeck.js --themes rsi,drake --models std,plusxl
 //   node tools/make-streamdeck.js --skip icons,plugin  (also: profiles, preview)
-//   node tools/make-streamdeck.js --browser <path>     (or set TABLETDECK_BROWSER)
+//   node tools/make-streamdeck.js --browser <path>     (or set SPOOLUP_BROWSER)
 //   node tools/make-streamdeck.js --out <folder>
 //   node tools/make-streamdeck.js --release           also zip the downloads into <out>/release/
 //   node tools/make-streamdeck.js --check              validate layouts and what's built; no browser
@@ -36,11 +36,11 @@ const { hotkey, hotkeySettings } = require("./streamdeck/hotkeys");
 const animate = require("./streamdeck/animate");
 
 const VERSION = require("../package.json").version;
-const AUTHOR = "Tablet Deck";
-const SITE = "https://nodiecode.github.io/tablet-deck/";
-const PLUGIN_UUID = "com.nodiecode.tabletdeck";
+const AUTHOR = "SpoolUp";
+const SITE = "https://xattribution.github.io/tablet-deck-spooned/";
+const PLUGIN_UUID = "com.xattribution.spoolup";
 const PLUGIN_SRC = path.join(ROOT, "streamdeck", "plugin", `${PLUGIN_UUID}.sdPlugin`);
-const ICONPACK_ID = (theme) => `com.nodiecode.tabletdeck.icons.${theme}`;
+const ICONPACK_ID = (theme) => `com.xattribution.spoolup.icons.${theme}`;
 const MAX_PAGES = 10; // Stream Deck's limit per profile; folders don't count
 // Profile keys are 144 px on every model, as in the profiles the Stream Deck app writes itself
 // (Elgato's default + profile included; research/profiles.verified.md 5.4). The app shrinks
@@ -54,7 +54,7 @@ const PLUGIN_DIAL_REFS = new Set(["@next", "@prev", "@folder:themes"]);
 // are the other way round, like the rest.
 const ON_FIRST = new Set(["com.elgato.obsstudio"]);
 // Stream Deck's Hotkey only taps (research/profiles.verified.md correction 1), so a deck
-// button that must be held, or held for a set time, goes through the Tablet Deck plugin in
+// button that must be held, or held for a set time, goes through the SpoolUp plugin in
 // the standalone profiles too, marked PLUGIN, rather than tap and do the wrong thing. A dial
 // turn is one tap per detent either way (the plugin's own dial taps hold buttons too), so
 // there only a timed press needs the plugin.
@@ -185,7 +185,7 @@ function hintFor(ref, dialLabel, dir) {
   const short = a.label.split(/\s+/).filter((w) => !drop.has(w.toLowerCase())).join(" ");
   return (short || { ccw: "Prev", cw: "Next", press: "Push" }[dir] || a.label).replace(/^Previous\b/, "Prev");
 }
-// `standalone`: which of the dial's turns and push go through the Tablet Deck plugin there.
+// `standalone`: which of the dial's turns and push go through the SpoolUp plugin there.
 const dialArt = (d, standalone) => {
   if (d.action) {
     const a = catalog.byId.get(d.action);
@@ -201,11 +201,11 @@ const dialArt = (d, standalone) => {
 // ---------- profiles ----------
 
 const profileUuid = (variant, themeId, modelId) => P.uuidFrom(`profile|${variant}|${themeId || ""}|${modelId}`);
-const standaloneName = (theme, model) => `Tablet Deck ${theme.name} - ${model.name}`;
-const bundledName = (model) => `Tablet Deck ${model.name}`;
+const standaloneName = (theme, model) => `SpoolUp ${theme.name} - ${model.name}`;
+const bundledName = (model) => `SpoolUp ${model.name}`;
 
 // Builds one profile. variant "standalone": Stream Deck's own actions only, drawn in `theme`.
-// variant "bundled": shipped inside the plugin; Tablet Deck keys are the plugin's actions,
+// variant "bundled": shipped inside the plugin; SpoolUp keys are the plugin's actions,
 // which draw themselves, and everything else is as in the standalone profiles.
 function buildProfile(env, modelId, variant, theme) {
   const { art, store, themes, warn } = env;
@@ -240,7 +240,7 @@ function buildProfile(env, modelId, variant, theme) {
   // page each one also carries that scene as `page`, so the plugin knows which scene is showing
   // after Stream Deck's own page keys or dials have moved it (folders have none).
   const ours = (at, where, suffix, name, settings = {}, states = null) => P.action(id(where), `${PLUGIN_UUID}.${suffix}`, {
-    name, plugin: { Name: "Tablet Deck", UUID: PLUGIN_UUID, Version: plugin.version },
+    name, plugin: { Name: "SpoolUp", UUID: PLUGIN_UUID, Version: plugin.version },
     settings: !standalone && at.page ? { ...settings, page: at.page } : settings,
     states: states || Array.from({ length: plugin.states(`${PLUGIN_UUID}.${suffix}`) }, () => ({})),
   });
@@ -345,14 +345,14 @@ function buildProfile(env, modelId, variant, theme) {
         const ref = { next: "@next", prev: "@prev", back: "@back", home: `@scene:${scenes.SCENES[0].id}` }[a.nav] || (a.nav.startsWith("folder:") ? `@folder:${a.nav.slice(7)}` : null);
         return ref ? resolve(ref, at) : blank(where);
       }
-      case "tabletdeck": {
-        const suffix = { talk: "talk", status: "status", "lights-reset": "lights", theme: "theme", scene: "scene" }[a.tabletdeck];
+      case "spoolup": {
+        const suffix = { talk: "talk", status: "status", "lights-reset": "lights", theme: "theme", scene: "scene" }[a.spoolup];
         if (!suffix) return at.child ? null : blank(where);
         if (!standalone) return { json: ours(at, where, suffix, a.label), img: null };
         // A standalone profile has Hold to Talk through the plugin, like the held buttons.
         // Status and Reset Lights show and clear the lights of the plugin's own keys, which
         // these profiles hardly use, and themes and scenes have built-in keys here: blank.
-        if (a.tabletdeck === "talk") return viaOurs("talk", {});
+        if (a.spoolup === "talk") return viaOurs("talk", {});
         return at.child ? null : blank(where);
       }
       default:
@@ -538,9 +538,9 @@ function writeIconPack(env, pack, previewPng) {
   const id = ICONPACK_ID(pack.theme.id);
   const root = `${id}.sdIconPack/`;
   const manifest = {
-    Name: `Tablet Deck ${pack.theme.name}`,
+    Name: `SpoolUp ${pack.theme.name}`,
     Version: VERSION,
-    Description: `${pack.items.length} Star Citizen keys in Tablet Deck's ${pack.theme.full} HUD theme: every Tablet Deck action (with lit versions of the ones that light up), scenes, folders and navigation. 144 x 144 PNG, plus animated GIF versions of the keys with a press animation. Fan-made; not affiliated with Cloud Imperium Games or Elgato.`,
+    Description: `${pack.items.length} Star Citizen keys in SpoolUp's ${pack.theme.full} HUD theme: every SpoolUp action (with lit versions of the ones that light up), scenes, folders and navigation. 144 x 144 PNG, plus animated GIF versions of the keys with a press animation. Fan-made; not affiliated with Cloud Imperium Games or Elgato.`,
     Author: AUTHOR,
     URL: SITE,
     Icon: "icon.png",
@@ -559,7 +559,7 @@ function writeIconPack(env, pack, previewPng) {
       : [{ name: `${root}icons/${it.file}`, data: store.get(it.img) }])),
   ];
   if (previewPng) entries.push({ name: `${root}previews/1-preview.png`, data: previewPng });
-  const file = path.join(env.out, "icons", `Tablet Deck ${pack.theme.name}.streamDeckIconPack`);
+  const file = path.join(env.out, "icons", `SpoolUp ${pack.theme.name}.streamDeckIconPack`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, zip(entries));
   return file;
@@ -584,7 +584,7 @@ function deckLabels() {
 
 // What the plugin's source manifest declares, so bundled profiles give each of our actions
 // as many states as it has; works (with one state each) before the plugin exists. The packed
-// plugin's version is Tablet Deck's own (package.json), whatever the source manifest says.
+// plugin's version is SpoolUp's own (package.json), whatever the source manifest says.
 function pluginInfo() {
   const file = path.join(PLUGIN_SRC, "manifest.json");
   let manifest = null;
@@ -664,30 +664,30 @@ function writePlugin(env, info, images, bundled) {
 
 // ---------- keybinds ----------
 
-// The standalone profiles' Hotkeys press the Tablet Deck Keyboard profile's keys for actions
+// The standalone profiles' Hotkeys press the SpoolUp Keyboard profile's keys for actions
 // Star Citizen has no default key for, so the profile ships next to them.
 const KEYBINDS = "TabletDeck-StarCitizen.xml";
-const KEYBINDS_README = `Tablet Deck Keyboard: the Star Citizen keybinds the Stream Deck profiles use
+const KEYBINDS_README = `SpoolUp Keyboard: the Star Citizen keybinds the Stream Deck profiles use
 
-The "Tablet Deck <theme> - <model>" profiles press Star Citizen's default keys, and for
+The "SpoolUp <theme> - <model>" profiles press Star Citizen's default keys, and for
 actions the game has no default key for (operator modes, shield faces, doors, emotes,
 targeting and more) the keys in this profile. Load it once, or those keys press nothing
 useful.
 
 1. Copy ${KEYBINDS} into the game's Controls\\Mappings folder, for example
    StarCitizen\\LIVE\\user\\client\\0\\Controls\\Mappings (create the Controls and Mappings
-   folders if they're missing). Tablet Deck's window does this for you: Settings, Install
+   folders if they're missing). SpoolUp's window does this for you: Settings, Install
    keybind profile.
 2. In Star Citizen, open Options > Keybindings > Control Profiles and load
-   "Tablet Deck Keyboard". This replaces your current custom binds, so note any you want to
+   "SpoolUp Keyboard". This replaces your current custom binds, so note any you want to
    keep and set them again afterwards.
 
 Good to know:
-- Stream Deck presses these keys into whichever window is in front. Tablet Deck's check that
-  Star Citizen has focus only covers keys that go through Tablet Deck.
+- Stream Deck presses these keys into whichever window is in front. SpoolUp's check that
+  Star Citizen has focus only covers keys that go through SpoolUp.
 - Keys marked PLUGIN must be held, or held for a set time, which Stream Deck's own Hotkey
-  can't do. They need the Tablet Deck plugin (com.nodiecode.tabletdeck.streamDeckPlugin) and
-  Tablet Deck running on this PC, and they go through its focus check.
+  can't do. They need the SpoolUp plugin (com.xattribution.spoolup.streamDeckPlugin) and
+  SpoolUp running on this PC, and they go through its focus check.
 `;
 function writeKeybinds(out) {
   const dir = path.join(out, "keybinds");
@@ -703,7 +703,7 @@ function writeKeybinds(out) {
 // profiles (every theme built, with the keybind profile they rely on and a readme), one of all
 // the icon packs, and the plugin as it is. Made from the files just written.
 const RELEASE_NAME = { mini: "Mini", neo: "Neo", std: "15-Key", mobile: "Mobile", plus: "Plus", xl: "XL", plusxl: "Plus-XL" };
-const PROFILES_README = `Tablet Deck: Stream Deck profiles for {model}
+const PROFILES_README = `SpoolUp: Stream Deck profiles for {model}
 
 One profile per manufacturer theme. Double-click one to add it to Stream Deck, and add every
 theme you want to switch between: the Themes folder opens the same page in another theme's
@@ -712,15 +712,15 @@ profile (if a theme key doesn't switch, pick that profile once in the key's sett
 Each profile has a page per scene (Flight, Combat, Mining, Salvage, Hauling & Exploration,
 On Foot, Comms) and folders for emergencies, shields, power, emotes, websites and themes.
 
-Before you fly, load the Tablet Deck Keyboard keybinds in Star Citizen: see keybinds\\README.txt.
+Before you fly, load the SpoolUp Keyboard keybinds in Star Citizen: see keybinds\\README.txt.
 
 The keys are Stream Deck Hotkeys, which Stream Deck presses into whichever window is in
 front. Keys marked PLUGIN hold a key or press it for a set time, which a Hotkey can't do:
-they need the Tablet Deck plugin (com.nodiecode.tabletdeck.streamDeckPlugin) and Tablet Deck
+they need the SpoolUp plugin (com.xattribution.spoolup.streamDeckPlugin) and SpoolUp
 running on this PC. Discord and OBS keys need Elgato's Discord and OBS Studio plugins;
 Stream Deck offers to install them.
 
-More: https://github.com/nodieCode/tablet-deck#stream-deck
+More: https://github.com/xattribution/tablet-deck-spooned#stream-deck
 `;
 function writeRelease(out, models) {
   const dir = path.join(out, "release");
@@ -737,14 +737,14 @@ function writeRelease(out, models) {
     const model = scenes.MODELS[m];
     const profiles = filesIn(path.join("profiles", model.name), ".streamDeckProfile");
     if (!profiles.length) continue;
-    const file = path.join(dir, `TabletDeck-StreamDeck-Profiles-${RELEASE_NAME[m] || m}.zip`);
+    const file = path.join(dir, `SpoolUp-StreamDeck-Profiles-${RELEASE_NAME[m] || m}.zip`);
     const readme = { name: "README.txt", data: PROFILES_README.replace("{model}", model.name).replace(/\n/g, "\r\n") };
     fs.writeFileSync(file, zip([readme, ...profiles.map((f) => entry(path.basename(f), f)), ...keybinds]));
     written.push(file);
   }
   const packs = filesIn("icons", ".streamDeckIconPack");
   if (packs.length) {
-    const file = path.join(dir, "TabletDeck-StreamDeck-IconPacks.zip");
+    const file = path.join(dir, "SpoolUp-StreamDeck-IconPacks.zip");
     fs.writeFileSync(file, zip(packs.map((f) => entry(path.basename(f), f))));
     written.push(file);
   }
@@ -810,11 +810,11 @@ function writePreviewIndex(out, list) {
   const rows = [...list].sort((a, b) => (b.file.startsWith("plusxl-") ? 1 : 0) - (a.file.startsWith("plusxl-") ? 1 : 0)).map((p) => `<figure><a href="${encodeURI(p.file)}"><img src="${encodeURI(p.file)}" loading="lazy" alt=""></a><figcaption>${p.title}</figcaption></figure>`).join("\n");
   fs.writeFileSync(path.join(out, "index.html"), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tablet Deck Stream Deck previews</title>
+<title>SpoolUp Stream Deck previews</title>
 <style>body{margin:0;padding:24px;background:#06080b;color:#e8eef5;font:15px system-ui,sans-serif}h1{font-size:22px}
 main{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}figure{margin:0}img{width:100%;border:1px solid #2c3239;border-radius:8px;background:#000}
 figcaption{margin-top:6px;color:#9fb0c0}</style></head>
-<body><h1>Tablet Deck for Stream Deck: profile previews</h1><p>Each sheet shows every page and folder of one profile as the device shows it.</p>
+<body><h1>SpoolUp for Stream Deck: profile previews</h1><p>Each sheet shows every page and folder of one profile as the device shows it.</p>
 <main>
 ${rows}
 </main></body></html>

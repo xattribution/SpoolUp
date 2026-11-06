@@ -1,6 +1,6 @@
 # Setting up code signing with SignPath
 
-Steps for signing Tablet Deck's releases with free code signing from
+Steps for signing SpoolUp's releases with free code signing from
 [SignPath Foundation](https://signpath.org). The policy the project follows is
 [CODE_SIGNING.md](../CODE_SIGNING.md); the workflow side is already in place
 (see [Code signing](DEVELOPMENT.md#code-signing)). SignPath's forms and menus
@@ -31,17 +31,17 @@ Apply on [signpath.org](https://signpath.org). Answers for the form:
 
 | question | answer |
 |---|---|
-| Project name | Tablet Deck |
-| Repository | https://github.com/nodieCode/tablet-deck |
-| Home page / download page | https://nodiecode.github.io/tablet-deck/ and https://github.com/nodieCode/tablet-deck/releases |
+| Project name | SpoolUp |
+| Repository | https://github.com/xattribution/tablet-deck-spooned |
+| Home page / download page | https://xattribution.github.io/tablet-deck-spooned/ and https://github.com/xattribution/tablet-deck-spooned/releases |
 | Licence | MIT, for all of the project's own code |
-| Code signing policy | https://github.com/nodieCode/tablet-deck/blob/main/CODE_SIGNING.md |
+| Code signing policy | https://github.com/xattribution/tablet-deck-spooned/blob/main/CODE_SIGNING.md |
 | Build system | GitHub Actions on GitHub-hosted Windows runners (`.github/workflows/release.yml`) |
-| What gets signed | Windows executables: the installer `TabletDeck-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe`, `native/voice.exe` and `native/sound.exe` |
+| What gets signed | Windows executables: the installer `SpoolUp-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe`, `native/voice.exe` and `native/sound.exe` |
 
 **Description** (adjust to taste):
 
-> Tablet Deck turns a tablet or phone into a touch control panel for the game
+> SpoolUp turns a tablet or phone into a touch control panel for the game
 > Star Citizen, like a Stream Deck. A small app on the gaming PC serves the
 > deck to devices on the home network. When a button is tapped, the PC presses
 > that button's key or key combination once, using Windows' SendInput. It's
@@ -53,7 +53,7 @@ the app presses keys:
 > One tap presses one key or key combination once: there are no macros,
 > sequences, repeats or timed presses. By default keys only reach the game
 > while it's the window in front, and only devices with the pairing code can
-> press anything. Tablet Deck never reads or changes the game's memory or
+> press anything. SpoolUp never reads or changes the game's memory or
 > files, apart from reading the player's keybinds and copying a keybind
 > profile into the game's folder when the player asks.
 

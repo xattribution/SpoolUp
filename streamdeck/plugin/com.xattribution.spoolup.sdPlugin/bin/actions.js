@@ -1,5 +1,5 @@
 // What each of the plugin's actions does and how it looks, driven by Stream Deck's events
-// (plugin.js) and Tablet Deck's messages (tabletdeck.js).
+// (plugin.js) and SpoolUp's messages (spoolup.js).
 //
 // The ground rules, as they apply here:
 // - One press per tap: a key press sends one "tap" (or one "down" and one "up" for hold
@@ -7,17 +7,17 @@
 //   one at a time, each once the last one's keys are up, so two never merge into one
 //   press or mix their modifiers (see "the press line"). Nothing repeats, and the actions
 //   can't go in Multi Actions or Key Logic (manifest).
-// - Keys only reach Star Citizen: everything goes to Tablet Deck, which runs its focus
+// - Keys only reach Star Citizen: everything goes to SpoolUp, which runs its focus
 //   check; while it isn't connected nothing is sent or saved for later.
 // - Releases always go through: a "down" is matched by an "up" on keyUp/dialUp, and on
 //   willDisappear, deviceDidDisconnect, systemDidWakeUp, a settings change and when the
-//   Stream Deck socket closes. If the Tablet Deck link drops, the server has already
+//   Stream Deck socket closes. If the SpoolUp link drops, the server has already
 //   released everything this client held.
 "use strict";
 const { THEMES } = require("./emblems");
 const { svgUrl, svgBase64 } = require("./draw");
 
-const UUID = "com.nodiecode.tabletdeck";
+const UUID = "com.xattribution.spoolup";
 const KIND = { key: "key", dial: "dial", scene: "scene", theme: "theme", talk: "talk", status: "status", lights: "lights" };
 const kindOf = (action) => KIND[String(action).slice(UUID.length + 1)] || null;
 
@@ -47,12 +47,12 @@ function createActions({ sd, tablet, data, draw, log }) {
   const sceneAt = new Map();        // device id -> when the scene last changed (dials flash)
   const switchedAt = new Map();     // device id -> when the plugin last switched its profile page
   const quietUntil = new Map();     // device id -> until when its page changes aren't told to tablets
-  const holds = new Map();          // deck action id -> Set of ctx holding it down on Tablet Deck
+  const holds = new Map();          // deck action id -> Set of ctx holding it down on SpoolUp
   const talkers = new Set();        // talk ctx held down
   const toggles = new Map();        // deck action id -> on, for effects without a shared state
   const piOpen = new Set();         // contexts whose property inspector is open
-  let states = {};                  // Tablet Deck's shared states: group -> on
-  let voice = { state: "ready" };   // Tablet Deck's voice commands
+  let states = {};                  // SpoolUp's shared states: group -> on
+  let voice = { state: "ready" };   // SpoolUp's voice commands
   let listening = false;            // push-to-talk held on the PC
   const animating = new Set();
   let ticker = null;
@@ -69,7 +69,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     return Object.values(data.MODELS).find((m) => m.type === d.type) || null;
   }
   // The bundled profile for this device's model (the generator writes one per model).
-  const profileFor = (device) => { const m = modelOf(device); return m ? `profiles/Tablet Deck ${m.name}` : null; };
+  const profileFor = (device) => { const m = modelOf(device); return m ? `profiles/SpoolUp ${m.name}` : null; };
 
   function setScene(device, index, { tell = true } = {}) {
     if (index < 0 || index >= data.SCENES.length || sceneOn.get(device) === index) return;
@@ -137,7 +137,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   // ---------- the press line ----------
 
   // Every tap the plugin sends (a key press, a dial detent, a push or a touch) waits its
-  // turn and goes once the last one's keys are surely up. Tablet Deck holds a tap's keys for
+  // turn and goes once the last one's keys are surely up. SpoolUp holds a tap's keys for
   // its tap time (a timed button's for its ms) and presses a combo's keys 15 ms apart, and
   // presses that overlap reach the game as one (a turn back on Weapons: F5, then LAlt+F5)
   // or under another's modifier (Weapons + while Shields − holds LAlt reads as Weapons −),
@@ -153,7 +153,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   const keyTaps = []; // { def, ctx, at }: deck buttons pressed on keys, waiting
   const waiting = new Set(); // dial contexts with presses queued (ctx.queue: { def, dir, ctx, at })
   const keyCount = (def) => String((def && def.keys) || "").split("+").length;
-  // Tablet Deck's own rule for how long a tap holds: the button's ms, else its tap time.
+  // SpoolUp's own rule for how long a tap holds: the button's ms, else its tap time.
   const gapFor = (def) => Math.max(120, (Number(def.ms) || tablet.tapMs || 60) + 30 * (keyCount(def) - 1) + 60);
   // A key's press: sent at once when nothing is pressing, else first in line.
   function tapKey(ctx, def) {
@@ -253,7 +253,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     for (const c of contexts.values()) if (test(c)) { release(c); endHoldAnim(c); paint(c); }
   }
 
-  // The Tablet Deck link dropped: the server let go of everything already.
+  // The SpoolUp link dropped: the server let go of everything already.
   tablet.on("drop", () => {
     holds.clear();
     clearLine();
@@ -339,7 +339,7 @@ function createActions({ sd, tablet, data, draw, log }) {
         return draw.deck(th, def, { lit, pressed: ctx.pressed, blocked: Boolean(flash && flash.bad), offline: off, status });
       }
       case "status": {
-        const def = catalog("td-status", { label: "Tablet Deck", icon: "sliders" });
+        const def = catalog("td-status", { label: "SpoolUp", icon: "sliders" });
         const link = tablet.link;
         const detail = ctx.after && ctx.after.until > now() ? ctx.after.word : "";
         const ok = link.state === "connected";
@@ -526,7 +526,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   // ---------- following the tablet ----------
 
   // A player paged one half of a tablet's HUD ({ t: "panel", side, panel }): each Stream
-  // Deck on a scene page of the Tablet Deck profile goes to the scene with that panel on
+  // Deck on a scene page of the SpoolUp profile goes to the scene with that panel on
   // that side (SCENES[].tablet), without telling the tablets, which would page back. It
   // stays when its scene has that panel already, or when no scene or several do (Mining and
   // Salvage share Operator Modes), while a key or dial on it is held, and it's never taken
@@ -557,7 +557,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     return false;
   }
 
-  // Whether a device shows a scene page of the Tablet Deck profile: the plugin's keys there
+  // Whether a device shows a scene page of the SpoolUp profile: the plugin's keys there
   // carry the scene as `page`, a folder's and other profiles' don't. Just after the plugin
   // switched it, the new page's keys may not have appeared yet.
   function onScenePage(device) {
@@ -697,7 +697,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   }
   const transitional = (kind, on) => kind === "gear" ? (on ? "DEPLOYING…" : "RETRACTING…") : kind === "doors" ? (on ? "OPENING…" : "CLOSING…") : "";
 
-  // ---------- Tablet Deck's messages ----------
+  // ---------- SpoolUp's messages ----------
 
   const keysFor = (id) => [...contexts.values()].filter((c) => c.kind === "key" && deckDef(c) && (deckDef(c).id === id || (deckDef(c).aliases || []).includes(id)));
   const dialsFor = (id) => [...contexts.values()].filter((c) => c.kind === "dial" && dialOf(c) && ["ccw", "cw", "press"].some((r) => { const x = resolve(dialOf(c)[r]); return x && x.kind === "deck" && x.def.id === id; }));

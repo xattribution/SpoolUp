@@ -1,6 +1,6 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
-  "id": "tabletdeck-dial",
+  "id": "spoolup-dial",
   "items": [
     { "key": "bg", "type": "pixmap", "rect": [0, 0, 200, 100], "zOrder": 0 },
     { "key": "icon", "type": "pixmap", "rect": [14, 28, 48, 48], "zOrder": 1 },

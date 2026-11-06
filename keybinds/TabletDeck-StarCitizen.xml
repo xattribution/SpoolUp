@@ -1,5 +1,5 @@
-<ActionMaps version="1" optionsVersion="2" rebindVersion="2" profileName="Tablet Deck Keyboard">
- <CustomisationUIHeader label="Tablet Deck Keyboard" description="" image="">
+<ActionMaps version="1" optionsVersion="2" rebindVersion="2" profileName="SpoolUp Keyboard">
+ <CustomisationUIHeader label="SpoolUp Keyboard" description="" image="">
   <devices>
    <keyboard instance="1"/>
   </devices>

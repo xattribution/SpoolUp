@@ -1,4 +1,4 @@
-// Builds the Windows installer, dist/TabletDeck-Setup-<version>.exe, so players don't
+// Builds the Windows installer, dist/SpoolUp-Setup-<version>.exe, so players don't
 // need Node.js. Developers keep using `node server.js` or start.bat.
 //
 //   npm install      (once: the build-only tools postject and rcedit)
@@ -42,9 +42,9 @@ const DIST = path.join(ROOT, "dist");
 const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")).version;
 // Windows version resources need four numbers: "1.2.3-beta.1" -> "1.2.3.0".
 const FILE_VERSION = `${VERSION.replace(/[-+].*$/, "")}.0`;
-const COPYRIGHT = "Copyright (c) 2026 nodieCode. MIT License.";
+const COPYRIGHT = "Copyright (c) 2026 nodieCode and xattribution. MIT License.";
 const SIGN_CMD = process.env.SIGN_CMD || "";
-const SETUP_NAME = `TabletDeck-Setup-${VERSION}.exe`;
+const SETUP_NAME = `SpoolUp-Setup-${VERSION}.exe`;
 
 const step = (text) => console.log(`\n== ${text}`);
 const run = (file, args) => execFileSync(file, args, { stdio: "inherit" });
@@ -115,8 +115,8 @@ async function buildApp() {
       "using System.Reflection;",
       `[assembly: AssemblyTitle("${title}")]`,
       `[assembly: AssemblyDescription("${title}")]`,
-      '[assembly: AssemblyProduct("Tablet Deck")]',
-      '[assembly: AssemblyCompany("nodieCode")]',
+      '[assembly: AssemblyProduct("SpoolUp")]',
+      '[assembly: AssemblyCompany("xattribution")]',
       `[assembly: AssemblyCopyright("${COPYRIGHT}")]`,
       `[assembly: AssemblyVersion("${FILE_VERSION}")]`,
       `[assembly: AssemblyFileVersion("${FILE_VERSION}")]`,
@@ -127,12 +127,12 @@ async function buildApp() {
       ...refs.map((r) => `/r:${r}`), ...(icon ? [`/win32icon:${icon}`] : []), `/out:${out}`, path.join(ROOT, "native", `${name}.cs`), info]);
     return out;
   }
-  const window = compileCs("launcher", path.join(APP, "TabletDeck.exe"), "Tablet Deck",
+  const window = compileCs("launcher", path.join(APP, "TabletDeck.exe"), "SpoolUp",
     { target: "winexe", refs: ["System.Windows.Forms.dll", "System.Drawing.dll", "System.Web.Extensions.dll"], icon: ico });
   const natives = [
-    compileCs("keysender", path.join(APP, "native", "keysender.exe"), "Tablet Deck key sender"),
-    compileCs("voice", path.join(APP, "native", "voice.exe"), "Tablet Deck voice commands", { refs: ["System.Speech.dll"] }),
-    compileCs("sound", path.join(APP, "native", "sound.exe"), "Tablet Deck sounds"),
+    compileCs("keysender", path.join(APP, "native", "keysender.exe"), "SpoolUp key sender"),
+    compileCs("voice", path.join(APP, "native", "voice.exe"), "SpoolUp voice commands", { refs: ["System.Speech.dll"] }),
+    compileCs("sound", path.join(APP, "native", "sound.exe"), "SpoolUp sounds"),
   ];
 
   // The keybind profile, for the window's "Install keybind profile" and the installer's option.
@@ -183,9 +183,9 @@ async function buildApp() {
     "--set-icon", ico,
     "--set-file-version", FILE_VERSION,
     "--set-product-version", VERSION,
-    "--set-version-string", "FileDescription", "Tablet Deck server",
-    "--set-version-string", "ProductName", "Tablet Deck",
-    "--set-version-string", "CompanyName", "nodieCode",
+    "--set-version-string", "FileDescription", "SpoolUp server",
+    "--set-version-string", "ProductName", "SpoolUp",
+    "--set-version-string", "CompanyName", "xattribution",
     "--set-version-string", "LegalCopyright", COPYRIGHT,
     "--set-version-string", "OriginalFilename", "TabletDeckServer.exe",
     "--set-version-string", "InternalName", "TabletDeckServer",
@@ -204,7 +204,7 @@ async function buildApp() {
       "(it's in the Node.js zip from nodejs.org).");
   }
   fs.writeFileSync(path.join(APP, "THIRD-PARTY-NOTICES.txt"), [
-    "Tablet Deck includes the third-party software below. Tablet Deck itself is",
+    "SpoolUp includes the third-party software below. SpoolUp itself is",
     "MIT licensed (LICENSE.txt). See THIRD-PARTY-NOTICES.md in the source for details.",
     "",
     `== Node.js ${process.version}, in TabletDeckServer.exe (https://nodejs.org)`,
@@ -247,7 +247,7 @@ function writeChecksum() {
 (async () => {
   if (process.platform !== "win32") throw new Error("The installer can only be built on Windows.");
   const stage = ["--app", "--installer", "--checksum"].find((s) => process.argv.includes(s)) || "all";
-  console.log(`Building Tablet Deck ${VERSION}${SIGN_CMD ? "" : " (unsigned)"}${stage === "all" ? "" : ` (${stage.slice(2)} stage)`}`);
+  console.log(`Building SpoolUp ${VERSION}${SIGN_CMD ? "" : " (unsigned)"}${stage === "all" ? "" : ` (${stage.slice(2)} stage)`}`);
   if (stage === "all" || stage === "--app") await buildApp();
   if (stage === "all" || stage === "--installer") buildInstaller();
   if (stage !== "--app") writeChecksum();

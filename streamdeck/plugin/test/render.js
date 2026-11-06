@@ -13,14 +13,14 @@ const path = require("path");
 const { write: writeData } = require("./make-test-data");
 const { FakeStreamDeck, ev } = require("./fake-streamdeck");
 
-const SRC = path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const out = path.resolve(process.argv[2] || path.join(os.tmpdir(), "tabletdeck-render"));
+const SRC = path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const out = path.resolve(process.argv[2] || path.join(os.tmpdir(), "spoolup-render"));
 
 async function main() {
   const { chromium } = require("playwright");
   fs.mkdirSync(out, { recursive: true });
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "td-render-"));
-  const dir = path.join(tmp, "com.nodiecode.tabletdeck.sdPlugin");
+  const dir = path.join(tmp, "com.xattribution.spoolup.sdPlugin");
   fs.cpSync(SRC, dir, { recursive: true });
   writeData(dir);
   const { load } = require(path.join(dir, "bin", "data.js"));
@@ -48,7 +48,7 @@ async function main() {
     return `<div style="position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;line-height:${h}px;font-size:${font.size}px;font-weight:${font.weight};color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:${it.alignment || "center"}">${val}</div>`;
   }).join("")}</div>`;
 
-  // ---- 1. A live + XL page, through the plugin itself, against a dry-run Tablet Deck ----
+  // ---- 1. A live + XL page, through the plugin itself, against a dry-run SpoolUp ----
   const REPO = path.join(__dirname, "..", "..", "..");
   const token = JSON.parse(fs.readFileSync(path.join(REPO, "config.json"), "utf8")).token;
   const port = Number(process.env.PORT || 8898);
@@ -63,7 +63,7 @@ async function main() {
   sd.send(ev.device("XL", 13, 9, 4, "Stream Deck + XL"));
   const layout = scenes.layoutFor("plusxl");
   const page = layout.pages[1]; // Combat
-  const U = "com.nodiecode.tabletdeck";
+  const U = "com.xattribution.spoolup";
   for (const [pos, ref] of Object.entries(page.keys)) {
     const [c, r] = pos.split(",").map(Number);
     let action = null, settings = {};
@@ -129,7 +129,7 @@ async function main() {
     [de.deck(th, def("pl-gear"), { lit: true, status: "DEPLOYED" }), "de: lit"],
     [de.scene(th, data.SCENES[4], { lit: true, status: "ACTIVE" }), "de: scene"],
     [de.deck(th, { label: "Hold to Talk", icon: "mic", color: "red" }, { lit: true, status: "LISTENING" }), "de: talk"],
-    [de.deck(th, { label: "Tablet Deck", icon: "sliders", color: "red" }, { offline: true, status: "NOT PAIRED" }), "de: status"],
+    [de.deck(th, { label: "SpoolUp", icon: "sliders", color: "red" }, { offline: true, status: "NOT PAIRED" }), "de: status"],
   ];
   await shot("key-states.png", row(states) + row(frames) + row(german), 8 * 122 + 20, 3 * 150 + 20);
 

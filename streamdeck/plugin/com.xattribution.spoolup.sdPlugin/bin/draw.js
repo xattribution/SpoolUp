@@ -40,7 +40,7 @@ function createDraw(data) {
     return fitStatus(keyart.key({ ...opts, status, label: opts.label, font: "live" }), status);
   }
 
-  // A Tablet Deck button. look: { lit, pressed, blocked, offline, anim, status }
+  // A SpoolUp button. look: { lit, pressed, blocked, offline, anim, status }
   function deck(th, def, look) {
     return key({ theme: th, icon: iconOf(def.icon), label: t(def.label), color: def.color || "", ...look });
   }
