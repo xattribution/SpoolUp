@@ -5,6 +5,26 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/tablet-deck-spooned/releases), so add one
 before tagging a release.
 
+## 1.9.0 (2026-11-06)
+
+- **Every manufacturer theme is its own design**, not the same deck in other
+  colours. Each maker has its own surfaces, plates, button shapes, section
+  titles, dials, switches, eject slider and framed buttons, and its own lit,
+  pressed, blocked and offline looks: RSI's navy glass and corner brackets,
+  Drake's riveted, scratched metal and hazard stripes, Aegis's carbon weave and
+  red tactical marks, Anvil's olive armour with screws and indicator lamps,
+  Origin's cream and black gloss with a cream dial, MISC's teal enamel and
+  orange tabs, Crusader's sky and pearl-white capsules, Banu's lacquer on
+  carved wood, Aopoa's jade and flowing forms, Argo's safety-yellow work
+  panels, Consolidated Outland's desert sunset and Esperia's plum night and
+  coral blades. Origin, Crusader, Aopoa, Argo and Consolidated Outland are now
+  light decks. Large text, high contrast and night mode work in all of them.
+- **The Stream Deck pack matches.** Keys, icon packs, profiles and the plugin's
+  touch strips are drawn in each maker's material, with its own lit look
+  (Drake's hazard band, Anvil's lamp, Origin's gold bar...), on that theme's
+  page colour.
+- What each button presses hasn't changed.
+
 ## 1.8.0 (2026-11-06)
 
 - **Tablet Deck is now SpoolUp**, the name everywhere you see it. The keybind
