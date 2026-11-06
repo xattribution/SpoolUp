@@ -20,6 +20,7 @@ Each release's Windows files, all built from this repository:
   files in `public/`, `layouts/` and `keybinds/`)
 - `native/keysender.exe`, the key sender (`native/keysender.cs`)
 - `native/voice.exe`, the voice listener (`native/voice.cs`)
+- `native/sound.exe`, the sound player for button sounds on the PC (`native/sound.cs`)
 
 They're built only by the **Release** workflow (`.github/workflows/release.yml`)
 on GitHub-hosted runners, from this repository's `main` branch, when a release

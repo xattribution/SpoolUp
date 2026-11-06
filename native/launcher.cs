@@ -2792,8 +2792,8 @@ class SettingsWindow : HudDialog
         Caption("Tap length", 32, 278);
         Field(tap, 32, 294, 80, 28);
         tap.Minimum = 20;
-        tap.Maximum = 1000;
-        tap.Value = Math.Max(20, Math.Min(1000, GetNumber("tapMs", 60)));
+        tap.Maximum = 200;
+        tap.Value = Math.Max(20, Math.Min(200, GetNumber("tapMs", 60)));
         Hint("milliseconds a tap holds the key. Raise it if the game misses taps.", 124, 292, 252, 34);
 
         Panel("VOICE", 16, 356, 376, 168);

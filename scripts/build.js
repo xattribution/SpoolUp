@@ -6,8 +6,8 @@
 //
 // 1. Checks keybinds/TabletDeck-StarCitizen.xml is up to date with the layouts.
 // 2. Makes the app icon from public/icon-512.png.
-// 3. Compiles the app window (native/launcher.cs -> TabletDeck.exe), the key sender and the
-//    voice listener, with version info.
+// 3. Compiles the app window (native/launcher.cs -> TabletDeck.exe), the key sender, the
+//    voice listener and the sound player, with version info.
 // 4. Packs server.js, qr.js, public/, layouts/ and keybinds/ into TabletDeckServer.exe, a
 //    Node single executable application made from the node.exe running this script, and
 //    writes THIRD-PARTY-NOTICES.txt with that Node.js's licence.
@@ -105,7 +105,7 @@ async function buildApp() {
   const ico = path.join(BUILD, "icon.ico");
   fs.writeFileSync(ico, Buffer.concat([icoHeader, ...pngs]));
 
-  step("Compiling the app window, key sender and voice listener");
+  step("Compiling the app window, key sender, voice listener and sound player");
   const fw = path.join(process.env.WINDIR || "C:\\Windows", "Microsoft.NET", "Framework64", "v4.0.30319");
   // The compiler and flags server.js uses from source, plus a version resource, which makes
   // the files easier for antivirus software and players to identify.
@@ -132,6 +132,7 @@ async function buildApp() {
   const natives = [
     compileCs("keysender", path.join(APP, "native", "keysender.exe"), "Tablet Deck key sender"),
     compileCs("voice", path.join(APP, "native", "voice.exe"), "Tablet Deck voice commands", { refs: ["System.Speech.dll"] }),
+    compileCs("sound", path.join(APP, "native", "sound.exe"), "Tablet Deck sounds"),
   ];
 
   // The keybind profile, for the window's "Install keybind profile" and the installer's option.

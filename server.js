@@ -99,6 +99,8 @@ function loadConfig() {
     changed = true;
   }
   if (!config.tapMs) { config.tapMs = 60; changed = true; }
+  // Star Citizen counts a press held past 0.25 s as a hold, so a tap stays well short of it.
+  if (!(config.tapMs >= 20 && config.tapMs <= 200)) { config.tapMs = Math.min(200, Math.max(20, Math.round(+config.tapMs) || 60)); changed = true; }
   if (config.onlyWhenGameFocused === undefined) { config.onlyWhenGameFocused = true; changed = true; }
   if (config.voice === undefined) { config.voice = true; changed = true; }
   if (!config.voiceLanguage) { config.voiceLanguage = "en-US"; changed = true; }
@@ -138,7 +140,7 @@ const SETTINGS = {
   shortEmotes: onOff,
   token: (v) => (/^[a-z0-9]{1,32}$/i.test(v) ? v.toLowerCase() : undefined),
   port: wholeNumber(1024, 65535),
-  tapMs: wholeNumber(20, 1000),
+  tapMs: wholeNumber(20, 200),
   voiceLanguage: (v) => (/^[a-z]{2}(-[A-Za-z]{2,4})?$/.test(v) ? v : undefined),
   // Push-to-talk from a PC key: its Windows virtual-key code (0 = none) and a name to show.
   pttKey: wholeNumber(0, 255),
@@ -250,7 +252,10 @@ function loadLayout(device, chosen) {
 
 // Gives every button its keys (from the keybind files when it has an scAction) and
 // scancodes, and returns them by id. Throws on an unknown key or a duplicate id, so the
-// layout editor's saves get the same checks as loading.
+// layout editor's saves get the same checks as loading. A keybind file's key that can't
+// be pressed (one Tablet Deck has no scancode for) only costs that button its rebind: it
+// keeps the layout's keys, and the server says so once instead of refusing to start.
+const unpressableRebinds = new Set();
 function prepareLayout(layout) {
   const overrides = readActionmapOverrides(config.actionmaps);
   const buttons = new Map();
@@ -258,7 +263,19 @@ function prepareLayout(layout) {
     if (Array.isArray(node)) { node.forEach(collect); return; }
     if (!node || typeof node !== "object") return;
     if (typeof node.id === "string" && typeof node.keys === "string") {
-      if (node.scAction && overrides[node.scAction]) node.keys = overrides[node.scAction];
+      const rebind = node.scAction && overrides[node.scAction];
+      if (rebind) {
+        try {
+          parseCombo(rebind);
+          node.keys = rebind;
+        } catch (err) {
+          const note = `${node.scAction}: ${rebind}`;
+          if (!unpressableRebinds.has(note)) {
+            unpressableRebinds.add(note);
+            console.log(`Keybinds: ${err.message} for ${node.scAction}; "${node.label || node.id}" keeps ${node.keys}.`);
+          }
+        }
+      }
       node.scancodes = parseCombo(node.keys);
       if (buttons.has(node.id)) throw new Error(`Duplicate button id "${node.id}"`);
       buttons.set(node.id, node);
@@ -396,8 +413,8 @@ async function releaseCombo(scancodes) {
 }
 
 // Tells a tablet a press was skipped because the game isn't the window in front.
-function skipped(btn, client) {
-  console.log(`${btn.label}: skipped, Star Citizen not focused`);
+function skipped(btn, client, why = "Star Citizen not focused") {
+  console.log(`${btn.label}: skipped, ${why}`);
   ui({ t: "press", label: btn.label, blocked: true });
   client?.send({ t: "blocked", id: btn.id });
 }
@@ -450,6 +467,52 @@ async function tapButton(btn, client, ms = btn.ms || config.tapMs, kind = btn.mo
   await pressCombo(btn.scancodes);
   await sleep(ms);
   await releaseCombo(btn.scancodes);
+}
+
+// The keyboard is shared, so presses that overlap can mix: Weapons + (F5) pressed while
+// Shields − (LAlt+F7) holds LAlt reaches the game as LAlt+F5, Weapons −, and two taps of one
+// key share a single key-down. So a tap waits for the earlier taps it could mix with: those
+// sharing a key, or any with a modifier when it has one or they do. Plain taps of different
+// keys still overlap, so a long Auto Land doesn't hold up the lights. A few may wait; more
+// are dropped rather than pressed long after they were asked for, and so is a tap whose
+// tablet disconnected while it waited.
+const MODIFIER_KEYS = new Set(["lalt", "ralt", "lctrl", "rctrl", "lshift", "rshift"].map((k) => SCANCODES[k].join(":")));
+const keyIds = (btn) => new Set(btn.scancodes.map((sc) => sc.join(":")));
+const TAPS_WAITING = 6;
+const tapsAhead = []; // { keys, mod, done } for taps waiting or pressing, oldest first
+function queueTap(btn, client, ...rest) {
+  const keys = keyIds(btn);
+  const me = { keys, mod: [...keys].some((k) => MODIFIER_KEYS.has(k)) };
+  const ahead = tapsAhead.filter((t) => t.mod || me.mod || [...t.keys].some((k) => keys.has(k)));
+  if (ahead.length >= TAPS_WAITING) return Promise.resolve();
+  me.done = Promise.all(ahead.map((t) => t.done))
+    .then(() => {
+      if (client?.gone) return undefined;
+      if (heldModifierAgainst(btn)) { skipped(btn, client, "a held button is holding a modifier key"); return undefined; }
+      return tapButton(btn, client, ...rest);
+    })
+    .catch((err) => console.error(`${btn.label}: ${err.message}`))
+    .finally(() => tapsAhead.splice(tapsAhead.indexOf(me), 1));
+  tapsAhead.push(me);
+  return me.done;
+}
+
+// Modifier keys held down by hold buttons (Proximity PTT holds LAlt, Engage Quantum RAlt),
+// counted. While one is down, a press without it would reach the game with it, as another
+// action, so that press is skipped and its button flashes, like a press the focus check skips.
+// Holding plain Push to Talk (Numpad +) holds no modifier and blocks nothing.
+const heldModifiers = new Map();
+function holdModifiers(keys, delta) {
+  for (const k of keys) {
+    if (!MODIFIER_KEYS.has(k)) continue;
+    const n = (heldModifiers.get(k) || 0) + delta;
+    if (n > 0) heldModifiers.set(k, n); else heldModifiers.delete(k);
+  }
+}
+function heldModifierAgainst(btn) {
+  const keys = keyIds(btn);
+  for (const k of heldModifiers.keys()) if (!keys.has(k)) return true;
+  return false;
 }
 
 // ---------- voice commands ----------
@@ -532,7 +595,9 @@ function startVoice() {
         // Push-to-talk from a PC key: results go to every tablet, and their mic buttons light up.
         voiceFromKey = true;
         voiceOwner = null;
-        for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1" });
+        // `chime`: the PC plays its own sound for this, so tablets playing theirs on the PC
+        // don't add a second one.
+        for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1", chime: config.pttSound !== false });
         emit({ t: "voice", result: line === "ptt 1" ? "listen" : "stop", running: true });
       } else if (line.startsWith("err")) {
         console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/nodieCode/tablet-deck#voice-commands`);
@@ -582,7 +647,114 @@ async function onVoice(id, confidence, text) {
   ui({ t: "heard", result: "accepted", text, label: btn.label, confidence });
   client?.send({ t: "heard", id: btn.id, label: btn.label, text });
   // Hold buttons (quantum engage, laser power) get a longer press, set per button.
-  await tapButton(btn, client, btn.voiceMs || btn.ms || config.tapMs, "voice");
+  await queueTap(btn, client, btn.voiceMs || btn.ms || config.tapMs, "voice");
+}
+
+// ---------- button sounds on the PC ----------
+
+// A tablet can have its button sounds (public/sound.js) play on this PC instead of on itself,
+// on an output it picks (a headset, to hear them over the game). It sends each sound as a
+// list of tones, which native/sound.exe synthesizes and plays. The tablet can only name one
+// of the outputs below and send tones within what soundLine() allows (6 s at most, half
+// level, 25 a second); the player limits the loudness again. Nothing reaches the game.
+const SOUND_TYPES = new Set(["sine", "triangle", "square", "sawtooth"]);
+const SOUND_RATE = 25, SOUND_PLAYING = 16; // per tablet: sounds per second, and at once
+const SOUND_PLAYING_ALL = 32;      // across every tablet
+let soundExe = null, soundBuildError = null; // native/sound.exe, built at start (see below)
+let soundPlayer = null;             // native/sound.exe while it runs
+let soundState = { state: "idle" }; // for tablets: idle (not started yet), ready or unavailable
+let soundIds = 0;                   // the player's ids, across tablets (1 .. 2^31-1)
+const soundsPlaying = new Map();    // the player's id -> when it ends, for every tablet
+const soundsHeard = new Map();      // "name|output" -> when a tablet last played it there
+let soundExits = [];                // when the player stopped lately, to stop restarting it
+const deviceWaiters = [];           // answers to "devices", in order
+function setSoundState(state, reason) {
+  soundState = reason ? { state, reason } : { state };
+  for (const c of tablets) c.send({ t: "sound-status", ...soundState });
+}
+
+// Built when the server starts (from source, compiling it once), never while tablets press
+// keys: compiling blocks the server for a moment. Started on demand: when a tablet plays
+// sounds here, or asks for the outputs.
+function buildSoundPlayer() {
+  try { soundExe = buildNative("sound", "PC sounds"); } catch (err) {
+    soundBuildError = err.message;
+    console.error(`PC sounds unavailable: ${err.message}.`);
+    setSoundState("unavailable", err.message);
+  }
+}
+function startSoundPlayer() {
+  if (soundPlayer || soundState.state === "unavailable" || !soundExe) return soundPlayer;
+  const proc = spawn(soundExe, [], { stdio: ["pipe", "pipe", "inherit"] });
+  proc.stdin.on("error", () => {}); // it stopped; "exit" deals with that
+  let pending = "", missing = new Set();
+  proc.stdout.setEncoding("utf8"); // output names can be non-ASCII ("Kopfhörer")
+  proc.stdout.on("data", (d) => {
+    const lines = (pending + d).split(/\r?\n/);
+    pending = lines.pop();
+    for (const line of lines) {
+      const [word, ...rest] = line.split("\t");
+      if (word === "ready") setSoundState("ready");
+      else if (word === "devices") deviceWaiters.shift()?.({ preferred: Number(rest[0]), devices: rest.slice(1).filter(Boolean) });
+      else if (word === "missing" && !missing.has(rest[0]) && missing.size < 20) {
+        missing.add(rest[0]);
+        console.log(`PC sounds: ${JSON.stringify(rest[0])} isn't connected, so they play on the default output.`);
+      } else if (line.startsWith("err")) console.error("PC sounds:", line.slice(4));
+    }
+  });
+  const stopped = (why) => {
+    if (soundPlayer !== proc) return;
+    soundPlayer = null;
+    for (const answer of deviceWaiters.splice(0)) answer(null);
+    // Started again with the next sound, unless it keeps stopping.
+    soundExits = [...soundExits.filter((t) => Date.now() - t < 60_000), Date.now()];
+    if (soundExits.length >= 3) setSoundState("unavailable", `the sound player stopped (${why})`);
+    else setSoundState("idle");
+    console.error(`PC sounds stopped (${why}).`);
+  };
+  proc.on("exit", (code) => stopped(`exit ${code}`));
+  proc.on("error", (err) => stopped(err.message));
+  soundPlayer = proc;
+  return proc;
+}
+
+// The PC's outputs, for a tablet's "Play on" list: { devices: [names], preferred: index of
+// Windows' default, or -1 }, or null when the player can't say.
+function soundDevices() {
+  const proc = startSoundPlayer();
+  if (!proc) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    let done = false;
+    const answer = (list) => { if (!done) { done = true; resolve(list); } };
+    deviceWaiters.push(answer);
+    proc.stdin.write("devices\n");
+    setTimeout(() => answer(null), 3000); // a late answer still shifts it off the queue
+  });
+}
+
+const inRange = (v, min, max) => typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
+// A tablet's sound as the player's "play" line (without its id: `play\t<id>` goes in front)
+// and how long it lasts (s), or null when any of it is off. See the tone fields in
+// public/sound.js. Levels stop at 0.5 (the deck's loudest tone) and the tones' lengths add
+// up to 8 s at most, so a tablet can't make the PC play anything much louder or longer than
+// the deck's own sounds. Output names have no control characters (WinMM's never do).
+function soundLine(msg) {
+  const { tones, device, volume } = msg;
+  if (!Array.isArray(tones) || tones.length < 1 || tones.length > 48) return null;
+  if (typeof device !== "string" || device.length > 64 || /[\u0000-\u001f\u007f-\u009f]/.test(device) || !inRange(volume, 0, 1)) return null;
+  let end = 0, total = 0;
+  const parts = [];
+  for (const k of tones) {
+    if (!k || !SOUND_TYPES.has(k.type) || !inRange(k.f0, 20, 12000) || !inRange(k.f1, 20, 12000)
+      || !inRange(k.len, 0.005, 4) || !inRange(k.level, 0, 0.5) || !inRange(k.at, 0, 4) || !inRange(k.attack, 0.001, 1)
+      || (k.sustain !== 0 && k.sustain !== 1) || !inRange(k.release, 0, 1)
+      || !((k.lp0 === 0 && k.lp1 === 0) || (inRange(k.lp0, 20, 20000) && inRange(k.lp1, 20, 20000)))) return null;
+    end = Math.max(end, k.at + k.len + (k.sustain ? k.release : 0));
+    total += k.len + (k.sustain ? k.release : 0) + 0.03;
+    parts.push([k.type, k.f0, k.f1, k.len, k.level, k.at, k.attack, k.sustain, k.release, k.lp0, k.lp1].join(","));
+  }
+  if (end > 6 || total > 8) return null;
+  return { rest: `${device}\t${volume}\t${parts.join(";")}`, end };
 }
 
 // ---------- open a website on the PC ----------
@@ -627,6 +799,8 @@ function wsSend(socket, text) {
   socket.write(Buffer.concat([header, payload]));
 }
 
+const MAX_FRAME = 64 * 1024;
+
 // Calls onText for each complete text frame; handles ping and close.
 function wsReader(socket, onText, onClose) {
   let buf = Buffer.alloc(0);
@@ -639,6 +813,8 @@ function wsReader(socket, onText, onClose) {
       let off = 2;
       if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); off = 4; }
       else if (len === 127) { if (buf.length < 10) return; len = Number(buf.readBigUInt64BE(2)); off = 10; }
+      // The deck's messages are a few dozen bytes; don't buffer a frame claiming megabytes.
+      if (len > MAX_FRAME) { socket.destroy(); return; }
       const maskOff = off;
       if (masked) off += 4;
       if (buf.length < off + len) return;
@@ -647,9 +823,13 @@ function wsReader(socket, onText, onClose) {
       buf = buf.subarray(off + len);
       if (opcode === 0x1) onText(data.toString("utf8"));
       else if (opcode === 0x8) { socket.end(Buffer.from([0x88, 0])); return; }
-      else if (opcode === 0x9) socket.write(Buffer.concat([Buffer.from([0x8a, data.length]), data]));
+      else if (opcode === 0x9 && data.length < 126) socket.write(Buffer.concat([Buffer.from([0x8a, data.length]), data]));
     }
   });
+  // The HTTP server leaves sockets half-open, so a client that goes away without a close
+  // frame (a killed tab, Stream Deck stopping its plugin) would otherwise keep its held
+  // keys down until the watchdog notices, seconds later.
+  socket.on("end", () => socket.destroy());
   socket.on("close", onClose);
   socket.on("error", () => socket.destroy());
 }
@@ -806,6 +986,12 @@ const server = http.createServer((req, res) => {
     if (refusePairing(req, res, url)) return;
     return sendJson(res, 200, { links: (config.links || []).map((l) => l.name) });
   }
+  // The PC's outputs a tablet can play its button sounds on; it picks one by name.
+  if (url.pathname === "/sound-devices.json") {
+    if (refusePairing(req, res, url)) return;
+    soundDevices().then((list) => sendJson(res, 200, { ...soundState, devices: list ? list.devices : [], preferred: list ? list.preferred : -1 }));
+    return;
+  }
   if (url.pathname === "/voice.json") {
     if (refusePairing(req, res, url)) return;
     res.writeHead(200, { "Content-Type": MIME[".json"], "Cache-Control": "no-store" });
@@ -864,14 +1050,61 @@ server.on("upgrade", (req, socket) => {
   wsAccept(req, socket);
   const who = socket.remoteAddress;
   const device = url.searchParams.get("device") || "tablet";
-  console.log(`Tablet connected: ${who}`);
+  // The Stream Deck plugin (streamdeck/plugin) connects like a tablet and presses the same
+  // buttons through the same checks; only its name in the log differs.
+  const kind = device === "streamdeck" ? "Stream Deck" : "Tablet";
+  console.log(`${kind} connected: ${who}`);
   emit({ t: "client", on: true, device });
   ui({ t: "clients", count: ++connectedTablets });
-  const client = { send: (obj) => { if (!socket.destroyed) wsSend(socket, JSON.stringify(obj)); } };
+  const client = {
+    device, // a tablet's paged panels go only to Stream Decks
+    send: (obj) => { if (!socket.destroyed) wsSend(socket, JSON.stringify(obj)); },
+    // Closing runs the same clean-up as a dropped connection, held keys included.
+    close: () => socket.destroy(),
+  };
   tablets.add(client);
-  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates) });
+  client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates), soundStatus: soundState, tapMs: config.tapMs });
 
   const held = new Map(); // button id -> { sc } currently pressed by this tablet
+  // Its button sounds playing on the PC: its id -> { id: the player's id, ends }, and when
+  // the last ones came, for the rate limit.
+  const sounds = new Map();
+  let soundTimes = [];
+  let soundsHere = false;
+  // A sound counts against the limits until it would have ended, even when it's stopped
+  // early, so stopping sounds doesn't make room for more. Rejected ones count as well.
+  const playSound = (msg) => {
+    const now = Date.now();
+    soundTimes = soundTimes.filter((t) => now - t < 1000);
+    for (const [id, s] of sounds) if (s.ends < now) sounds.delete(id);
+    for (const [id, ends] of soundsPlaying) if (ends < now) soundsPlaying.delete(id);
+    if (soundTimes.length >= SOUND_RATE || sounds.size >= SOUND_PLAYING || soundsPlaying.size >= SOUND_PLAYING_ALL) return;
+    soundTimes.push(now);
+    if (!Number.isInteger(msg.id) || msg.id < 1 || msg.id > 2147483647 || sounds.has(msg.id)) return;
+    const sound = soundLine(msg);
+    if (!sound) return;
+    const name = /^[a-z-]{1,24}$/.test(String(msg.name)) ? msg.name : "sound";
+    // Voice results and the PC's push-to-talk reach every tablet, so two tablets playing on
+    // the same output would play them twice: the second one within a moment is left out.
+    const heard = `${name}|${msg.device}`, last = soundsHeard.get(heard);
+    if (last && last.client !== client && now - last.time < 150) return;
+    soundsHeard.set(heard, { client, time: now });
+    if (soundsHeard.size > 200) soundsHeard.clear();
+    emit({ t: "sound", name, device: msg.device });
+    const player = startSoundPlayer();
+    if (!player) return;
+    soundIds = soundIds >= 2147483647 ? 1 : soundIds + 1;
+    const ends = now + sound.end * 1000 + 200;
+    player.stdin.write(`play\t${soundIds}\t${sound.rest}\n`);
+    sounds.set(msg.id, { id: soundIds, ends });
+    soundsPlaying.set(soundIds, ends);
+  };
+  const stopSound = (localId) => {
+    const s = sounds.get(localId);
+    if (!s || s.stopped) return;
+    s.stopped = true;
+    soundPlayer?.stdin.write(`stop\t${s.id}\n`);
+  };
   let lastSeen = Date.now();
   // Releases a hold once its press has finished, and only if it pressed anything: a
   // combo's keys go down one by one, so a quick release could otherwise land in between
@@ -880,9 +1113,14 @@ server.on("upgrade", (req, socket) => {
     if (!hold.pressing) return;
     await hold.pressing;
     await releaseCombo(hold.sc);
+    holdModifiers(hold.mods, -1);
   };
   const releaseAll = async () => {
-    for (const [id, hold] of held) { held.delete(id); await releaseHold(hold); }
+    for (const [id, hold] of held) {
+      held.delete(id);
+      report(buttons.get(id) || { id, label: id }, "up", { released: true });
+      await releaseHold(hold);
+    }
   };
   // If the tablet sleeps or drops Wi-Fi mid-hold, don't leave keys stuck down.
   const watchdog = setInterval(() => {
@@ -893,7 +1131,9 @@ server.on("upgrade", (req, socket) => {
     lastSeen = Date.now();
     let msg;
     try { msg = JSON.parse(text); } catch { return; }
-    if (msg.t === "hb") return;
+    // Answered, so the tablet can show the round trip and notice a link that died without
+    // closing (this PC asleep, Wi-Fi gone), which it would otherwise still show as connected.
+    if (msg.t === "hb") { client.send({ t: "hb", n: Number(msg.n) || 0 }); return; }
     if (msg.t === "voice") {
       emit({ t: "voice", result: msg.on ? "listen" : "stop", running: Boolean(voice) });
       if (!voice) {
@@ -908,6 +1148,33 @@ server.on("upgrade", (req, socket) => {
       return;
     }
     if (msg.t === "open") { openLink(msg.index, client); return; }
+    // A Stream Deck scene key: tablets that follow scenes page their HUD halves to its
+    // panels. Only a scene name and panel ids pass through; a tablet skips panels its
+    // layout doesn't have.
+    if (msg.t === "scene") {
+      const name = (v) => (typeof v === "string" && /^[a-z0-9-]{1,40}$/.test(v) ? v : undefined);
+      if (!name(msg.scene)) return;
+      const scene = { t: "scene", scene: msg.scene, left: name(msg.left), right: name(msg.right) };
+      for (const c of tablets) if (c !== client) c.send(scene);
+      return;
+    }
+    // A tablet's player paged one HUD half: Stream Decks (the plugin) go to the scene with
+    // that panel. Only a side and a panel id pass through, and never to tablets, which
+    // would page each other.
+    if (msg.t === "panel") {
+      if ((msg.side !== "left" && msg.side !== "right") || typeof msg.panel !== "string" || !/^[a-z0-9-]{1,40}$/.test(msg.panel)) return;
+      const panel = { t: "panel", side: msg.side, panel: msg.panel };
+      for (const c of tablets) if (c !== client && c.device === "streamdeck") c.send(panel);
+      return;
+    }
+    if (msg.t === "sound") { playSound(msg); return; }
+    if (msg.t === "sound-stop") { stopSound(msg.id); return; }
+    if (msg.t === "sound-out") {
+      const here = msg.pc === true;
+      if (here && !soundsHere) { console.log(`Button sounds from ${who} play on this PC.`); startSoundPlayer(); }
+      soundsHere = here;
+      return;
+    }
     if (msg.t === "reset-states") {
       buttonStates.clear();
       for (const c of tablets) c.send({ t: "states", states: {} });
@@ -925,10 +1192,17 @@ server.on("upgrade", (req, socket) => {
         return;
       }
       if (held.get(btn.id) !== hold) return;
+      if (heldModifierAgainst(btn)) {
+        held.delete(btn.id);
+        skipped(btn, client, "a held button is holding a modifier key");
+        return;
+      }
       console.log(`${btn.label} (${btn.keys}) down`);
       ui({ t: "press", label: btn.label });
       applyState(btn);
       report(btn, "down");
+      hold.mods = keyIds(btn);
+      holdModifiers(hold.mods, 1);
       hold.pressing = pressCombo(btn.scancodes);
       await hold.pressing;
     } else if (msg.t === "up" && held.has(btn.id)) {
@@ -939,14 +1213,16 @@ server.on("upgrade", (req, socket) => {
       report(btn, "up");
       await releaseHold(hold);
     } else if (msg.t === "tap") {
-      await tapButton(btn, client);
+      await queueTap(btn, client);
     }
   }, () => {
     clearInterval(watchdog);
     tablets.delete(client);
+    client.gone = true;
     void releaseAll();
+    for (const id of [...sounds.keys()]) stopSound(id);
     if (voiceOwner === client) { voice?.stdin.write("stop\n"); voiceOwner = null; }
-    console.log(`Tablet disconnected: ${who}`);
+    console.log(`${kind} disconnected: ${who}`);
     emit({ t: "client", on: false, device });
     ui({ t: "clients", count: --connectedTablets });
   });
@@ -957,6 +1233,7 @@ server.on("upgrade", (req, socket) => {
 try { loadLayout(); loadLayout("phone"); } catch (err) { fatal(`Layout error: ${err.message}`); }
 startSender();
 startVoice();
+buildSoundPlayer();
 server.on("error", (err) => {
   if (err.code !== "EADDRINUSE") throw err;
   fatal(`Port ${config.port} is already in use. Is Tablet Deck already running? Otherwise change "port" in ${CONFIG_PATH}.`);
@@ -1079,6 +1356,12 @@ function applySetting(name, text) {
   saveSetting(name, value);
   // The port only changes when the server restarts, as the window does next.
   if (name !== "port") config[name] = value;
+  // A new pairing code shuts out devices paired with the old one: they're disconnected
+  // (releasing anything they hold) and show the pairing screen when they try again.
+  if (name === "token" && tablets.size) {
+    console.log(`New pairing code: disconnecting ${tablets.size === 1 ? "1 device" : `${tablets.size} devices`} paired with the old one.`);
+    for (const c of tablets) c.close();
+  }
   if (name === "voiceConfidence") {
     console.log(`Voice strictness set to ${Math.round(value * 100)}%.`);
     ui({ t: "voiceConfidence", value });

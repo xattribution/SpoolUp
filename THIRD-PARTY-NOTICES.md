@@ -14,9 +14,10 @@ contains in `THIRD-PARTY-NOTICES.txt`, next to `LICENSE.txt` in Tablet Deck's
 install folder. The build writes that file from the Node.js it packs (see
 [Building the installer](docs/DEVELOPMENT.md#building-the-installer)).
 
-The key sender, voice listener and app window (`native/*.cs`) contain no
-third-party code. They use parts of Windows (`SendInput`, the .NET Framework
-and its speech recognition), which come with Windows and aren't shipped.
+The key sender, voice listener, sound player and app window (`native/*.cs`)
+contain no third-party code. They use parts of Windows (`SendInput`, WinMM's
+`waveOut`, the .NET Framework and its speech recognition), which come with
+Windows and aren't shipped.
 
 ## Used, but not shipped
 

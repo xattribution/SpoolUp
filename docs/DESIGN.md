@@ -116,6 +116,11 @@ The deck should feel like a ship's display, not a web page:
   border and glow in the button's colour, and a one-word status (ON, OPEN,
   DEPLOYED, LOCKED). In button grids the status sits top right, elsewhere under
   the label. Buttons that only switch something off never stay lit.
+- **Key labels** (Deck settings, `data-keys` on `<html>`, styles in `hud.css`) put
+  a button's key in a free corner in small capitals, in `--dim`: top right, under
+  a top-right status line in tablet grids, bottom right in phone grids, top
+  centre on the framed hero and quantum buttons. A new button style needs a
+  corner that's free in every theme, including the cut corners of `--key-clip`.
 - **Icons** are line icons on a 48×48 grid in `public/icons.js`, drawn with
   `currentColor`, using the theme's `--icon-stroke`. Add new ones in the same
   style, not as images.
@@ -159,6 +164,35 @@ still. Fields you type into or pick from stay real Windows controls, in the
 house colours inside a drawn frame that lights up in the accent colour while it
 has focus.
 
+## Stream Deck keys
+
+The Stream Deck pack's keys (`streamdeck/keyart.js`) are the deck's buttons
+redrawn as 144×144 pictures, in the theme's own tokens, so a key looks like the
+same button on the tablet:
+
+- **Built from `public/themes.css`**: the key's face, frame, corner radius or
+  cut, top strip (Drake's hazard stripes, Argo's segment), backdrop glow, texture
+  (scan lines, grid), icon stroke and fonts all come from the theme's tokens.
+  Don't draw a theme by hand; add the token, and both the deck and the keys get it.
+- **Icon above, label below, one status word under it** (DEPLOYED, ON, PLUGIN).
+  Labels wrap to two lines and shrink to fit 110 px, clear of the frame and the
+  accent bars; status words stay short (the plugin's translations have their
+  own short forms).
+- **Colours mean the same as on the deck**: red danger and combat, green power and
+  on, amber mining and salvage, blue the rest. A lit key takes its colour's tint
+  and ring; a skipped press flashes red; offline keys go dim with a red cross.
+- **Badges sit top right**: a folder for keys that open a folder, an arrow for Back.
+- **Empty slots are blank keys** in the page colour with a small cross, so a page
+  reads as one panel. The light theme (Origin) uses its page colour there, not
+  white.
+- **Touch strips** (Stream Deck + and + XL) are one HUD panel across all the
+  dials: each dial's 200×100 part has its label, icon and colour, and says what
+  turning each way and pushing do.
+- **Simple SVG only**: paths, strokes and gradients, no filters or arcs (Stream
+  Deck's SVG renderer is SVG Tiny), with glows drawn as layered strokes.
+- **Original icons**, no brand logos: the Discord and OBS keys use the deck's own
+  icons, and theme keys use each manufacturer's emblem from the deck.
+
 ## Motion, night mode and layering
 
 - **Keep motion short.** UI transitions (paging, sheets, toasts) take about
@@ -171,6 +205,15 @@ has focus.
 - **The app window never animates behind the game.** Its stars move only while
   the window is in front; minimized, in the tray or behind Star Citizen, it
   draws nothing.
+- **Sound** (Button sounds, on unless turned off) is made from tones, never from
+  files. Each sound in `BANK` in `public/sound.js` is a list of tones; the
+  tablet plays it with Web Audio, or sends it to the PC, where
+  `native/sound.cs` synthesizes the same tones on the output the player picked.
+  Keep the two renderers in step: a tone field means the same in both. Sounds
+  are short and quiet, follow the same moments as the press animations, and use
+  the button colours' meaning: a press's pitch drops from blue to green, the
+  accent, amber and red. `fx.js` and `canvas.js` reach it through
+  `window.DeckSound?.`, since the layout editor doesn't load it.
 - **Night mode** is a black overlay (`#night`) over the deck. Anything that must
   stay readable at night goes above it.
 - **Layering** (`z-index`), from bottom to top: deck content and its menus (up

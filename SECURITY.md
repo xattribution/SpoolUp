@@ -27,7 +27,7 @@ itself and installs them when you click **Update now**.
 Tablet Deck is meant to be safe on your own home network. These are in scope:
 
 - Anything that lets someone **without the pairing code** press keys, change
-  settings, open links on the PC or read the pairing code.
+  settings, open links or play sounds on the PC, or read the pairing code.
 - Keys reaching **another window than Star Citizen** while the "only while Star
   Citizen is in front" check is on.
 - The layout editor's features working from **another device** (they're meant
@@ -47,7 +47,8 @@ These are by design and documented in the README's
 - The tablet talks to the PC over plain `http` on your home network, so others
   on the **same Wi-Fi** could see the pairing code and taps. Don't use Tablet
   Deck on shared networks (LAN parties, dorms, hotels).
-- Anyone with your **pairing code** can press keys. Treat it like a password,
+- Anyone with your **pairing code** can press keys, open the websites set up
+  on the PC and play the deck's sounds on its outputs. Treat it like a password,
   and change it in **Settings** if it leaks. Wrong codes are limited (5 a
   minute per device, then that device waits a minute), which slows guessing
   down but doesn't make a short code safe on a shared network.

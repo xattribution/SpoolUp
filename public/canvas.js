@@ -76,6 +76,18 @@
 
     // ---------- element renderers ----------
 
+    // A button's keys as its key label shows them ("lalt+np_1" is LALT+NUM1); CSS adds the
+    // capitals. Only shown with Key labels on (Deck settings).
+    const KEY_NAMES = {
+      escape: "esc", backspace: "bksp", capslock: "caps", numlock: "numlk", scrolllock: "scrlk", print: "prtsc",
+      insert: "ins", delete: "del", minus: "-", equals: "=", lbracket: "[", rbracket: "]", semicolon: ";",
+      apostrophe: "'", grave: "`", backslash: "\\", comma: ",", period: ".", slash: "/",
+      np_add: "num+", np_subtract: "num−", np_multiply: "num*", np_divide: "num/", np_period: "num.", np_enter: "num enter",
+      up: "↑", down: "↓", left: "←", right: "→",
+    };
+    const keyText = (keys) => String(keys).split("+")
+      .map((k) => KEY_NAMES[k] || k.replace(/^(?:np_|num)(\d)$/, "num$1")).join("+");
+
     function hudButton(def, style) {
       const el = make("button", `hud-btn s-${style || def.style || "std"}`);
       el.type = "button";
@@ -91,6 +103,13 @@
       } else {
         el.innerHTML = `${icon}<span class="hud-lbl"></span>`;
         text(el, ".hud-lbl", def.label);
+      }
+      // The top bar's icon buttons are too small for one.
+      if (def.keys && s !== "top") {
+        const key = make("span", "hud-key");
+        key.setAttribute("aria-hidden", "true"); // the title and aria-label already say it
+        key.textContent = keyText(def.keys);
+        el.appendChild(key);
       }
       el.setAttribute("aria-label", tr(def.label));
       el.title = `${tr(def.label)} — ${def.keys}`;
@@ -154,6 +173,7 @@
         el.type = "button";
         text(el, ".hud-lbl", e.label);
         el.onclick = () => {
+          window.DeckSound?.play("page");
           const cur = groupValue(e.group, e.values);
           state.groups[e.group] = e.values[(e.values.indexOf(cur) + 1) % e.values.length];
           save();
@@ -195,6 +215,7 @@
           if (pos >= max * 0.94) {
             D.send({ t: "tap", id: e.id });
             D.buzz(40);
+            window.DeckSound?.play("eject");
             window.DeckFX.pulse(el, "eject");
             el.classList.add("fired");
             setTimeout(() => el.classList.remove("fired"), 600);
@@ -231,6 +252,7 @@
 
 
     function openMenu(e) {
+      window.DeckSound?.play("page");
       const overlay = make("div", "hud-menu", `<div class="sheet"><div class="hud-header"><b>//</b><span></span></div><div class="opts"></div></div>`);
       text(overlay, ".hud-header span", e.title || e.label);
       const opts = overlay.querySelector(".opts");
@@ -259,11 +281,16 @@
       const region = layout.regions.find((r) => r.id === regionId);
       if (!region) return;
       const n = region.panels.length;
-      state.panels[regionId] = (Math.min(state.panels[regionId] || 0, n - 1) + d + n) % n;
+      const from = Math.min(state.panels[regionId] || 0, n - 1);
+      state.panels[regionId] = (from + d + n) % n;
       save();
+      window.DeckSound?.play("page"); // sound.js isn't loaded in the layout editor
       slide = { region: regionId, dir: d };
       render();
       slide = null;
+      // The player paged it (a Stream Deck scene goes through showPanels), so the deck may
+      // tell Stream Decks; the layout editor doesn't.
+      D.paged?.(regionId, region.panels[state.panels[regionId]], region.panels[from]);
     }
 
     function renderRegion(region) {
@@ -313,6 +340,25 @@
           if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) { page(el.dataset.region, d); return true; }
         }
         return false;
+      },
+      // Pages each half to a panel by id, for a Stream Deck scene ({ left, right }), without
+      // telling Stream Decks (that would page them back). Phone layouts name some panels
+      // differently ("landing" for "power-landing", "emotes-1"), so a panel matches by its
+      // id, a word of it, or its start. A half with no match stays.
+      showPanels(want) {
+        let changed = false;
+        for (const region of layout.regions) {
+          const id = want && want[region.id];
+          if (!id) continue;
+          const words = id.split("-");
+          let idx = region.panels.indexOf(id);
+          if (idx < 0) idx = region.panels.findIndex((p) => words.includes(p) || p.startsWith(id));
+          if (idx < 0 || Math.min(state.panels[region.id] || 0, region.panels.length - 1) === idx) continue;
+          state.panels[region.id] = idx;
+          changed = true;
+        }
+        if (changed) { save(); render(); }
+        return changed;
       },
       scale: scaleNow,
       // Stops this deck redrawing itself, before another layout is drawn or a grid layout shown.

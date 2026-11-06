@@ -1,0 +1,5 @@
+# Written into the plugin folder when it's packed (tools/make-streamdeck.js) or tested by
+# hand; never part of the source.
+com.nodiecode.tabletdeck.sdPlugin/data/
+com.nodiecode.tabletdeck.sdPlugin/bin/keyart.js
+com.nodiecode.tabletdeck.sdPlugin/logs/

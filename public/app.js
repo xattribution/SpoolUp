@@ -150,7 +150,62 @@
       cards.appendChild(card);
     }
   }
-  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); };
+  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); };
+
+  // ---------- sounds ----------
+
+  // Button sounds (sound.js), kept per device: on or off, where they play (here, or on one
+  // of the PC's outputs, e.g. a headset, to hear them over the game) and how loud. The PC
+  // lists its outputs; this device only picks one by name, and the PC plays only on those.
+  const S = window.DeckSound;
+  let lastPC = null; // the PC's last answer, to redraw the list in another language
+  function fillSounds() {
+    $("soundBtn").setAttribute("aria-checked", String(S.on));
+    $("soundOut").disabled = $("soundVol").disabled = !S.on;
+    $("soundVol").value = S.volume;
+    $("soundVolText").textContent = `${S.volume}%`;
+    showOutputs(lastPC);
+    if (DEMO) { $("soundNote").textContent = tr("With the app, sounds can also play on your PC, e.g. in your headset."); return; }
+    // Asking starts the PC's sound player, which isn't needed while sounds are off.
+    if (!S.on) return;
+    fetch(`/sound-devices.json?t=${encodeURIComponent(token)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(showOutputs)
+      .catch(() => {});
+  }
+  // `pc` is what the PC said (null while asking, or in demo mode).
+  function showOutputs(pc) {
+    if (pc) lastPC = pc;
+    const pick = $("soundOut");
+    pick.innerHTML = "";
+    const add = (value, text) => { const o = document.createElement("option"); o.value = value; o.textContent = text; pick.appendChild(o); };
+    add("", tr("This device"));
+    const works = pc && pc.state !== "unavailable";
+    if (works) {
+      const preferred = pc.devices[pc.preferred];
+      add("pc:", preferred ? tr("PC: default output ({0})", preferred) : tr("PC: default output"));
+      for (const name of pc.devices) add(`pc:${name}`, tr("PC: {0}", name));
+    }
+    const current = S.out === "pc" ? `pc:${S.device}` : "";
+    // Keep the choice showing while the list loads, or when that output is unplugged.
+    if (![...pick.options].some((o) => o.value === current)) {
+      add(current, S.device ? tr(works ? "PC: {0} (not connected)" : "PC: {0}", S.device) : tr("PC: default output"));
+    }
+    pick.value = current;
+    if (DEMO) return;
+    $("soundNote").textContent = pc && !works
+      ? tr("The PC can't play sounds{0}, so they play on this device.", pc.reason ? ` (${pc.reason})` : "")
+      : tr("On the PC, they play on the output you pick, e.g. your headset, so you hear them over the game.");
+  }
+  $("soundBtn").onclick = () => { S.set(!S.on); fillSounds(); };
+  $("soundOut").onchange = (e) => {
+    const v = e.target.value;
+    if (v.startsWith("pc:")) S.route("pc", v.slice(3)); else S.route("device");
+  };
+  $("soundVol").oninput = (e) => { $("soundVolText").textContent = `${e.target.value}%`; };
+  $("soundVol").onchange = (e) => S.setVolume(Number(e.target.value));
+  // Sounds for this device reach the PC over the deck's connection.
+  if (!DEMO) S.connect((msg) => { if (!connected()) return false; send(msg); return true; });
 
   // "Open on PC": websites set up on the PC (Settings → Links), opened in its browser. The
   // tablet only gets their names and asks by position, so it can't open anything else.
@@ -232,6 +287,7 @@
     applyTheme(document.documentElement.dataset.theme);
     fillLayoutPick();
     refreshStatus();
+    fillSounds();
     if (document.body.classList.contains("pairing")) showPairing(false);
     else if (layout) showLayout(layout);
   };
@@ -291,6 +347,35 @@
   document.addEventListener("pointerup", lift, true);
   document.addEventListener("pointercancel", lift, true);
 
+  // Follow Stream Deck scenes: on unless turned off on this device.
+  const followScenes = () => store.get("follow-scenes") !== "off";
+  $("followBtn").setAttribute("aria-checked", String(followScenes()));
+  $("followBtn").onclick = () => {
+    const on = !followScenes();
+    store.set("follow-scenes", on ? "" : "off");
+    $("followBtn").setAttribute("aria-checked", String(on));
+  };
+
+  // The other way: a HUD half the player pages (its arrows, a two-finger swipe) tells
+  // Stream Decks with the Tablet Deck plugin, which go to the scene with that panel. Only
+  // the panel it settles on, once paging stops for PAGED_MS, so flipping through several
+  // sends one, and nothing if it ends where it started. A Stream Deck's scene, a layout
+  // loading and connecting again send nothing, or the two would page each other back.
+  const PAGED_MS = 400;
+  const paging = {}; // side -> { from, timer } while a half is being paged
+  function panelPaged(side, panel, from) {
+    if (side !== "left" && side !== "right") return; // only the two halves of a HUD
+    const p = paging[side] || (paging[side] = { from });
+    clearTimeout(p.timer);
+    p.timer = setTimeout(() => {
+      delete paging[side];
+      if (panel !== p.from) send({ t: "panel", side, panel });
+    }, PAGED_MS);
+  }
+  function stopPaging() {
+    for (const side of Object.keys(paging)) { clearTimeout(paging[side].timer); delete paging[side]; }
+  }
+
   function applySwipe(on) {
     store.set(swipeKey, on ? "on" : "off");
     $("swipeBtn").setAttribute("aria-checked", String(on));
@@ -308,8 +393,9 @@
   $("resetStatesBtn").onclick = resetStates;
   applyNight(store.get("night") === "1");
 
-  // Large text and high contrast, for reading the deck at a glance; each device remembers them.
-  for (const [btn, attr] of [["largeBtn", "data-large"], ["contrastBtn", "data-contrast"]]) {
+  // Large text, high contrast and key labels (each button's key in a corner, for learning
+  // or checking binds); each device remembers them.
+  for (const [btn, attr] of [["largeBtn", "data-large"], ["contrastBtn", "data-contrast"], ["keysBtn", "data-keys"]]) {
     const apply = (on) => {
       document.documentElement.toggleAttribute(attr, on);
       $(btn).setAttribute("aria-checked", String(on));
@@ -333,19 +419,31 @@
   // ---------- connection ----------
 
   // Status shows in the header (grid layouts) and in canvas chrome, so update every copy.
+  // While connected it adds the round trip to the PC ("Connected · 8 ms"), and the dot
+  // turns amber when that's slow enough to feel.
+  const SLOW_MS = 120;
   let online = { on: false, text: "Connecting…" };
+  let rtt = null; // smoothed round trip in ms, from the heartbeats; null until measured
   function setOnline(on, text) {
+    if (on !== online.on && !DEMO) window.DeckSound.play(on ? "online" : "offline");
     online = { on, text };
+    if (!on) rtt = null;
     refreshStatus();
   }
   function refreshStatus() {
+    const shown = online.on && rtt !== null;
+    const text = tr(online.text) + (shown ? ` · ${Math.max(1, Math.round(rtt))} ms` : "");
     document.body.classList.toggle("offline", !online.on);
-    for (const d of document.querySelectorAll("#dot, .js-dot")) d.classList.toggle("on", online.on);
-    for (const t of document.querySelectorAll("#statusText, .js-status")) t.textContent = tr(online.text);
+    for (const d of document.querySelectorAll("#dot, .js-dot")) {
+      d.classList.toggle("on", online.on);
+      d.classList.toggle("slow", shown && rtt > SLOW_MS);
+    }
+    for (const t of document.querySelectorAll("#statusText, .js-status")) t.textContent = text;
   }
 
+  const connected = () => Boolean(ws && ws.readyState === WebSocket.OPEN);
   function send(obj) {
-    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+    if (connected()) ws.send(JSON.stringify(obj));
   }
 
   // Short notice at the bottom of the screen, e.g. when the PC skipped a press.
@@ -361,29 +459,97 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), ms);
   }
 
+  // Heartbeats go both ways: the PC drops a tablet it hasn't heard from for 5 s (which
+  // releases its keys) and answers each one. A link can die without closing (the PC
+  // asleep, Wi-Fi gone), and would then still look connected while presses go nowhere, so
+  // with no answer for DEAD_MS the deck gives up on it and connects again. Only once this
+  // PC has answered at all, so a PC too old to answer never looks dead.
+  const DEAD_MS = 5000;
+  let lastHeard = 0, answers = false;
+
   function connect() {
-    ws = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}&device=${device}&layout=${encodeURIComponent(chosenLayout)}`);
-    ws.onopen = () => setOnline(true, "Connected");
-    ws.onmessage = (e) => {
+    const sock = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}&device=${device}&layout=${encodeURIComponent(chosenLayout)}`);
+    ws = sock;
+    answers = false;
+    let opened = false;
+    // A connection attempt that hangs (the PC gone from the network) counts as failed.
+    const giveUp = setTimeout(() => { if (sock.readyState === WebSocket.CONNECTING) sock.close(); }, DEAD_MS);
+    sock.onopen = () => {
+      S.announce(); // before the "online" sound, which may play on the PC
+      opened = true;
+      clearTimeout(giveUp);
+      lastHeard = performance.now();
+      setOnline(true, "Connected");
+      send({ t: "hb", n: performance.now() }); // measure the round trip straight away
+    };
+    sock.onclose = () => {
+      clearTimeout(giveUp);
+      if (ws !== sock) return;
+      ws = null;
+      setOnline(false, "Reconnecting…");
+      if (opened) setTimeout(connect, 1000); else retryOrPair();
+    };
+    sock.onerror = () => sock.close();
+    sock.onmessage = (e) => {
       let msg;
       try { msg = JSON.parse(e.data); } catch { return; }
-      if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); }
-      else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); }
+      lastHeard = performance.now();
+      if (msg.t === "hb") {
+        answers = true;
+        const sample = performance.now() - msg.n;
+        if (sample >= 0 && sample < 10000) rtt = rtt === null ? sample : rtt * 0.7 + sample * 0.3;
+        refreshStatus();
+      }
+      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
+      else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
+      else if (msg.t === "sound-status") S.status(msg);
+      // A scene picked on a Stream Deck (its Tablet Deck plugin): flip to its panels. It's
+      // newer than a page still waiting to go to the Stream Deck, which would undo it.
+      else if (msg.t === "scene") { stopPaging(); if (followScenes() && deckCanvas && deckCanvas.showPanels(msg)) window.DeckSound.play("page"); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
       else if (msg.t === "voice-status") applyVoiceStatus(msg);
-      else if (msg.t === "heard") toast(tr("Heard: {0}", msg.text || tr(msg.label)));
-      else if (msg.t === "unheard") toast("Didn't catch that");
+      else if (msg.t === "heard") { toast(tr("Heard: {0}", msg.text || tr(msg.label))); window.DeckSound.play("heard"); }
+      else if (msg.t === "unheard") { toast("Didn't catch that"); window.DeckSound.play("unheard"); }
       else if (msg.t === "voice-off") toast(msg.reason);
       // Push-to-talk held on the PC: the mic buttons light up as if held here.
-      else if (msg.t === "listening") for (const el of document.querySelectorAll(".js-talk")) el.classList.toggle("listening", msg.on);
+      else if (msg.t === "listening") {
+        for (const el of document.querySelectorAll(".js-talk")) el.classList.toggle("listening", msg.on);
+        // The PC chimes on its own for push-to-talk, so a tablet playing its sounds on the PC
+        // doesn't add another.
+        if (msg.on && !(msg.chime && S.out === "pc")) window.DeckSound.play("listen");
+      }
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));
     };
-    ws.onclose = () => { setOnline(false, "Reconnecting…"); setTimeout(connect, 1000); };
-    ws.onerror = () => ws.close();
   }
-  setInterval(() => send({ t: "hb" }), 1500);
+
+  // A connection that never opened may mean the pairing code changed on the PC, or that
+  // this device is locked out after wrong codes. Each try would count as another wrong
+  // code, so ask once over HTTP, which says which, and show the pairing screen then.
+  function retryOrPair() {
+    fetch(`/links.json?t=${encodeURIComponent(token)}`, { cache: "no-store" })
+      .then((r) => {
+        if (r.status === 403) showPairing("changed");
+        else if (r.status === 429) showPairing("locked");
+        else setTimeout(connect, 1000);
+      })
+      .catch(() => setTimeout(connect, 1000));
+  }
+
+  setInterval(() => {
+    if (!connected()) return;
+    if (answers && performance.now() - lastHeard > DEAD_MS) {
+      const dead = ws;
+      dead.onclose = dead.onmessage = dead.onerror = null;
+      dead.close();
+      ws = null;
+      setOnline(false, "Reconnecting…");
+      connect();
+      return;
+    }
+    send({ t: "hb", n: performance.now() });
+  }, 1500);
 
   // ---------- buttons ----------
 
@@ -445,8 +611,22 @@
     toast("Button lights reset");
   }
 
+  // The PC skipped a press because Star Citizen wasn't in front: besides the toast, every
+  // copy of that button on screen flashes red and stops any charge or arming it started.
+  function denied(id) {
+    for (const el of document.querySelectorAll("[data-btn]")) if (el.dataset.btn === id) el._deny();
+  }
+
+  // While a finger holds a button or the mic, its lift is heard on the document too: a
+  // redraw (paging with another finger, a Stream Deck scene, turning the screen) can take
+  // the element away meanwhile, and the pointerup then goes to whatever is there now, which
+  // would leave a hold button's keys down on the PC.
+  const hearLift = (end, on) => { for (const type of ["pointerup", "pointercancel"]) document[on ? "addEventListener" : "removeEventListener"](type, end, true); };
+
   function bindButton(el, btn) {
     const fx = window.DeckFX.attach(el, btn);
+    el.dataset.btn = btn.id;
+    el._deny = fx.deny;
     if (btn.state && typeof btn.state.group === "string") {
       el.dataset.stateGroup = btn.state.group;
       el._showState = fx.show;
@@ -457,7 +637,10 @@
     const press = (e) => {
       waiting = null;
       el.classList.add("pressed");
+      // Offline, nothing reaches the PC: say so, rather than play the effect as if it had.
+      if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); window.DeckSound.play("deny"); return; }
       buzz();
+      window.DeckSound.play("press", btn.color);
       send({ t: btn.mode === "hold" ? "down" : "tap", id: btn.id });
       fx.down(e);
       if (DEMO && el.dataset.stateGroup) demoState(btn);
@@ -466,13 +649,15 @@
       if (pointer !== null || swipe) return; // fingers that are part of a swipe press nothing
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      hearLift(end, true);
       if (!swipeOn()) { press(e); return; }
-      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; };
+      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; hearLift(end, false); };
       waiting = { cancel, timer: setTimeout(() => { pendingPresses.delete(cancel); press(e); }, SWIPE_WAIT_MS) };
       pendingPresses.add(cancel);
     });
     const end = (e) => {
       if (e.pointerId !== pointer) return;
+      hearLift(end, false);
       if (waiting) {
         // Lifted before the wait was over: still a press, just a quick one. A touch the
         // browser cancelled presses nothing.
@@ -500,13 +685,16 @@
       if (pointer !== null) return;
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      hearLift(end, true);
       el.classList.add("listening");
       buzz();
+      window.DeckSound.play("listen");
       if (DEMO) toast("Voice commands work with Tablet Deck on your PC", 2600);
       send({ t: "voice", on: true });
     });
     const end = (e) => {
       if (e.pointerId !== pointer) return;
+      hearLift(end, false);
       pointer = null;
       el.classList.remove("listening");
       send({ t: "voice", on: false });
@@ -611,8 +799,13 @@
 
   // Shown until the device has a working pairing code. The deck's own controls stay hidden
   // (body.pairing), since none of them work before pairing.
+  // `wrong` is false, true (the typed code was wrong), "locked" or "changed" (the code
+  // stopped working while the deck was open, so the deck makes way for the form).
   function showPairing(wrong) {
     setOnline(false, "Not paired");
+    leaveCanvas();
+    closePicker();
+    closeVoiceHelp();
     document.body.classList.add("pairing");
     tabs.innerHTML = "";
     grid.innerHTML = `
@@ -636,9 +829,10 @@
       input.setAttribute("aria-invalid", "true");
       buzz([30, 60, 30]);
     };
-    input.value = token;
+    input.value = wrong === "changed" ? "" : token; // a typo is easier to fix in place
     input.oninput = () => { input.classList.remove("bad"); input.removeAttribute("aria-invalid"); error.hidden = true; };
     if (wrong === "locked") fail("Too many wrong codes. Wait a minute, then try again.");
+    else if (wrong === "changed") fail("The pairing code on the PC has changed. Type the new one from the Tablet Deck window.");
     else if (wrong) fail("That code didn't match. Check the code in the Tablet Deck window on your PC and try again.");
     input.focus();
     $("pair").onsubmit = (e) => {
@@ -657,24 +851,31 @@
   let deckCanvas = null;
   function showLayout(l) {
     layout = l;
+    stopPaging(); // its panels are the old layout's
     $("title").textContent = tr(layout.name);
     document.title = tr(layout.name);
     if (layout.canvas) {
       document.body.classList.add("canvas-mode");
       deckCanvas = window.renderCanvas(layout, {
         send, bindButton, bindTalk, buzz, store, refreshStatus, openPicker, openVoiceHelp, toggleFullscreen,
+        paged: panelPaged,
         deckIcon: window.deckIcon,
         emblemHtml: () => emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem),
       });
     } else {
-      if (deckCanvas) { deckCanvas.dispose(); deckCanvas = null; }
-      document.body.classList.remove("canvas-mode");
-      $("stage").hidden = true;
-      $("canvas").innerHTML = "";
+      leaveCanvas();
       if (pageIndex >= layout.pages.length) pageIndex = 0;
       renderTabs();
       renderPage();
     }
+  }
+  // Takes a canvas layout off the screen, for a grid layout or the pairing form.
+  function leaveCanvas() {
+    stopPaging();
+    if (deckCanvas) { deckCanvas.dispose(); deckCanvas = null; }
+    document.body.classList.remove("canvas-mode");
+    $("stage").hidden = true;
+    $("canvas").innerHTML = "";
   }
 
   // Fetches the chosen layout (from the PC, or the layouts/ folder in demo mode) and shows it.

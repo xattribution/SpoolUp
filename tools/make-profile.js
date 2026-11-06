@@ -4,9 +4,10 @@
 //   node tools/make-profile.js           write keybinds/TabletDeck-StarCitizen.xml
 //   node tools/make-profile.js --check   exit 1 if that file is missing or out of date
 //
-// Each button's `keys` becomes the bind for its `scAction`. Star Citizen looks actions
-// up per actionmap, so every action must be listed in ACTIONMAPS below; an unknown
-// action stops the build instead of being guessed into the wrong map.
+// Each button's `keys` becomes the bind for its `scAction`, unless DEFAULTS says that's
+// already the game's own key. Star Citizen looks actions up per actionmap, so every
+// action must be listed in ACTIONMAPS below; an unknown action stops the build instead
+// of being guessed into the wrong map.
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -21,6 +22,8 @@ const ACTIONMAPS = {
   // On foot
   drop: ["player"],
   inspect: ["player"],
+  pc_pit_inventory: ["player_choice"],
+  thirdperson: ["player"],
   walk: ["player"],
   ...Object.fromEntries([
     "agree", "angry", "atease", "attention", "blah", "bored", "bow", "burp", "cheer", "chicken",
@@ -29,7 +32,17 @@ const ACTIONMAPS = {
     "threaten", "wait", "wave", "whistle",
   ].map((e) => [`emote_${e}`, ["player_emotes"]])),
 
-  // Seat (operator modes, remote turrets)
+  // UI and social (global: in a seat and on foot)
+  pl_exit: ["default"],
+  toggle_chat: ["default"],
+  toggle_contact: ["default"],
+
+  // mobiGlas and star map (ships, vehicles and on foot)
+  mobiglas: ["spaceship_hud", "player", "vehicle_general"],
+  v_starmap: ["spaceship_hud", "player", "vehicle_general"],
+
+  // Seat (operator modes, remote turrets, eject, look behind)
+  v_eject: ["seat_general"],
   v_enter_remote_turret_1: ["seat_general"],
   v_enter_remote_turret_2: ["seat_general"],
   v_enter_remote_turret_3: ["seat_general"],
@@ -40,25 +53,65 @@ const ACTIONMAPS = {
   v_set_quantum_mode: ["seat_general"],
   v_set_salvage_mode: ["seat_general"],
   v_set_scan_mode: ["seat_general"],
+  v_view_look_behind: ["seat_general"],
 
-  // Doors and views
+  // Ship systems, power, doors and lights
   v_close_all_doors: ["spaceship_general", "vehicle_general"],
+  v_engineering_assignment_engine_decrease: ["spaceship_power"],
+  v_engineering_assignment_engine_increase: ["spaceship_power"],
+  v_engineering_assignment_engine_max: ["spaceship_power"],
+  v_engineering_assignment_engine_min: ["spaceship_power"],
+  v_engineering_assignment_reset: ["spaceship_power"],
+  v_engineering_assignment_shields_decrease: ["spaceship_power"],
+  v_engineering_assignment_shields_increase: ["spaceship_power"],
+  v_engineering_assignment_shields_max: ["spaceship_power"],
+  v_engineering_assignment_shields_min: ["spaceship_power"],
+  v_engineering_assignment_weapons_decrease: ["spaceship_power"],
+  v_engineering_assignment_weapons_increase: ["spaceship_power"],
+  v_engineering_assignment_weapons_max: ["spaceship_power"],
+  v_engineering_assignment_weapons_min: ["spaceship_power"],
+  v_flightready: ["spaceship_general", "vehicle_general"],
+  v_lights: ["lights_controller"],
   v_lock_all_doors: ["spaceship_general", "vehicle_general"],
   v_open_all_doors: ["spaceship_general", "vehicle_general"],
+  v_power_toggle: ["spaceship_power"],
+  v_power_toggle_shields: ["spaceship_power"],
+  v_power_toggle_thrusters: ["spaceship_power"],
+  v_power_toggle_weapons: ["spaceship_power"],
+  v_self_destruct: ["spaceship_general"],
+  v_toggle_all_doors: ["spaceship_general", "vehicle_general"],
   v_unlock_all_doors: ["spaceship_general", "vehicle_general"],
-  v_toggle_all_doors: ["spaceship_general"],
-  v_view_look_behind: ["vehicle_general"],
 
   // Flight
-  v_ifcs_speed_limiter_reset_scm: ["spaceship_movement"],
+  v_atc_request: ["spaceship_movement"],
+  v_autoland: ["spaceship_movement"],
+  v_ifcs_speed_limiter_decrement: ["spaceship_movement"],
+  v_ifcs_speed_limiter_increment: ["spaceship_movement"],
+  v_ifcs_speed_limiter_toggle: ["spaceship_movement"],
   v_ifcs_toggle_esp: ["spaceship_movement"],
   v_ifcs_toggle_gforce_safety: ["spaceship_movement"],
-  v_ifcs_toggle_speed_limiter: ["spaceship_movement"],
+  v_master_mode_cycle_long: ["spaceship_movement"],
   v_master_mode_set_nav: ["spaceship_movement"],
   v_master_mode_set_scm: ["spaceship_movement"],
-  v_speed_range_down: ["spaceship_movement"],
-  v_speed_range_up: ["spaceship_movement"],
-  v_target_match_vel: ["spaceship_movement"],
+  v_toggle_landing_system: ["spaceship_movement"],
+  v_vtol_toggle: ["spaceship_movement"],
+  v_ifcs_throttle_swap_mode: ["spaceship_movement"],
+  v_ifcs_vector_decoupling_toggle: ["spaceship_movement"],
+
+  // Comms (Star Citizen 4.10's own binds; the Comms panel)
+  foip_cyclechannel: ["player_input_optical_tracking"],
+  foip_pushtotalk: ["player_input_optical_tracking"],
+  foip_pushtotalk_proximity: ["player_input_optical_tracking"],
+  pc_personal_thought: ["player_choice"],
+  ui_notification_accept: ["ui_notification"],
+  ui_notification_decline: ["ui_notification"],
+  v_target_hail: ["spaceship_target_hailing"],
+  visor_wipe: ["player", "spaceship_hud", "vehicle_general"],
+
+  // Quantum and docking
+  v_dock_toggle_view: ["spaceship_docking"],
+  v_toggle_docking_request: ["spaceship_docking"],
+  v_toggle_qdrive_engagement: ["spaceship_quantum"],
 
   // Shields and countermeasures
   v_shield_raise_level_back: ["spaceship_defensive"],
@@ -68,18 +121,21 @@ const ACTIONMAPS = {
   v_shield_raise_level_right: ["spaceship_defensive"],
   v_shield_raise_level_up: ["spaceship_defensive"],
   v_shield_reset_level: ["spaceship_defensive"],
+  v_weapon_countermeasure_decoy_launch: ["spaceship_defensive"],
   v_weapon_countermeasure_decoy_launch_panic: ["spaceship_defensive"],
+  v_weapon_countermeasure_noise_launch: ["spaceship_defensive"],
 
   // Weapons and missiles
-  v_weapon_pip_toggle_lead_lag: ["spaceship_weapons"],
   v_weapon_decrease_max_missiles: ["spaceship_missiles"],
-  v_weapon_launch_missile_cinematic: ["spaceship_missiles"],
+  v_weapon_launch_missile: ["spaceship_missiles"],
+  v_weapon_pip_toggle_lead_lag: ["spaceship_weapons"],
 
   // Targeting
   v_target_cycle_all_back: ["spaceship_targeting_advanced"],
   v_target_cycle_attacker_back: ["spaceship_targeting_advanced"],
   v_target_cycle_friendly_back: ["spaceship_targeting_advanced"],
   v_target_cycle_hostile_back: ["spaceship_targeting_advanced"],
+  v_target_cycle_hostile_fwd: ["spaceship_targeting_advanced"],
   v_target_cycle_in_view_back: ["spaceship_targeting_advanced"],
   v_target_cycle_subitem_back: ["spaceship_targeting_advanced"],
 
@@ -99,21 +155,91 @@ const ACTIONMAPS = {
   v_toggle_mining_laser_type: ["spaceship_mining"],
 };
 
+// Buttons that send Star Citizen 4.10's own default keys (Data/Libs/Config/defaultProfile.xml).
+// The profile writes nothing for these. The game pairs some of them on one key by press length
+// (F5 tap = +1, held = max; N tap = gear, held = autoland), so they aren't clashes with each other.
+const DEFAULTS = {
+  mobiglas: "f1",
+  pc_pit_inventory: "i",
+  pl_exit: "y",
+  thirdperson: "f4",
+  toggle_chat: "f12",
+  toggle_contact: "f11",
+  v_atc_request: "lalt+n",
+  v_autoland: "n",
+  v_dock_toggle_view: "0",
+  v_eject: "ralt+y",
+  v_engineering_assignment_engine_decrease: "lalt+f6",
+  v_engineering_assignment_engine_increase: "f6",
+  v_engineering_assignment_engine_max: "f6",
+  v_engineering_assignment_engine_min: "lalt+f6",
+  v_engineering_assignment_reset: "f8",
+  v_engineering_assignment_shields_decrease: "lalt+f7",
+  v_engineering_assignment_shields_increase: "f7",
+  v_engineering_assignment_shields_max: "f7",
+  v_engineering_assignment_shields_min: "lalt+f7",
+  v_engineering_assignment_weapons_decrease: "lalt+f5",
+  v_engineering_assignment_weapons_increase: "f5",
+  v_engineering_assignment_weapons_max: "f5",
+  v_engineering_assignment_weapons_min: "lalt+f5",
+  v_flightready: "ralt+r",
+  v_lights: "l",
+  v_master_mode_cycle_long: "b",
+  v_mining_use_consumable1: "lalt+1",
+  v_mining_use_consumable2: "lalt+2",
+  v_mining_use_consumable3: "lalt+3",
+  v_power_toggle: "u",
+  v_power_toggle_shields: "o",
+  v_power_toggle_thrusters: "i",
+  v_power_toggle_weapons: "p",
+  v_self_destruct: "backspace",
+  v_starmap: "f2",
+  v_toggle_docking_request: "ralt+n",
+  v_toggle_landing_system: "n",
+  v_view_look_behind: "comma",
+  v_vtol_toggle: "k",
+  v_weapon_countermeasure_decoy_launch: "h",
+  v_weapon_countermeasure_noise_launch: "j",
+  // Comms, decoupled, throttle mode and next hostile: all on their 4.10 defaults.
+  foip_cyclechannel: "np_period",
+  foip_pushtotalk: "np_add",
+  foip_pushtotalk_proximity: "lalt+np_add",
+  pc_personal_thought: "lalt+f",
+  ui_notification_accept: "lbracket",
+  ui_notification_decline: "rbracket",
+  v_ifcs_throttle_swap_mode: "lalt+c",
+  v_ifcs_vector_decoupling_toggle: "c",
+  v_target_cycle_hostile_fwd: "5",
+  v_target_hail: "9",
+  visor_wipe: "lalt+x",
+};
+
 // Maps that are active together. A key combo bound to two actions in the same context
 // would fire both in-game, so that fails the build; across contexts it is only reported.
 const CONTEXTS = {
   player: "on foot",
+  player_choice: "on foot",
   player_emotes: "on foot",
   seat_general: "vehicle",
-  spaceship_general: "vehicle",
-  spaceship_movement: "vehicle",
+  lights_controller: "vehicle",
   spaceship_defensive: "vehicle",
-  spaceship_weapons: "vehicle",
-  spaceship_missiles: "vehicle",
-  spaceship_targeting_advanced: "vehicle",
-  spaceship_salvage: "vehicle",
+  spaceship_docking: "vehicle",
+  spaceship_general: "vehicle",
+  spaceship_hud: "vehicle",
   spaceship_mining: "vehicle",
+  spaceship_missiles: "vehicle",
+  spaceship_movement: "vehicle",
+  spaceship_power: "vehicle",
+  spaceship_quantum: "vehicle",
+  spaceship_salvage: "vehicle",
+  spaceship_targeting_advanced: "vehicle",
+  spaceship_weapons: "vehicle",
   vehicle_general: "vehicle",
+  spaceship_target_hailing: "vehicle",
+  // UI, social and voice maps work in a seat and on foot alike.
+  default: "global",
+  player_input_optical_tracking: "global",
+  ui_notification: "global",
 };
 
 // Star Citizen keyboard key names (the same names server.js sends).
@@ -127,6 +253,10 @@ const KEY_NAMES = new Set([
   "up", "down", "left", "right", "minus", "equals", "lbracket", "rbracket", "semicolon", "apostrophe",
   "grave", "backslash", "comma", "period", "slash", "capslock", "numlock", "scrolllock", "print",
 ]);
+
+// Modifier order doesn't matter to the game: lalt+n == n+lalt.
+const comboKey = (keys) => keys.split("+").sort().join("+");
+const atDefault = (action, keys) => Boolean(DEFAULTS[action]) && comboKey(DEFAULTS[action]) === comboKey(keys);
 
 function fail(lines) {
   console.error([].concat(lines).join("\n"));
@@ -169,15 +299,16 @@ function collectBinds() {
 function findConflicts(binds) {
   const byCombo = {};
   for (const [action, { keys }] of Object.entries(binds)) {
-    // Modifier order doesn't matter to the game: lalt+n == n+lalt.
-    const combo = keys.split("+").sort().join("+");
+    const combo = comboKey(keys);
     (byCombo[combo] = byCombo[combo] || []).push(action);
   }
   const clashes = [];
   for (const [combo, actions] of Object.entries(byCombo)) {
     if (actions.length < 2) continue;
+    if (actions.every((a) => atDefault(a, binds[a].keys))) continue; // the game's own pairing
     const contexts = actions.map((a) => new Set(ACTIONMAPS[a].map((m) => CONTEXTS[m] || m)));
-    const shared = contexts.some((c, i) => contexts.slice(i + 1).some((d) => [...c].some((x) => d.has(x))));
+    const meet = (c, d) => c.has("global") || d.has("global") || [...c].some((x) => d.has(x));
+    const shared = contexts.some((c, i) => contexts.slice(i + 1).some((d) => meet(c, d)));
     const keys = binds[actions[0]].keys;
     if (shared) clashes.push(`  ${keys}: ${actions.join(", ")}`);
     else console.warn(`Note: ${keys} is used by ${actions.join(", ")} (different contexts, so no clash).`);
@@ -188,6 +319,7 @@ function findConflicts(binds) {
 function buildXml(binds) {
   const maps = {};
   for (const [action, { keys }] of Object.entries(binds)) {
+    if (atDefault(action, keys)) continue; // already the game's default
     for (const map of ACTIONMAPS[action]) (maps[map] = maps[map] || []).push([action, keys]);
   }
   const lines = [
@@ -216,7 +348,7 @@ const clashes = findConflicts(binds);
 if (clashes.length) fail(["Key conflicts (these would fire together in-game):", ...clashes]);
 const xml = buildXml(binds);
 const rel = path.relative(ROOT, OUT).replace(/\\/g, "/");
-const count = Object.keys(binds).length;
+const count = Object.entries(binds).filter(([a, b]) => !atDefault(a, b.keys)).length;
 
 if (process.argv.includes("--check")) {
   // Ignore line endings: git or a ZIP download may have turned CRLF into LF.

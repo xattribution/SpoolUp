@@ -5,58 +5,58 @@
     {
       "name": "Flight",
       "buttons": [
-        { "id": "flight-ready", "label": "Flight Ready", "state": {"group": "flight-ready"}, "keys": "r", "mode": "tap", "color": "green" },
-        { "id": "power", "label": "Power On/Off", "state": {"group": "power"}, "keys": "u", "mode": "tap", "color": "green" },
-        { "id": "gear", "label": "Landing Gear", "state": {"group": "gear"}, "keys": "n", "mode": "tap", "color": "amber" },
-        { "id": "request-landing", "label": "Request Landing", "keys": "lalt+n", "mode": "tap", "color": "amber" },
-        { "id": "vtol", "label": "VTOL", "state": {"group": "vtol"}, "keys": "k", "mode": "tap" },
-        { "id": "lights", "label": "Lights", "state": {"group": "lights"}, "keys": "l", "mode": "tap" },
-        { "id": "quantum-jump", "label": "Quantum Jump (hold)", "keys": "b", "mode": "hold", "color": "blue" },
+        { "id": "flight-ready", "label": "Flight Ready", "state": {"group": "flight-ready"}, "keys": "ralt+r", "scAction": "v_flightready", "mode": "tap", "color": "green" },
+        { "id": "power", "label": "Power On/Off", "state": {"group": "power"}, "keys": "u", "scAction": "v_power_toggle", "mode": "tap", "color": "green" },
+        { "id": "gear", "label": "Landing Gear", "state": {"group": "gear"}, "keys": "n", "scAction": "v_toggle_landing_system", "mode": "tap", "color": "amber" },
+        { "id": "request-landing", "label": "Request Landing", "keys": "lalt+n", "scAction": "v_atc_request", "mode": "tap", "color": "amber" },
+        { "id": "vtol", "label": "VTOL", "state": {"group": "vtol"}, "keys": "k", "scAction": "v_vtol_toggle", "mode": "tap" },
+        { "id": "lights", "label": "Lights", "state": {"group": "lights"}, "keys": "l", "scAction": "v_lights", "mode": "tap" },
+        { "id": "quantum-jump", "label": "Quantum Jump (hold)", "keys": "ralt+j", "scAction": "v_toggle_qdrive_engagement", "verify": true, "mode": "hold", "voiceMs": 1500, "color": "blue" },
         { "id": "master-scm", "icon": "speed", "label": "Master Mode: SCM", "keys": "ralt+insert", "scAction": "v_master_mode_set_scm", "mode": "tap", "color": "green" },
         { "id": "master-nav", "icon": "quantum-mode", "label": "Master Mode: NAV", "keys": "ralt+np_period", "scAction": "v_master_mode_set_nav", "mode": "tap", "color": "blue" },
-        { "id": "speed-limiter", "icon": "speed", "label": "Speed Limiter", "keys": "lalt+minus", "scAction": "v_ifcs_toggle_speed_limiter", "mode": "tap" },
-        { "id": "speed-limiter-reset", "icon": "power-reset", "label": "Reset Speed Limit", "keys": "lalt+s", "scAction": "v_ifcs_speed_limiter_reset_scm", "mode": "tap" },
-        { "id": "speed-range-up", "icon": "speed", "label": "Speed Range Up", "keys": "lalt+y", "scAction": "v_speed_range_up", "mode": "tap" },
-        { "id": "speed-range-down", "icon": "speed", "label": "Speed Range Down", "keys": "lctrl+y", "scAction": "v_speed_range_down", "mode": "tap" },
-        { "id": "match-velocity", "icon": "target", "label": "Match Target Speed", "keys": "lctrl+v", "scAction": "v_target_match_vel", "mode": "tap" },
+        { "id": "speed-limiter", "icon": "speed", "label": "Speed Limiter", "keys": "lalt+minus", "scAction": "v_ifcs_speed_limiter_toggle", "mode": "tap" },
+        { "id": "throttle-mode", "icon": "speed", "label": "Throttle Mode", "keys": "lalt+c", "scAction": "v_ifcs_throttle_swap_mode", "mode": "tap" },
+        { "id": "speed-range-up", "icon": "speed", "label": "Speed Range Up", "keys": "lalt+pgup", "scAction": "v_ifcs_speed_limiter_increment", "verify": true, "mode": "tap" },
+        { "id": "speed-range-down", "icon": "speed", "label": "Speed Range Down", "keys": "lalt+pgdn", "scAction": "v_ifcs_speed_limiter_decrement", "verify": true, "mode": "tap" },
+        { "id": "decoupled", "icon": "swap", "label": "Decoupled", "state": {"group": "decoupled"}, "keys": "c", "scAction": "v_ifcs_vector_decoupling_toggle", "mode": "tap" },
         { "id": "esp", "icon": "target", "label": "Toggle ESP", "keys": "lalt+semicolon", "scAction": "v_ifcs_toggle_esp", "mode": "tap" },
         { "id": "g-safety", "icon": "power-shields", "label": "G-Force Safety", "keys": "lalt+i", "scAction": "v_ifcs_toggle_gforce_safety", "mode": "tap", "color": "amber" },
-        { "id": "look-behind", "icon": "eye", "label": "Look Behind (hold)", "keys": "lalt+period", "scAction": "v_view_look_behind", "mode": "hold" },
-        { "id": "exit-seat", "label": "Exit Seat", "keys": "y", "mode": "timed", "ms": 1200, "color": "red" }
+        { "id": "look-behind", "icon": "eye", "label": "Look Behind (hold)", "keys": "comma", "scAction": "v_view_look_behind", "mode": "hold", "voice": false },
+        { "id": "exit-seat", "label": "Exit Seat", "keys": "y", "scAction": "pl_exit", "mode": "timed", "ms": 1200, "color": "red" }
       ]
     },
     {
       "name": "Modes",
       "buttons": [
         { "id": "mode-flight", "icon": "ship", "label": "Flight Mode", "keys": "ralt+f", "scAction": "v_set_flight_mode", "mode": "tap", "color": "green" },
-        { "id": "mode-guns", "icon": "power-weapons", "label": "Guns Mode", "keys": "ralt+g", "scAction": "v_set_guns_mode", "mode": "tap", "color": "red" },
+        { "id": "mode-guns", "icon": "power-weapons", "label": "Guns Mode", "keys": "ralt+b", "scAction": "v_set_guns_mode", "mode": "tap", "color": "red" },
         { "id": "mode-missile", "icon": "missile", "label": "Missile Mode", "keys": "ralt+t", "scAction": "v_set_missile_mode", "mode": "tap", "color": "red" },
         { "id": "mode-quantum", "icon": "quantum-mode", "label": "Quantum Mode", "keys": "ralt+q", "scAction": "v_set_quantum_mode", "mode": "tap", "color": "blue" },
         { "id": "mode-scan", "icon": "scanning", "label": "Scan Mode", "keys": "ralt+v", "scAction": "v_set_scan_mode", "mode": "tap", "color": "blue" },
         { "id": "mode-mining", "icon": "mining", "label": "Mining Mode", "keys": "ralt+m", "scAction": "v_set_mining_mode", "mode": "tap", "color": "amber" },
-        { "id": "mode-salvage", "icon": "salvage", "label": "Salvage Mode", "keys": "ralt+s", "scAction": "v_set_salvage_mode", "mode": "tap", "color": "amber" }
+        { "id": "mode-salvage", "icon": "salvage", "label": "Salvage Mode", "keys": "ralt+x", "scAction": "v_set_salvage_mode", "mode": "tap", "color": "amber" }
       ]
     },
     {
       "name": "Combat",
       "buttons": [
-        { "id": "decoy", "label": "Decoy", "keys": "g", "mode": "tap", "color": "amber" },
-        { "id": "noise", "label": "Noise", "keys": "h", "mode": "tap", "color": "amber" },
-        { "id": "decoy-panic", "icon": "decoy", "label": "Panic Decoys", "keys": "lctrl+h", "scAction": "v_weapon_countermeasure_decoy_launch_panic", "mode": "tap", "color": "red" },
-        { "id": "missile-launch", "icon": "missile", "label": "Launch Missile (Cinematic)", "keys": "ralt+backslash", "scAction": "v_weapon_launch_missile_cinematic", "mode": "tap", "color": "red" },
-        { "id": "missile-fewer", "icon": "missile", "label": "Fewer Missiles", "keys": "lctrl+g", "scAction": "v_weapon_decrease_max_missiles", "mode": "tap" },
+        { "id": "decoy", "label": "Decoy", "keys": "h", "scAction": "v_weapon_countermeasure_decoy_launch", "mode": "tap", "color": "amber" },
+        { "id": "noise", "label": "Noise", "keys": "j", "scAction": "v_weapon_countermeasure_noise_launch", "mode": "tap", "color": "amber" },
+        { "id": "decoy-panic", "icon": "decoy", "label": "Panic Decoys", "keys": "rctrl+h", "scAction": "v_weapon_countermeasure_decoy_launch_panic", "mode": "tap", "color": "red" },
+        { "id": "missile-launch", "icon": "missile", "label": "Launch Missile", "keys": "ralt+backslash", "scAction": "v_weapon_launch_missile", "verify": true, "mode": "timed", "ms": 400, "color": "red" },
+        { "id": "missile-fewer", "icon": "missile", "label": "Fewer Missiles", "keys": "ralt+minus", "scAction": "v_weapon_decrease_max_missiles", "mode": "tap" },
         { "id": "pip-lead-lag", "icon": "power-weapons", "label": "Lead / Lag Pips", "keys": "lalt+np_7", "scAction": "v_weapon_pip_toggle_lead_lag", "mode": "tap" },
-        { "id": "power-weapons", "label": "Power: Weapons", "keys": "f5", "mode": "tap", "color": "red" },
-        { "id": "power-engines", "label": "Power: Engines", "keys": "f6", "mode": "tap", "color": "blue" },
-        { "id": "power-shields", "label": "Power: Shields", "keys": "f7", "mode": "tap", "color": "green" },
-        { "id": "power-reset", "label": "Power: Reset", "keys": "f8", "mode": "tap" }
+        { "id": "power-weapons", "label": "Power: Weapons", "keys": "f5", "scAction": "v_engineering_assignment_weapons_increase", "mode": "tap", "color": "red" },
+        { "id": "power-engines", "label": "Power: Engines", "keys": "f6", "scAction": "v_engineering_assignment_engine_increase", "mode": "tap", "color": "blue" },
+        { "id": "power-shields", "label": "Power: Shields", "keys": "f7", "scAction": "v_engineering_assignment_shields_increase", "mode": "tap", "color": "green" },
+        { "id": "power-reset", "label": "Power: Reset", "keys": "f8", "scAction": "v_engineering_assignment_reset", "mode": "tap" }
       ]
     },
     {
       "name": "Targets",
       "buttons": [
         { "id": "target-hostile-back", "icon": "target", "label": "Prev Hostile", "keys": "lalt+5", "scAction": "v_target_cycle_hostile_back", "mode": "tap", "color": "red" },
-        { "id": "target-attacker-back", "icon": "target", "label": "Prev Attacker", "keys": "lalt+4", "scAction": "v_target_cycle_attacker_back", "mode": "tap", "color": "red" },
+        { "id": "target-attacker-back", "icon": "target", "label": "Prev Attacker", "keys": "ralt+4", "scAction": "v_target_cycle_attacker_back", "mode": "tap", "color": "red" },
         { "id": "target-friendly-back", "icon": "target", "label": "Prev Friendly", "keys": "lalt+6", "scAction": "v_target_cycle_friendly_back", "mode": "tap", "color": "green" },
         { "id": "target-all-back", "icon": "target", "label": "Prev Any Target", "keys": "lalt+7", "scAction": "v_target_cycle_all_back", "mode": "tap" },
         { "id": "target-sub-back", "icon": "target", "label": "Prev Subtarget", "keys": "lalt+8", "scAction": "v_target_cycle_subitem_back", "mode": "tap" },
@@ -85,14 +85,14 @@
         { "id": "doors-close", "icon": "doors", "label": "Close All Doors", "keys": "rctrl+lbracket", "scAction": "v_close_all_doors", "mode": "tap", "color": "amber" },
         { "id": "doors-lock", "icon": "lock", "label": "Lock All Doors", "keys": "rctrl+rbracket", "scAction": "v_lock_all_doors", "mode": "tap", "color": "red" },
         { "id": "doors-unlock", "icon": "unlock", "label": "Unlock All Doors", "keys": "lalt+u", "scAction": "v_unlock_all_doors", "mode": "tap", "color": "green" },
-        { "id": "doors", "label": "Toggle All Doors", "state": {"group": "doors"}, "keys": "np_period", "scAction": "v_toggle_all_doors", "mode": "tap", "color": "amber" }
+        { "id": "doors", "label": "Toggle All Doors", "state": {"group": "doors"}, "keys": "ralt+o", "scAction": "v_toggle_all_doors", "mode": "tap", "color": "amber" }
       ]
     },
     {
       "name": "Salvage",
       "buttons": [
-        { "id": "salvage-mod-left", "icon": "salvage", "label": "Modifier Left", "keys": "ralt+l", "scAction": "v_salvage_cycle_modifiers_left", "mode": "tap", "color": "amber" },
-        { "id": "salvage-mod-right", "icon": "salvage", "label": "Modifier Right", "keys": "ralt+r", "scAction": "v_salvage_cycle_modifiers_right", "mode": "tap", "color": "amber" },
+        { "id": "salvage-mod-left", "icon": "salvage", "label": "Modifier Left", "keys": "ralt+lbracket", "scAction": "v_salvage_cycle_modifiers_left", "mode": "tap", "color": "amber" },
+        { "id": "salvage-mod-right", "icon": "salvage", "label": "Modifier Right", "keys": "ralt+rbracket", "scAction": "v_salvage_cycle_modifiers_right", "mode": "tap", "color": "amber" },
         { "id": "salvage-spacing-down", "icon": "salvage", "label": "Beam Spacing −", "keys": "ralt+comma", "scAction": "v_salvage_decrease_beam_spacing", "mode": "tap" },
         { "id": "salvage-spacing-up", "icon": "salvage", "label": "Beam Spacing +", "keys": "ralt+period", "scAction": "v_salvage_increase_beam_spacing", "mode": "tap" }
       ]
@@ -100,11 +100,11 @@
     {
       "name": "On Foot",
       "buttons": [
-        { "id": "mobiglas", "label": "mobiGlas", "keys": "f1", "mode": "tap", "color": "blue" },
-        { "id": "starmap", "label": "Star Map", "keys": "f2", "mode": "tap", "color": "blue" },
-        { "id": "inventory", "label": "Inventory", "keys": "i", "mode": "tap" },
-        { "id": "contacts", "label": "Contacts", "keys": "f11", "mode": "tap" },
-        { "id": "camera", "label": "3rd Person", "keys": "f4", "mode": "tap" },
+        { "id": "mobiglas", "label": "mobiGlas", "keys": "f1", "scAction": "mobiglas", "mode": "tap", "color": "blue" },
+        { "id": "starmap", "label": "Star Map", "keys": "f2", "scAction": "v_starmap", "mode": "tap", "color": "blue" },
+        { "id": "inventory", "label": "Inventory", "keys": "i", "scAction": "pc_pit_inventory", "mode": "tap" },
+        { "id": "contacts", "label": "Contacts", "keys": "f11", "scAction": "toggle_contact", "mode": "tap" },
+        { "id": "camera", "label": "3rd Person", "keys": "f4", "scAction": "thirdperson", "mode": "tap" },
         { "id": "walk", "label": "Walk", "keys": "ralt+w", "scAction": "walk", "mode": "tap" },
         { "id": "drop", "label": "Drop Item", "keys": "ralt+d", "scAction": "drop", "mode": "tap", "color": "amber" },
         { "id": "inspect", "icon": "eye", "label": "Inspect Item", "keys": "ralt+i", "scAction": "inspect", "mode": "tap" },

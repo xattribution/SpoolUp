@@ -46,7 +46,7 @@
 
 ### 🛸 A HUD for your tablet
 Landing, power management, quantum, operator modes, shields, targeting,
-salvage, mining, doors, emotes and more, on a two-half HUD that pages through
+salvage, mining, doors, comms, emotes and more, on a two-half HUD that pages through
 panels. Phones get their own layout. In English, Español, Français or Deutsch.
 
 </td>
@@ -56,7 +56,7 @@ panels. Phones get their own layout. In English, Español, Français or Deutsch.
 RSI, Drake, Aegis, Anvil, Origin, MISC, Crusader, Banu, Aopoa, Argo,
 Consolidated Outland and Esperia, plus night mode. Press animations for
 landing-gear struts, the quantum charge ring, decoy sparks, sliding doors and
-more.
+more, with HUD sounds on the tablet or in your headset.
 
 </td>
 </tr>
@@ -96,6 +96,18 @@ start with Windows, and updates with one click.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+### 🎛️ Stream Deck pack
+Profiles for every Stream Deck from the Mini to the + XL in all 12 themes, with
+a page per scene, folders for emergencies, emotes and themes, dials and touch
+strips on the + and + XL, and a Comms page with Discord and OBS. Icon packs with
+every button, and a plugin that presses through Tablet Deck and can keep your
+tablet and Stream Deck on the same scene. [More](#stream-deck)
+
+</td>
+</tr>
 </table>
 
 <p align="center">
@@ -119,7 +131,8 @@ same Wi-Fi**. Nothing else.
 4. **Pair your tablet:** scan the QR code with its camera, or open the address
    and type the code. Use "Add to Home Screen" for a full-screen app.
 5. **Fly.** Click into Star Citizen. Buttons only press keys while the game is
-   the window in front; otherwise the tablet shows "Star Citizen not focused".
+   the window in front; otherwise the tablet shows "Star Citizen not focused"
+   and the button flashes red.
 
 In Star Citizen, load the **Tablet Deck Keyboard** profile once (see
 [Keybinds](#keybinds)) so the buttons for actions without a default key work.
@@ -244,15 +257,25 @@ action in-game and its button follows.
 <details>
 <summary>Buttons to double-check</summary>
 
-A few buttons use defaults the profile doesn't set: power management, system
-power toggles, SCM/NAV, eject, chat and the docking camera. Check those on your
-keybinding screen.
+The buttons' keys are checked against Star Citizen 4.10's own default
+keybinds. A few still need a look in-game:
 
-The mining buttons' action names couldn't be confirmed against the game's
-files. After loading the profile, check that **Options → Keybindings → Vehicles
-→ Mining** shows Fire Laser on RCtrl+F, Fracture/Extract on RCtrl+T, laser power
-on RCtrl+W / RCtrl+S and the modules on LAlt+1-3. If one is missing, rebind it
-there to the same key.
+- **Engage Quantum, Fire Laser, Fracture/Extract, Laser Power + and Speed
+  Range + / −**: the profile gives these keyboard keys (RAlt+J, RCtrl+F,
+  RCtrl+T, RCtrl+W, LAlt+PgUp / PgDn), but the game's own default for each is
+  on the mouse (hold left mouse to engage quantum, left mouse to fire the
+  mining laser, LAlt+mouse wheel for the speed limit). After loading the
+  profile, check on your keybinding screen that the mouse bind is still there;
+  if it's gone, bind it again next to the keyboard key.
+- **Launch Missile** holds RAlt+\ for 0.4 s, since the game wants a held press
+  to launch.
+- **Layouts you made in the layout editor** keep the keys they were saved with.
+  Buttons there that carry no Star Citizen action still press the old keys
+  (Decoy G, Noise H, Flight Ready R, Request Docking LAlt+N, a quick tap for
+  SCM/NAV and the docking camera, Engage Quantum holding B). Look Behind
+  (LAlt+.), Speed Range + / − (LAlt+Y / LCtrl+Y) and Launch Missile (a quick
+  tap) don't work there either. Edit those buttons, or start the layout again
+  from a built-in one.
 </details>
 
 ### Layouts
@@ -262,7 +285,7 @@ choose under **Layout**. Each tablet and phone remembers its own choice:
 
 | Layout | Opens on |
 |---|---|
-| **Tablet Deck HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot and Emotes on the right |
+| **Tablet Deck HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right |
 | **Combat** | Power/Landing, Shields, Targeting and Flight Assist first; Combat, QT/Systems, Operator Modes and Crew first |
 | **Mining & Salvage** | Mining and Salvage first; Operator Modes, QT/Systems, Crew and On Foot first |
 | **Hauling & Exploration** | Power/Landing, Flight Assist and Targeting first; QT/Systems, Crew, On Foot and Emotes first |
@@ -286,8 +309,8 @@ like its arrows. So a swipe never presses anything, a press then waits a moment
 
 Buttons that switch something on stay lit until you switch it off: **Open
 Doors** stays lit until you press **Close Doors**, **Landing Gear** shows
-DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, ESP,
-G-safety and door locks light up while they're on. Every tablet shows the same,
+DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, decoupled,
+ESP, G-safety and door locks light up while they're on. Every tablet shows the same,
 voice commands count too, and a press the focus check skips changes nothing.
 
 Tablet Deck can't see the game, so the lights only follow what Tablet Deck
@@ -373,6 +396,9 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 - **Large text** makes labels bigger and bolder, easier to read at a glance.
 - **High contrast** turns any theme black and white with strong colours, plain
   fonts and no glows.
+- **Key labels** shows the key each button presses in a corner, from your
+  keybinds (so a rebind in-game shows there too). Handy for learning the
+  binds, or checking one when a button doesn't do what you expect.
 - **Button lights** can be turned off. The deck can't read the game, so lit
   buttons only follow your taps; if you also use your keyboard or HOTAS, they can
   drift out of sync. **Reset button lights** clears them while they're on.
@@ -380,6 +406,27 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 <p align="center">
   <img src="docs/themes.jpg" alt="The deck in all 12 manufacturer themes" width="100%">
 </p>
+
+### Sounds
+
+The deck plays soft HUD sounds: a chirp per press (lower for weapons, higher for
+navigation), the quantum drive spooling up and engaging, the self-destruct
+alarm, panel flips, voice results and a buzz when a press didn't go through.
+They're made on the spot from a few tones, not sound files. Change them under
+**Sounds** in **Deck settings**, separately on each tablet and phone:
+
+- **Button sounds** turns them on or off.
+- **Play on** picks where you hear them: **This device**, or one of the PC's
+  outputs, such as your **headset**, so you hear them over the game. The PC
+  plays the same sounds there; the list shows each output Windows has, and
+  **PC: default output** follows Windows' default. If the output you picked is
+  unplugged, they play on the default one until it's back.
+- **Volume** sets how loud, wherever they play. Each change plays a chirp so you
+  can tell.
+
+A tablet can only pick one of the PC's outputs and send it short tones; the PC
+makes the sounds itself and nothing reaches the game. While the tablet isn't
+connected, its sounds play on the tablet.
 
 ### Languages
 
@@ -398,6 +445,122 @@ for English), the labels of layouts you made yourself, and the log in the
 window. The translations were made with AI; if something reads wrong in your
 language, please say so on [GitHub](https://github.com/nodieCode/tablet-deck/issues/new/choose).
 
+### Stream Deck
+
+Tablet Deck has a Stream Deck pack: ready-made profiles for every Stream Deck
+from the Mini to the + XL, in all 12 manufacturer themes, an icon pack per
+theme with every button for pages of your own, and a Tablet Deck plugin. The
+profiles and icons work on their own; with the plugin, presses go through
+Tablet Deck like a tablet's.
+
+Each release has the pack under **Assets**:
+
+| Download | What it is |
+|---|---|
+| `TabletDeck-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
+| `TabletDeck-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
+| `com.nodiecode.tabletdeck.streamDeckPlugin` | the plugin, with a profile for each model |
+
+Or build it yourself: see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#the-stream-deck-pack).
+
+**Scenes and folders.** Each profile has a page per scene: **Flight, Combat,
+Mining, Salvage, Hauling & Exploration, On Foot** and **Comms**. Folders hold
+**Emergency** (eject, self-destruct, exit seat), **Shields**, **Power**,
+**Emotes**, **Websites** (UEX, Erkul, SPViewer, SCMDB) and **Themes**, which
+opens the same page in another manufacturer's look. How you move between
+scenes depends on the model:
+
+| Model | Keys | Scenes |
+|---|---|---|
+| **Stream Deck + XL** | 9×4, 6 dials, touch strip | tabs along the top row; the last dial turns through them, push for Themes |
+| **Stream Deck XL** | 8×4 | tabs along the top row |
+| **Stream Deck +** | 4×2, 4 dials, touch strip | the last dial turns through them, push for the Scenes folder |
+| **Stream Deck** (15 keys, MK.2, Scissor Keys) and **Stream Deck Mobile** | 5×3 | the right column: Scenes, Next, Previous |
+| **Stream Deck Neo** and **Mini** | 4×2 and 3×2 | the last key opens Scenes |
+
+On the + and + XL, the dials are knobs: each sets a level or cycles through
+options, one press per notch (at most 5 a turn), and pushing one is a single
+press. Power (turn for − and +, push for max), the speed limit, laser power,
+beam spacing, the salvage modifier, master mode (SCM and NAV, push for
+Quantum), targets, the voice channel, brightness and volume; the touch strip
+shows what each one does. There are no profiles for the Studio or the Pedal (Stream Deck
+doesn't support profiles there), but the plugin's actions work on them.
+
+**Comms.** The Comms page has Star Citizen's own push to talk, proximity push
+to talk, hail, invites and chat; Discord mute, deafen, push to talk, push to
+mute, voice mode and a volume dial (Elgato's **Discord** plugin; authorize it
+once in Discord); OBS record, go live (a long press, so it can't start by
+accident), save replay and screenshot (Elgato's **OBS Studio** plugin); and the
+media keys and PC volume. A key for a plugin you don't have shows **?**, and
+Stream Deck offers to install it.
+
+**Profiles on their own:**
+
+1. Unzip the download for your model and double-click a profile,
+   `Tablet Deck <theme> - <model>.streamDeckProfile`. Import any themes you want
+   to switch between. The + XL needs Stream Deck 7.3 or newer.
+2. In Star Citizen, load the **Tablet Deck Keyboard** profile (see
+   [Keybinds](#keybinds); the zip has it too), since many keys press its binds.
+3. The keys are Stream Deck **Hotkeys**: Stream Deck presses them into
+   whatever window is in front, so they work without Tablet Deck, but
+   Tablet Deck's focus check doesn't guard them.
+
+Keys marked **PLUGIN** hold a key, or press it for a set time: Engage Quantum,
+Auto Land, SCM/NAV, Max and Min power, Self-D, push to talk and a few more.
+Stream Deck's Hotkey can only tap, so these go through the Tablet Deck plugin,
+and need it and Tablet Deck running. Theme keys open the same page in that
+theme's profile; if one doesn't switch after importing, pick its profile once
+in the key's settings.
+
+**With the plugin:** double-click `com.nodiecode.tabletdeck.streamDeckPlugin`
+(Windows, Stream Deck 7.3 or newer). It adds a **Tablet Deck** category with
+**Deck Button**, **Deck Dial**, **Scene**, **Theme**, **Hold to Talk**,
+**Status** and **Reset Lights**, and brings a profile for each model, which
+Stream Deck offers to install the first time a Scene key or the scene dial
+switches to it.
+
+- Presses go through Tablet Deck: the focus check, lit buttons (gear, lights,
+  doors...) shared with your tablets, a red flash when a press is skipped, and
+  the press animations. **Theme** keys redraw every Tablet Deck key in that
+  manufacturer's look.
+- With **Tablets follow scenes** on (it's off at first, in any Tablet Deck
+  key's settings), picking a scene flips tablets that have **Follow Stream Deck
+  scenes** on (under **Display** in Deck settings) to that scene's panels.
+- The other way round, flipping a panel on a tablet takes the Stream Deck to
+  the scene with that panel, while it shows the Tablet Deck profile and no key
+  on it is held down. Panels two scenes share (Power/Landing, Operator Modes)
+  leave it where it is. To stop that, turn off **Follow the tablet** in any
+  Tablet Deck key's settings.
+- It finds Tablet Deck on the same PC by itself. If **Status** shows OFFLINE or
+  WRONG CODE, set the port and pairing code in any Tablet Deck key's settings.
+- A dial notch is one press, at most 5 per turn; turning back drops the ones
+  still waiting.
+
+**Icon packs:** double-click `Tablet Deck <theme>.streamDeckIconPack`. Every
+button, including the ones that aren't on a page, appears in Stream Deck's icon
+library for keys of your own, and the ones with a press animation (gear struts,
+sliding doors, decoy sparks, the quantum charge...) also come animated.
+
+<details>
+<summary>Not tried on a real Stream Deck yet</summary>
+
+The pack is built from Elgato's documented formats and checked file by file,
+but hasn't been imported into the Stream Deck app yet. If something doesn't
+work, please say so on [GitHub](https://github.com/nodieCode/tablet-deck/issues/new/choose),
+with your model and Stream Deck version. In particular:
+
+- Importing the profiles, and how the keys, dials and touch strips look.
+- Theme keys switching to the right profile and page after import.
+- Dials: the order of turn left, push and turn right; one press per notch on a
+  fast spin.
+- The + XL's model ID and touch strip size.
+- Hotkeys with right-hand modifiers (RAlt, RCtrl) pressing the right-hand key.
+- The plugin finding Tablet Deck, its first switch to its profiles, and the
+  PLUGIN keys' pictures.
+- **Follow the tablet:** the Stream Deck moving to the right page soon after a
+  tablet's panel flips, also with several Stream Decks connected.
+</details>
+
 ## Settings
 
 Most settings are in the window's **Settings** dialog. They're stored in
@@ -414,7 +577,7 @@ Uninstalling keeps them unless you choose to delete them.
 | `layout` | the layout tablets show unless they pick their own | `layouts/hud.json` |
 | `phoneLayout` | the same for phones | `layouts/hud-phone.json` |
 | `actionmaps` | keybind files to read, in order (later files win) | the Tablet Deck profile, then your `actionmaps.xml` |
-| `tapMs` | how long a tap holds the key, in milliseconds | `60` |
+| `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
 | `onlyWhenGameFocused` | only press keys while Star Citizen is in front; `false` sends them to whatever window is in front | `true` |
 | `voice` | voice commands on or off | `true` |
 | `voiceLanguage` | the Windows speech recognizer to use | `en-US` |
@@ -466,15 +629,26 @@ the game's files or memory.
 
 - Only devices with the pairing code can press keys. After 5 wrong codes in a
   minute, a device is ignored for a minute, so nothing on the network can keep
-  guessing. Keep Tablet Deck on your home network; don't expose its port to the
-  internet.
+  guessing. Changing the code in **Settings** disconnects every device paired
+  with the old one. Keep Tablet Deck on your home network; don't expose its port
+  to the internet.
 - The tablet talks to the PC over plain `http`, so the connection isn't
   encrypted. On your own home Wi-Fi that's fine, but on shared networks (LAN
   parties, dorms, hotels) others on the same Wi-Fi could see your pairing code
   and taps. The firewall rule only allows private networks, so Tablet Deck is
   blocked on networks Windows marks as public.
-- Held keys are released if the tablet disconnects or goes quiet for 5 seconds,
-  and releasing a held button always goes through, so no key stays stuck.
+- Held keys are released at once if the tablet disconnects (or after 5 seconds
+  if it goes quiet), and releasing a held button always goes through, so no key
+  stays stuck.
+- Presses don't mix. Buttons tapped at the same moment, from one tablet or
+  several, take turns when their keys could combine (Weapons + on F5 pressed
+  under Shields −'s LAlt would reach the game as LAlt+F5, Weapons −). And while
+  you hold a button that holds a modifier key (Proximity PTT holds LAlt, Engage
+  Quantum RAlt, Laser Power RCtrl), other buttons that don't use that modifier
+  are skipped and flash red. Holding plain Push to Talk blocks nothing. The
+  tablet checks the other way too: if the PC stops answering, it says
+  Reconnecting… instead of looking connected. While connected, it shows the
+  round trip to the PC ("Connected · 8 ms").
 - No accounts, ads or tracking. The only internet traffic is the update check
   (GitHub; you can turn it off) and the theme fonts the tablet loads from Google
   Fonts. See [CODE_SIGNING.md](CODE_SIGNING.md#privacy).

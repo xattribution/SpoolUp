@@ -180,6 +180,22 @@ jobs:
             dist/*.exe
             dist/*.sha256
 
+      # The Stream Deck pack (tools/make-streamdeck.js): profiles per model, icon packs and the
+      # plugin, drawn in the runner's Edge. Nothing in it is an executable, so nothing to sign.
+      # It's an extra: if it fails, the release still goes out with the installer, without it.
+      - name: Build the Stream Deck pack
+        id: streamdeck
+        continue-on-error: true
+        run: |
+          node tools/make-streamdeck.js --skip preview --release
+          node tools/make-streamdeck.js --check
+
+      - uses: actions/upload-artifact@v7
+        if: steps.streamdeck.outcome == 'success'
+        with:
+          name: TabletDeck-StreamDeck
+          path: dist/streamdeck/release/*
+
       - name: Publish the release
         if: env.RELEASE_TAG != ''
         shell: pwsh
@@ -190,6 +206,12 @@ jobs:
           $setup = "dist/TabletDeck-Setup-$version.exe"
           $hash = (Get-Content "$setup.sha256").Split(" ")[0]
           $changes = (node scripts/release-notes.js $version) -join "`n"
+          # The Stream Deck pack, when its step built it (see "Build the Stream Deck pack").
+          $streamdeck = @(Get-ChildItem dist/streamdeck/release -File -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
+          $streamdeckNote = ""
+          if ($streamdeck.Count) {
+            $streamdeckNote = "**Stream Deck:** **TabletDeck-StreamDeck-Profiles-&lt;model&gt;.zip** has your model's profile in all 12 themes, **TabletDeck-StreamDeck-IconPacks.zip** the icon packs, and **com.nodiecode.tabletdeck.streamDeckPlugin** the Tablet Deck plugin. The pack is new and hasn't been tried on every model yet; please report anything that doesn't work. See [Stream Deck](https://github.com/nodieCode/tablet-deck#stream-deck) in the README."
+          }
           $notes = @"
           ## What's new
 
@@ -198,6 +220,8 @@ jobs:
           ## Download
 
           Download **TabletDeck-Setup-$version.exe** below and run it. No Node.js needed. Already have Tablet Deck? Run it over your copy; your settings are kept. After that it offers updates itself.
+
+          $streamdeckNote
 
           If Windows shows "Windows protected your PC" (unknown publisher), click **More info**, then **Run anyway**. See the README for details.
 
@@ -208,4 +232,4 @@ jobs:
           > Fan project. Not affiliated with or endorsed by Cloud Imperium Games.
           "@
           # --target tags this commit when the tag doesn't exist yet (a run by hand).
-          gh release create $env:RELEASE_TAG $setup "$setup.sha256" --target "${{ github.sha }}" --title "Tablet Deck $version" --notes $notes
+          gh release create $env:RELEASE_TAG $setup "$setup.sha256" @streamdeck --target "${{ github.sha }}" --title "Tablet Deck $version" --notes $notes

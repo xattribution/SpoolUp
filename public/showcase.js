@@ -132,6 +132,9 @@
       else if (e.result === "heard") add(e.time, [el("b", "", `Heard “${e.text}”`), el("span", "arrow", "→"), e.label], [["tag", "Voice"], ["", `confidence ${e.confidence.toFixed(2)}`]]);
       else if (e.result === "ignored") add(e.time, [`Heard “${e.text}” (${e.label})`], [["warn-text", `ignored, confidence ${e.confidence.toFixed(2)}`]]);
       else add(e.time, ["Voice: didn't catch that"], [], "info");
+    } else if (e.t === "sound") {
+      // A tablet set to play its button sounds on the PC (Deck settings, Sounds).
+      add(e.time, [`PC sound: ${e.name}`], [["tag", "Sound"], ["", e.device ? `on ${e.device}` : "on the default output"]], "info");
     }
   }
 

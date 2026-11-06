@@ -5,6 +5,95 @@ section becomes the notes of its
 [GitHub release](https://github.com/nodieCode/tablet-deck/releases), so add one
 before tagging a release.
 
+## 1.7.0 (2026-11-06)
+
+- **A Stream Deck pack.** Profiles for every Stream Deck from the Mini to the
+  new + XL, in all 12 manufacturer themes, with a page per scene (Flight, Combat,
+  Mining, Salvage, Hauling & Exploration, On Foot, Comms), folders for
+  emergencies, shields, power, emotes, websites and themes, and dials and touch
+  strips on the + and + XL. The Comms page has Star Citizen's push to talk,
+  hail and invites, Discord, OBS and media keys. An icon pack per theme has
+  every button (222, the animated ones also as GIFs) for pages of your own. The **Tablet Deck plugin** presses
+  through Tablet Deck, with the focus check, lit buttons, animations and live
+  theme changes. Scenes can follow both ways: picking a scene on the Stream
+  Deck flips tablets that follow it (**Tablets follow scenes**, off until
+  turned on in the plugin's settings), and flipping a panel on a tablet takes
+  the Stream Deck to that panel's scene (**Follow the tablet**, on unless
+  turned off).
+  The profiles also work on their own, without Tablet Deck. Each release has
+  the pack as downloads; see "Stream Deck" in the README.
+- **Presses no longer mix.** Two quick taps of one button are two presses (the
+  game saw one longer press), and buttons tapped together take turns when their
+  keys could combine: Weapons + (F5) pressed while Shields − held LAlt reached
+  the game as Weapons −. While you hold Proximity PTT, Engage Quantum or Laser
+  Power, which hold a modifier key, other buttons are skipped and flash red
+  rather than press with it.
+- **Keys let go sooner when a tablet vanishes mid-press.** A tab that's closed
+  without saying goodbye releases its held buttons straight away, not 5 seconds
+  later.
+- **A held button lets go even if the HUD redraws under it.** Holding Engage
+  Quantum, push to talk or another hold button while the HUD redrew (the other
+  half paged with a second finger, a Stream Deck scene, the screen turned) left
+  its keys down on the PC until you pressed it again.
+- **A keybind Tablet Deck can't press no longer stops it from starting.** If
+  your actionmaps.xml binds an action to a key it has no code for, that button
+  keeps its own key and the console says which one.
+- **Taps stay taps:** the tap length (Settings, `tapMs`) now goes up to 200 ms,
+  since Star Citizen counts a press held past 0.25 s as a hold.
+- **A Comms panel** on the right half: push to talk and proximity push to talk
+  (held for as long as you hold the button), the voice channel, hail target,
+  accept and decline invites, chat, contacts, the inner thought wheel and wipe
+  visor.
+- **Decoupled and Throttle Mode** replace Match Speed and Reset Limit in Flight
+  Assist, which Star Citizen 4.10 no longer has. Decoupled lights while it's on.
+- **Next Hostile** joins Prev Hostile in Targeting, so the Stream Deck's Targets
+  dial cycles hostiles both ways.
+- **Buttons follow Star Citizen 4.10's keys.** Decoy is now H and Noise J,
+  Flight Ready RAlt+R and Request Docking RAlt+N; SCM/NAV and the docking camera
+  are held long enough to count; Engage Quantum presses RAlt+J (holding B
+  switched SCM/NAV instead); Launch Missile launches (it toggled the missile
+  camera); the Speed Limiter and Speed Range buttons work again; and the salvage
+  modifiers, Salvage and Guns modes, Fewer Missiles, Panic Decoys, Prev Attacker
+  and Toggle Doors moved off keys the game also uses for Flight Ready, night
+  vision, the disintegrate beam, the voice channel and more. That also fixes the
+  Speed Limit, Modifier and Beam dials on the Stream Deck + and + XL. Install the
+  keybind profile again (Settings → Install keybind profile...) and load
+  **Tablet Deck Keyboard** again in-game. Layouts you made in the layout editor
+  keep some of their old keys; see "Buttons to double-check" in the README.
+- **Follow Stream Deck scenes** (a switch under Display in Deck settings, on
+  unless turned off): picking a scene on a Stream Deck with the new Tablet Deck
+  plugin flips the tablet's HUD halves to that scene's panels.
+- **Key labels** (a switch under Display in Deck settings): each HUD button
+  shows the key it presses in a corner, taken from your keybinds, so in-game
+  rebinds show up too.
+- **Button sounds**: soft HUD sounds, made from a few tones rather than sound
+  files. Presses chirp at a pitch that follows the button's colour, the quantum
+  drive spools up and engages, self-destruct arming beeps faster as it fills,
+  panels flip, voice commands answer, and a press that didn't go through buzzes.
+  They're on by default; a new **Sounds** section in Deck settings turns them
+  off and sets the volume, per device.
+- **Hear the deck in your headset:** under Sounds → Play on, a tablet can play
+  its sounds on one of the PC's outputs instead of on itself, e.g. your
+  headset, so you hear them over the game. The PC makes the same sounds there
+  with a small new helper (`native/sound.exe`); if that output is unplugged,
+  they play on Windows' default output, and while the tablet isn't connected,
+  on the tablet.
+- **The deck shows how quick the link to the PC is**, next to Connected
+  ("Connected · 8 ms"); the dot turns amber when it's slow enough to feel.
+- **A dead connection is noticed within seconds.** If the PC goes to sleep or the
+  Wi-Fi drops without the connection closing, the deck used to keep saying
+  Connected while taps went nowhere; now it says Reconnecting… and connects again
+  by itself.
+- **Changing the pairing code now disconnects devices paired with the old one**,
+  and they show the pairing screen with a note that the code changed. Before,
+  they kept working until they reconnected, then retried the old code forever.
+- **HUD layouts show a lost connection**: their buttons dim, as on the tabbed
+  grid layout, and a tap says "Not connected to the PC" instead of playing its
+  animation as if it had worked.
+- **A press skipped because Star Citizen wasn't in front now shows on the
+  button too**: it flashes red, and a quantum charge, self-destruct arming or
+  lock-on it started stops instead of ending as ENGAGED, ARMED or LOCKED.
+
 ## 1.6.0 (2026-10-26)
 
 - **Español, Français and Deutsch:** the deck and the app window can show
