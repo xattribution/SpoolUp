@@ -113,6 +113,16 @@ async function main() {
     for (const x of [weapons, timedDial, qt]) sd.send(ev.appear(x[0], x[1], x[2], x[3], x[4]));
     const turn = (d, ticks) => sd.send(ev.dial("dialRotate", d[0], d[1], d[2], d[3], { column: d[4].column, ticks, pressed: false }));
     const dialEv = (d, event) => sd.send(ev.dial(event, d[0], d[1], d[2], d[3], { column: d[4].column }));
+    const press = (k, event) => sd.send(ev.key(event, k[0], k[1], k[2], k[3]));
+    // How many F5 presses went down while LAlt was held (the game reads those as LAlt+F5).
+    const underLalt = (from) => {
+      let lalt = 0, wrong = 0;
+      for (const k of server.keys.slice(from)) {
+        if (k.code === "38 0") lalt += k.dir === "d" ? 1 : -1;
+        if (k.code === F5 && k.dir === "d" && lalt > 0) wrong++;
+      }
+      return wrong;
+    };
     if (!(await within(6000, () => stream.find((e) => e.t === "client" && e.on && e.device === "streamdeck")[0]))) throw new Error("plugin didn't connect");
     await sleep(400);
 
@@ -155,12 +165,68 @@ async function main() {
     turn(weapons, 3);
     turn(shields, -3);
     await sleep(1500);
-    let lalt = 0, wrong = 0;
-    for (const k of server.keys.slice(k0)) {
-      if (k.code === "38 0") lalt += k.dir === "d" ? 1 : -1;
-      if (k.code === F5 && k.dir === "d" && lalt > 0) wrong++;
-    }
+    let wrong = underLalt(k0);
     check("two dials turned together: no F5 goes down while LAlt is held (no Weapons − from a Weapons + detent)", wrong === 0, `${wrong} of ${downs(server, F5, k0)} F5 presses landed under LAlt`);
+
+    // One hand on the keys, one on the dials: Weapons + pressed on a key (F5) just after a
+    // Shields − detent (LAlt+F7).
+    const wepKey = [A.key, "k-wep", XL, { action: "pw-wep-up" }, { column: 0, row: 3 }];
+    sd.send(ev.appear(wepKey[0], wepKey[1], wepKey[2], wepKey[3], wepKey[4]));
+    await sleep(200);
+    k0 = server.keys.length;
+    turn(shields, -2);
+    await sleep(30);
+    press(wepKey, "keyDown");
+    press(wepKey, "keyUp");
+    await sleep(1200);
+    wrong = underLalt(k0);
+    check("a key pressed while a dial turns: its F5 goes down once, and not under the dial's LAlt", wrong === 0 && downs(server, F5, k0) === 1, `${downs(server, F5, k0)} F5 presses, ${wrong} under LAlt`);
+
+    // The same key pressed three times quickly: three presses, not one long one.
+    k0 = server.keys.length;
+    for (let i = 0; i < 3; i++) { press(wepKey, "keyDown"); press(wepKey, "keyUp"); await sleep(40); }
+    await sleep(1000);
+    check("a key pressed three times in 120 ms: F5 goes down three times", downs(server, F5, k0) === 3, `${downs(server, F5, k0)} time(s)`);
+
+    // Nine keys pressed in the same instant (no hand does that): one goes at once and four
+    // wait their turn; the other four alert instead of being pressed seconds later.
+    const row = ["cb-decoy", "cb-noise", "fa-lights", "pl-gear", "tg-hostile", "tg-attacker", "cm-hail", "op-scan", "mn-fire"].map((id, c) => [A.key, `k-row-${c}`, XL, { action: id }, { column: c, row: 2 }]);
+    for (const k of row) sd.send(ev.appear(k[0], k[1], k[2], k[3], k[4]));
+    await sleep(300);
+    e0 = stream.mark();
+    let b0 = sd.mark();
+    for (const k of row) { press(k, "keyDown"); press(k, "keyUp"); }
+    await sleep(2500);
+    const rowTaps = stream.find((e) => e.t === "press" && row.some((k) => k[3].action === e.id), e0);
+    const rowAlerts = sd.find((m) => m.event === "showAlert" && m.context.startsWith("k-row-"), b0).length;
+    const apart = rowTaps.every((e, i) => !i || e.time - rowTaps[i - 1].time >= 100);
+    check("nine keys pressed at once: five are pressed, one at a time, and four alert", rowTaps.length === 5 && rowAlerts === 4 && apart, `${rowTaps.length} pressed (${rowTaps.map((e) => e.time - rowTaps[0].time).join(", ")} ms), ${rowAlerts} alerts`);
+
+    // Three dials spun five detents at once, one of them a timed button (900 ms each): no
+    // press goes more than 2 s after its turn; the rest are dropped, and the dial alerts.
+    e0 = stream.mark();
+    b0 = sd.mark();
+    const spun = Date.now();
+    turn(timedDial, 5);
+    turn(weapons, 5);
+    turn(shields, 5);
+    await sleep(4000);
+    const late = stream.find((e) => e.t === "press" && e.kind !== "up", e0).filter((e) => e.time - spun > 2100);
+    const spunPresses = stream.find((e) => e.t === "press" && e.kind !== "up", e0);
+    const dropped = sd.find((m) => m.event === "showAlert" && m.context.startsWith("d-"), b0).length;
+    const everyDial = ["pw-wep-max", "pw-wep-up", "pw-shd-up"].every((id) => spunPresses.some((e) => e.id === id));
+    check("three dials spun at once, one timed: each gets its turn, nothing is pressed more than 2 s late, and what can't go alerts", everyDial && !late.length && spunPresses.length < 15 && dropped >= 1, `${spunPresses.length} of 15 pressed (${spunPresses.map((e) => `${e.id} @${e.time - spun}`).join(", ")}), ${late.length} late, ${dropped} alerts`);
+
+    // A dial on Stream Deck's own volume actions spun for a second: the plugin can't press
+    // those, and it alerts, but not once for every tick.
+    const volume = [A.dial, "d-volume", XL, { dial: DIAL.volume }, { controller: "Encoder", column: 4 }];
+    sd.send(ev.appear(volume[0], volume[1], volume[2], volume[3], volume[4]));
+    await sleep(200);
+    const a0 = sd.mark();
+    for (let i = 0; i < 20; i++) { turn(volume, 1); await sleep(50); }
+    await sleep(100);
+    const alerts = sd.find((m) => m.event === "showAlert" && m.context === "d-volume", a0).length;
+    check("a dial the plugin can't press, spun for a second: at most 3 alerts", alerts >= 1 && alerts <= 3, `${alerts} alerts`);
 
     // The scene dial spun fast: every dialRotate is a profile switch, and each switch
     // redraws the whole page (36 keys and 6 strips on a + XL).
@@ -174,7 +240,6 @@ async function main() {
     check("the scene dial spun for a second (20 events): at most 5 profile switches", switches <= 5, `${switches} switchToProfile`);
 
     console.log("\nHolds are released");
-    const press = (k, event) => sd.send(ev.key(event, k[0], k[1], k[2], k[3]));
     const qtB = [A.key, "k-qt-b", "DEV-15", { action: "qt-engage" }, { column: 0, row: 0 }];
     sd.send(ev.device("DEV-15", 0, 5, 3, "Stream Deck"));
     sd.send(ev.appear(qtB[0], qtB[1], qtB[2], qtB[3], qtB[4]));
@@ -253,6 +318,23 @@ async function main() {
     check("the plugin killed mid-hold: the key comes up within 1 s (needs the server change)", up && up.time - tDown < 1000, up ? `came up after ${up.time - tDown} ms` : "never came up");
     await sleep(300);
     check("no key left down", !held(server).length, JSON.stringify(held(server)));
+
+    console.log("\nConnecting");
+    // A port typed in the inspector once, long ago, and no code: Tablet Deck runs on the
+    // port its config.json names. The plugin still finds it.
+    const stale = await new Promise((resolve) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => resolve(p)); }); });
+    sd = new FakeStreamDeck({ pluginDir, env: { APPDATA: appdata } });
+    sd.globals = { port: stale };
+    e0 = stream.mark();
+    await sd.start();
+    sd.send(ev.device(XL, 13, 9, 4, "Stream Deck + XL"));
+    sd.send(ev.appear(A.status, "st", XL, {}, { column: 8, row: 3 }));
+    const found = await within(8000, () => stream.find((e) => e.t === "client" && e.on && e.device === "streamdeck", e0).length);
+    await sleep(600);
+    const shown = sd.find((m) => m.event === "setImage" && m.context === "st").map((m) => decodeURIComponent(m.payload.image));
+    const last = shown.length ? shown[shown.length - 1] : "";
+    check("a port typed once in the inspector, Tablet Deck on config.json's port: the plugin connects", Boolean(found) && !/>OFFLINE</.test(last), found ? "status key still says OFFLINE" : "never connected");
+    await sd.stop();
   } finally {
     if (sd) { try { sd.server.close(); } catch { /* gone */ } }
     if (stream) stream.close();

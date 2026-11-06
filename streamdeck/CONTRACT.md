@@ -30,7 +30,7 @@ Icons not yet in icons.js (being designed) fall back to `DECK_ICONS.default`.
 
 - UUID **`com.nodiecode.tabletdeck`**; source folder in the repo:
   `streamdeck/plugin/com.nodiecode.tabletdeck.sdPlugin/` (manifest.json, bin/, pi/, layouts/,
-  en.json/es.json/fr.json/de.json). Windows only, `SDKVersion` 3, `Software.MinimumVersion` "7.1",
+  en.json/es.json/fr.json/de.json). Windows only, `SDKVersion` 3, `Software.MinimumVersion` "7.3" (the + XL profile and the `switchToProfile` fix need it),
   `Nodejs.Version` "24" (global WebSocket), no npm dependencies, no bundler.
 - At runtime the plugin reads generated data from its own folder: `data/catalog.json` (the catalog's
   `actions`, JSON), `data/icons.json` (DECK_ICONS), `data/themes.json` (keyart.parseThemes output),
@@ -51,7 +51,7 @@ Icons not yet in icons.js (being designed) fall back to `DECK_ICONS.default`.
 
 - Bundled profiles (written by the generator, one per model that has profiles): file
   `profiles/Tablet Deck <MODELS[id].name>.streamDeckProfile`, manifest `Profiles[]` entry
-  `{ "Name": "profiles/Tablet Deck <name>", "DeviceType": MODELS[id].type, "ReadOnly": false,
+  `{ "Name": "profiles/Tablet Deck <name>", "DeviceType": MODELS[id].type, "Readonly": false,
   "DontAutoSwitchWhenInstalled": true, "AutoInstall": false }` (research: AutoInstall false = prompt on
   first switchToProfile). The plugin's scene action calls `switchToProfile` with that Name for the
   device's type and `page` = the scene's index (0-based). Built-in actions (media, websites,

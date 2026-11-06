@@ -12,7 +12,7 @@
   "CodePath": "bin/plugin.js",
   "PropertyInspectorPath": "pi/index.html",
   "SDKVersion": 3,
-  "Software": { "MinimumVersion": "7.1" },
+  "Software": { "MinimumVersion": "7.3" },
   "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
   "Nodejs": { "Version": "24" },
   "Actions": [

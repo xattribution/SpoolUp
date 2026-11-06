@@ -151,7 +151,7 @@
     "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.": "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.",
     "The code is kept in Stream Deck's settings on this PC, never in exported profiles.": "The code is kept in Stream Deck's settings on this PC, never in exported profiles.",
     "Tablets follow scenes": "Tablets follow scenes",
-    "Picking a scene here pages tablets that follow Stream Deck scenes to its panels.": "Picking a scene here pages tablets that follow Stream Deck scenes to its panels.",
+    "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.": "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.",
     "Key animations": "Key animations",
     "Press effects on keys and the touch strip. Turn off for still keys.": "Press effects on keys and the touch strip. Turn off for still keys."
   }

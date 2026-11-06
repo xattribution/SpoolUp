@@ -3,8 +3,10 @@
 //
 // The ground rules, as they apply here:
 // - One press per tap: a key press sends one "tap" (or one "down" and one "up" for hold
-//   buttons); a dial detent is one tap, at most 5 per turn and at most 5 waiting.
-//   Nothing repeats, and the actions can't go in Multi Actions or Key Logic (manifest).
+//   buttons); a dial detent is one tap, at most 5 per turn and at most 5 waiting. Taps go
+//   one at a time, each once the last one's keys are up, so two never merge into one
+//   press or mix their modifiers (see "the press line"). Nothing repeats, and the actions
+//   can't go in Multi Actions or Key Logic (manifest).
 // - Keys only reach Star Citizen: everything goes to Tablet Deck, which runs its focus
 //   check; while it isn't connected nothing is sent or saved for later.
 // - Releases always go through: a "down" is matched by an "up" on keyUp/dialUp, and on
@@ -21,7 +23,7 @@ const kindOf = (action) => KIND[String(action).slice(UUID.length + 1)] || null;
 
 const FRAME_MS = 120;   // animation frame spacing; the painter enforces it per key
 const BLOCKED_MS = 700; // how long a skipped press stays red
-const MAX_DETENTS = 5;  // presses per dialRotate, and waiting at most
+const MAX_DETENTS = 5;  // presses per dialRotate; a dial's turns, and its pushes, waiting at most
 const SLOW_MS = 120;    // round trip that turns the status amber, as on the tablet
 
 // Press animations: the effect a button plays (public/fx.js pick()) and how long it lasts.
@@ -112,6 +114,84 @@ function createActions({ sd, tablet, data, draw, log }) {
     setTheme(THEMES[(((i < 0 ? 0 : i) + step) % THEMES.length + THEMES.length) % THEMES.length].id);
   };
 
+  // Stream Deck's alert (a warning sign over the key or strip), at most one per ALERT_MS on
+  // each, so a dial spun while offline doesn't send one for every tick.
+  const ALERT_MS = 500;
+  function alert(ctx) {
+    const at = now();
+    if (ctx.alertAt && at - ctx.alertAt < ALERT_MS) return;
+    ctx.alertAt = at;
+    sd.send({ event: "showAlert", context: ctx.context });
+  }
+
+  // ---------- the press line ----------
+
+  // Every tap the plugin sends (a key press, a dial detent, a push or a touch) waits its
+  // turn and goes once the last one's keys are surely up. Tablet Deck holds a tap's keys for
+  // its tap time (a timed button's for its ms) and presses a combo's keys 15 ms apart, and
+  // presses that overlap reach the game as one (a turn back on Weapons: F5, then LAlt+F5)
+  // or under another's modifier (Weapons + while Shields − holds LAlt reads as Weapons −),
+  // which two hands on a + XL's keys and six dials would do all the time. Key presses go
+  // first, at most KEYS_WAITING of them; then the dial that pressed longest ago, one press
+  // at a time, so a timed dial can't keep the others waiting. A press that
+  // would go more than STALE_MS late is dropped (with an alert) rather than pressed when
+  // the player no longer expects it. Holds don't wait: they go down when pressed and stay
+  // down as long as the player wants.
+  const KEYS_WAITING = 4;
+  const STALE_MS = 2000; // the longest timed button (Autoland, 1.5 s) and its gap still fit
+  let freeAt = 0, lineTimer = null;
+  const keyTaps = []; // { def, ctx, at }: deck buttons pressed on keys, waiting
+  const waiting = new Set(); // dial contexts with presses queued (ctx.queue: { def, dir, ctx, at })
+  const keyCount = (def) => String((def && def.keys) || "").split("+").length;
+  // Tablet Deck's own rule for how long a tap holds: the button's ms, else its tap time.
+  const gapFor = (def) => Math.max(120, (Number(def.ms) || tablet.tapMs || 60) + 30 * (keyCount(def) - 1) + 60);
+  // A key's press: sent at once when nothing is pressing, else first in line.
+  function tapKey(ctx, def) {
+    if (!online() || keyTaps.length >= KEYS_WAITING) return false;
+    keyTaps.push({ def, ctx, at: Date.now() });
+    runLine();
+    return true;
+  }
+  // A dial's n presses of one button; dir 1 or -1 for a turn, 0 for a push or touch.
+  function line(ctx, def, dir, n) {
+    if (!ctx.queue) ctx.queue = [];
+    for (let i = 0; i < n; i++) ctx.queue.push({ def, dir, ctx, at: Date.now() });
+    waiting.add(ctx);
+    runLine();
+  }
+  function clearLine() {
+    keyTaps.length = 0;
+    for (const c of waiting) c.queue = null;
+    waiting.clear();
+    clearTimeout(lineTimer);
+    lineTimer = null;
+  }
+  function runLine() {
+    clearTimeout(lineTimer);
+    lineTimer = null;
+    for (;;) {
+      let dial = null;
+      for (const c of waiting) {
+        if (!c.queue || !c.queue.length) { waiting.delete(c); continue; }
+        if (!dial || (c.pressedAt || 0) < (dial.pressedAt || 0)) dial = c;
+      }
+      if (!keyTaps.length && !dial) return;
+      const wait = freeAt - Date.now();
+      if (wait > 0) { lineTimer = setTimeout(runLine, wait); return; }
+      let p;
+      if (keyTaps.length) p = keyTaps.shift();
+      else {
+        p = dial.queue.shift();
+        dial.pressedAt = Date.now();
+        if (!dial.queue.length) { dial.queue = null; waiting.delete(dial); }
+      }
+      if (Date.now() - p.at > STALE_MS) { if (contexts.has(p.ctx.context)) alert(p.ctx); continue; }
+      // Not connected: nothing waits to be pressed later.
+      if (!tablet.send({ t: "tap", id: p.def.id })) { clearLine(); return; }
+      freeAt = Date.now() + gapFor(p.def);
+    }
+  }
+
   // ---------- holds ----------
 
   // A hold button goes down once however many keys hold it, and up when the last lets go.
@@ -133,7 +213,11 @@ function createActions({ sd, tablet, data, draw, log }) {
     const set = holds.get(id);
     if (!set) return;
     set.delete(ctx);
-    if (!set.size) { holds.delete(id); tablet.send({ t: "up", id }); }
+    if (!set.size) {
+      holds.delete(id);
+      // The next tap waits for its keys to come up too (after its press, 15 ms apart).
+      if (tablet.send({ t: "up", id })) freeAt = Math.max(freeAt, Date.now() + 30 * keyCount(data.byId.get(id)) + 30);
+    }
   }
   function talk(ctx, on) {
     if (on) {
@@ -162,7 +246,7 @@ function createActions({ sd, tablet, data, draw, log }) {
   // The Tablet Deck link dropped: the server let go of everything already.
   tablet.on("drop", () => {
     holds.clear();
-    waiting.length = 0;
+    clearLine();
     talkers.clear();
     listening = false;
     for (const c of contexts.values()) {
@@ -292,10 +376,15 @@ function createActions({ sd, tablet, data, draw, log }) {
     const def = data.byId.get(ref);
     return def && def.kind === "deck" ? { kind: "deck", def } : { kind: "unsupported" };
   }
+  const LINKS = new Set(["au", "aux", "à", "de", "du", "des", "la", "le", "les", "el", "al", "del", "zum", "zur", "the", "to", "of"]);
   const isSceneDial = (d) => d && [d.ccw, d.cw].some((r) => r === "@next" || r === "@prev");
 
   // The short word for what a turn or push did: the button's label without the dial's own
-  // words ("Weapons +" on the Weapons dial is "+", "Max Weapons" is "MAX").
+  // words ("Weapons +" on the Weapons dial is "+", "Max Weapons" is "MAX"), without the
+  // words its two turns share ("Tempobereich −" and "Tempobereich +" are "−" and "+"), and
+  // for a push, without the words it shares with a turn ("Vorheriger Angreifer" next to
+  // "Vorheriger Feind" is "ANGREIFER"). The strip's value line is only 118 px wide, and a
+  // long German or French label would lose its end there, the + or − included.
   function wordFor(ctx, ref) {
     const r = resolve(ref);
     if (!r) return "";
@@ -307,11 +396,19 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (r.kind === "theme-next") return t("Next theme");
     if (r.kind === "theme") return (THEMES.find((x) => x.id === r.id) || {}).name || "";
     if (r.kind !== "deck") return "";
-    const label = t(r.def.label);
     const dial = dialOf(ctx);
-    const drop = new Set(t(dial && dial.label || "").toLowerCase().split(/\s+/).filter(Boolean));
-    const words = label.split(/\s+/).filter((w) => !drop.has(w.toLowerCase()));
-    return (words.length ? words.join(" ") : label);
+    const split = (text) => String(text || "").split(/\s+/).filter(Boolean);
+    const lower = (id) => { const x = resolve(id); return x && x.kind === "deck" ? split(t(x.def.label).toLowerCase()) : []; };
+    // Leaves out the dropped words, unless nothing would be left.
+    const without = (words, drop) => { const left = words.filter((w) => !drop.includes(w.toLowerCase())); return left.length ? left : words; };
+    let words = without(split(t(r.def.label)), split(t(dial && dial.label).toLowerCase()));
+    if (dial) {
+      const ccw = lower(dial.ccw), cw = lower(dial.cw);
+      words = without(words, ref === dial.ccw || ref === dial.cw ? ccw.filter((w) => cw.includes(w)) : [...ccw, ...cw]);
+    }
+    // A word left dangling at the end ("Tirer au laser" on the Laser dial) goes too.
+    while (words.length > 1 && LINKS.has(words[words.length - 1].toLowerCase())) words = words.slice(0, -1);
+    return words.join(" ");
   }
 
   function paintDial(ctx) {
@@ -357,7 +454,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (blocked) { value = t("NOT FOCUSED"); valueColor = th.colors.red; }
     else if (off && usable && !isSceneDial(d)) { value = t("OFFLINE"); valueColor = th.dim; }
     // The value line is 118 px wide: long words get a smaller size rather than an ellipsis.
-    const size = value.length <= 8 ? 22 : value.length <= 11 ? 17 : value.length <= 14 ? 13 : 12;
+    const size = value.length <= 8 ? 22 : value.length <= 11 ? 17 : value.length <= 14 ? 13 : value.length <= 17 ? 12 : 10;
     const bg = draw.strip(th, { color, place, flash: G.motion === false ? 0 : flashP, blocked, offline: off && !(d && isSceneDial(d)) });
     sd.feedback(ctx.context, {
       bg: svgBase64(bg),
@@ -385,41 +482,6 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (Object.keys(payload).length) sd.send({ event: "setTriggerDescription", context: ctx.context, payload });
   }
 
-  // A dial's presses (its detents, and a push or touch) wait their turn in one line shared
-  // by every dial, each going once the last one's keys are surely up: Tablet Deck holds a
-  // tap's keys for its tap time (a timed button's for its ms) and presses a combo's keys
-  // 15 ms apart, and presses that overlap reach the game as one (a turn back on Weapons:
-  // F5, then LAlt+F5) or under another dial's modifier (Weapons + while Shields − holds
-  // LAlt reads as Weapons −). Dials take turns, one press each.
-  let freeAt = 0, lineTimer = null;
-  const waiting = []; // dial contexts with presses queued, in turn order
-  const gapFor = (def) => {
-    const n = String(def.keys || "").split("+").length;
-    const held = def.mode === "timed" ? Number(def.ms) || 600 : tablet.tapMs || 60;
-    return Math.max(120, held + 30 * (n - 1) + 60);
-  };
-  function line(ctx, def, dir, n) {
-    if (!ctx.queue) ctx.queue = [];
-    for (let i = 0; i < n; i++) ctx.queue.push({ id: def.id, gap: gapFor(def), dir });
-    if (!waiting.includes(ctx)) waiting.push(ctx);
-    runLine();
-  }
-  function runLine() {
-    clearTimeout(lineTimer);
-    lineTimer = null;
-    for (;;) {
-      while (waiting.length && !(waiting[0].queue && waiting[0].queue.length)) waiting.shift();
-      if (!waiting.length) return;
-      const wait = freeAt - Date.now();
-      if (wait > 0) { lineTimer = setTimeout(runLine, wait); return; }
-      const ctx = waiting.shift();
-      const p = ctx.queue.shift();
-      if (!tablet.send({ t: "tap", id: p.id })) { ctx.queue = null; continue; }
-      freeAt = Date.now() + p.gap;
-      if (ctx.queue.length) waiting.push(ctx); else ctx.queue = null;
-    }
-  }
-
   // A spun scene dial switches at most once per SCENE_MS, adding up the steps in between:
   // each switch makes Stream Deck rebuild the page (36 keys and 6 strips on a + XL), and
   // every key on it gets a new picture.
@@ -439,7 +501,7 @@ function createActions({ sd, tablet, data, draw, log }) {
       s.at = now();
       const c = s.ctx;
       const cur = sceneOn.has(c.device) ? sceneOn.get(c.device) : 0;
-      if (!goToScene(c, cur + steps) && contexts.has(c.context)) sd.send({ event: "showAlert", context: c.context });
+      if (!goToScene(c, cur + steps) && contexts.has(c.context)) alert(c);
       if (contexts.has(c.context)) paint(c);
       s.timer = setTimeout(go, SCENE_MS);
     };
@@ -458,8 +520,8 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (r.kind === "scene-step") { stepScene(ctx, r.step * n); return; }
     if (r.kind === "theme-next") { nextTheme(dir); return; }
     if (r.kind === "theme") { setTheme(r.id); return; }
-    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) sd.send({ event: "showAlert", context: ctx.context }); return; }
-    if (r.kind !== "deck" || !online()) { sd.send({ event: "showAlert", context: ctx.context }); paint(ctx); return; }
+    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) alert(ctx); return; }
+    if (r.kind !== "deck" || !online()) { alert(ctx); paint(ctx); return; }
     // A turn the other way drops what's still waiting from the last one; at most 5 wait.
     if (ctx.queue) ctx.queue = ctx.queue.filter((p) => p.dir !== -dir);
     const queued = ctx.queue ? ctx.queue.filter((p) => p.dir).length : 0;
@@ -479,10 +541,11 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (!r) return;
     if (r.kind === "theme-next") { nextTheme(1); return; }
     if (r.kind === "theme") { setTheme(r.id); return; }
-    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) sd.send({ event: "showAlert", context: ctx.context }); return; }
+    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) alert(ctx); return; }
     if (r.kind === "scene-step") { const cur = sceneOn.get(ctx.device) || 0; goToScene(ctx, cur + r.step); return; }
-    if (r.kind !== "deck" || !online()) { sd.send({ event: "showAlert", context: ctx.context }); paint(ctx); return; }
-    if (!touch && r.def.mode === "hold") { if (!hold(ctx, r.def.id)) { sd.send({ event: "showAlert", context: ctx.context }); return; } }
+    if (r.kind !== "deck" || !online()) { alert(ctx); paint(ctx); return; }
+    if (!touch && r.def.mode === "hold") { if (!hold(ctx, r.def.id)) { alert(ctx); return; } }
+    else if (ctx.queue && ctx.queue.filter((p) => !p.dir).length >= MAX_DETENTS) { alert(ctx); return; } // pushed faster than they go
     else line(ctx, r.def, 0, 1);
     ctx.last = { word: wordFor(ctx, d.press), n: 1 };
     ctx.flashAt = now();
@@ -614,7 +677,7 @@ function createActions({ sd, tablet, data, draw, log }) {
         for (const c of dialsFor(msg.id)) {
           c.queue = null; // don't keep turning into the wrong window
           c.blockedUntil = until;
-          sd.send({ event: "showAlert", context: c.context });
+          alert(c);
           paint(c);
           animate(c);
         }
@@ -692,11 +755,15 @@ function createActions({ sd, tablet, data, draw, log }) {
       case "deviceDidChange":
         addDevice(msg.device, msg.deviceInfo);
         return;
-      case "deviceDidDisconnect":
+      case "deviceDidDisconnect": {
         releaseWhere((c) => c.device === msg.device);
+        const s = sceneSteps.get(msg.device);
+        if (s) { clearTimeout(s.timer); sceneSteps.delete(msg.device); }
         return;
+      }
       case "systemDidWakeUp":
         releaseWhere(() => true);
+        clearLine(); // presses from before the PC slept aren't pressed now
         tablet.retryNow();
         return;
       case "didReceiveGlobalSettings": {
@@ -754,13 +821,12 @@ function createActions({ sd, tablet, data, draw, log }) {
 
   function keyDown(ctx) {
     ctx.pressed = true;
-    const alert = () => sd.send({ event: "showAlert", context: ctx.context });
     switch (ctx.kind) {
       case "key": {
         const def = deckDef(ctx);
-        if (!def || !online()) { alert(); break; }
-        const ok = def.mode === "hold" ? hold(ctx, def.id) : tablet.send({ t: "tap", id: def.id });
-        if (!ok) { alert(); break; }
+        if (!def || !online()) { alert(ctx); break; }
+        const ok = def.mode === "hold" ? hold(ctx, def.id) : tapKey(ctx, def);
+        if (!ok) { alert(ctx); break; }
         ctx.blockedUntil = 0;
         ctx.after = null;
         pressAnim(ctx, def);
@@ -768,17 +834,17 @@ function createActions({ sd, tablet, data, draw, log }) {
       }
       case "scene": {
         const i = sceneIndex(ctx.settings.scene);
-        if (i < 0 || !goToScene(ctx, i)) alert();
+        if (i < 0 || !goToScene(ctx, i)) alert(ctx);
         break;
       }
       case "theme":
-        if (THEMES.some((x) => x.id === ctx.settings.theme)) setTheme(ctx.settings.theme); else alert();
+        if (THEMES.some((x) => x.id === ctx.settings.theme)) setTheme(ctx.settings.theme); else alert(ctx);
         break;
       case "talk":
-        if (!online() || !talk(ctx, true)) alert();
+        if (!online() || !talk(ctx, true)) alert(ctx);
         break;
       case "lights":
-        if (!online() || !tablet.send({ t: "reset-states" })) { alert(); break; }
+        if (!online() || !tablet.send({ t: "reset-states" })) { alert(ctx); break; }
         toggles.clear();
         play(ctx, { kind: "flash", ms: ANIM_MS.flash });
         return;

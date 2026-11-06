@@ -1,5 +1,7 @@
-// The image rate under load: a full Stream Deck + XL page (36 keys, 6 dials) all animating
-// at once, with shared states changing, a theme change mid-animation and a page change.
+// The image rate under load: a full Stream Deck + XL page (36 keys, 6 dials) animating,
+// every key pressed in turn as fast as the plugin's press line takes them (one tap at a
+// time, about 4 a second here so the dials get their turns too), with all six dials
+// turning, shared states changing, a theme change mid-animation and a page change.
 // Checks Elgato's "at most 10 updates a second" per key and strip, that nothing is drawn on
 // a key after it disappeared, and that once everything settles each key shows its final
 // look (a fresh willAppear draws exactly the same picture: no frame left behind).
@@ -86,16 +88,20 @@ async function main() {
     tablet = new WebSocket(`ws://127.0.0.1:${port}/ws?t=${encodeURIComponent(token)}&device=tablet`);
     await within(3000, () => tablet.readyState === WebSocket.OPEN);
 
-    console.log("\nA full + XL page animating at once");
+    console.log("\nA full + XL page animating");
     const from = sd.mark();
     const t0 = Date.now();
-    for (let round = 0; round < 3; round++) {
-      for (const k of keys) { sd.send(ev.key("keyDown", `${U}.key`, k.context, XL, k.settings)); sd.send(ev.key("keyUp", `${U}.key`, k.context, XL, k.settings)); }
-      for (const d of dials) sd.send(ev.dial("dialRotate", `${U}.dial`, d.context, XL, d.settings, { column: d.c, ticks: round % 2 ? -2 : 2, pressed: false }));
-      tablet.send(JSON.stringify({ t: "tap", id: "pl-gear" }));
-      tablet.send(JSON.stringify({ t: "tap", id: "fa-lights" }));
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      sd.send(ev.key("keyDown", `${U}.key`, k.context, XL, k.settings));
+      sd.send(ev.key("keyUp", `${U}.key`, k.context, XL, k.settings));
+      if (i % 12 === 0) {
+        for (const d of dials) sd.send(ev.dial("dialRotate", `${U}.dial`, d.context, XL, d.settings, { column: d.c, ticks: i % 24 ? -1 : 1, pressed: false }));
+        tablet.send(JSON.stringify({ t: "tap", id: "pl-gear" }));
+        tablet.send(JSON.stringify({ t: "tap", id: "fa-lights" }));
+      }
+      if (i === 18) sd.send({ event: "didReceiveGlobalSettings", payload: { settings: { theme: "drake" } } });
       await sleep(250);
-      if (round === 1) sd.send({ event: "didReceiveGlobalSettings", payload: { settings: { theme: "drake" } } });
     }
     await sleep(3000);
     const span = (Date.now() - t0) / 1000;

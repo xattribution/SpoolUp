@@ -44,7 +44,7 @@
     "RETRACTED": "RETRAÍDO",
     "DEPLOYING…": "DESPLEGANDO…",
     "RETRACTING…": "RETRAYENDO…",
-    "HOLD TO ENGAGE": "MANTÉN PARA ACTIVAR",
+    "HOLD TO ENGAGE": "MANTENER",
     "SPOOLING…": "CARGANDO…",
     "ENGAGED": "ACTIVADO",
     "OPEN": "ABIERTO",
@@ -53,7 +53,7 @@
     "CLOSING…": "CERRANDO…",
     "ACQUIRING…": "ADQUIRIENDO…",
     "LOCKED": "BLOQUEADO",
-    "HOLD TO ARM": "MANTÉN PARA ARMAR",
+    "HOLD TO ARM": "MANTENER",
     "ARMING…": "ARMANDO…",
     "ARMED": "ARMADO",
     "ACTIVE": "ACTIVA",
@@ -151,7 +151,7 @@
     "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.": "No se encontró la configuración de Tablet Deck en este PC: escribe su puerto y código.",
     "The code is kept in Stream Deck's settings on this PC, never in exported profiles.": "El código se guarda en la configuración de Stream Deck en este PC, nunca en perfiles exportados.",
     "Tablets follow scenes": "Las tablets siguen las escenas",
-    "Picking a scene here pages tablets that follow Stream Deck scenes to its panels.": "Al elegir una escena aquí, las tablets que siguen las escenas del Stream Deck cambian a sus paneles.",
+    "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.": "Cuando la escena cambia en el Stream Deck, las tablets que siguen las escenas del Stream Deck pasan a sus paneles.",
     "Key animations": "Animaciones de teclas",
     "Press effects on keys and the touch strip. Turn off for still keys.": "Efectos al pulsar en las teclas y la barra táctil. Desactívalo para teclas fijas."
   }

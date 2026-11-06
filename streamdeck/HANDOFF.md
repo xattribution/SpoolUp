@@ -84,7 +84,7 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   Deck and keeps the check.
 - **Plugin:** plain Node with the raw Stream Deck WebSocket protocol, no `@elgato/streamdeck`
   and no bundler (officially supported: `research/sdk.verified.md` 0, 5.4). `Nodejs.Version`
-  "24" (global `WebSocket`), `Software.MinimumVersion` "7.1", `SDKVersion` 3, Windows only.
+  "24" (global `WebSocket`), `Software.MinimumVersion` "7.3" (a + XL profile needs 7.3, which also fixed `switchToProfile`), `SDKVersion` 3, Windows only.
   `setImage` takes SVG/PNG data URLs but no animated formats, at most ~10 updates a second:
   animation = frames from `streamdeck/keyart.js`.
 - **No new npm dependencies.** The generator renders PNGs by driving an installed
