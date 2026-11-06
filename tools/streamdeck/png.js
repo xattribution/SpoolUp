@@ -97,10 +97,86 @@ function encode({ width, height, rgba }) {
   return Buffer.concat([SIGNATURE, chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(rows, { level: 6, memLevel: 9 })), chunk("IEND", Buffer.alloc(0))]);
 }
 
+// Chromium dithers gradients, so a key's dark backdrop is fine noise that PNG can't squeeze:
+// a 144 px key comes out at 15-20 KB, and a profile repeats its keys on every page. An
+// opaque image is therefore stored with a palette of at most 256 colours (median cut, no
+// dithering): the noise goes, the gradients and glows stay smooth, and keys shrink 3-4x.
+// Images with transparency (action-list icons) stay RGBA.
+function quantize(rgba, max = 256) {
+  const counts = new Map();
+  for (let i = 0; i < rgba.length; i += 4) {
+    const k = (rgba[i] << 16) | (rgba[i + 1] << 8) | rgba[i + 2];
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  const colors = [...counts].map(([k, n]) => [(k >> 16) & 255, (k >> 8) & 255, k & 255, n]);
+  let palette;
+  if (colors.length <= max) palette = colors.map((c) => c.slice(0, 3));
+  else {
+    const stats = (items) => {
+      let n = 0;
+      const lo = [255, 255, 255], hi = [0, 0, 0];
+      for (const c of items) { n += c[3]; for (let j = 0; j < 3; j++) { if (c[j] < lo[j]) lo[j] = c[j]; if (c[j] > hi[j]) hi[j] = c[j]; } }
+      const range = [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]];
+      const axis = range.indexOf(Math.max(...range));
+      return { items, n, axis, score: items.length > 1 ? range[axis] * Math.sqrt(n) : -1 };
+    };
+    const boxes = [stats(colors)];
+    while (boxes.length < max) {
+      let best = 0;
+      for (let b = 1; b < boxes.length; b++) if (boxes[b].score > boxes[best].score) best = b;
+      const box = boxes[best];
+      if (box.score <= 0) break;
+      const ax = box.axis;
+      box.items.sort((p, q) => p[ax] - q[ax]);
+      // Split where half the box's pixels fall on each side.
+      let acc = 0, cut = 1;
+      for (; cut < box.items.length - 1; cut++) { acc += box.items[cut - 1][3]; if (acc >= box.n / 2) break; }
+      boxes.splice(best, 1, stats(box.items.slice(0, cut)), stats(box.items.slice(cut)));
+    }
+    palette = boxes.map(({ items, n }) => [0, 1, 2].map((j) => Math.round(items.reduce((s, c) => s + c[j] * c[3], 0) / n)));
+  }
+  const index = new Map();
+  for (const [k] of counts) {
+    const r = (k >> 16) & 255, g = (k >> 8) & 255, b = k & 255;
+    let best = 0, bestD = Infinity;
+    for (let p = 0; p < palette.length; p++) {
+      const dr = r - palette[p][0], dg = g - palette[p][1], db = b - palette[p][2];
+      const d = 2 * dr * dr + 4 * dg * dg + 3 * db * db;
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    index.set(k, best);
+  }
+  return { palette, index };
+}
+
+function encodeIndexed({ width, height, rgba }) {
+  const { palette, index } = quantize(rgba);
+  const rows = Buffer.alloc((width + 1) * height);
+  for (let y = 0; y < height; y++) {
+    rows[y * (width + 1)] = 0;
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      rows[y * (width + 1) + 1 + x] = index.get((rgba[i] << 16) | (rgba[i + 1] << 8) | rgba[i + 2]);
+    }
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4);
+  ihdr[8] = 8; ihdr[9] = 3; // 8-bit palette
+  const plte = Buffer.alloc(palette.length * 3);
+  palette.forEach((c, i) => { plte[i * 3] = c[0]; plte[i * 3 + 1] = c[1]; plte[i * 3 + 2] = c[2]; });
+  return Buffer.concat([SIGNATURE, chunk("IHDR", ihdr), chunk("PLTE", plte), chunk("IDAT", zlib.deflateSync(rows, { level: 9 })), chunk("IEND", Buffer.alloc(0))]);
+}
+
+// Opaque images get a palette (see quantize), others stay full RGBA.
+function encodeBest(img) {
+  for (let i = 3; i < img.rgba.length; i += 4) if (img.rgba[i] !== 255) return encode(img);
+  return encodeIndexed(img);
+}
+
 // Width and height from a PNG's header, without decoding it.
 function size(buf) {
   if (!buf || buf.length < 24 || !buf.subarray(0, 8).equals(SIGNATURE)) return null;
   return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-module.exports = { decode, encode, crop, size };
+module.exports = { decode, encode, encodeIndexed, encodeBest, crop, size };
