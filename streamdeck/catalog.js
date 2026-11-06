@@ -6,7 +6,8 @@
 //
 //   const { actions, byId, categories } = require("./catalog");
 //
-// An action: { id, label, icon, color, category, kind, ... }
+// An action: { id, label, icon, color, category, kind, ... }, with keyLabel where the pack's
+// keys say it shorter than the label (see PACK)
 //   kind "deck":    a Tablet Deck button: keys, mode (tap/hold/timed), ms, anim, state, scAction
 //   kind "system":  a built-in Stream Deck action: system { uuid, settings }
 //   kind "plugin":  another plugin's action: plugin { uuid, name, version, action, settings, states }
@@ -51,6 +52,18 @@ const ICON_FOR = {
   "pl-request-dock": "docking", "pl-dock-cam": "dock-camera", "qt-flight-ready": "flight-ready",
   "qt-scm-nav": "scm-nav", "qt-engage": "quantum-jump", "qt-eject": "eject", "qt-self-destruct": "self-destruct",
 };
+// The pack's own look for a few buttons, over hud.json's (the tablet keeps its own): a
+// key's words rather than a slider's ("Slide to eject" on a key that taps), Eject red like
+// the rest of its folder, and icons told apart from their neighbours'. keyLabel is drawn
+// only on the pack's keys, so the plugin keeps hud.json's label and its translations in
+// public/i18n.js.
+const PACK = {
+  "qt-eject": { keyLabel: "Eject", color: "red" },
+  "qt-flight-ready": { keyLabel: "Flight Ready" },
+  "sh-back": { keyLabel: "Rear" },
+  "fa-look-behind": { icon: "headtrack" },
+  "top-contacts": { icon: "contacts" },
+};
 // Power/Landing holds two kinds of action: landing ones, and the power triangle.
 const POWER = /^(pl-(max|min|inc|dec|reset)|.*power)/;
 
@@ -79,6 +92,7 @@ function deckActions(layoutFile = path.join(ROOT, "layouts", "hud.json")) {
       icon: node.icon || ICON_FOR[node.id] || (category === "emotes" ? `emote-${node.id.replace(/^em-/, "")}` : node.id),
       color: node.color || "", keys: node.keys, mode: node.mode || "tap", ms: node.ms, anim: node.anim || "",
       state: node.state || null, scAction: node.scAction || "", voice: node.voice, panel, aliases: [],
+      ...PACK[node.id],
     };
     byKey.set(dupe, a);
     out.push(a);
@@ -123,7 +137,7 @@ const EXTRAS = [
   { id: "sd-obs-record", label: "Record", icon: "record", color: "red", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.record", { states: 2 }) },
   { id: "sd-obs-stream", label: "Go Live", icon: "live", color: "red", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.stream", { states: 2, settings: { isInMultiAction: false, longpress: true } }) },
   { id: "sd-obs-replay", label: "Save Replay", icon: "replay", color: "amber", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.replaybuffer.save", { states: 2 }) },
-  { id: "sd-obs-screenshot", label: "OBS Screenshot", icon: "screenshot", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.screenshot", { states: 2 }) },
+  { id: "sd-obs-screenshot", label: "Screenshot", icon: "screenshot", category: "stream", kind: "plugin", plugin: plug(OBS, "com.elgato.obsstudio.screenshot", { states: 2 }) },
 
   // Websites (the same as Tablet Deck's "Open on PC" defaults).
   { id: "sd-uex", label: "UEX", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://uexcorp.space/" },
@@ -131,9 +145,13 @@ const EXTRAS = [
   { id: "sd-spviewer", label: "SPViewer", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://www.spviewer.eu/" },
   { id: "sd-scmdb", label: "SCMDB", icon: "link", color: "blue", category: "tools", kind: "website", url: "https://scmdb.net/" },
   { id: "sd-brightness", label: "Brightness", icon: "brightness", category: "tools", kind: "system", system: sys("com.elgato.streamdeck.system.keybrightness") },
+  // One step each way, for a dial's turns (research/navigation.verified.md: 0 brighter, 1 darker).
+  { id: "sd-brightness-up", label: "Brighter", icon: "brightness", category: "tools", kind: "system", system: sys("com.elgato.streamdeck.system.keybrightness", { actionIdx: 0 }) },
+  { id: "sd-brightness-down", label: "Dimmer", icon: "brightness", category: "tools", kind: "system", system: sys("com.elgato.streamdeck.system.keybrightness", { actionIdx: 1 }) },
 
-  // Tablet Deck (only with the plugin).
-  { id: "td-talk", label: "Hold to Talk", icon: "mic", color: "red", category: "deck", kind: "tabletdeck", tabletdeck: "talk" },
+  // Tablet Deck (only with the plugin). Hold to Talk is blue, not the game's push-to-talk
+  // green or danger red, and its key says what it's for.
+  { id: "td-talk", label: "Hold to Talk", keyLabel: "Voice Command", icon: "mic", color: "blue", category: "deck", kind: "tabletdeck", tabletdeck: "talk" },
   { id: "td-status", label: "Tablet Deck", icon: "sliders", category: "deck", kind: "tabletdeck", tabletdeck: "status" },
   { id: "td-lights-reset", label: "Reset Lights", icon: "power-reset", category: "deck", kind: "tabletdeck", tabletdeck: "lights-reset" },
   { id: "td-theme", label: "Theme", icon: "palette", category: "deck", kind: "tabletdeck", tabletdeck: "theme" },

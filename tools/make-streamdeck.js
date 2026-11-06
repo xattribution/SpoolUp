@@ -192,7 +192,9 @@ const dialArt = (d, standalone) => {
   }
   const refs = { ccw: d.ccw, cw: d.cw, press: d.press };
   const plugin = standalone ? Object.keys(refs).filter((k) => viaPlugin(refs[k] && catalog.byId.get(refs[k]), k !== "press")) : [];
-  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hintFor(d.ccw, d.label, "ccw"), cw: hintFor(d.cw, d.label, "cw"), press: hintFor(d.press, d.label, "press") }, plugin };
+  // The preset's own words (DIAL hints) win over the shortened labels.
+  const hint = (dir) => (d.hints && d.hints[dir] != null ? d.hints[dir] : hintFor(d[dir], d.label, dir));
+  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hint("ccw"), cw: hint("cw"), press: hint("press") }, plugin };
 };
 
 // ---------- profiles ----------
@@ -358,17 +360,20 @@ function buildProfile(env, modelId, variant, theme) {
 
   // A dial: built-in Action Trigger ([turn left, push, turn right]) with Hotkey and page
   // actions inside, the plugin's dial in a bundled profile, or another plugin's dial action.
-  function dialFor(d, i, at) {
+  // `titleSize`: the strip's one title size, so its own background matches the strip.
+  function dialFor(d, i, at, titleSize) {
     const where = `${at.where}/dial${i}`;
     if (!d) return null;
-    const look = dialArt(d, standalone);
+    const drawn = dialArt(d, standalone);
+    const look = drawn && titleSize ? { ...drawn, titleSize } : drawn;
     const panel = look ? image(art.dialPanel(th, look), 200, 100) : null;
     const icon = look ? image(art.dialIcon(th, look), DIAL_ICON_PX, DIAL_ICON_PX) : null;
     if (d.action) {
       const a = catalog.byId.get(d.action);
       if (!a || a.kind !== "plugin" || !a.dial) { warn(`${modelId}: dial action "${d.action}" isn't a dial plugin action`); return null; }
-      // Another plugin draws its own dial (a volume bar for Discord), so it gets no pictures.
-      return { json: P.action(id(where), a.plugin.action, { name: a.label, plugin: { Name: a.plugin.name, UUID: a.plugin.uuid, Version: a.plugin.version }, settings: a.plugin.settings || {}, states: [{}] }), look: null, icon };
+      // Another plugin draws its own dial (a volume bar for Discord), so it gets no pictures,
+      // and the strip draws only a frame there for that layout to sit in.
+      return { json: P.action(id(where), a.plugin.action, { name: a.label, plugin: { Name: a.plugin.name, UUID: a.plugin.uuid, Version: a.plugin.version }, settings: a.plugin.settings || {}, states: [{}] }), look: look && { ...look, external: true }, icon };
     }
     const refs = [d.ccw, d.press, d.cw];
     // The plugin's dial presses deck buttons and steps through scenes and themes itself
@@ -423,8 +428,8 @@ function buildProfile(env, modelId, variant, theme) {
     const preview = previewed.has(pv) ? null : { title: `Folder: ${page.name}`, keys: {}, strip: null, dials: null };
     if (preview) { previewed.add(pv); folderPreviews.push(preview); }
     const { keys, imgs } = fillKeys(pages[n].keys, { path: pathHere, sceneIndex: at.sceneIndex });
-    // Dials rest while a folder is open; the strip says which folder it is.
-    const strip = model.dials ? image(art.folderStrip(th, folder, model.dials), 200 * model.dials, 100) : null;
+    // Dials rest while a folder is open; the strip says which folder (and page) it is.
+    const strip = model.dials ? image(art.folderStrip(th, { ...folder, name: page.name }, model.dials, n > 0 ? `Back: page ${n}` : "Back to leave"), 200 * model.dials, 100) : null;
     page.controllers = P.controllers(model, { keys, dials: {}, background: strip });
     if (preview) Object.assign(preview, { keys: imgs, strip });
     return uuid;
@@ -443,8 +448,9 @@ function buildProfile(env, modelId, variant, theme) {
       dialLooks = [];
       const list = (p.dials || []).slice(0, model.dials);
       if ((p.dials || []).length > model.dials) warn(`${modelId}: ${scene.id} has ${p.dials.length} dials, the model has ${model.dials}`);
+      const ts = art.titleSize(th, list.filter((d) => d && !d.action).map((d) => d.label));
       for (let n = 0; n < model.dials; n++) {
-        const res = dialFor(list[n] || null, n, { ...at, where: `${at.path}`, slot: `dial${n}` });
+        const res = dialFor(list[n] || null, n, { ...at, where: `${at.path}`, slot: `dial${n}` }, ts);
         if (res) { dials[`${n},0`] = res.json; counts.dials++; }
         dialLooks.push(res ? { look: res.look, icon: res.icon, label: res.look ? res.look.label : (catalog.byId.get((list[n] || {}).action) || {}).label } : null);
       }
@@ -857,6 +863,19 @@ function checkLayouts(env) {
   }
   for (const s of scenes.SCENES) if (!env.icons[s.icon]) warnings.push(`scene ${s.id}: no icon "${s.icon}"`);
   for (const [id, f] of Object.entries(scenes.FOLDERS)) if (!env.icons[f.icon]) warnings.push(`folder ${id}: no icon "${f.icon}"`);
+  // Every theme's key face: a --key-clip the outline can't read draws no face, frame or lit
+  // ring at all (a path of two points), so a lit key looks unlit.
+  for (const t of env.themes) {
+    const d = keyart.outline(env.art.theme(t.id), 6, 6, 132, 132);
+    const points = new Set();
+    let x = 0, y = 0;
+    for (const [, cmd, args] of d.matchAll(/([MLHVCZ])([^MLHVCZ]*)/g)) {
+      const n = args.trim() ? args.trim().split(/[\s,]+/).map(Number) : [];
+      if (cmd === "H") x = n[0]; else if (cmd === "V") y = n[0]; else if (n.length >= 2) [x, y] = n.slice(-2);
+      if (cmd !== "Z") points.add(`${x},${y}`);
+    }
+    if (/NaN/.test(d) || points.size < 4) errors.push(`theme ${t.id}: key outline is degenerate`);
+  }
   return { errors, warnings };
 }
 

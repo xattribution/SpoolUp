@@ -44,6 +44,14 @@ const FONT_KIND = {
   Comfortaa: "rounded", Montserrat: "rounded",
 };
 const firstFamily = (stack) => (String(stack || "").split(",")[0] || "").replace(/["']/g, "").trim();
+// Each display font's average glyph width per em over the labels, in the theme's case and
+// weight, to fit labels drawn in it. Other fonts, and the plugin's Windows fonts, use a
+// rough 0.64 in capitals and 0.56 in mixed case.
+const GLYPH_WIDTH = {
+  "Exo 2": { upper: 0.58, mixed: 0.51 }, "Saira Stencil One": 0.6, Rajdhani: 0.49, "Black Ops One": 0.66,
+  Montserrat: 0.67, Oxanium: 0.6, "Chakra Petch": 0.6, Cinzel: 0.67, Marcellus: 0.5, Comfortaa: 0.57,
+};
+const roughWidth = (upper) => (upper ? 0.64 : 0.56);
 
 const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
 
@@ -55,6 +63,7 @@ function theme(tokens, id = "") {
   const top = t["key-top"] || "none";
   const display = firstFamily(t["font-display"]), body = firstFamily(t["font-body"]);
   const fallback = WINDOWS_FONTS[FONT_KIND[display] || "default"];
+  const upper = (t["label-case"] || "uppercase") === "uppercase", glyph = GLYPH_WIDTH[display];
   // The backdrop's first glow: its colour and where it sits.
   const glow = /radial-gradient\(ellipse [^,]*at ([\d.-]+)% ([\d.-]+)%, (rgba?\([^)]+\))/.exec(t["bg-art"] || "");
   return {
@@ -81,9 +90,10 @@ function theme(tokens, id = "") {
       family: `'${display}', ${fallback}`,
       body: `'${body}', ${fallback}`,
       windows: fallback,
-      upper: (t["label-case"] || "uppercase") === "uppercase",
+      upper,
       weight: t["label-weight"] || "600",
       track: num(t["label-track"], 0.06),
+      per: glyph === undefined ? roughWidth(upper) : typeof glyph === "number" ? glyph : glyph[upper ? "upper" : "mixed"],
       googleFamilies: [...new Set([display, body])],
     },
   };
@@ -186,7 +196,8 @@ function mix(a, b, share) {
 // The key face's outline: the theme's rounded corners, or its cut corners (--key-clip).
 function outline(th, x, y, w, h) {
   if (th.clip) {
-    const pts = /polygon\(([^)]*(?:\([^)]*\)[^)]*)*)\)/.exec(th.clip);
+    // Points may hold calc(): a bracket pair inside the polygon's is kept whole.
+    const pts = /polygon\(((?:[^()]|\([^()]*\))*)\)/.exec(th.clip);
     if (pts) {
       const ev = (expr, full) => {
         const e = expr.trim();
@@ -217,36 +228,45 @@ function icon(body, th, cx, cy, size, color, { glow = th.glow, strength = 1 } = 
   return (glow ? layer(th.stroke + 6, 0.07 * strength) + layer(th.stroke + 3, 0.14 * strength) : "") + layer(th.stroke, 1);
 }
 
-// Splits a label into at most two lines that fit, and picks a font size for them.
-function fitLabel(label, th, width, maxSize) {
+// Splits a label into at most two lines that fit, and picks a font size for them. `own`:
+// drawn in the theme's display font, whose glyph width theme() knows; else a rough one.
+function fitLabel(label, th, width, maxSize, own = true) {
   const text = th.font.upper ? String(label).toUpperCase() : String(label);
-  const per = th.font.upper ? 0.64 : 0.56; // average glyph width per font size, with tracking
+  const per = own ? th.font.per : roughWidth(th.font.upper); // average glyph width per font size
   const fits = (s, size) => s.length * size * (per + th.font.track) <= width;
   let size = maxSize;
   if (fits(text, size)) return { lines: [text], size };
-  // Short tails ("+", "−", "2") stay with the word before them rather than make a line.
-  const words = text.split(/\s+/).reduce((list, w) => {
-    if (list.length && w.length <= 2) list[list.length - 1] += ` ${w}`; else list.push(w);
-    return list;
-  }, []);
-  if (words.length > 1) {
-    // The split with the shortest longer line.
+  // The split with the shortest longer line.
+  const twoLines = (words) => {
     let best = null;
     for (let i = 1; i < words.length; i++) {
       const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
       const longest = Math.max(a.length, b.length);
       if (!best || longest < best.longest) best = { lines: [a, b], longest };
     }
-    while (size > 11 && !fits("x".repeat(best.longest), size)) size -= 1;
-    return { lines: best.lines, size: Math.min(size, maxSize * 0.9) };
-  }
+    let s = maxSize;
+    while (s > 11 && !fits("x".repeat(best.longest), s)) s -= 1;
+    return { lines: best.lines, size: Math.min(s, maxSize * 0.9) };
+  };
+  // Short tails ("+", "−", "2") stay with the word before them rather than make a line.
+  const raw = text.split(/\s+/);
+  const words = raw.reduce((list, w) => {
+    if (list.length && w.length <= 2) list[list.length - 1] += ` ${w}`; else list.push(w);
+    return list;
+  }, []);
+  if (words.length > 1) return twoLines(words);
   while (size > 10 && !fits(text, size)) size -= 1;
+  // ...unless keeping one would shrink the line below 16 px ("THRUSTERS +"): then it does.
+  if (size < 16 && raw.length > 1 && raw[raw.length - 1].length <= 2) {
+    const split = twoLines([raw.slice(0, -1).join(" "), raw[raw.length - 1]]);
+    if (split.size > size) return split;
+  }
   return { lines: [text], size };
 }
 
 function label(text, th, cx, bottom, { color, maxSize = 21, width = 110, font = th.font.family } = {}) {
   if (!text) return "";
-  const fit = fitLabel(text, th, width, maxSize);
+  const fit = fitLabel(text, th, width, maxSize, font === th.font.family);
   const lh = fit.size * 1.08;
   const y0 = bottom - (fit.lines.length - 1) * lh;
   const track = (th.font.track * fit.size).toFixed(2);
@@ -264,12 +284,13 @@ function hash(text) {
   return (h >>> 0).toString(36);
 }
 
-// Background, frame, theme decoration; `c` is the button's colour.
-function face(th, c, { lit = false, pressed = false, blocked = false, dim = false } = {}) {
+// Background, frame, theme decoration; `c` is the button's colour. A tab's frame is quiet
+// until it's lit.
+function face(th, c, { lit = false, pressed = false, blocked = false, dim = false, tab = false } = {}) {
   const id = hash(`${th.id}|${c}|${lit}|${pressed}|${blocked}|${dim}`);
   const f = 6, w = SIZE - 2 * f, h = SIZE - 2 * f;
   const shape = outline(th, f, f, w, h);
-  const ring = blocked ? th.colors.red : lit || pressed ? c : mix(th.lineHi, c, 0.75);
+  const ring = blocked ? th.colors.red : lit || pressed ? c : tab ? mix(th.dim, th.bg, 0.6) : mix(th.lineHi, c, 0.75);
   const bgTop = th.light ? th.panel : mix(th.panelHi, th.bg, 0.55);
   const bgBottom = th.light ? mix(th.bg, th.panel, 0.45) : th.bg;
   const tint = (lit ? 0.26 : pressed ? 0.34 : blocked ? 0.3 : 0) * (th.light ? 0.6 : 1);
@@ -378,18 +399,25 @@ function animation(a, th, c, iconBox) {
 // opts: theme (from theme()), icon (svg body), label, color ("" | green | amber | red | blue),
 // status (small word: DEPLOYED, ON, LOCKED...), lit, pressed, blocked, offline, anim {kind,t},
 // keys (a key label like "LALT+N", drawn small), showLabel (default true), badge (a small
-// corner glyph: "folder" or "back"), font ("live" uses Windows fonts only).
+// corner glyph: "folder" or "back"), font ("live" uses Windows fonts only), tab (a
+// navigation key: scene tabs, Back, Next... drawn quiet and underlined, so the action keys
+// and the one lit tab stand out).
 function key(opts) {
   const th = opts.theme;
   const c = opts.blocked ? th.colors.red : th.colors[opts.color || ""] || th.accent;
   const showLabel = opts.showLabel !== false && opts.label;
   const font = opts.font === "live" ? th.font.windows : th.font.family;
+  const quiet = opts.tab && !opts.lit && !opts.pressed && !opts.blocked;
   const box = showLabel ? { cx: 72, cy: opts.status ? 52 : 56, size: opts.status ? 52 : 58 } : { cx: 72, cy: 72, size: 78 };
   const parts = [face(th, c, opts)];
-  parts.push(icon(opts.icon, th, box.cx, box.cy, box.size, opts.offline ? th.dim : c, { strength: opts.lit || opts.pressed ? 1.8 : 1 }));
+  // On a light face thin strokes in pale colours fade: heavier and darker there.
+  const ink = opts.offline ? th.dim : quiet ? mix(c, th.dim, 0.4) : th.light ? mix(c, th.text, 0.65) : c;
+  const ith = th.light ? { ...th, stroke: Math.max(th.stroke, 2.4) } : th;
+  parts.push(icon(opts.icon, ith, box.cx, box.cy, box.size, ink, { glow: quiet ? false : th.glow, strength: opts.lit || opts.pressed ? 1.8 : 1 }));
   parts.push(animation(opts.anim, th, c, box));
-  if (showLabel) parts.push(label(opts.label, th, 72, opts.status ? 110 : 122, { color: opts.offline ? th.dim : th.text, font }));
+  if (showLabel) parts.push(label(opts.label, th, 72, opts.status ? 110 : 122, { color: opts.offline || quiet ? th.dim : th.text, font }));
   if (opts.status) parts.push(`<text x="72" y="128" text-anchor="middle" font-family="${esc(font)}" font-size="11" font-weight="700" letter-spacing="1.6" fill="${opts.lit ? c : th.dim}">${esc(opts.status)}</text>`);
+  if (opts.tab) parts.push(`<rect x="44" y="131" width="56" height="${quiet ? 2 : 4}" fill="${c}" opacity="${quiet ? 0.55 : 1}"/>`);
   if (opts.keys) parts.push(`<text x="${136 - th.edge}" y="22" text-anchor="end" font-family="${esc(th.font.windows)}" font-size="10" font-weight="600" letter-spacing=".8" fill="${th.dim}">${esc(String(opts.keys).toUpperCase())}</text>`);
   // Badges sit top right, clear of the label and of corners some themes cut (Drake's).
   const bx = 128 - th.edge;
@@ -405,4 +433,4 @@ function blank(th) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? mix(th.bg, th.line, 0.5) : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
-module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix, arcsToCubics };
+module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix, arcsToCubics, outline };

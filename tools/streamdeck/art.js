@@ -47,13 +47,15 @@ function createArt({ icons, themes, tokens }) {
   // that only works through the Tablet Deck plugin.
   function actionKey(th, a, { lit = false, mark } = {}) {
     const status = lit ? (a.state && a.state.on) || "ON" : mark;
-    return keyart.key({ theme: th, icon: icon(a.icon), label: a.label, color: a.color, lit, status });
+    return keyart.key({ theme: th, icon: icon(a.icon), label: a.keyLabel || a.label, color: a.color, lit, status });
   }
-  const sceneKey = (th, scene, lit) => keyart.key({ theme: th, icon: icon(scene.icon), label: scene.short || scene.name, color: scene.color, lit });
-  const folderKey = (th, folder) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder" });
+  // Navigation (scene tabs, the Scenes folder, Back, Next...) is drawn as tabs: quiet, with
+  // the current scene the one lit.
+  const sceneKey = (th, scene, lit) => keyart.key({ theme: th, icon: icon(scene.icon), label: scene.short || scene.name, color: scene.color, lit, tab: true });
+  const folderKey = (th, folder) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder", tab: folder.items === "@scenes" });
   const navKey = (th, kind) => {
     const k = { back: ["back", "Back"], next: ["page-next", "Next"], prev: ["page-prev", "Previous"], more: ["page-next", "More"], home: ["home", "Home"] }[kind];
-    return keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined });
+    return keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined, tab: true });
   };
   // A theme's key is drawn in that theme, so the folder previews every look.
   function themeKey(id, lit = false) {
@@ -72,10 +74,10 @@ function createArt({ icons, themes, tokens }) {
     return keyart.arcsToCubics(`M${x + tl} ${y}H${x + w - tr}${tr ? `A${tr} ${tr} 0 0 1 ${x + w} ${y + tr}` : ""}V${y + h - br}${br ? `A${br} ${br} 0 0 1 ${x + w - br} ${y + h}` : ""}H${x + bl}${bl ? `A${bl} ${bl} 0 0 1 ${x} ${y + h - bl}` : ""}V${y + tl}${tl ? `A${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ""}Z`);
   }
 
-  // Text that fits `width` at no more than `size` (a rough per-glyph width, like keyart's).
+  // Text that fits `width` at no more than `size` (the theme font's glyph width, like keyart's).
   function fitText(text, th, width, size, min = 8) {
     const t = th.font.upper ? String(text).toUpperCase() : String(text);
-    const per = (th.font.upper ? 0.64 : 0.56) + th.font.track;
+    const per = th.font.per + th.font.track;
     let s = size;
     while (s > min && t.length * s * per > width) s -= 0.5;
     let out = t;
@@ -84,9 +86,14 @@ function createArt({ icons, themes, tokens }) {
   }
   const text = (th, x, y, t, { size, anchor = "start", fill, weight = th.font.weight, font = th.font.family }) =>
     `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${esc(font)}" font-size="${size}" font-weight="${weight}" letter-spacing="${(th.font.track * size).toFixed(2)}" fill="${fill}">${esc(t)}</text>`;
+  // One title size for a strip's dials (the largest every label fits at), so the strip
+  // reads as one panel rather than titles shrinking one by one.
+  const titleSize = (th, labels) => labels.reduce((s, l) => Math.min(s, fitText(l, th, 112, 18, 11).size), 18);
 
   // One dial's 200x100 panel: theme frame, the dial's icon and name, and what turning and
-  // pushing do. `id` keeps gradient ids apart when panels share one strip.
+  // pushing do. `id` keeps gradient ids apart when panels share one strip. `d.titleSize`:
+  // the strip's title size (titleSize()); `d.external`: another plugin draws over this
+  // part (Discord's volume), so it gets the frame in its colour and nothing else.
   function panelBody(th, d, id, { x = 0 } = {}) {
     const c = d ? colorOf(th, d.color) : th.dim;
     const W = 200, H = 100, f = 3, shape = outline(th, x + f, f, W - 2 * f, H - 2 * f);
@@ -103,9 +110,9 @@ function createArt({ icons, themes, tokens }) {
       if (th.edge) parts.push(`<rect x="${x + f}" y="${f + 8}" width="${th.edge}" height="${H - 2 * f - 16}" fill="${c}"/>`);
     }
     parts.push(`<path d="${shape}" fill="none" stroke="${d ? keyart.mix(th.lineHi, c, 0.6) : th.line}" stroke-width="1.6" opacity=".9"/>`);
-    if (!d) return parts.join("");
+    if (!d || d.external) return parts.join("");
     parts.push(keyart.icon(icon(d.icon), th, x + 40, 56, 50, c));
-    const title = fitText(d.label, th, 112, 18, 11);
+    const title = fitText(d.label, th, 112, d.titleSize || 18, 11);
     parts.push(text(th, x + 76, 31, title.text, { size: title.size, fill: th.text }));
     // What turning left and right and pushing do. Symbols ("−", "+") share a line, large;
     // words share it smaller, or get a line each. A pair is drawn alike, so "DOWN" and "UP"
@@ -137,7 +144,7 @@ function createArt({ icons, themes, tokens }) {
       parts.push(text(th, x + 91, y, t.text, { ...small, size: t.size, fill: th.text }));
       if (via.has("press")) parts.push(tag(x + 188, y));
     }
-    if (th.radius[0] < 12 && !th.clip) parts.push(`<path d="M${x + 8} 20V8H20" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/><path d="M${x + 192} 80V92H180" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/>`);
+    if (th.radius[0] < 12 && !th.clip) parts.push(`<path d="M${x + 8} 20V8H${x + 20}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/><path d="M${x + 192} 80V92H${x + 180}" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/>`);
     return parts.join("");
   }
   // d: { label, icon, color, hints: { ccw, cw, press }, plugin: [hints that need the plugin] }
@@ -147,7 +154,8 @@ function createArt({ icons, themes, tokens }) {
   // The whole strip: every dial's panel side by side.
   const strip = (th, dials) => svg(200 * dials.length, 100, dials.map((d, i) => panelBody(th, d, `${th.id}s${i}`, { x: i * 200 })).join(""));
   // What a folder's strip shows: its name and the way out, since dials rest while it's open.
-  function folderStrip(th, folder, count) {
+  // `hint` says where Back goes (a folder's later pages go back a page).
+  function folderStrip(th, folder, count, hint = "Back to leave") {
     const W = 200 * count, c = colorOf(th, folder.color), shape = outline(th, 3, 3, W - 6, 94);
     const title = fitText(folder.name, th, W - 260, 24, 12);
     return svg(W, 100, `<defs><linearGradient id="fb${th.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55)}"/><stop offset="1" stop-color="${th.bg}"/></linearGradient></defs>
@@ -156,7 +164,7 @@ function createArt({ icons, themes, tokens }) {
       ${keyart.icon(icon(folder.icon), th, 50, 50, 56, c)}
       ${text(th, 96, 58, title.text, { size: title.size, fill: th.text })}
       ${keyart.icon(icon("back"), th, W - 150, 50, 30, th.accent)}
-      ${text(th, W - 126, 56, "Back to leave", { size: 14, fill: th.dim, font: th.font.body, weight: 700 })}`);
+      ${text(th, W - 126, 56, hint, { size: 14, fill: th.dim, font: th.font.body, weight: 700 })}`);
   }
   // The dial's picture in Stream Deck's editor (its circle), on transparent.
   const dialIcon = (th, d) => svg(144, 144, keyart.icon(icon(d.icon), th, 72, 72, 112, colorOf(th, d.color)));
@@ -169,7 +177,7 @@ function createArt({ icons, themes, tokens }) {
     <rect x="5" y="11" width="38" height="27" rx="4"/><rect x="10" y="16" width="11" height="7" rx="1.5"/><rect x="10" y="27" width="11" height="7" rx="1.5" fill="#fff" fill-opacity=".4"/>
     <circle cx="32" cy="24.5" r="6"/><circle cx="32" cy="24.5" r="1.8" fill="#fff" stroke="none"/></g>`);
 
-  return { theme, icon, colorOf, actionKey, sceneKey, folderKey, navKey, themeKey, blankKey, dialPanel, strip, folderStrip, dialIcon, listIcon, tabletMark };
+  return { theme, icon, colorOf, actionKey, sceneKey, folderKey, navKey, themeKey, blankKey, dialPanel, strip, titleSize, folderStrip, dialIcon, listIcon, tabletMark };
 }
 
 module.exports = { createArt, TEXT };

@@ -160,8 +160,9 @@ const SHIP_ROW = (last) => ["op-quantum", "qt-engage", "pw-reset", "cr-doors-tog
 // Stream Deck + XL, the flagship: 9 scene tabs on top, 27 keys, six dials. On the ship
 // scenes dials 1-3 are the power triangle or the scene's tools, dial 4 the speed limiter,
 // dial 5 the scene's cycle (master mode or targets); dial 6 is always the scenes. Levels
-// live on the dials, so the keys don't repeat them. Flight, Mining, Salvage and Hauling
-// share rows 2-3 (above), and Scanning, Flight and Star Map at the end of row 1.
+// live on the dials, so keys don't repeat them (bar the shield compass's own shield
+// power). Flight, Mining, Salvage and Hauling share rows 2-3 (above), and Scanning,
+// Flight and Star Map at the end of row 1.
 const PLUSXL = {
   flight: {
     keys: [
@@ -307,20 +308,37 @@ const STD = {
   ],
 };
 
-// Stream Deck +: 8 keys, three dials for the scene, the fourth turns through scenes.
+// Stream Deck +: 8 keys and four dials. Dial 1 is the scene's main control (master mode,
+// weapons, laser, beam, voice channel); the fourth turns through the scenes, and its push
+// opens the Scenes folder. Gear and ATC sit at 1,0 and 2,0 on Flight, Salvage and Hauling,
+// Quantum and Engage at 0,1 and 1,1 on Flight and Hauling.
 const PLUS = {
-  flight: { keys: [["qt-flight-ready", "pl-gear", "pl-vtol", "fa-lights"], ["op-quantum", "qt-engage", "top-atc", "@folder:emergency"]], dials: ["weapons", "thrusters", "shields", "scenes"] },
-  combat: { keys: [["op-guns", "op-missile", "cb-missile", "tg-hostile"], ["cb-decoy", "cb-noise", "cb-panic", "@folder:shields"]], dials: ["weapons", "targets", "shields", "scenes"] },
-  mining: { keys: [["mn-mode", "mn-fire", "mn-type", "op-scan"], ["mn-module-1", "mn-module-2", "mn-module-3", "op-flight"]], dials: ["laser", "thrusters", "speed", "scenes"] },
-  salvage: { keys: [["op-salvage", "sv-mod-left", "sv-mod-right", "op-scan"], ["fa-lights", "pl-gear", "op-flight", "cr-doors-toggle"]], dials: ["beam", "modifier", "speed", "scenes"] },
-  hauling: { keys: [["op-quantum", "qt-engage", "top-starmap", "op-scan"], ["top-atc", "pl-request-dock", "pl-gear", "cr-doors-toggle"]], dials: ["thrusters", "shields", "speed", "scenes"] },
-  onfoot: { keys: [["ft-inventory", "ft-camera", "top-mobiglas", "cm-pit"], ["top-chat", "cm-visor", "@folder:emotes", "ft-escape"]], dials: ["discord", "tracks", "volume", "scenes"] },
-  comms: { keys: [["cm-ptt", "cm-ptt-prox", "cm-hail", "top-chat"], ["sd-discord-mute", "sd-discord-deafen", "td-talk", "@folder:websites"]], dials: ["discord", "channel", "volume", "scenes"] },
+  flight: { keys: [["qt-flight-ready", "pl-gear", "top-atc", "pl-request-dock"], ["op-quantum", "qt-engage", "fa-lights", "@folder:emergency"]], dials: ["master", "thrusters", "shields", "scenesHub"] },
+  combat: { keys: [["op-guns", "op-missile", "cb-missile", "fa-scm"], ["cb-decoy", "cb-noise", "cb-panic", "@folder:shields"]], dials: ["weapons", "targets", "shields", "scenesHub"] },
+  mining: { keys: [["mn-mode", "mn-fire", "mn-type", "op-scan"], ["mn-module-1", "mn-module-2", "mn-module-3", "op-flight"]], dials: ["laser", "thrusters", "speed", "scenesHub"] },
+  salvage: { keys: [["op-salvage", "pl-gear", "top-atc", "op-scan"], ["fa-lights", "cr-doors-toggle", "pl-request-dock", "op-flight"]], dials: ["beam", "modifier", "speed", "scenesHub"] },
+  hauling: { keys: [["op-scan", "pl-gear", "top-atc", "pl-request-dock"], ["op-quantum", "qt-engage", "top-starmap", "cr-doors-toggle"]], dials: ["master", "thrusters", "shields", "scenesHub"] },
+  onfoot: { keys: [["ft-inventory", "ft-camera", "top-mobiglas", "cm-pit"], ["top-chat", "cm-visor", "@folder:emotes", "ft-escape"]], dials: ["channelFoot", "brightness", "volume", "scenesHub"] },
+  comms: { keys: [["cm-ptt", "cm-ptt-prox", "top-contacts", "top-chat"], ["sd-discord-mute", "sd-discord-deafen", "td-talk", "@folder:websites"]], dials: ["channel", "discord", "volume", "scenesHub"] },
 };
 
-// Neo (7 keys and a scenes key; its touch points page) and Mini (5 and a scenes key): the
-// first keys of the 15-key layout, read row by row, which is ordered most-used first.
+// Neo (7 keys and a scenes key; its touch points page): the first 7 keys of the 15-key
+// layout, read row by row, which is ordered most-used first, without its folder keys.
 const firstOf = (grid, n) => grid.flat().filter((ref) => ref && !/^@folder:(power|shields|emergency)$/.test(ref)).slice(0, n);
+
+// Stream Deck Mini (5 keys and a scenes key): its own five per scene, since the 15-key's
+// first five would split its pairs (Beam Spacing − without +, Module 1 alone). Quantum
+// lives with NAV and Engage on Hauling; Discord Mute and Deafen sit where they do on the
+// Neo, the 15-key and the +.
+const MINI = {
+  flight: ["qt-flight-ready", "pl-gear", "top-atc", "fa-lights", "pl-request-dock"],
+  combat: ["op-guns", "op-missile", "tg-next-hostile", "cb-decoy", "cb-noise"],
+  mining: ["mn-mode", "mn-fire", "mn-type", "op-scan", "op-flight"],
+  salvage: ["op-salvage", "sv-mod-left", "sv-mod-right", "op-scan", "op-flight"],
+  hauling: ["qt-scm-nav", "op-quantum", "qt-engage", "top-starmap", "op-scan"],
+  onfoot: ["ft-inventory", "ft-camera", "top-mobiglas", "ft-walk", "@folder:emotes"],
+  comms: ["cm-ptt", "cm-channel", "cm-hail", "sd-discord-mute", "sd-discord-deafen"],
+};
 
 // ---------- building ----------
 
@@ -351,7 +369,7 @@ function layoutFor(modelId) {
     } else {
       // corner: the last key opens the scenes menu
       const n = m.cols * m.rows - 1;
-      firstOf(STD[scene.id], n).forEach((ref, i) => put(i % m.cols, Math.floor(i / m.cols), ref));
+      ((modelId === "mini" && MINI[scene.id]) || firstOf(STD[scene.id], n)).forEach((ref, i) => put(i % m.cols, Math.floor(i / m.cols), ref));
       put(m.cols - 1, m.rows - 1, "@folder:scenes");
     }
     return { scene: scene.id, keys, dials };
@@ -375,6 +393,15 @@ function folderPages(modelId, id, folder) {
   const back = [0, 0];
   const slots = [];
   for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) if (!(c === back[0] && r === back[1])) slots.push([c, r]);
+  // Fixed slots (Emergency's), for the reasons given in FOLDERS.
+  if (folder.at && folder.at[modelId]) return [{ keys: { [`${back[0]},${back[1]}`]: "@back", ...Object.fromEntries(Object.entries(folder.at[modelId]).map(([ref, slot]) => [slot, ref])) } }];
+  // A block's own form for a deck of its shape (BLOCKS.shieldsWide on a 4x2).
+  const wide = folder.grid && BLOCKS[`${folder.grid}Wide`];
+  if (wide && wide.length === m.rows && wide[0].length === m.cols) {
+    const keys = { [`${back[0]},${back[1]}`]: "@back" };
+    wide.forEach((row, r) => row.forEach((ref, c) => { if (ref) keys[`${c},${r}`] = ref; }));
+    return [{ keys }];
+  }
   if (folder.grid) {
     // A block goes whole, centred beside Back (under the top row on the XLs, whose top row
     // is their navigation, else right of the first column). When it only fits turned on
@@ -392,16 +419,21 @@ function folderPages(modelId, id, folder) {
       return [{ keys }];
     }
   }
+  // The Scenes folder: the scenes, then every folder (Power and Shields only where their
+  // blocks fit a page, from 4 columns up).
   const items = folder.items === "@themes" ? "@themes" : folder.items === "@scenes"
-    ? [...SCENES.map((s) => `@scene:${s.id}`), "@folder:themes", "@folder:emotes"]
+    ? [...SCENES.map((s) => `@scene:${s.id}`), "@folder:themes", "@folder:emotes", ...(m.cols >= 4 ? ["@folder:power", "@folder:shields"] : []), "@folder:websites", "@folder:emergency"]
     : folder.items || BLOCKS[folder.grid].flat();
   if (items === "@themes") return [{ keys: { [`${back[0]},${back[1]}`]: "@back" }, themes: slots }];
   const pages = [];
   let rest = [...items];
   while (rest.length) {
     const keys = { [`${back[0]},${back[1]}`]: "@back" };
-    const room = rest.length > slots.length ? slots.length - 1 : slots.length;
+    // A folder with maxPages fills its last page and leaves the rest out.
+    const lastPage = folder.maxPages && pages.length + 1 >= folder.maxPages;
+    const room = rest.length > slots.length && !lastPage ? slots.length - 1 : slots.length;
     rest.splice(0, room).forEach((ref, i) => { keys[`${slots[i][0]},${slots[i][1]}`] = ref; });
+    if (lastPage) rest = [];
     if (rest.length) { const last = slots[slots.length - 1]; keys[`${last[0]},${last[1]}`] = `@more:${id}:${pages.length + 1}`; }
     pages.push({ keys });
   }
