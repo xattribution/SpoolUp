@@ -674,6 +674,7 @@
       window.DeckSound.play("press", btn.color);
       send({ t: btn.mode === "hold" ? "down" : "tap", id: btn.id });
       fx.down(e);
+      deckCanvas?.pressed?.(btn.id); // Max Weapons puts the Weapons slider at the top
       if (DEMO && el.dataset.stateGroup) demoState(btn);
     };
     el.addEventListener("pointerdown", (e) => {

@@ -12,6 +12,13 @@ before tagging a release.
   key once. Its three lamps blink red while the gear is in transit and turn
   green when it's down; like the button lights, they follow what SpoolUp
   pressed, not the game.
+- **Power sliders.** The power triangle's eight chevron buttons are now three
+  sliders, Weapons, Thrusters and Shields. Each step you drag taps that
+  system's up or down key once, at most five per drag, spaced out. Tapping the
+  track beside the knob steps once. Max and Min stay above and below. The
+  sliders count the taps SpoolUp sent (SpoolUp can't read the game), so
+  Centre sliders puts them back in the middle without pressing anything, and
+  Max, Min and Reset All move them too.
 
 ## 1.9.0 (2026-11-06)
 

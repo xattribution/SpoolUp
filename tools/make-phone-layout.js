@@ -86,23 +86,19 @@ const panels = {
   power: {
     title: "Power",
     elements: [
-      el({ type: "vlabel", text: "Max", x: 0, y: 0, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Incr", x: 0, y: 48, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Decr", x: 0, y: 130, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Min", x: 0, y: 178, w: 24, h: 42 }),
+      el({ type: "vlabel", text: "Max", x: 0, y: 0, w: 24, h: 40 }),
+      el({ type: "vlabel", text: "Taps sent", x: 0, y: 46, w: 24, h: 130 }),
+      el({ type: "vlabel", text: "Min", x: 0, y: 182, w: 24, h: 40 }),
       ...["wep", "thr", "shd"].flatMap((s, i) => {
         const x = 30 + i * 110;
         return [
-          at(`pw-${s}-max`, x, 0, 104, 42),
-          at(`pw-${s}-up`, x, 48, 104, 42),
-          at(`pw-${s}-down`, x, 130, 104, 42),
-          at(`pw-${s}-min`, x, 178, 104, 42),
+          at(`pw-${s}-max`, x, 0, 104, 40),
+          at(`pw-${s}-level`, x, 46, 104, 130),
+          at(`pw-${s}-min`, x, 182, 104, 40),
         ];
       }),
-      el({ type: "caption", icon: "power-weapons", text: "Weapons", color: "red", x: 30, y: 94, w: 104 }),
-      el({ type: "caption", icon: "power-engines", text: "Thrusters", color: "blue", x: 140, y: 94, w: 104 }),
-      el({ type: "caption", icon: "power-shields", text: "Shields", color: "green", x: 250, y: 94, w: 104 }),
-      at("pw-reset", 0, 230, 359, 44),
+      at("pw-reset", 0, 230, 230, 44),
+      at("pw-centre", 238, 230, 121, 44),
     ],
   },
 

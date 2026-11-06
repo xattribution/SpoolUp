@@ -29,6 +29,12 @@
 [data-theme="rsi"] .hud-lever .lv-slot { border-color: #35598a; background: linear-gradient(var(--accent), var(--accent)) 50% 50% / 2px calc(100% - 50px) no-repeat, linear-gradient(90deg, rgba(0,0,0,.6), #0b1420 45%, rgba(0,0,0,.6)); }
 [data-theme="rsi"] .hud-lever .lv-knob { box-shadow: 0 0 0 2px rgba(79,179,255,.35), 0 0 16px -2px rgba(79,179,255,.5), 0 5px 12px rgba(0,0,0,.55), inset 0 -3px 4px rgba(0,0,0,.25); }
 [data-theme="rsi"] .hud-lever .lv-end { background: var(--accent); opacity: .6; height: 1px; }
+[data-theme="rsi"] .lvl-track {
+  background: linear-gradient(#4fb3ff, #4fb3ff) 0 0 / 10px 1.5px no-repeat, linear-gradient(#4fb3ff, #4fb3ff) 0 0 / 1.5px 10px no-repeat,
+    linear-gradient(#4fb3ff, #4fb3ff) 100% 100% / 10px 1.5px no-repeat, linear-gradient(#4fb3ff, #4fb3ff) 100% 100% / 1.5px 10px no-repeat,
+    linear-gradient(180deg, rgba(79,179,255,.06), transparent 40%), #0a1220;
+}
+[data-theme="rsi"] .lvl-knob { background: linear-gradient(180deg, rgba(79,179,255,.18), rgba(17,27,41,.95)); border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 0 14px -4px var(--c), 0 4px 10px rgba(0,0,0,.5); }
 
 /* ====================================================================================
    Drake: scratched gunmetal slabs, rivets, hazard stripes, stencil type
@@ -108,6 +114,16 @@
 [data-theme="drake"] .hud-lever { --knob: 40px; }
 [data-theme="drake"] .hud-lever .lv-lamps i { border-radius: 1px; width: 13px; height: 9px; box-shadow: inset 0 0 0 1px #0b0a08; }
 [data-theme="drake"] .hud-lever .lv-end { display: none; }
+[data-theme="drake"] .lvl-track {
+  border-radius: 0; border: 2px solid #0b0a08;
+  background: radial-gradient(circle at 5px 5px, #6f6856 0 1.4px, transparent 2.2px), radial-gradient(circle at calc(100% - 5px) 5px, #6f6856 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 5px calc(100% - 5px), #6f6856 0 1.4px, transparent 2.2px), radial-gradient(circle at calc(100% - 5px) calc(100% - 5px), #6f6856 0 1.4px, transparent 2.2px),
+    var(--scratches), #0f0e0b;
+  box-shadow: inset 0 0 0 2px #2a271f, inset 0 4px 10px rgba(0,0,0,.6);
+}
+[data-theme="drake"] .lvl-knob { border-radius: 0; border: 2px solid #0b0a08; background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 90%, #000) 0 5px, #14130f 5px 10px); box-shadow: inset 0 2px 0 rgba(255,255,255,.2), 0 3px 0 #0b0a08; }
+[data-theme="drake"] .lvl-knob::after { background: #14130f; box-shadow: none; }
+[data-theme="drake"] .lvl-tick { background: rgba(242,194,48,.35); }
 
 /* ====================================================================================
    Aegis: carbon weave, graphite with cut corners, red tactical marks
@@ -170,6 +186,9 @@
 [data-theme="aegis"] .hud-lever .lv-lamps { gap: 4px; }
 [data-theme="aegis"] .hud-lever .lv-lamps i { border-radius: 0; width: 15px; height: 4px; }
 [data-theme="aegis"] .hud-lever .lv-end { background: var(--accent); left: -6px; right: auto; width: 6px; }
+[data-theme="aegis"] .lvl-track { border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); background: repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 5px), #121418; border-color: #3a3f47; }
+[data-theme="aegis"] .lvl-knob { border-radius: 0; border-color: #5c636e; background: linear-gradient(180deg, #3a3f47, #1f2226); clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%); box-shadow: none; }
+[data-theme="aegis"] .lvl-tick { background: rgba(255,59,59,.3); }
 
 /* ====================================================================================
    Anvil: olive drab armour, screwed plates, indicator lamps, stencil type
@@ -230,6 +249,15 @@
 [data-theme="anvil"] .hud-lever .lv-knob .hud-ico { display: none; }
 [data-theme="anvil"] .hud-lever .lv-lamps i { width: 12px; height: 12px; box-shadow: 0 0 0 2px #222719, inset 0 1px 2px rgba(0,0,0,.6); }
 [data-theme="anvil"] .hud-lever .lv-end { background: #8a9562; }
+[data-theme="anvil"] .lvl-track {
+  border-radius: 3px; border: 2px solid #222719;
+  background: radial-gradient(circle at 6px 6px, #8a9562 0 2px, #222719 2.5px 3px, transparent 3.5px), radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), #8a9562 0 2px, #222719 2.5px 3px, transparent 3.5px), #23281c;
+}
+[data-theme="anvil"] .lvl-knob { border-radius: 3px; border: 2px solid #222719; background: repeating-linear-gradient(90deg, #5d6748 0 3px, #353c2d 3px 6px); box-shadow: 0 0 0 2px #424a37, 0 4px 8px rgba(0,0,0,.5); }
+[data-theme="anvil"] .lvl-track[data-axis="x"] .lvl-knob { background: repeating-linear-gradient(0deg, #5d6748 0 3px, #353c2d 3px 6px); }
+[data-theme="anvil"] .lvl-knob::after { background: var(--c); box-shadow: 0 0 6px var(--c); border-radius: 50%; }
+[data-theme="anvil"] .lvl-track[data-axis="y"] .lvl-knob::after { left: calc(50% - 5px); right: auto; width: 10px; top: calc(50% - 5px); height: 10px; }
+[data-theme="anvil"] .lvl-track[data-axis="x"] .lvl-knob::after { top: calc(50% - 5px); bottom: auto; height: 10px; left: calc(50% - 5px); width: 10px; }
 
 /* ====================================================================================
    Origin: cream luxury, black gloss controls, gold hairlines, a cream dial
@@ -305,6 +333,13 @@
 [data-theme="origin"] .hud-lever .lv-knob .hud-ico { color: #8b6d3e; }
 [data-theme="origin"] .hud-lever .lv-lamps i { background: #e7dfcf; box-shadow: inset 0 0 0 1px #c9b896; }
 [data-theme="origin"] .hud-lever .lv-end { background: #caa468; height: 1px; }
+[data-theme="origin"] .lvl-track { border: 0; border-radius: 14px; background: linear-gradient(180deg, #2c2c30, #0d0d0f); box-shadow: inset 0 2px 8px rgba(0,0,0,.7), 0 0 0 1px #c9a66b; }
+[data-theme="origin"] .lvl-knob { border: 0; border-radius: 999px; background: linear-gradient(180deg, #fffdf8, #e7dcc5); box-shadow: 0 0 0 1px #caa468, 0 5px 12px rgba(0,0,0,.45); }
+[data-theme="origin"] .lvl-knob::after { box-shadow: none; }
+[data-theme="origin"] .hud-fader .lvl-knob { border-radius: 50%; background: radial-gradient(circle at 38% 30%, #fffdf8, #efe6d3 50%, #c4b496); }
+[data-theme="origin"] .hud-fader .lvl-track { --kw: 40px; }
+[data-theme="origin"] .hud-fader .lvl-knob::after { top: 30%; bottom: 30%; background: #caa468; }
+[data-theme="origin"] .lvl-tick { background: rgba(201,166,107,.45); }
 
 /* ====================================================================================
    MISC: teal-slate enamel, grey bezel, orange tabs, gauge dials
@@ -351,6 +386,10 @@
 [data-theme="misc"] .hud-lever .lv-knob .hud-ico { color: #2a1406; }
 [data-theme="misc"] .hud-lever .lv-lamps i { width: 12px; height: 12px; background: #213a3c; box-shadow: 0 0 0 2px #93b8b8; }
 [data-theme="misc"] .hud-lever .lv-end { display: none; }
+[data-theme="misc"] .lvl-track { border-radius: 8px; border: 2px solid #93b8b8; background: #213a3c; }
+[data-theme="misc"] .lvl-knob { border-radius: 8px; border: 2px solid #b0c9c8; background: linear-gradient(180deg, #ffa24f, #e8711a); box-shadow: 0 3px 0 #9c4a0e, 0 5px 8px rgba(0,0,0,.35); }
+[data-theme="misc"] .lvl-knob::after { background: #2a1406; box-shadow: none; }
+[data-theme="misc"] .lvl-fill { background: color-mix(in srgb, var(--c) 55%, transparent); border-radius: 3px; }
 
 /* ====================================================================================
    Crusader: open sky, frosted plates, pearl-white capsules
@@ -403,6 +442,10 @@
 [data-theme="crusader"] .hud-lever .lv-knob .hud-ico { color: var(--accent); }
 [data-theme="crusader"] .hud-lever .lv-lamps i { background: #e5eef6; box-shadow: inset 0 0 0 1px #b4c9dd; }
 [data-theme="crusader"] .hud-lever .lv-end { background: var(--accent); opacity: .5; }
+[data-theme="crusader"] .lvl-track { border-radius: 26px; border-color: rgba(255,255,255,.9); background: linear-gradient(90deg, #d4e3f0, #eef4fa 50%, #d4e3f0); box-shadow: inset 0 2px 6px rgba(21,48,77,.18); }
+[data-theme="crusader"] .lvl-track[data-axis="x"] { background: linear-gradient(180deg, #d4e3f0, #eef4fa 50%, #d4e3f0); }
+[data-theme="crusader"] .lvl-knob { border-radius: 999px; border: 1px solid #fff; background: linear-gradient(180deg, #ffffff, #dbe7f2); box-shadow: 0 5px 12px rgba(21,48,77,.22); }
+[data-theme="crusader"] .lvl-tick { background: color-mix(in srgb, var(--c) 40%, transparent); }
 
 /* ====================================================================================
    Banu: plum lacquer on carved wood, soft seed shapes, warm glow
@@ -445,6 +488,9 @@
 [data-theme="banu"] .hud-lever .lv-knob .hud-ico { color: #3a1d0d; }
 [data-theme="banu"] .hud-lever .lv-lamps i { border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; }
 [data-theme="banu"] .hud-lever .lv-end { border-radius: 2px; background: rgba(242,163,58,.5); }
+[data-theme="banu"] .lvl-track { border-radius: 24px 24px 30px 30px / 18px 18px 24px 24px; border-color: rgba(255,200,140,.25); background: radial-gradient(ellipse at 50% 0, rgba(242,163,58,.12), transparent 60%), #2a1729; }
+[data-theme="banu"] .lvl-knob { border: 0; border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 40% 30%, #ffd59a, color-mix(in srgb, var(--c) 70%, #f2a33a) 50%, #6a3a18); box-shadow: 0 0 14px -2px rgba(242,163,58,.5), 0 4px 8px rgba(0,0,0,.4); }
+[data-theme="banu"] .lvl-knob::after { display: none; }
 
 /* ====================================================================================
    Aopoa: jade light, flowing plates, deep green forms with a living rim
@@ -488,6 +534,10 @@
 [data-theme="aopoa"] .hud-lever .lv-knob .hud-ico { color: #0f3129; }
 [data-theme="aopoa"] .hud-lever .lv-lamps i { background: #b9d9cd; box-shadow: inset 0 0 0 1px rgba(23,82,68,.3); }
 [data-theme="aopoa"] .hud-lever .lv-end { background: #3ee6b0; border-radius: 1px; }
+[data-theme="aopoa"] .lvl-track { border: 0; border-radius: 18px 4px 18px 4px; background: linear-gradient(180deg, #164036, #0f3129); box-shadow: inset 0 2px 6px rgba(0,0,0,.45), 0 0 0 1px rgba(62,230,176,.35); }
+[data-theme="aopoa"] .lvl-knob { border: 0; border-radius: 999px; background: radial-gradient(ellipse at 40% 30%, #c8fff0, color-mix(in srgb, var(--c) 80%, #3ee6b0) 55%, #0f5b47); box-shadow: 0 0 16px -2px var(--c), 0 0 0 2px rgba(62,230,176,.25); }
+[data-theme="aopoa"] .lvl-knob::after { display: none; }
+[data-theme="aopoa"] .lvl-fill { border-radius: 3px; box-shadow: 0 0 8px var(--c); }
 
 /* ====================================================================================
    Argo: safety-yellow work panels, black utility keys, hazard bands, big codes
@@ -549,6 +599,10 @@
 [data-theme="argo"] .hud-lever .lv-lamps i { border-radius: 2px; width: 14px; height: 14px; background: #171717; box-shadow: 0 0 0 2px #1a1505; }
 [data-theme="argo"] .hud-lever .lv-end { background: #1a1505; height: 3px; }
 [data-theme="argo"] .hud-lever { --knob: 44px; }
+[data-theme="argo"] .lvl-track { border-radius: 2px; border: 2px solid #1a1505; background: #171717; box-shadow: inset 0 0 0 2px #3a3a3a; }
+[data-theme="argo"] .lvl-tick { background: #ffc21f; opacity: .7; }
+[data-theme="argo"] .lvl-knob { border-radius: 3px; border: 2px solid #1a1505; background: repeating-linear-gradient(-45deg, #ffc21f 0 5px, #171717 5px 10px); box-shadow: 0 3px 0 #000; }
+[data-theme="argo"] .lvl-knob::after { background: #171717; box-shadow: none; }
 
 /* ====================================================================================
    Consolidated Outland: desert sand, sunset stripes, warm brown kit
@@ -601,6 +655,9 @@
 [data-theme="cnou"] .hud-lever .lv-knob .hud-ico svg { width: 20px; height: 20px; }
 [data-theme="cnou"] .hud-lever .lv-lamps i { border-radius: 3px; background: #e2cfae; box-shadow: inset 0 0 0 1px #b07a4c; }
 [data-theme="cnou"] .hud-lever .lv-end { background: #ff6a13; }
+[data-theme="cnou"] .lvl-track { border-radius: 6px; border-color: #b07a4c; background: linear-gradient(180deg, #3b2f27, #2f251f); }
+[data-theme="cnou"] .lvl-knob { border: 0; border-radius: 8px; background: linear-gradient(180deg, transparent 62%, #ff6a13 62% 74%, #ffb03b 74% 84%, transparent 84%), linear-gradient(180deg, #7a604e, #4b3c32); box-shadow: 0 4px 8px rgba(59,42,30,.5), inset 0 1px 0 rgba(255,244,232,.25); }
+[data-theme="cnou"] .lvl-knob::after { display: none; }
 
 /* ====================================================================================
    Esperia: Tevarin plum night, swept blade shapes, coral light with a prism edge
@@ -646,6 +703,10 @@
 [data-theme="esperia"] .hud-lever .lv-knob .hud-ico { color: #21162a; }
 [data-theme="esperia"] .hud-lever .lv-lamps i { border-radius: 1px 5px; width: 12px; height: 8px; }
 [data-theme="esperia"] .hud-lever .lv-end { background: linear-gradient(90deg, transparent, var(--accent)); }
+[data-theme="esperia"] .lvl-track { border-radius: 2px 22px 2px 22px; border-color: #9a5e78; background: linear-gradient(160deg, #2a1d33, #170d1e); }
+[data-theme="esperia"] .lvl-knob { border: 0; border-radius: 2px 14px 2px 14px; background: linear-gradient(160deg, #ffb3a0, var(--accent) 60%, #8d2f4f); box-shadow: -2px 0 0 rgba(255,60,100,.5), 2px 0 0 rgba(110,200,255,.4), 0 0 14px -3px var(--accent); }
+[data-theme="esperia"] .lvl-knob::after { background: #21162a; box-shadow: none; }
+[data-theme="esperia"] .lvl-tick { background: rgba(255,122,92,.35); }
 
 /* ====================================================================================
    High contrast (Deck settings) gives every maker the same plain black, white and strong
@@ -681,3 +742,9 @@ html[data-contrast] #canvas .hud-lever .lv-lamps i { background: #000; box-shado
 html[data-contrast] #canvas .hud-lever.lit.down .lv-lamps i { background: var(--green); box-shadow: none; }
 html[data-contrast] #canvas .hud-lever.lit.transit .lv-lamps i { background: var(--red); box-shadow: none; }
 html[data-contrast] #canvas .hud-lever .lv-lbl .t, html[data-contrast] #canvas .hud-lever .lv-state { color: #fff; }
+html[data-contrast] #canvas .lvl-track { background: #000; border: 1px solid #fff; box-shadow: none; clip-path: none; }
+html[data-contrast] #canvas .lvl-knob { background: #000; border: 2px solid #fff; box-shadow: none; clip-path: none; }
+html[data-contrast] #canvas .lvl-knob::after { display: block; background: var(--c); box-shadow: none; }
+html[data-contrast] #canvas .lvl-tick { background: #bdbdbd; opacity: 1; }
+html[data-contrast] #canvas .lvl-fill { background: var(--c); box-shadow: none; }
+html[data-contrast] #canvas .lvl-read, html[data-contrast] #canvas .lvl-cap .t, html[data-contrast] #canvas .fd-head .t, html[data-contrast] #canvas .fd-end { color: #fff; }

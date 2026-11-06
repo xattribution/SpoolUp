@@ -23,7 +23,11 @@
     // Separate stores per canvas size, so phone and tablet keep their own page positions.
     const key = `${NS}-${W}x${H}`;
     const saved = (() => { try { return JSON.parse(D.store.get(key) || "{}"); } catch { return {}; } })();
-    const state = { groups: saved.groups || {}, panels: saved.panels || {} };
+    const state = { groups: saved.groups || {}, panels: saved.panels || {}, levels: saved.levels || {}, split: saved.split || 0, dials: saved.dials || {} };
+    // Drawn controls that follow other buttons' presses (a slider's Max and Min), by button
+    // id, and the ones Centre sliders puts back; both refilled at every redraw.
+    const followers = new Map();
+    let recentred = [];
     const save = () => D.store.set(key, JSON.stringify(state));
 
     // Fill the whole stage (which CSS keeps inside the safe area, clear of the iPhone's
@@ -261,6 +265,59 @@
         return el;
       },
 
+      // Level slider (the power triangle's Weapons, Thrusters, Shields): each step up or down
+      // taps its Step up or Step down button once. It shows the steps SpoolUp sent from the
+      // centre, not the game's value, which SpoolUp can't read; Centre sliders sets it back
+      // without pressing anything, and the buttons in "follows" (Max, Min, Reset All) move
+      // it to the end or the centre when they're pressed.
+      level(e) {
+        const el = box(make("div", "hud-level",
+          `<div class="lvl-read" aria-hidden="true"></div>
+           <div class="lvl-track"><i class="lvl-zero"></i><i class="lvl-fill"></i><div class="lvl-knob"></div></div>
+           <div class="lvl-cap"><span class="hud-ico">${e.icon ? D.deckIcon(e.icon) : ""}</span><span class="t"></span></div>`), e);
+        el.dataset.color = e.color || "";
+        text(el, ".t", e.label);
+        ticks(el.querySelector(".lvl-track"), e.steps || 5, "y");
+        if (D.placeControl) { D.placeControl(el, e); showLevel(el, e, 0); return el; }
+        stepper(el, e, "y");
+        return el;
+      },
+
+      // Speed-range fader: the same as a level slider, lying down; each step is one tap of
+      // Speed Range + or −.
+      fader(e) {
+        const el = box(make("div", "hud-fader",
+          `<div class="fd-head"><span class="hud-ico">${e.icon ? D.deckIcon(e.icon) : ""}</span><span class="t"></span><span class="lvl-read" aria-hidden="true"></span></div>
+           <div class="fd-row"><span class="fd-end" aria-hidden="true">−</span>
+           <div class="lvl-track"><i class="lvl-zero"></i><i class="lvl-fill"></i><div class="lvl-knob"></div></div>
+           <span class="fd-end" aria-hidden="true">+</span></div>`), e);
+        el.dataset.color = e.color || "";
+        text(el, ".t", e.label);
+        ticks(el.querySelector(".lvl-track"), e.steps || 5, "x");
+        if (D.placeControl) { D.placeControl(el, e); showLevel(el, e, 0); return el; }
+        stepper(el, e, "x");
+        return el;
+      },
+
+      // Puts every level slider and fader back in the centre. Sends nothing: they only count
+      // what SpoolUp sent, so this is for when they no longer match the game.
+      recentre(e) {
+        const el = box(make("button", "hud-btn s-std s-recentre", `<span class="hud-ico">${D.deckIcon("power-reset")}</span><span class="hud-lbl"></span><span class="fx-state"></span>`), e);
+        el.type = "button";
+        text(el, ".hud-lbl", e.label || "Centre sliders");
+        text(el, ".fx-state", "Sends no keys");
+        el.title = tr("The sliders count the taps SpoolUp sent; SpoolUp can't read the game.");
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        el.addEventListener("click", () => {
+          state.levels = {};
+          save();
+          window.DeckSound?.play("page");
+          D.buzz?.();
+          for (const fn of recentred) fn();
+        });
+        return el;
+      },
+
       grid(e) {
         const wrap = box(make("div", `hud-grid${e.compact ? " compact" : ""}`), e);
         const rows = Math.ceil(e.buttons.length / e.cols);
@@ -383,6 +440,123 @@
       paint();
     }
 
+    // ---------- cockpit controls: steps ----------
+
+    // At most this many taps per drag, and at least this long between two, so a fast swipe
+    // can't run a slider off: the key presses stay ones the player made, one per step.
+    const STEPS_PER_DRAG = 5;
+    const STEP_GAP_MS = 140;
+    const levelOf = (e) => Math.max(-(e.steps || 5), Math.min(e.steps || 5, Number(state.levels[e.id]) || 0));
+    // Tick marks at every step, the centre one longer.
+    function ticks(track, steps, axis) {
+      for (let i = 0; i <= steps * 2; i++) {
+        const t = make("i", `lvl-tick${i === steps ? " mid" : ""}`);
+        t.style.setProperty("--at", String(i / (steps * 2)));
+        track.appendChild(t);
+      }
+      track.dataset.axis = axis;
+    }
+    function showLevel(el, e, n) {
+      const steps = e.steps || 5;
+      el.style.setProperty("--pos", String((n + steps) / (steps * 2)));
+      el.style.setProperty("--from", String((Math.min(n, 0) + steps) / (steps * 2)));
+      el.style.setProperty("--to", String((Math.max(n, 0) + steps) / (steps * 2)));
+      el.classList.toggle("at-max", n === steps);
+      el.classList.toggle("at-min", n === -steps);
+      el.querySelector(".lvl-read").textContent = n > 0 ? `+${n}` : n < 0 ? `−${-n}` : "0";
+      el.setAttribute("aria-valuenow", String(n));
+      el.setAttribute("aria-valuetext", tr("{0} steps sent", n > 0 ? `+${n}` : String(n)));
+    }
+
+    // Drag (or tap the track beside the knob, or use the arrow keys) to step a level slider
+    // or fader. Each step is one tap of e.up or e.down; the knob moves only for taps sent.
+    function stepper(el, e, axis) {
+      const steps = e.steps || 5;
+      const track = el.querySelector(".lvl-track");
+      const knob = el.querySelector(".lvl-knob");
+      const get = () => levelOf(e);
+      const set = (n) => { state.levels[e.id] = n; save(); showLevel(el, e, n); };
+      let last = 0;
+      const step = (dir) => {
+        const cur = get(), next = cur + dir;
+        if (next > steps || next < -steps) return false;
+        if (performance.now() - last < STEP_GAP_MS) return false;
+        if (!D.tapStep(dir > 0 ? e.up : e.down)) return null;
+        last = performance.now();
+        set(next);
+        return true;
+      };
+      el.setAttribute("role", "slider");
+      el.setAttribute("aria-label", tr(e.label));
+      el.setAttribute("aria-valuemin", String(-steps));
+      el.setAttribute("aria-valuemax", String(steps));
+      el.setAttribute("aria-orientation", axis === "y" ? "vertical" : "horizontal");
+      el.tabIndex = 0;
+      showLevel(el, e, get());
+      D.bindControl(el, {
+        ids: [e.up.id, e.down.id],
+        // A step the PC skipped (Star Citizen not in front) didn't happen: take it back.
+        deny(id) {
+          const n = get() + (id === e.up.id ? -1 : 1);
+          set(Math.max(-steps, Math.min(steps, n)));
+          el.classList.remove("denied"); void el.offsetWidth; el.classList.add("denied");
+        },
+      });
+      for (const [to, id] of Object.entries(e.follows || {})) {
+        if (!followers.has(id)) followers.set(id, []);
+        followers.get(id).push(() => set(to === "max" ? steps : to === "min" ? -steps : 0));
+      }
+      recentred.push(() => showLevel(el, e, 0));
+
+      const along = (ev) => (axis === "y" ? -ev.clientY : ev.clientX);
+      let drag = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (drag) return;
+        el.setPointerCapture(ev.pointerId);
+        const len = axis === "y" ? track.clientHeight - knob.offsetHeight : track.clientWidth - knob.offsetWidth;
+        drag = { id: ev.pointerId, p: along(ev), from: get(), sent: 0, moved: false, onKnob: ev.target === knob, per: Math.max(8, len / (steps * 2)), ev };
+        el.classList.add("dragging");
+      });
+      const follow = (ev) => {
+        const d = drag;
+        const delta = (along(ev) - d.p) / scaleNow();
+        if (Math.abs(delta) > 6) d.moved = true;
+        const want = Math.max(-steps, Math.min(steps, d.from + Math.round(delta / d.per)));
+        const cur = get();
+        if (want === cur) return;
+        if (d.sent >= STEPS_PER_DRAG) { el.classList.add("capped"); return; }
+        const r = step(want > cur ? 1 : -1);
+        if (r) d.sent++;
+        else if (r === null) d.sent = STEPS_PER_DRAG; // offline: no more from this drag
+      };
+      el.addEventListener("pointermove", (ev) => { if (drag && ev.pointerId === drag.id) follow(ev); });
+      const end = (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        const d = drag;
+        if (ev.type === "pointerup") {
+          if (d.moved) follow(ev);
+          else if (!d.onKnob) {
+            // A tap on the track: one step towards it.
+            const r = knob.getBoundingClientRect();
+            const toward = axis === "y" ? ev.clientY < r.top : ev.clientX > r.right;
+            const away = axis === "y" ? ev.clientY > r.bottom : ev.clientX < r.left;
+            if (toward || away) { last = 0; step(toward ? 1 : -1); }
+          }
+        }
+        drag = null;
+        el.classList.remove("dragging", "capped");
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      el.addEventListener("keydown", (ev) => {
+        const dir = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[ev.key];
+        if (!dir) return;
+        ev.preventDefault();
+        step(dir);
+      });
+    }
+
     function openMenu(e) {
       window.DeckSound?.play("page");
       const overlay = make("div", "hud-menu", `<div class="sheet"><div class="hud-header"><b>//</b><span></span></div><div class="opts"></div></div>`);
@@ -454,6 +628,8 @@
 
     function render() {
       canvas.innerHTML = "";
+      followers.clear();
+      recentred = [];
       renderElements(canvas, layout.chrome || []);
       for (const region of layout.regions) canvas.appendChild(renderRegion(region));
       D.refreshStatus();
@@ -493,6 +669,8 @@
         return changed;
       },
       scale: scaleNow,
+      // A button was pressed on this deck: controls that follow it update.
+      pressed(id) { for (const fn of followers.get(id) || []) fn(); },
       // Stops this deck redrawing itself, before another layout is drawn or a grid layout shown.
       dispose() {
         window.removeEventListener("resize", fit);

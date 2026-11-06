@@ -187,6 +187,7 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
   border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); background: color-mix(in srgb, var(--ink) 5%, transparent);
 }
 .hud-vlabel span {
+  white-space: nowrap;
   transform: rotate(-90deg); font: 600 10px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim);
 }
 
@@ -291,6 +292,76 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 .compact .hud-lever .lv-lbl .t { font-size: 10.5px; }
 .compact .hud-lever .lv-lamps i { width: 9px; height: 9px; }
 
+/* Level sliders (power) and the fader (speed range): a track with a tick per step, a
+   knob at the steps sent from the centre, a fill from the centre to it, and the count. */
+.hud-level, .hud-fader { --pos: .5; --from: .5; --to: .5; --kh: 30px; --kw: 30px; cursor: grab; }
+.hud-level { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.hud-level .lvl-track, .hud-fader .lvl-track {
+  position: relative; flex: 1;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), transparent 30%), var(--face-lo);
+  border: 1px solid var(--hud-line); border-radius: var(--btn-radius); clip-path: var(--btn-clip);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.45);
+}
+.lvl-tick { position: absolute; background: color-mix(in srgb, var(--c) 45%, transparent); pointer-events: none; }
+.lvl-track[data-axis="y"] .lvl-tick { left: 30%; right: 30%; height: 1px; top: calc((100% - var(--kh)) * (1 - var(--at)) + var(--kh) / 2); }
+.lvl-track[data-axis="x"] .lvl-tick { top: 30%; bottom: 30%; width: 1px; left: calc((100% - var(--kw)) * var(--at) + var(--kw) / 2); }
+.lvl-track .lvl-tick.mid { background: var(--ink-dim); }
+.lvl-track[data-axis="y"] .lvl-tick.mid { left: 18%; right: 18%; height: 2px; }
+.lvl-track[data-axis="x"] .lvl-tick.mid { top: 18%; bottom: 18%; width: 2px; }
+.lvl-fill { position: absolute; pointer-events: none; background: color-mix(in srgb, var(--c) 35%, transparent); }
+.lvl-track[data-axis="y"] .lvl-fill {
+  left: calc(50% - 3px); width: 6px;
+  top: calc((100% - var(--kh)) * (1 - var(--to)) + var(--kh) / 2); bottom: calc((100% - var(--kh)) * var(--from) + var(--kh) / 2);
+}
+.lvl-track[data-axis="x"] .lvl-fill {
+  top: calc(50% - 3px); height: 6px;
+  left: calc((100% - var(--kw)) * var(--from) + var(--kw) / 2); right: calc((100% - var(--kw)) * (1 - var(--to)) + var(--kw) / 2);
+}
+.lvl-zero { display: none; }
+.lvl-knob {
+  position: absolute; pointer-events: auto;
+  background: linear-gradient(180deg, var(--face-hi), var(--face-lo));
+  border: 1px solid color-mix(in srgb, var(--c) 60%, var(--line-hi)); border-radius: var(--btn-radius);
+  box-shadow: 0 4px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: top .12s ease-out, left .12s ease-out;
+}
+.lvl-track[data-axis="y"] .lvl-knob { left: 12%; right: 12%; height: var(--kh); top: calc((100% - var(--kh)) * (1 - var(--pos))); }
+.lvl-track[data-axis="x"] .lvl-knob { top: 10%; bottom: 10%; width: var(--kw); left: calc((100% - var(--kw)) * var(--pos)); }
+.lvl-knob::after { content: ""; position: absolute; background: var(--c); box-shadow: 0 0 8px var(--c); border-radius: 2px; }
+.lvl-track[data-axis="y"] .lvl-knob::after { left: 14%; right: 14%; top: calc(50% - 1.5px); height: 3px; }
+.lvl-track[data-axis="x"] .lvl-knob::after { top: 14%; bottom: 14%; left: calc(50% - 1.5px); width: 3px; }
+.hud-level .lvl-read, .hud-fader .lvl-read {
+  font: 600 13px/1 var(--font-display); color: var(--ink); text-align: center; letter-spacing: .06em;
+  font-variant-numeric: tabular-nums;
+}
+.hud-level.at-max .lvl-read, .hud-level.at-min .lvl-read, .hud-fader.at-max .lvl-read, .hud-fader.at-min .lvl-read { color: var(--c); }
+.hud-level .lvl-cap { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.hud-level .lvl-cap .hud-ico svg { width: 18px; height: 18px; }
+.hud-level .lvl-cap .t, .hud-fader .fd-head .t { font: 600 10px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+.hud-level.dragging, .hud-fader.dragging { cursor: grabbing; }
+.hud-level:focus-visible .lvl-track, .hud-fader:focus-visible .lvl-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hud-level.capped .lvl-track, .hud-fader.capped .lvl-track { border-color: var(--amber); }
+.hud-level.denied .lvl-track, .hud-fader.denied .lvl-track { animation: lv-deny .45s ease-out; }
+.hud-fader { display: flex; flex-direction: column; gap: 8px; }
+.hud-fader .fd-head { display: flex; align-items: center; gap: 8px; padding: 0 2px; }
+.hud-fader .fd-head .hud-ico svg { width: 18px; height: 18px; }
+.hud-fader .fd-head .t { font-size: 11px; color: var(--ink); }
+.hud-fader .fd-head .lvl-read { margin-left: auto; }
+.hud-fader .fd-row { flex: 1; display: flex; align-items: stretch; gap: 8px; }
+.hud-fader .fd-end { display: flex; align-items: center; font: 600 18px/1 var(--font-body); color: var(--ink-dim); }
+.hud-fader .lvl-track { --kw: 30px; }
+/* Centre sliders: an ordinary button whose status line says it presses nothing. */
+.s-recentre { flex-direction: row; font-size: 12px; gap: 8px; }
+.s-recentre .hud-lbl { white-space: nowrap; }
+.s-recentre .hud-ico svg { width: 20px; height: 20px; }
+.s-recentre .fx-state { position: absolute; left: 0; right: 0; bottom: 5px; text-align: center; font: 600 8.5px/1 var(--font-body); letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+.compact .hud-level { gap: 3px; }
+.compact .hud-level .lvl-read { font-size: 11px; }
+.compact .hud-level, .compact .hud-fader { --kh: 24px; --kw: 26px; }
+.compact .hud-level .lvl-cap .hud-ico { display: none; }
+.compact .hud-fader { gap: 4px; }
+.compact .s-recentre .fx-state { bottom: 3px; font-size: 7.5px; }
+
 /* ---------- regions, panels, pager ---------- */
 .hud-panel { left: 0; top: 0; right: 0; }
 /* Paging: the new panel slides in from the side you paged towards, with a short flicker. */
@@ -310,6 +381,8 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
   .hud-panel.enter-next, .hud-panel.enter-prev { animation: none; }
   .hud-lever .lv-knob, .hud-lever.transit .lv-knob { transition-duration: .01s; }
   .hud-lever.lit.transit .lv-lamps i, .hud-lever.denied .lv-slot { animation: none; }
+  .lvl-knob { transition: none; }
+  .hud-level.denied .lvl-track, .hud-fader.denied .lvl-track { animation: none; }
 }
 .hud-pager { left: 0; right: 0; bottom: 0; height: var(--pager-h, 44px); }
 .hud-pager .prev { left: 0; }

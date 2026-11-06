@@ -616,35 +616,28 @@
           "type": "header",
           "text": "Power_management",
           "x": 2,
-          "y": 184
+          "y": 190
         },
         {
           "type": "vlabel",
           "text": "Max",
           "x": 2,
-          "y": 216,
-          "h": 64
+          "y": 212,
+          "h": 44
         },
         {
           "type": "vlabel",
-          "text": "Incr",
+          "text": "Taps sent",
           "x": 2,
-          "y": 296,
-          "h": 64
-        },
-        {
-          "type": "vlabel",
-          "text": "Decr",
-          "x": 2,
-          "y": 411,
-          "h": 64
+          "y": 264,
+          "h": 210
         },
         {
           "type": "vlabel",
           "text": "Min",
           "x": 2,
-          "y": 491,
-          "h": 64
+          "y": 482,
+          "h": 44
         },
         {
           "type": "button",
@@ -662,9 +655,9 @@
           "ms": 900,
           "color": "red",
           "x": 58,
-          "y": 216,
+          "y": 212,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
           "type": "button",
@@ -684,9 +677,9 @@
           "ms": 900,
           "color": "blue",
           "x": 198,
-          "y": 216,
+          "y": 212,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
           "type": "button",
@@ -704,154 +697,142 @@
           "ms": 900,
           "color": "green",
           "x": 338,
-          "y": 216,
+          "y": 212,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-wep-up",
-          "label": "Weapons +",
-          "voice": [
-            "more weapons",
-            "more power to weapons"
-          ],
-          "keys": "f5",
-          "scAction": "v_engineering_assignment_weapons_increase",
-          "mode": "tap",
-          "color": "red",
-          "x": 58,
-          "y": 296,
-          "w": 133,
-          "h": 64
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-thr-up",
-          "label": "Thrusters +",
-          "voice": [
-            "engines up",
-            "more engines",
-            "more thrusters",
-            "more power to engines"
-          ],
-          "keys": "f6",
-          "scAction": "v_engineering_assignment_engine_increase",
-          "mode": "tap",
-          "color": "blue",
-          "x": 198,
-          "y": 296,
-          "w": 133,
-          "h": 64
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-shd-up",
-          "label": "Shields +",
-          "voice": [
-            "more shields",
-            "more power to shields"
-          ],
-          "keys": "f7",
-          "scAction": "v_engineering_assignment_shields_increase",
-          "mode": "tap",
-          "color": "green",
-          "x": 338,
-          "y": 296,
-          "w": 133,
-          "h": 64
-        },
-        {
-          "type": "caption",
+          "type": "level",
+          "id": "pw-wep-level",
+          "label": "Weapons",
           "icon": "power-weapons",
-          "text": "Weapons",
           "color": "red",
+          "steps": 5,
           "x": 58,
-          "y": 364,
-          "w": 133
+          "y": 264,
+          "w": 133,
+          "h": 210,
+          "follows": {
+            "max": "pw-wep-max",
+            "min": "pw-wep-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-wep-up",
+            "label": "Weapons +",
+            "voice": [
+              "more weapons",
+              "more power to weapons"
+            ],
+            "keys": "f5",
+            "scAction": "v_engineering_assignment_weapons_increase",
+            "mode": "tap",
+            "color": "red"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-wep-down",
+            "label": "Weapons −",
+            "voice": [
+              "less weapons",
+              "less power to weapons"
+            ],
+            "keys": "lalt+f5",
+            "scAction": "v_engineering_assignment_weapons_decrease",
+            "mode": "tap",
+            "color": "red"
+          }
         },
         {
-          "type": "caption",
+          "type": "level",
+          "id": "pw-thr-level",
+          "label": "Thrusters",
           "icon": "power-engines",
-          "text": "Thrusters",
           "color": "blue",
+          "steps": 5,
           "x": 198,
-          "y": 364,
-          "w": 133
+          "y": 264,
+          "w": 133,
+          "h": 210,
+          "follows": {
+            "max": "pw-thr-max",
+            "min": "pw-thr-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-thr-up",
+            "label": "Thrusters +",
+            "voice": [
+              "engines up",
+              "more engines",
+              "more thrusters",
+              "more power to engines"
+            ],
+            "keys": "f6",
+            "scAction": "v_engineering_assignment_engine_increase",
+            "mode": "tap",
+            "color": "blue"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-thr-down",
+            "label": "Thrusters −",
+            "voice": [
+              "engines down",
+              "less engines",
+              "less thrusters",
+              "less power to engines"
+            ],
+            "keys": "lalt+f6",
+            "scAction": "v_engineering_assignment_engine_decrease",
+            "mode": "tap",
+            "color": "blue"
+          }
         },
         {
-          "type": "caption",
+          "type": "level",
+          "id": "pw-shd-level",
+          "label": "Shields",
           "icon": "power-shields",
-          "text": "Shields",
           "color": "green",
+          "steps": 5,
           "x": 338,
-          "y": 364,
-          "w": 133
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-wep-down",
-          "label": "Weapons −",
-          "voice": [
-            "less weapons",
-            "less power to weapons"
-          ],
-          "keys": "lalt+f5",
-          "scAction": "v_engineering_assignment_weapons_decrease",
-          "mode": "tap",
-          "color": "red",
-          "x": 58,
-          "y": 411,
+          "y": 264,
           "w": 133,
-          "h": 64
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-thr-down",
-          "label": "Thrusters −",
-          "voice": [
-            "engines down",
-            "less engines",
-            "less thrusters",
-            "less power to engines"
-          ],
-          "keys": "lalt+f6",
-          "scAction": "v_engineering_assignment_engine_decrease",
-          "mode": "tap",
-          "color": "blue",
-          "x": 198,
-          "y": 411,
-          "w": 133,
-          "h": 64
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-shd-down",
-          "label": "Shields −",
-          "voice": [
-            "less shields",
-            "less power to shields"
-          ],
-          "keys": "lalt+f7",
-          "scAction": "v_engineering_assignment_shields_decrease",
-          "mode": "tap",
-          "color": "green",
-          "x": 338,
-          "y": 411,
-          "w": 133,
-          "h": 64
+          "h": 210,
+          "follows": {
+            "max": "pw-shd-max",
+            "min": "pw-shd-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-shd-up",
+            "label": "Shields +",
+            "voice": [
+              "more shields",
+              "more power to shields"
+            ],
+            "keys": "f7",
+            "scAction": "v_engineering_assignment_shields_increase",
+            "mode": "tap",
+            "color": "green"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-shd-down",
+            "label": "Shields −",
+            "voice": [
+              "less shields",
+              "less power to shields"
+            ],
+            "keys": "lalt+f7",
+            "scAction": "v_engineering_assignment_shields_decrease",
+            "mode": "tap",
+            "color": "green"
+          }
         },
         {
           "type": "button",
@@ -868,9 +849,9 @@
           "ms": 900,
           "color": "red",
           "x": 58,
-          "y": 491,
+          "y": 482,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
           "type": "button",
@@ -889,9 +870,9 @@
           "ms": 900,
           "color": "blue",
           "x": 198,
-          "y": 491,
+          "y": 482,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
           "type": "button",
@@ -908,9 +889,9 @@
           "ms": 900,
           "color": "green",
           "x": 338,
-          "y": 491,
+          "y": 482,
           "w": 133,
-          "h": 64
+          "h": 44
         },
         {
           "type": "button",
@@ -927,9 +908,18 @@
           "scAction": "v_engineering_assignment_reset",
           "mode": "tap",
           "x": 2,
-          "y": 571,
-          "w": 477,
-          "h": 42
+          "y": 538,
+          "w": 300,
+          "h": 52
+        },
+        {
+          "type": "recentre",
+          "id": "pw-centre",
+          "label": "Centre sliders",
+          "x": 310,
+          "y": 538,
+          "w": 169,
+          "h": 52
         }
       ]
     },
