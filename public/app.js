@@ -158,13 +158,16 @@
   // of the PC's outputs, e.g. a headset, to hear them over the game) and how loud. The PC
   // lists its outputs; this device only picks one by name, and the PC plays only on those.
   const S = window.DeckSound;
+  let lastPC = null; // the PC's last answer, to redraw the list in another language
   function fillSounds() {
     $("soundBtn").setAttribute("aria-checked", String(S.on));
     $("soundOut").disabled = $("soundVol").disabled = !S.on;
     $("soundVol").value = S.volume;
     $("soundVolText").textContent = `${S.volume}%`;
-    showOutputs(null);
+    showOutputs(lastPC);
     if (DEMO) { $("soundNote").textContent = tr("With the app, sounds can also play on your PC, e.g. in your headset."); return; }
+    // Asking starts the PC's sound player, which isn't needed while sounds are off.
+    if (!S.on) return;
     fetch(`/sound-devices.json?t=${encodeURIComponent(token)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then(showOutputs)
@@ -172,6 +175,7 @@
   }
   // `pc` is what the PC said (null while asking, or in demo mode).
   function showOutputs(pc) {
+    if (pc) lastPC = pc;
     const pick = $("soundOut");
     pick.innerHTML = "";
     const add = (value, text) => { const o = document.createElement("option"); o.value = value; o.textContent = text; pick.appendChild(o); };
@@ -283,6 +287,7 @@
     applyTheme(document.documentElement.dataset.theme);
     fillLayoutPick();
     refreshStatus();
+    fillSounds();
     if (document.body.classList.contains("pairing")) showPairing(false);
     else if (layout) showLayout(layout);
   };
@@ -478,7 +483,9 @@
       // Push-to-talk held on the PC: the mic buttons light up as if held here.
       else if (msg.t === "listening") {
         for (const el of document.querySelectorAll(".js-talk")) el.classList.toggle("listening", msg.on);
-        if (msg.on) window.DeckSound.play("listen");
+        // The PC chimes on its own for push-to-talk, so a tablet playing its sounds on the PC
+        // doesn't add another.
+        if (msg.on && !(msg.chime && S.out === "pc")) window.DeckSound.play("listen");
       }
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));

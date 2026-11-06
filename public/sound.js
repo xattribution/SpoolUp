@@ -109,6 +109,9 @@
       const t0 = now + k.at, level = Math.max(k.level, 0.0002);
       const osc = c.createOscillator(), g = c.createGain();
       osc.type = k.type;
+      // Set before the automation too, or Chromium runs the oscillator at its default 440 Hz
+      // until t0, and a delayed tone starts at whatever phase that left (the PC starts at 0).
+      osc.frequency.value = k.f0;
       osc.frequency.setValueAtTime(k.f0, t0);
       if (k.f1 !== k.f0) osc.frequency.exponentialRampToValueAtTime(k.f1, t0 + k.len);
       g.gain.setValueAtTime(0.0001, t0);

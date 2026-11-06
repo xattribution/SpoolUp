@@ -532,7 +532,9 @@ function startVoice() {
         // Push-to-talk from a PC key: results go to every tablet, and their mic buttons light up.
         voiceFromKey = true;
         voiceOwner = null;
-        for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1" });
+        // `chime`: the PC plays its own sound for this, so tablets playing theirs on the PC
+        // don't add a second one.
+        for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1", chime: config.pttSound !== false });
         emit({ t: "voice", result: line === "ptt 1" ? "listen" : "stop", running: true });
       } else if (line.startsWith("err")) {
         console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/nodieCode/tablet-deck#voice-commands`);
@@ -590,12 +592,17 @@ async function onVoice(id, confidence, text) {
 // A tablet can have its button sounds (public/sound.js) play on this PC instead of on itself,
 // on an output it picks (a headset, to hear them over the game). It sends each sound as a
 // list of tones, which native/sound.exe synthesizes and plays. The tablet can only name one
-// of the outputs below and send short, quiet tones; nothing it sends reaches the game.
+// of the outputs below and send tones within what soundLine() allows (6 s at most, half
+// level, 25 a second); the player limits the loudness again. Nothing reaches the game.
 const SOUND_TYPES = new Set(["sine", "triangle", "square", "sawtooth"]);
 const SOUND_RATE = 25, SOUND_PLAYING = 16; // per tablet: sounds per second, and at once
+const SOUND_PLAYING_ALL = 32;      // across every tablet
+let soundExe = null, soundBuildError = null; // native/sound.exe, built at start (see below)
 let soundPlayer = null;             // native/sound.exe while it runs
 let soundState = { state: "idle" }; // for tablets: idle (not started yet), ready or unavailable
-let soundIds = 0;                   // the player's ids, across tablets
+let soundIds = 0;                   // the player's ids, across tablets (1 .. 2^31-1)
+const soundsPlaying = new Map();    // the player's id -> when it ends, for every tablet
+const soundsHeard = new Map();      // "name|output" -> when a tablet last played it there
 let soundExits = [];                // when the player stopped lately, to stop restarting it
 const deviceWaiters = [];           // answers to "devices", in order
 function setSoundState(state, reason) {
@@ -603,16 +610,19 @@ function setSoundState(state, reason) {
   for (const c of tablets) c.send({ t: "sound-status", ...soundState });
 }
 
-// Started on demand: when a tablet plays sounds here, or asks for the outputs.
-function startSoundPlayer() {
-  if (soundPlayer || soundState.state === "unavailable") return soundPlayer;
-  let exe;
-  try { exe = buildNative("sound", "PC sounds"); } catch (err) {
+// Built when the server starts (from source, compiling it once), never while tablets press
+// keys: compiling blocks the server for a moment. Started on demand: when a tablet plays
+// sounds here, or asks for the outputs.
+function buildSoundPlayer() {
+  try { soundExe = buildNative("sound", "PC sounds"); } catch (err) {
+    soundBuildError = err.message;
     console.error(`PC sounds unavailable: ${err.message}.`);
     setSoundState("unavailable", err.message);
-    return null;
   }
-  const proc = spawn(exe, [], { stdio: ["pipe", "pipe", "inherit"] });
+}
+function startSoundPlayer() {
+  if (soundPlayer || soundState.state === "unavailable" || !soundExe) return soundPlayer;
+  const proc = spawn(soundExe, [], { stdio: ["pipe", "pipe", "inherit"] });
   proc.stdin.on("error", () => {}); // it stopped; "exit" deals with that
   let pending = "", missing = new Set();
   proc.stdout.setEncoding("utf8"); // output names can be non-ASCII ("Kopfhörer")
@@ -625,7 +635,7 @@ function startSoundPlayer() {
       else if (word === "devices") deviceWaiters.shift()?.({ preferred: Number(rest[0]), devices: rest.slice(1).filter(Boolean) });
       else if (word === "missing" && !missing.has(rest[0]) && missing.size < 20) {
         missing.add(rest[0]);
-        console.log(`PC sounds: "${rest[0]}" isn't connected, so they play on the default output.`);
+        console.log(`PC sounds: ${JSON.stringify(rest[0])} isn't connected, so they play on the default output.`);
       } else if (line.startsWith("err")) console.error("PC sounds:", line.slice(4));
     }
   });
@@ -660,24 +670,28 @@ function soundDevices() {
 }
 
 const inRange = (v, min, max) => typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
-// A tablet's sound as the player's "play" line and how long it lasts (s), or null when any of
-// it is off. See the tone fields in public/sound.js.
-function soundLine(msg, id) {
+// A tablet's sound as the player's "play" line (without its id: `play\t<id>` goes in front)
+// and how long it lasts (s), or null when any of it is off. See the tone fields in
+// public/sound.js. Levels stop at 0.5 (the deck's loudest tone) and the tones' lengths add
+// up to 8 s at most, so a tablet can't make the PC play anything much louder or longer than
+// the deck's own sounds. Output names have no control characters (WinMM's never do).
+function soundLine(msg) {
   const { tones, device, volume } = msg;
   if (!Array.isArray(tones) || tones.length < 1 || tones.length > 48) return null;
-  if (typeof device !== "string" || device.length > 64 || /[\t\r\n]/.test(device) || !inRange(volume, 0, 1)) return null;
-  let end = 0;
+  if (typeof device !== "string" || device.length > 64 || /[\u0000-\u001f\u007f-\u009f]/.test(device) || !inRange(volume, 0, 1)) return null;
+  let end = 0, total = 0;
   const parts = [];
   for (const k of tones) {
     if (!k || !SOUND_TYPES.has(k.type) || !inRange(k.f0, 20, 12000) || !inRange(k.f1, 20, 12000)
-      || !inRange(k.len, 0.005, 4) || !inRange(k.level, 0, 1) || !inRange(k.at, 0, 4) || !inRange(k.attack, 0.001, 1)
+      || !inRange(k.len, 0.005, 4) || !inRange(k.level, 0, 0.5) || !inRange(k.at, 0, 4) || !inRange(k.attack, 0.001, 1)
       || (k.sustain !== 0 && k.sustain !== 1) || !inRange(k.release, 0, 1)
       || !((k.lp0 === 0 && k.lp1 === 0) || (inRange(k.lp0, 20, 20000) && inRange(k.lp1, 20, 20000)))) return null;
     end = Math.max(end, k.at + k.len + (k.sustain ? k.release : 0));
+    total += k.len + (k.sustain ? k.release : 0) + 0.03;
     parts.push([k.type, k.f0, k.f1, k.len, k.level, k.at, k.attack, k.sustain, k.release, k.lp0, k.lp1].join(","));
   }
-  if (end > 6) return null;
-  return { line: `play\t${id}\t${device}\t${volume}\t${parts.join(";")}`, end };
+  if (end > 6 || total > 8) return null;
+  return { rest: `${device}\t${volume}\t${parts.join(";")}`, end };
 }
 
 // ---------- open a website on the PC ----------
@@ -986,26 +1000,38 @@ server.on("upgrade", (req, socket) => {
   const sounds = new Map();
   let soundTimes = [];
   let soundsHere = false;
+  // A sound counts against the limits until it would have ended, even when it's stopped
+  // early, so stopping sounds doesn't make room for more. Rejected ones count as well.
   const playSound = (msg) => {
     const now = Date.now();
     soundTimes = soundTimes.filter((t) => now - t < 1000);
     for (const [id, s] of sounds) if (s.ends < now) sounds.delete(id);
-    if (soundTimes.length >= SOUND_RATE || sounds.size >= SOUND_PLAYING) return;
-    if (!Number.isInteger(msg.id) || msg.id < 1 || msg.id > 2147483647 || sounds.has(msg.id)) return;
-    const id = ++soundIds;
-    const sound = soundLine(msg, id);
-    if (!sound) return;
+    for (const [id, ends] of soundsPlaying) if (ends < now) soundsPlaying.delete(id);
+    if (soundTimes.length >= SOUND_RATE || sounds.size >= SOUND_PLAYING || soundsPlaying.size >= SOUND_PLAYING_ALL) return;
     soundTimes.push(now);
-    emit({ t: "sound", name: /^[a-z-]{1,24}$/.test(String(msg.name)) ? msg.name : "sound", device: msg.device });
+    if (!Number.isInteger(msg.id) || msg.id < 1 || msg.id > 2147483647 || sounds.has(msg.id)) return;
+    const sound = soundLine(msg);
+    if (!sound) return;
+    const name = /^[a-z-]{1,24}$/.test(String(msg.name)) ? msg.name : "sound";
+    // Voice results and the PC's push-to-talk reach every tablet, so two tablets playing on
+    // the same output would play them twice: the second one within a moment is left out.
+    const heard = `${name}|${msg.device}`, last = soundsHeard.get(heard);
+    if (last && last.client !== client && now - last.time < 150) return;
+    soundsHeard.set(heard, { client, time: now });
+    if (soundsHeard.size > 200) soundsHeard.clear();
+    emit({ t: "sound", name, device: msg.device });
     const player = startSoundPlayer();
     if (!player) return;
-    player.stdin.write(`${sound.line}\n`);
-    sounds.set(msg.id, { id, ends: now + sound.end * 1000 + 200 });
+    soundIds = soundIds >= 2147483647 ? 1 : soundIds + 1;
+    const ends = now + sound.end * 1000 + 200;
+    player.stdin.write(`play\t${soundIds}\t${sound.rest}\n`);
+    sounds.set(msg.id, { id: soundIds, ends });
+    soundsPlaying.set(soundIds, ends);
   };
   const stopSound = (localId) => {
     const s = sounds.get(localId);
-    if (!s) return;
-    sounds.delete(localId);
+    if (!s || s.stopped) return;
+    s.stopped = true;
     soundPlayer?.stdin.write(`stop\t${s.id}\n`);
   };
   let lastSeen = Date.now();
@@ -1104,6 +1130,7 @@ server.on("upgrade", (req, socket) => {
 try { loadLayout(); loadLayout("phone"); } catch (err) { fatal(`Layout error: ${err.message}`); }
 startSender();
 startVoice();
+buildSoundPlayer();
 server.on("error", (err) => {
   if (err.code !== "EADDRINUSE") throw err;
   fatal(`Port ${config.port} is already in use. Is Tablet Deck already running? Otherwise change "port" in ${CONFIG_PATH}.`);

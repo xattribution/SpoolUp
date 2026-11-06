@@ -47,7 +47,8 @@ These are by design and documented in the README's
 - The tablet talks to the PC over plain `http` on your home network, so others
   on the **same Wi-Fi** could see the pairing code and taps. Don't use Tablet
   Deck on shared networks (LAN parties, dorms, hotels).
-- Anyone with your **pairing code** can press keys. Treat it like a password,
+- Anyone with your **pairing code** can press keys, open the websites set up
+  on the PC and play the deck's sounds on its outputs. Treat it like a password,
   and change it in **Settings** if it leaks. Wrong codes are limited (5 a
   minute per device, then that device waits a minute), which slows guessing
   down but doesn't make a short code safe on a shared network.

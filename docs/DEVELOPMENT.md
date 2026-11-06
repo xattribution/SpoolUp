@@ -21,9 +21,10 @@ signing, the website and the demo recording. For using Tablet Deck, see the
 You need Windows 10 or 11, [Node.js](https://nodejs.org) 18 or newer, and a
 tablet on the same network. No `npm install` is needed to run it: the server
 uses only Node's built-in modules. The key sender (`native/keysender.cs`), the
-voice listener (`native/voice.cs`) and the sound player (`native/sound.cs`, started
-when a tablet plays its sounds on the PC) compile themselves on first run with the C#
-compiler that ships with Windows.
+voice listener (`native/voice.cs`) and the sound player (`native/sound.cs`) compile
+themselves on first run with the C# compiler that ships with Windows. The sound
+player only starts once a tablet with sounds on opens Deck settings or plays its
+sounds on the PC.
 
 1. Clone the repository (or **Code → Download ZIP** and extract it).
 2. Double-click `start.bat`, or run `node server.js`.

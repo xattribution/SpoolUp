@@ -93,9 +93,9 @@
         <button id="soundBtn" class="sheet-switch" type="button" role="switch" aria-checked="true">
           <span class="sw-text"><b>Button sounds</b><span>Soft HUD sounds for presses, panels and voice.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <h3 class="sheet-sub"><label for="soundOut"><b>//</b> Play on</label></h3>
-        <select id="soundOut"></select>
+        <select id="soundOut" aria-label="Play on"></select>
         <h3 class="sheet-sub"><label for="soundVol"><b>//</b> Volume</label></h3>
-        <div class="sheet-range"><input id="soundVol" type="range" min="0" max="100" step="5"><output id="soundVolText" for="soundVol"></output></div>
+        <div class="sheet-range"><input id="soundVol" type="range" min="0" max="100" step="5" aria-label="Volume"><output id="soundVolText" for="soundVol"></output></div>
         <p id="soundNote" class="sheet-note"></p>
       </section>
       <section id="pcLinks" class="sheet-section pc-links" hidden>
