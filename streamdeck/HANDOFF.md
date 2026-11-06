@@ -102,7 +102,7 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   There's no game bind for VoIP mute. Missing plugins show "?" and offer an install; they
   never break the import.
 - **Ground rules:** no Multi Action, Text, Delay or Key Logic double/hold actions (they
-  automate). A dial detent counts as one tap (one press per detent): confirm with the owner.
+  automate). A dial detent counts as one tap (one press per detent): approved by the owner.
 - **Star Citizen 4.x keys:** research found the deck still sends several 3.x defaults (Decoy
   `g` → `h`, Noise `h` → `j`, Flight Ready `r` → `ralt+r`, Request Docking → `ralt+n`, five
   scActions that no longer exist, profile binds that collide with 4.10 defaults). Verified
@@ -140,8 +140,11 @@ their own source.
 3. Hardware questions (README "Not tried on a real Stream Deck yet", plus the plugin's and
    generator's reports): profile import, theme keys after import, dial order, + XL model id
    and strip, right-hand modifiers, the plugin's first switch to its profiles.
-4. **Waiting on the owner:** may a dial notch press once per notch (at most 5 per turn,
-   spaced)? Until answered, dials ship as built.
+4. **Owner's decision on dials (decided):** "use the knobs as knobs". Dials and touch strips
+   are for setting a level or cycling through options (power, speed range, laser power, beam
+   spacing, modifier, targets, voice channel, modes, scenes); one notch is one press (at most 5
+   per turn, spaced); a push is a single press. No one-off or risky actions on a turn. The
+   owner uses their own audio dials personally; defaults favour game levels and cycles.
 
 ## Earlier work in this session (for context)
 
