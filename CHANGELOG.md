@@ -5,6 +5,39 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/tablet-deck-spooned/releases), so add one
 before tagging a release.
 
+## 2.0.0 (2026-11-06)
+
+- **A landing-gear lever.** The Landing Gear button is now a lever: pull the
+  knob down to deploy, push it up to retract. Each pull or push taps the gear
+  key once. Its three lamps blink red while the gear is in transit and turn
+  green when it's down; like the button lights, they follow what SpoolUp
+  pressed, not the game.
+- **Power sliders.** The power triangle's eight chevron buttons are now three
+  sliders, Weapons, Thrusters and Shields. Each step you drag taps that
+  system's up or down key once, at most five per drag, spaced out. Tapping the
+  track beside the knob steps once. Max and Min stay above and below. The
+  sliders count the taps SpoolUp sent (SpoolUp can't read the game), so
+  Centre sliders puts them back in the middle without pressing anything, and
+  Max, Min and Reset All move them too.
+- **A speed-range fader.** Speed Range + and − are now one fader on the
+  Flight Assist panel: each step left or right taps Speed Range − or + once,
+  the same way as the power sliders.
+- **An operator-mode dial.** The Oprt Mode menu on QT/Systems is now a dial
+  with a needle: turn it to a mode and let go, or tap the mode, and it taps
+  that mode's key once. SCM/NAV sits in the middle. On phones the dial has
+  its own panel, Master Modes, next to QT/Systems.
+- **Resize the halves.** Deck settings → Edit layout unlocks the seam between
+  the HUD's two halves: drag it to make one wider, then Lock. Reset puts it
+  back. Each tablet and phone keeps its own, and nothing is pressed while
+  you arrange it.
+- Every new control is drawn in each maker's own style (Drake's riveted
+  hazard lever, Origin's cream fader knob, Anvil's knurled dial...), works
+  with touch, mouse and keyboard, and follows Large text, High contrast,
+  night mode and Reduce motion. The layout editor places and resizes them,
+  and lists their buttons to edit.
+- Each step, pull or turn is still one press of an existing button through
+  the PC's usual checks; voice commands and Stream Deck keys are unchanged.
+
 ## 1.9.0 (2026-11-06)
 
 - **Silent installs leave your keybinds alone.** Installing SpoolUp silently

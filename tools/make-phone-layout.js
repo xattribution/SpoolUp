@@ -15,14 +15,12 @@ const W = 734, H = 372;
 const REGION = { y: 50, w: 359, h: 322, pager: 36 };
 const BODY_H = REGION.h - REGION.pager - 8; // 278
 
-// Index every element with an id (and menus by label) from the tablet layout.
+// Index every element with an id from the tablet layout.
 const byId = new Map();
-const menus = new Map();
 (function scan(node) {
   if (Array.isArray(node)) { node.forEach(scan); return; }
   if (!node || typeof node !== "object") return;
   if (typeof node.id === "string") byId.set(node.id, node);
-  if (node.type === "menu") menus.set(node.label, node);
   for (const v of Object.values(node)) if (v && typeof v === "object") scan(v);
 })(tablet);
 
@@ -70,9 +68,9 @@ const panels = {
     elements: [
       { ...stateHeader, x: 2, y: 2 },
       { ...sw, x: 259, y: 0, w: 100, h: 24 },
-      at("pl-gear", 0, 32, 175, 62, { when: landing }),
-      at("pl-vtol", 184, 32, 175, 62, { when: landing }),
-      at("pl-autoland", 0, 102, 359, 54, { when: landing }),
+      at("pl-gear-lever", 0, 28, 84, 130, { when: landing }),
+      at("pl-vtol", 94, 32, 265, 58, { when: landing }),
+      at("pl-autoland", 94, 98, 265, 58, { when: landing }),
       at("pl-request-dock", 0, 32, 175, 62, { when: docking }),
       at("pl-dock-vtol", 184, 32, 175, 62, { when: docking }),
       at("pl-dock-cam", 0, 102, 359, 54, { when: docking }),
@@ -86,23 +84,19 @@ const panels = {
   power: {
     title: "Power",
     elements: [
-      el({ type: "vlabel", text: "Max", x: 0, y: 0, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Incr", x: 0, y: 48, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Decr", x: 0, y: 130, w: 24, h: 42 }),
-      el({ type: "vlabel", text: "Min", x: 0, y: 178, w: 24, h: 42 }),
+      el({ type: "vlabel", text: "Max", x: 0, y: 0, w: 24, h: 40 }),
+      el({ type: "vlabel", text: "Taps sent", x: 0, y: 46, w: 24, h: 130 }),
+      el({ type: "vlabel", text: "Min", x: 0, y: 182, w: 24, h: 40 }),
       ...["wep", "thr", "shd"].flatMap((s, i) => {
         const x = 30 + i * 110;
         return [
-          at(`pw-${s}-max`, x, 0, 104, 42),
-          at(`pw-${s}-up`, x, 48, 104, 42),
-          at(`pw-${s}-down`, x, 130, 104, 42),
-          at(`pw-${s}-min`, x, 178, 104, 42),
+          at(`pw-${s}-max`, x, 0, 104, 40),
+          at(`pw-${s}-level`, x, 46, 104, 130),
+          at(`pw-${s}-min`, x, 182, 104, 40),
         ];
       }),
-      el({ type: "caption", icon: "power-weapons", text: "Weapons", color: "red", x: 30, y: 94, w: 104 }),
-      el({ type: "caption", icon: "power-engines", text: "Thrusters", color: "blue", x: 140, y: 94, w: 104 }),
-      el({ type: "caption", icon: "power-shields", text: "Shields", color: "green", x: 250, y: 94, w: 104 }),
-      at("pw-reset", 0, 230, 359, 44),
+      at("pw-reset", 0, 230, 230, 44),
+      at("pw-centre", 238, 230, 121, 44),
     ],
   },
 
@@ -111,11 +105,15 @@ const panels = {
     elements: [
       el({ type: "header", text: "Ship_systems", x: 2, y: 2 }),
       at("qt-pwr", 0, 20, 85, 52), at("qt-wep", 91, 20, 85, 52), at("qt-thr", 182, 20, 85, 52), at("qt-shld", 273, 20, 86, 52),
-      at("qt-flight-ready", 0, 82, 359, 54),
-      at("qt-scm-nav", 0, 144, 175, 46),
-      { ...JSON.parse(JSON.stringify(menus.get("Oprt Mode"))), x: 184, y: 144, w: 175, h: 46 },
-      at("qt-engage", 34, 200, 291, 74),
+      at("qt-flight-ready", 0, 84, 359, 62),
+      at("qt-engage", 34, 168, 291, 96),
     ],
+  },
+
+  // The operator-mode dial needs a panel of its own on a phone.
+  "master-modes": {
+    title: "Master Modes",
+    elements: [at("qt-modes", 0, 0, REGION.w, BODY_H)],
   },
 
   mining: (() => {
@@ -148,7 +146,18 @@ const panels = {
 
 // ---------- re-flowed grid panels ----------
 Object.assign(panels, {
-  "flight-assist": gridPanel("flight-assist", 3),
+  "flight-assist": (() => {
+    const [top, rest] = tablet.panels["flight-assist"].elements.filter((e) => e.type === "grid");
+    return {
+      title: "Flight Assist",
+      elements: [
+        { type: "grid", x: 0, y: 0, w: REGION.w, h: 56, cols: 3, compact: true, buttons: top.buttons },
+        at("fa-throttle", 0, 64, 110, 80, { style: "std" }),
+        at("fa-range", 118, 64, 241, 80),
+        { type: "grid", x: 0, y: 152, w: REGION.w, h: 126, cols: 3, compact: true, buttons: rest.buttons },
+      ],
+    };
+  })(),
   shields: gridPanel("shields", 3),
   targets: gridPanel("targets", 2),
   salvage: gridPanel("salvage", 2),
@@ -173,7 +182,7 @@ const phone = {
     { id: "left", x: 0, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
       panels: ["landing", "power", "flight-assist", "shields", "targets", "salvage", "mining"] },
     { id: "right", x: 375, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
-      panels: ["systems", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
+      panels: ["systems", "master-modes", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
   ],
   panels,
 };

@@ -391,6 +391,12 @@
   }
   $("nightBtn").onclick = () => applyNight(!document.documentElement.hasAttribute("data-night"));
   $("resetStatesBtn").onclick = resetStates;
+  // Edit layout: unlocks the seam between the HUD's halves until Lock (canvas.js).
+  $("editPlatesBtn").onclick = () => {
+    if (!deckCanvas || !deckCanvas.editPlates(true)) { toast("This layout has no halves to resize"); return; }
+    closePicker();
+    toast("Drag the seam, then Lock", 2600);
+  };
   applyNight(store.get("night") === "1");
 
   // Large text, high contrast and key labels (each button's key in a corner, for learning
@@ -595,9 +601,14 @@
   let states = {};
   // With Button lights off (Deck settings), everything shows as off and stays that way.
   const lightsOn = () => !document.documentElement.hasAttribute("data-no-lights");
+  // Controls drawn from the state itself (the gear lever's position) get it as it is, and
+  // whether lights are on, as a third argument; buttons only see it while lights are on.
   function showStates(group) {
     for (const el of document.querySelectorAll("[data-state-group]")) {
-      if (group === undefined || el.dataset.stateGroup === group) el._showState(lightsOn() && Boolean(states[el.dataset.stateGroup]), group !== undefined && lightsOn());
+      if (group !== undefined && el.dataset.stateGroup !== group) continue;
+      const on = Boolean(states[el.dataset.stateGroup]);
+      if (el._rawState) el._showState(on, group !== undefined, lightsOn());
+      else el._showState(lightsOn() && on, group !== undefined && lightsOn());
     }
   }
   // Demo mode has no PC, so presses change the state here, the way server.js does.
@@ -615,6 +626,32 @@
   // copy of that button on screen flashes red and stops any charge or arming it started.
   function denied(id) {
     for (const el of document.querySelectorAll("[data-btn]")) if (el.dataset.btn === id) el._deny();
+    for (const el of document.querySelectorAll("[data-btns]")) if (el.dataset.btns.split(" ").includes(id)) el._deny(id);
+  }
+
+  // One tap of a button from a control that isn't a button (the gear lever, a slider's step,
+  // the mode dial): the same message a tapped button sends, so the PC's focus check, press
+  // scheduling and release all apply. Returns whether it went; offline it says so instead.
+  // Controls call it once per step the player makes; nothing here repeats.
+  function tapStep(btn) {
+    if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); window.DeckSound.play("deny"); return false; }
+    buzz();
+    window.DeckSound.play("press", btn.color);
+    send({ t: "tap", id: btn.id });
+    if (DEMO && btn.state && typeof btn.state.group === "string") demoState(btn);
+    return true;
+  }
+  // A control showing a state group (the gear lever): app.js calls show(on, animate, lit)
+  // whenever the PC's state for the group changes. `ids` are the buttons it taps, so a press
+  // the PC skipped reaches deny(id).
+  function bindControl(el, { group, show, ids, deny }) {
+    if (ids && ids.length) { el.dataset.btns = ids.join(" "); el._deny = deny || (() => {}); }
+    if (group) {
+      el.dataset.stateGroup = group;
+      el._rawState = true;
+      el._showState = show;
+      show(Boolean(states[group]), false, lightsOn());
+    }
   }
 
   // While a finger holds a button or the mic, its lift is heard on the document too: a
@@ -643,6 +680,7 @@
       window.DeckSound.play("press", btn.color);
       send({ t: btn.mode === "hold" ? "down" : "tap", id: btn.id });
       fx.down(e);
+      deckCanvas?.pressed?.(btn.id); // Max Weapons puts the Weapons slider at the top
       if (DEMO && el.dataset.stateGroup) demoState(btn);
     };
     el.addEventListener("pointerdown", (e) => {
@@ -858,6 +896,7 @@
       document.body.classList.add("canvas-mode");
       deckCanvas = window.renderCanvas(layout, {
         send, bindButton, bindTalk, buzz, store, refreshStatus, openPicker, openVoiceHelp, toggleFullscreen,
+        tapStep, bindControl, toast, canPress: () => DEMO || connected(),
         paged: panelPaged,
         deckIcon: window.deckIcon,
         emblemHtml: () => emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem),

@@ -104,8 +104,25 @@ and one with a new name needs `layout` set in `config.json`.
 Canvas layouts (`hud.json` and friends) place each element at `x`, `y`, `w`, `h`
 in canvas pixels; elements in a panel are relative to their half. Element types
 include `button`, `header`, `switch` (with `when` to show elements per mode),
-`menu`, `slider`, `grid` and decorations. `star-citizen.json` is an older tabbed
-grid layout.
+`menu`, `slider`, `grid`, the cockpit controls below and decorations.
+`star-citizen.json` is an older tabbed grid layout.
+
+Cockpit controls (2.0) hold ordinary button definitions inside them, so the
+server, voice commands, the keybind profile and the Stream Deck catalog find
+those buttons as usual. Each has its own `id` (no `keys`) so the layout editor
+can select it. Every step, pull or turn sends one `tap` of one inner button, through
+the same focus check and press scheduling as a tapped button:
+
+| type | fields | what a gesture presses |
+|---|---|---|
+| `lever` | `label`, `button` | pulling the knob down or pushing it up past halfway taps `button` once; its lamps follow `button.state` |
+| `level` | `label`, `icon`, `color`, `steps` (each way, default 5), `up`, `down`, `follows` | each step up or down taps `up` or `down` once, at most 5 per drag and 140 ms apart; `follows` maps `max`, `min`, `centre` to button ids whose presses move it |
+| `fader` | the same as `level` | the same, lying down |
+| `rotary` | `label`, `hub`, `options` | turning the needle to an option and letting go, or tapping it, taps that option once; `hub` is a button in the middle |
+| `recentre` | `label` | nothing: puts every `level` and `fader` back in the centre |
+
+Levels and faders show the steps sent from the centre, not a game value, and keep
+them per device with the page positions.
 
 Button fields:
 

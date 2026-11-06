@@ -174,6 +174,7 @@
       "pager": 36,
       "panels": [
         "systems",
+        "master-modes",
         "emergency",
         "modes",
         "combat",
@@ -213,31 +214,35 @@
           "h": 24
         },
         {
-          "type": "button",
+          "type": "lever",
           "when": [
             "approach",
             "landing"
           ],
-          "id": "pl-gear",
-          "anim": "gear",
+          "id": "pl-gear-lever",
           "label": "Landing Gear",
-          "state": {
-            "group": "gear"
-          },
-          "voice": [
-            "gear",
-            "gear up",
-            "gear down",
-            "deploy landing gear",
-            "retract landing gear"
-          ],
-          "keys": "n",
-          "scAction": "v_toggle_landing_system",
-          "mode": "tap",
           "x": 0,
-          "y": 32,
-          "w": 175,
-          "h": 62
+          "y": 28,
+          "w": 84,
+          "h": 130,
+          "button": {
+            "id": "pl-gear",
+            "anim": "gear",
+            "label": "Landing Gear",
+            "state": {
+              "group": "gear"
+            },
+            "voice": [
+              "gear",
+              "gear up",
+              "gear down",
+              "deploy landing gear",
+              "retract landing gear"
+            ],
+            "keys": "n",
+            "scAction": "v_toggle_landing_system",
+            "mode": "tap"
+          }
         },
         {
           "type": "button",
@@ -257,10 +262,10 @@
           "keys": "k",
           "scAction": "v_vtol_toggle",
           "mode": "tap",
-          "x": 184,
+          "x": 94,
           "y": 32,
-          "w": 175,
-          "h": 62
+          "w": 265,
+          "h": 58
         },
         {
           "type": "button",
@@ -279,10 +284,10 @@
           "scAction": "v_autoland",
           "mode": "timed",
           "ms": 1500,
-          "x": 0,
-          "y": 102,
-          "w": 359,
-          "h": 54
+          "x": 94,
+          "y": 98,
+          "w": 265,
+          "h": 58
         },
         {
           "type": "button",
@@ -436,31 +441,23 @@
           "x": 0,
           "y": 0,
           "w": 24,
-          "h": 42
+          "h": 40
         },
         {
           "type": "vlabel",
-          "text": "Incr",
+          "text": "Taps sent",
           "x": 0,
-          "y": 48,
+          "y": 46,
           "w": 24,
-          "h": 42
-        },
-        {
-          "type": "vlabel",
-          "text": "Decr",
-          "x": 0,
-          "y": 130,
-          "w": 24,
-          "h": 42
+          "h": 130
         },
         {
           "type": "vlabel",
           "text": "Min",
           "x": 0,
-          "y": 178,
+          "y": 182,
           "w": 24,
-          "h": 42
+          "h": 40
         },
         {
           "type": "button",
@@ -480,45 +477,50 @@
           "x": 30,
           "y": 0,
           "w": 104,
-          "h": 42
+          "h": 40
         },
         {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-wep-up",
-          "label": "Weapons +",
-          "voice": [
-            "more weapons",
-            "more power to weapons"
-          ],
-          "keys": "f5",
-          "scAction": "v_engineering_assignment_weapons_increase",
-          "mode": "tap",
+          "type": "level",
+          "id": "pw-wep-level",
+          "label": "Weapons",
+          "icon": "power-weapons",
           "color": "red",
+          "steps": 5,
           "x": 30,
-          "y": 48,
+          "y": 46,
           "w": 104,
-          "h": 42
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-wep-down",
-          "label": "Weapons −",
-          "voice": [
-            "less weapons",
-            "less power to weapons"
-          ],
-          "keys": "lalt+f5",
-          "scAction": "v_engineering_assignment_weapons_decrease",
-          "mode": "tap",
-          "color": "red",
-          "x": 30,
-          "y": 130,
-          "w": 104,
-          "h": 42
+          "h": 130,
+          "follows": {
+            "max": "pw-wep-max",
+            "min": "pw-wep-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-wep-up",
+            "label": "Weapons +",
+            "voice": [
+              "more weapons",
+              "more power to weapons"
+            ],
+            "keys": "f5",
+            "scAction": "v_engineering_assignment_weapons_increase",
+            "mode": "tap",
+            "color": "red"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-wep-down",
+            "label": "Weapons −",
+            "voice": [
+              "less weapons",
+              "less power to weapons"
+            ],
+            "keys": "lalt+f5",
+            "scAction": "v_engineering_assignment_weapons_decrease",
+            "mode": "tap",
+            "color": "red"
+          }
         },
         {
           "type": "button",
@@ -535,9 +537,9 @@
           "ms": 900,
           "color": "red",
           "x": 30,
-          "y": 178,
+          "y": 182,
           "w": 104,
-          "h": 42
+          "h": 40
         },
         {
           "type": "button",
@@ -559,49 +561,54 @@
           "x": 140,
           "y": 0,
           "w": 104,
-          "h": 42
+          "h": 40
         },
         {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-thr-up",
-          "label": "Thrusters +",
-          "voice": [
-            "engines up",
-            "more engines",
-            "more thrusters",
-            "more power to engines"
-          ],
-          "keys": "f6",
-          "scAction": "v_engineering_assignment_engine_increase",
-          "mode": "tap",
+          "type": "level",
+          "id": "pw-thr-level",
+          "label": "Thrusters",
+          "icon": "power-engines",
           "color": "blue",
+          "steps": 5,
           "x": 140,
-          "y": 48,
+          "y": 46,
           "w": 104,
-          "h": 42
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-thr-down",
-          "label": "Thrusters −",
-          "voice": [
-            "engines down",
-            "less engines",
-            "less thrusters",
-            "less power to engines"
-          ],
-          "keys": "lalt+f6",
-          "scAction": "v_engineering_assignment_engine_decrease",
-          "mode": "tap",
-          "color": "blue",
-          "x": 140,
-          "y": 130,
-          "w": 104,
-          "h": 42
+          "h": 130,
+          "follows": {
+            "max": "pw-thr-max",
+            "min": "pw-thr-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-thr-up",
+            "label": "Thrusters +",
+            "voice": [
+              "engines up",
+              "more engines",
+              "more thrusters",
+              "more power to engines"
+            ],
+            "keys": "f6",
+            "scAction": "v_engineering_assignment_engine_increase",
+            "mode": "tap",
+            "color": "blue"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-thr-down",
+            "label": "Thrusters −",
+            "voice": [
+              "engines down",
+              "less engines",
+              "less thrusters",
+              "less power to engines"
+            ],
+            "keys": "lalt+f6",
+            "scAction": "v_engineering_assignment_engine_decrease",
+            "mode": "tap",
+            "color": "blue"
+          }
         },
         {
           "type": "button",
@@ -620,9 +627,9 @@
           "ms": 900,
           "color": "blue",
           "x": 140,
-          "y": 178,
+          "y": 182,
           "w": 104,
-          "h": 42
+          "h": 40
         },
         {
           "type": "button",
@@ -642,45 +649,50 @@
           "x": 250,
           "y": 0,
           "w": 104,
-          "h": 42
+          "h": 40
         },
         {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-up",
-          "id": "pw-shd-up",
-          "label": "Shields +",
-          "voice": [
-            "more shields",
-            "more power to shields"
-          ],
-          "keys": "f7",
-          "scAction": "v_engineering_assignment_shields_increase",
-          "mode": "tap",
+          "type": "level",
+          "id": "pw-shd-level",
+          "label": "Shields",
+          "icon": "power-shields",
           "color": "green",
+          "steps": 5,
           "x": 250,
-          "y": 48,
+          "y": 46,
           "w": 104,
-          "h": 42
-        },
-        {
-          "type": "button",
-          "style": "chev",
-          "icon": "chev-down",
-          "id": "pw-shd-down",
-          "label": "Shields −",
-          "voice": [
-            "less shields",
-            "less power to shields"
-          ],
-          "keys": "lalt+f7",
-          "scAction": "v_engineering_assignment_shields_decrease",
-          "mode": "tap",
-          "color": "green",
-          "x": 250,
-          "y": 130,
-          "w": 104,
-          "h": 42
+          "h": 130,
+          "follows": {
+            "max": "pw-shd-max",
+            "min": "pw-shd-min",
+            "centre": "pw-reset"
+          },
+          "up": {
+            "icon": "chev-up",
+            "id": "pw-shd-up",
+            "label": "Shields +",
+            "voice": [
+              "more shields",
+              "more power to shields"
+            ],
+            "keys": "f7",
+            "scAction": "v_engineering_assignment_shields_increase",
+            "mode": "tap",
+            "color": "green"
+          },
+          "down": {
+            "icon": "chev-down",
+            "id": "pw-shd-down",
+            "label": "Shields −",
+            "voice": [
+              "less shields",
+              "less power to shields"
+            ],
+            "keys": "lalt+f7",
+            "scAction": "v_engineering_assignment_shields_decrease",
+            "mode": "tap",
+            "color": "green"
+          }
         },
         {
           "type": "button",
@@ -697,36 +709,9 @@
           "ms": 900,
           "color": "green",
           "x": 250,
-          "y": 178,
+          "y": 182,
           "w": 104,
-          "h": 42
-        },
-        {
-          "type": "caption",
-          "icon": "power-weapons",
-          "text": "Weapons",
-          "color": "red",
-          "x": 30,
-          "y": 94,
-          "w": 104
-        },
-        {
-          "type": "caption",
-          "icon": "power-engines",
-          "text": "Thrusters",
-          "color": "blue",
-          "x": 140,
-          "y": 94,
-          "w": 104
-        },
-        {
-          "type": "caption",
-          "icon": "power-shields",
-          "text": "Shields",
-          "color": "green",
-          "x": 250,
-          "y": 94,
-          "w": 104
+          "h": 40
         },
         {
           "type": "button",
@@ -744,7 +729,16 @@
           "mode": "tap",
           "x": 0,
           "y": 230,
-          "w": 359,
+          "w": 230,
+          "h": 44
+        },
+        {
+          "type": "recentre",
+          "id": "pw-centre",
+          "label": "Centre sliders",
+          "x": 238,
+          "y": 230,
+          "w": 121,
           "h": 44
         }
       ]
@@ -882,37 +876,59 @@
           "mode": "tap",
           "color": "green",
           "x": 0,
-          "y": 82,
+          "y": 84,
           "w": 359,
-          "h": 54
+          "h": 62
         },
         {
           "type": "button",
-          "id": "qt-scm-nav",
-          "anim": "streak",
-          "label": "SCM/NAV",
+          "style": "quantum",
+          "id": "qt-engage",
+          "anim": "charge",
+          "label": "Engage Quantum",
           "voice": [
-            "switch master mode",
-            "toggle master mode",
-            "master mode"
+            "engage",
+            "quantum jump",
+            "jump"
           ],
-          "keys": "b",
-          "scAction": "v_master_mode_cycle_long",
-          "mode": "timed",
-          "ms": 400,
-          "x": 0,
-          "y": 144,
-          "w": 175,
-          "h": 46
-        },
+          "voiceMs": 1500,
+          "keys": "ralt+j",
+          "scAction": "v_toggle_qdrive_engagement",
+          "verify": true,
+          "mode": "hold",
+          "color": "blue",
+          "x": 34,
+          "y": 168,
+          "w": 291,
+          "h": 96
+        }
+      ]
+    },
+    "master-modes": {
+      "title": "Master Modes",
+      "elements": [
         {
-          "type": "menu",
-          "label": "Oprt Mode",
-          "title": "Operator mode",
-          "x": 184,
-          "y": 144,
-          "w": 175,
-          "h": 46,
+          "type": "rotary",
+          "id": "qt-modes",
+          "label": "Operator mode",
+          "x": 0,
+          "y": 0,
+          "w": 359,
+          "h": 278,
+          "hub": {
+            "id": "qt-scm-nav",
+            "anim": "streak",
+            "label": "SCM/NAV",
+            "voice": [
+              "switch master mode",
+              "toggle master mode",
+              "master mode"
+            ],
+            "keys": "b",
+            "scAction": "v_master_mode_cycle_long",
+            "mode": "timed",
+            "ms": 400
+          },
           "options": [
             {
               "id": "op-flight",
@@ -1001,28 +1017,6 @@
               "color": "amber"
             }
           ]
-        },
-        {
-          "type": "button",
-          "style": "quantum",
-          "id": "qt-engage",
-          "anim": "charge",
-          "label": "Engage Quantum",
-          "voice": [
-            "engage",
-            "quantum jump",
-            "jump"
-          ],
-          "voiceMs": 1500,
-          "keys": "ralt+j",
-          "scAction": "v_toggle_qdrive_engagement",
-          "verify": true,
-          "mode": "hold",
-          "color": "blue",
-          "x": 34,
-          "y": 200,
-          "w": 291,
-          "h": 74
         }
       ]
     },
@@ -1286,7 +1280,7 @@
           "x": 0,
           "y": 0,
           "w": 359,
-          "h": 278,
+          "h": 56,
           "cols": 3,
           "compact": true,
           "buttons": [
@@ -1332,44 +1326,73 @@
               "keys": "lalt+minus",
               "scAction": "v_ifcs_speed_limiter_toggle",
               "mode": "tap"
-            },
-            {
-              "id": "fa-throttle",
-              "icon": "speed",
-              "label": "Throttle Mode",
-              "voice": [
-                "throttle mode",
-                "swap throttle mode"
-              ],
-              "keys": "lalt+c",
-              "scAction": "v_ifcs_throttle_swap_mode",
-              "mode": "tap"
-            },
-            {
-              "id": "fa-range-up",
-              "anim": "streak",
-              "icon": "chev-up",
-              "label": "Speed Range +",
-              "voice": [
-                "increase speed range"
-              ],
-              "keys": "lalt+pgup",
-              "scAction": "v_ifcs_speed_limiter_increment",
-              "verify": true,
-              "mode": "tap"
-            },
-            {
-              "id": "fa-range-down",
-              "icon": "chev-down",
-              "label": "Speed Range −",
-              "voice": [
-                "decrease speed range"
-              ],
-              "keys": "lalt+pgdn",
-              "scAction": "v_ifcs_speed_limiter_decrement",
-              "verify": true,
-              "mode": "tap"
-            },
+            }
+          ]
+        },
+        {
+          "type": "button",
+          "style": "std",
+          "id": "fa-throttle",
+          "icon": "speed",
+          "label": "Throttle Mode",
+          "voice": [
+            "throttle mode",
+            "swap throttle mode"
+          ],
+          "keys": "lalt+c",
+          "scAction": "v_ifcs_throttle_swap_mode",
+          "mode": "tap",
+          "x": 0,
+          "y": 64,
+          "w": 110,
+          "h": 80
+        },
+        {
+          "type": "fader",
+          "id": "fa-range",
+          "label": "Speed Range",
+          "icon": "speed",
+          "color": "blue",
+          "steps": 5,
+          "x": 118,
+          "y": 64,
+          "w": 241,
+          "h": 80,
+          "up": {
+            "id": "fa-range-up",
+            "anim": "streak",
+            "icon": "chev-up",
+            "label": "Speed Range +",
+            "voice": [
+              "increase speed range"
+            ],
+            "keys": "lalt+pgup",
+            "scAction": "v_ifcs_speed_limiter_increment",
+            "verify": true,
+            "mode": "tap"
+          },
+          "down": {
+            "id": "fa-range-down",
+            "icon": "chev-down",
+            "label": "Speed Range −",
+            "voice": [
+              "decrease speed range"
+            ],
+            "keys": "lalt+pgdn",
+            "scAction": "v_ifcs_speed_limiter_decrement",
+            "verify": true,
+            "mode": "tap"
+          }
+        },
+        {
+          "type": "grid",
+          "x": 0,
+          "y": 152,
+          "w": 359,
+          "h": 126,
+          "cols": 3,
+          "compact": true,
+          "buttons": [
             {
               "id": "fa-decoupled",
               "icon": "swap",

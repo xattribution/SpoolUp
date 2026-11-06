@@ -42,6 +42,18 @@
   // ---------- layout helpers ----------
 
   const isButton = (n) => n && typeof n === "object" && typeof n.id === "string" && typeof n.keys === "string";
+  // Cockpit controls (gear lever, level sliders, speed fader, mode dial) hold their buttons
+  // inside them; the control itself moves and resizes like a button.
+  const CONTROLS = { lever: "Gear lever", level: "Level slider", fader: "Fader", rotary: "Mode dial" };
+  const isControl = (n) => n && typeof n === "object" && typeof n.id === "string" && Object.prototype.hasOwnProperty.call(CONTROLS, n.type);
+  // A control's buttons, by the part they play in it.
+  const partsOf = (c) => [
+    ...(c.button ? [["Pull or push", c.button]] : []),
+    ...(c.up ? [["Step up", c.up]] : []),
+    ...(c.down ? [["Step down", c.down]] : []),
+    ...(c.hub ? [["Centre", c.hub]] : []),
+    ...(Array.isArray(c.options) ? c.options.map((o) => ["Mode", o]) : []),
+  ];
 
   // Every button with the array it sits in.
   function eachButton(fn) {
@@ -55,7 +67,16 @@
   function find(id) {
     let found = null;
     eachButton((b, parent) => { if (!found && b.id === id) found = { button: b, parent }; });
+    if (!found) eachControl((c, parent) => { if (!found && c.id === id) found = { button: c, parent, control: true }; });
     return found;
+  }
+  function eachControl(fn) {
+    (function walk(node, parent) {
+      if (Array.isArray(node)) { node.forEach((n) => walk(n, node)); return; }
+      if (!node || typeof node !== "object") return;
+      if (isControl(node)) fn(node, parent);
+      for (const v of Object.values(node)) if (v && typeof v === "object") walk(v, Array.isArray(node) ? node : null);
+    })(layout, null);
   }
   const selected = () => (selectedId && find(selectedId)?.button) || null;
 
@@ -130,6 +151,14 @@
       elementOf.set(def.id, el);
       fxOf.set(def.id, window.DeckFX.attach(el, def));
       el.addEventListener("pointerdown", (e) => startDrag(e, el, def));
+      el.addEventListener("contextmenu", (e) => e.preventDefault());
+    },
+    // Controls select (and drag) too; their gestures press nothing here. Their buttons
+    // show the control when picked from its list.
+    placeControl(el, def) {
+      elementOf.set(def.id, el);
+      for (const [, b] of partsOf(def)) if (!elementOf.has(b.id)) elementOf.set(b.id, el);
+      el.addEventListener("pointerdown", (e) => { if (e.target.closest("[data-btn]") && e.target.closest("[data-btn]") !== el) return; startDrag(e, el, def); });
       el.addEventListener("contextmenu", (e) => e.preventDefault());
     },
     afterRender: drawSelection,
@@ -275,7 +304,7 @@
   }
 
   function add() {
-    const near = selected() && find(selectedId);
+    const near = selected() && find(selectedId)?.parent ? find(selectedId) : null;
     const target = near ? near.parent : visibleElements();
     const placed = !near || typeof near.button.x === "number";
     const b = { type: "button", id: newId(), label: "New button", keys: freeKey(), mode: "tap" };
@@ -294,6 +323,7 @@
   function duplicate() {
     const near = selected() && find(selectedId);
     if (!near) return;
+    if (near.control || !near.parent) { status("Controls and their parts can't be duplicated: their buttons would share ids.", true); return; }
     const copy = JSON.parse(JSON.stringify(near.button));
     copy.id = newId();
     copy.label = `${near.button.label} copy`;
@@ -308,6 +338,7 @@
   function remove() {
     const near = selected() && find(selectedId);
     if (!near) return;
+    if (!near.parent) { status("This button is part of a control; select the control to delete it.", true); return; }
     snapshot();
     near.parent.splice(near.parent.indexOf(near.button), 1);
     selectedId = null;
@@ -319,7 +350,7 @@
   // Grid and menu buttons have no position; they move within their list instead.
   function shift(by) {
     const near = selected() && find(selectedId);
-    if (!near) return;
+    if (!near || !near.parent) return;
     const i = near.parent.indexOf(near.button), j = i + by;
     if (j < 0 || j >= near.parent.length) return;
     snapshot();
@@ -368,10 +399,18 @@
         <p>Click a button to select it, then drag it to move it, or drag the yellow corner to resize it. Arrow keys nudge it (hold Shift for bigger steps).</p>
         <p>The arrows under each half flip through panels, and mode switches (like Landing / Docking) work, so you can reach every button.</p>
         <p>Buttons in automatic grids and menus keep their place in the grid; move them with "Earlier" and "Later".</p>
+        <p>Cockpit controls (the gear lever, the level sliders, the speed fader and the mode dial) move and resize the same way; their buttons are listed when you select one.</p>
         <p>Saving makes your own copy of the layout. The built-in layouts never change.</p></div>`;
       return;
     }
+    if (isControl(b)) { renderControlProps(side, b); return; }
     side.append(make("h2", { textContent: b.label || "(no label)" }), make("div", { className: "id", textContent: `id: ${b.id}` }));
+    const owner = controlOf(b);
+    if (owner) {
+      const back = make("button", { type: "button", textContent: `◀ Part of ${CONTROLS[owner.type].toLowerCase()} "${owner.label || owner.id}"` });
+      back.addEventListener("click", () => select(owner.id));
+      side.append(back);
+    }
 
     side.append(field("Label", textInput(b.label, (v) => { b.label = v; side.querySelector("h2").textContent = v || "(no label)"; })));
 
@@ -503,7 +542,9 @@
     side.append(field("Voice", voiceBox));
 
     // Position.
-    if (typeof b.x === "number") {
+    if (owner) {
+      // Placed by its control.
+    } else if (typeof b.x === "number") {
       const row = make("div", { className: "row" });
       for (const k of ["x", "y", "w", "h"]) {
         const n = make("input", { type: "number", value: b[k], title: { x: "Left", y: "Top", w: "Width", h: "Height" }[k] });
@@ -520,6 +561,48 @@
       row.append(earlier, later);
       side.append(field("Place in its grid", row));
     }
+  }
+
+  // The control a button belongs to, if any.
+  function controlOf(b) {
+    let owner = null;
+    eachControl((c) => { if (!owner && partsOf(c).some(([, p]) => p === b)) owner = c; });
+    return owner;
+  }
+
+  // A control: its label, size and steps, and its buttons, each opened to edit like any button.
+  function renderControlProps(side, c) {
+    side.append(make("h2", { textContent: c.label || CONTROLS[c.type] }), make("div", { className: "id", textContent: `${CONTROLS[c.type]} · id: ${c.id}` }));
+    side.append(make("div", { className: "hint", textContent: {
+      lever: "Pulling the knob down or pushing it up taps its button once. Its lamps follow the button's state.",
+      level: "Each step of the slider taps Step up or Step down once, at most 5 per drag. It shows the steps sent, not the game.",
+      fader: "Each step of the fader taps Step up or Step down once, at most 5 per drag. It shows the steps sent, not the game.",
+      rotary: "Turning the dial to a mode, or tapping the mode, taps that mode's button once. The centre is its own button.",
+    }[c.type] }));
+    side.append(field("Label", textInput(c.label, (v) => { c.label = v; side.querySelector("h2").textContent = v || CONTROLS[c.type]; })));
+    if (c.type === "level" || c.type === "fader") {
+      const steps = make("input", { type: "number", min: 1, max: 10, value: c.steps || 5 });
+      steps.addEventListener("change", change(() => { c.steps = Math.max(1, Math.min(10, Math.round(Number(steps.value) || 5))); }));
+      side.append(field("Steps each way from the centre", steps));
+      const color = make("select");
+      for (const k of COLORS) color.append(make("option", { value: k, textContent: k || "Theme colour", selected: (c.color || "") === k }));
+      color.addEventListener("change", change(() => { if (color.value) c.color = color.value; else delete c.color; }));
+      side.append(field("Colour", color));
+    }
+    const list = make("div", { className: "parts" });
+    for (const [part, b] of partsOf(c)) {
+      const open = make("button", { type: "button", textContent: `${part}: ${b.label} (${effectiveKeys(b)})` });
+      open.addEventListener("click", () => select(b.id));
+      list.append(open);
+    }
+    side.append(field("Its buttons", list, "Open one to change its label, keys or voice phrases."));
+    const row = make("div", { className: "row" });
+    for (const k of ["x", "y", "w", "h"]) {
+      const n = make("input", { type: "number", value: c[k], title: { x: "Left", y: "Top", w: "Width", h: "Height" }[k] });
+      n.addEventListener("change", change(() => { c[k] = Math.max(k === "w" || k === "h" ? 44 : -2000, Math.round(Number(n.value) || 0)); }));
+      row.append(n);
+    }
+    side.append(field("Left, top, width, height", row, "In layout pixels. You can also drag it, or drag the yellow corner, in the preview."));
   }
 
   // ---------- loading and saving ----------

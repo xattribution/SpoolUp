@@ -23,7 +23,11 @@
     // Separate stores per canvas size, so phone and tablet keep their own page positions.
     const key = `${NS}-${W}x${H}`;
     const saved = (() => { try { return JSON.parse(D.store.get(key) || "{}"); } catch { return {}; } })();
-    const state = { groups: saved.groups || {}, panels: saved.panels || {} };
+    const state = { groups: saved.groups || {}, panels: saved.panels || {}, levels: saved.levels || {}, split: saved.split || 0, dials: saved.dials || {} };
+    // Drawn controls that follow other buttons' presses (a slider's Max and Min), by button
+    // id, and the ones Centre sliders puts back; both refilled at every redraw.
+    const followers = new Map();
+    let recentred = [];
     const save = () => D.store.set(key, JSON.stringify(state));
 
     // Fill the whole stage (which CSS keeps inside the safe area, clear of the iPhone's
@@ -31,6 +35,7 @@
     // screen's shape differs from the layout's, element boxes stretch along the longer
     // axis by kx/ky so there are no empty bands.
     let s = 1, kx = 1, ky = 1;
+    let rkx = 1; // extra horizontal stretch of the half being drawn (Edit layout's seam)
     const scaleNow = () => s;
     function measure() {
       const aw = stage.clientWidth || W, ah = stage.clientHeight || H;
@@ -51,9 +56,9 @@
 
     // Layout coordinates are in design pixels; place them on the stretched canvas.
     const box = (el, e) => {
-      el.style.left = `${e.x * kx}px`;
+      el.style.left = `${e.x * kx * rkx}px`;
       el.style.top = `${e.y * ky}px`;
-      if (e.w !== undefined) el.style.width = `${e.w * kx}px`;
+      if (e.w !== undefined) el.style.width = `${e.w * kx * rkx}px`;
       if (e.h !== undefined) el.style.height = `${e.h * ky}px`;
       return el;
     };
@@ -155,7 +160,7 @@
       status: (e) => box(make("div", "hud-status", `<span class="js-dot dot"></span><span class="js-status">Connecting…</span>`), e),
 
       rule: (e) => box(make("div", "hud-rule", "<i></i><i></i>"), e),
-      divider: (e) => box(make("div", "hud-divider"), e),
+      divider: (e) => box(make("div", "hud-divider"), seamAt(e)),
 
       header: (e) => text(box(make("div", "hud-header", `<b>//</b><span></span>`), e), "span", e.text),
 
@@ -199,7 +204,7 @@
         const el = box(make("div", "hud-slider", `<div class="track"><span class="txt"></span></div><div class="knob"></div>`), e);
         text(el, ".txt", e.label);
         const knob = el.querySelector(".knob");
-        const max = e.w * kx - 26;
+        const max = e.w * kx * rkx - 26;
         let start = null, pos = 0;
         const setPos = (p) => { pos = Math.max(0, Math.min(max, p)); knob.style.transform = `translateX(${pos}px)`; el.style.setProperty("--fill", `${(pos / max) * 100}%`); };
         knob.addEventListener("pointerdown", (ev) => {
@@ -237,6 +242,125 @@
         return el;
       },
 
+      // Landing-gear lever: pull the knob down to deploy, push it up to retract. A pull or
+      // push past halfway is one tap of its button (the gear key); the knob then travels and
+      // the three lamps show red until the PC's state for the gear says it's there (green
+      // down, dark up). The lamps follow Button lights; the knob always shows the state.
+      lever(e) {
+        const b = e.button;
+        const el = box(make("div", "hud-lever",
+          `<div class="lv-slot"><i class="lv-end up"></i><i class="lv-end down"></i><div class="lv-knob"><span class="hud-ico">${D.deckIcon(e.icon || b.icon || "gear")}</span></div></div>
+           <div class="lv-lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+           <div class="lv-lbl"><span class="t"></span><span class="lv-state"></span></div>`), e);
+        el.dataset.color = b.color || "";
+        text(el, ".t", e.label || b.label);
+        text(el, ".lv-state", "RETRACTED");
+        if (b.keys) {
+          const key = make("span", "hud-key");
+          key.setAttribute("aria-hidden", "true");
+          key.textContent = keyText(b.keys);
+          el.appendChild(key);
+        }
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        lever(el, b);
+        return el;
+      },
+
+      // Level slider (the power triangle's Weapons, Thrusters, Shields): each step up or down
+      // taps its Step up or Step down button once. It shows the steps SpoolUp sent from the
+      // centre, not the game's value, which SpoolUp can't read; Centre sliders sets it back
+      // without pressing anything, and the buttons in "follows" (Max, Min, Reset All) move
+      // it to the end or the centre when they're pressed.
+      level(e) {
+        const el = box(make("div", "hud-level",
+          `<div class="lvl-read" aria-hidden="true"></div>
+           <div class="lvl-track"><i class="lvl-zero"></i><i class="lvl-fill"></i><div class="lvl-knob"></div></div>
+           <div class="lvl-cap"><span class="hud-ico">${e.icon ? D.deckIcon(e.icon) : ""}</span><span class="t"></span></div>`), e);
+        el.dataset.color = e.color || "";
+        text(el, ".t", e.label);
+        ticks(el.querySelector(".lvl-track"), e.steps || 5, "y");
+        if (D.placeControl) { D.placeControl(el, e); showLevel(el, e, 0); return el; }
+        stepper(el, e, "y");
+        return el;
+      },
+
+      // Speed-range fader: the same as a level slider, lying down; each step is one tap of
+      // Speed Range + or −.
+      fader(e) {
+        const el = box(make("div", "hud-fader",
+          `<div class="fd-head"><span class="hud-ico">${e.icon ? D.deckIcon(e.icon) : ""}</span><span class="t"></span><span class="lvl-read" aria-hidden="true"></span></div>
+           <div class="fd-row"><span class="fd-end" aria-hidden="true">−</span>
+           <div class="lvl-track"><i class="lvl-zero"></i><i class="lvl-fill"></i><div class="lvl-knob"></div></div>
+           <span class="fd-end" aria-hidden="true">+</span></div>`), e);
+        el.dataset.color = e.color || "";
+        text(el, ".t", e.label);
+        ticks(el.querySelector(".lvl-track"), e.steps || 5, "x");
+        if (D.placeControl) { D.placeControl(el, e); showLevel(el, e, 0); return el; }
+        stepper(el, e, "x");
+        return el;
+      },
+
+      // Puts every level slider and fader back in the centre. Sends nothing: they only count
+      // what SpoolUp sent, so this is for when they no longer match the game.
+      recentre(e) {
+        const el = box(make("button", "hud-btn s-std s-recentre", `<span class="hud-ico">${D.deckIcon("power-reset")}</span><span class="hud-lbl"></span><span class="fx-state"></span>`), e);
+        el.type = "button";
+        text(el, ".hud-lbl", e.label || "Centre sliders");
+        text(el, ".fx-state", "Sends no keys");
+        el.title = tr("The sliders count the taps SpoolUp sent; SpoolUp can't read the game.");
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        el.addEventListener("click", () => {
+          state.levels = {};
+          save();
+          window.DeckSound?.play("page");
+          D.buzz?.();
+          for (const fn of recentred) fn();
+        });
+        return el;
+      },
+
+      // Operator-mode dial: the modes sit round a face with a needle, and the hub in the
+      // middle is its own button (SCM/NAV). Turning the needle to a mode and letting go, or
+      // tapping the mode, is one tap of that mode's button. The needle shows the mode last
+      // picked here, since SpoolUp can't see the game's.
+      rotary(e) {
+        const el = box(make("div", "hud-rotary", `<div class="rt-face"><svg class="rt-ticks" aria-hidden="true"></svg><i class="rt-needle"></i></div>`), e);
+        const W = e.w * kx * rkx, H = e.h * ky;
+        const n = e.options.length;
+        const bw = Math.max(64, Math.min(100, W * 0.21)), bh = Math.max(44, Math.min(52, H * 0.19));
+        const cx = W / 2, cy = H / 2, rx = W / 2 - bw / 2 - 2, ry = H / 2 - bh / 2 - 2;
+        const hub = Math.max(64, Math.min(110, Math.min(rx, ry) * 0.9));
+        const face = el.querySelector(".rt-face");
+        const fr = Math.min(cx, cy) - 2;
+        Object.assign(face.style, { left: `${cx - fr}px`, top: `${cy - fr}px`, width: `${fr * 2}px`, height: `${fr * 2}px` });
+        el.style.setProperty("--needle", `${Math.max(20, fr - 14)}px`);
+        // Each mode's angle (degrees, 0 to the right, counter-clockwise), first at the top.
+        const angles = e.options.map((_, i) => 90 - (i * 360) / n);
+        const ticks = el.querySelector(".rt-ticks");
+        ticks.setAttribute("viewBox", `0 0 ${fr * 2} ${fr * 2}`);
+        ticks.innerHTML = angles.map((a) => {
+          const r = (a * Math.PI) / 180, c = Math.cos(r), s2 = Math.sin(r);
+          return `<line x1="${fr + c * (fr - 12)}" y1="${fr - s2 * (fr - 12)}" x2="${fr + c * (fr - 3)}" y2="${fr - s2 * (fr - 3)}"/>`;
+        }).join("");
+        const opts = e.options.map((o, i) => {
+          const r = (angles[i] * Math.PI) / 180;
+          const b = hudButton(o, "std");
+          b.classList.add("rt-opt");
+          Object.assign(b.style, { left: `${cx + Math.cos(r) * rx - bw / 2}px`, top: `${cy - Math.sin(r) * ry - bh / 2}px`, width: `${bw}px`, height: `${bh}px` });
+          el.appendChild(b);
+          return b;
+        });
+        if (e.hub) {
+          const h = hudButton(e.hub, "std");
+          h.classList.add("rt-hub");
+          Object.assign(h.style, { left: `${cx - hub / 2}px`, top: `${cy - hub / 2}px`, width: `${hub}px`, height: `${hub}px` });
+          el.appendChild(h);
+        }
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        dial(el, e, opts, angles, { cx, cy, rx, ry });
+        return el;
+      },
+
       grid(e) {
         const wrap = box(make("div", `hud-grid${e.compact ? " compact" : ""}`), e);
         const rows = Math.ceil(e.buttons.length / e.cols);
@@ -250,6 +374,310 @@
       },
     };
 
+
+    // ---------- cockpit controls: gestures ----------
+
+    // How long the gear lever's knob travels, and its lamps stay red, after a pull: about
+    // what the game's gear takes. Only the picture waits; the key was tapped at the pull.
+    const TRANSIT_MS = 2600;
+    const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function lever(el, b) {
+      const knob = el.querySelector(".lv-knob");
+      const slot = el.querySelector(".lv-slot");
+      const word = el.querySelector(".lv-state");
+      let actual = false;  // the PC's state for the gear: true while deployed
+      let lit = true;      // Button lights (Deck settings)
+      let shown = false;   // where the knob rests: true at the bottom (deployed)
+      let transit = null;  // { target, confirmed, timer } while the gear travels
+      const label = () => tr(el.querySelector(".t").textContent);
+      const setPos = (frac) => el.style.setProperty("--pos", String(frac));
+      const paint = () => {
+        el.classList.toggle("transit", Boolean(transit));
+        el.classList.toggle("down", !transit && shown);
+        el.classList.toggle("lit", lit);
+        const w = transit ? "IN TRANSIT" : shown ? "DEPLOYED" : "RETRACTED";
+        word.textContent = tr(w);
+        el.setAttribute("aria-label", `${label()}: ${tr(w)}. ${tr(shown ? "Push up to retract" : "Pull down to deploy")}`);
+      };
+      const settle = (to) => {
+        if (transit) clearTimeout(transit.timer);
+        transit = null;
+        shown = to;
+        setPos(to ? 1 : 0);
+        paint();
+      };
+      // Travel towards `target`; settles when the time is up and the PC agrees, or after a
+      // while regardless, on whatever the PC last said.
+      const travel = (target, confirmed) => {
+        if (transit) clearTimeout(transit.timer);
+        transit = { target, confirmed, timer: 0 };
+        shown = target;
+        setPos(target ? 1 : 0);
+        paint();
+        const t = transit;
+        t.timer = setTimeout(() => {
+          if (transit !== t) return;
+          if (t.confirmed) { settle(t.target); return; }
+          t.timer = setTimeout(() => { if (transit === t) settle(actual); }, 3000);
+        }, still() ? 600 : TRANSIT_MS);
+      };
+      D.bindControl(el, {
+        group: b.state && b.state.group,
+        ids: [b.id],
+        show(on, animate, lights) {
+          actual = on;
+          lit = lights !== false;
+          if (transit && transit.target === on) { transit.confirmed = true; paint(); return; }
+          if (animate && on !== shown) travel(on, true);
+          else if (!transit) settle(on);
+          else paint();
+        },
+        deny() {
+          settle(actual);
+          el.classList.remove("denied"); void el.offsetWidth; el.classList.add("denied");
+        },
+      });
+      // The knob starts travelling first, so a state that comes back at once (demo mode)
+      // finds it on its way.
+      const pull = (target) => {
+        travel(target, false);
+        if (!D.tapStep(b)) settle(actual);
+      };
+
+      // Drag the knob (or anywhere on the lever) along the slot.
+      let drag = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (drag) return;
+        el.setPointerCapture(ev.pointerId);
+        const span = Math.max(1, slot.clientHeight - knob.offsetHeight);
+        drag = { id: ev.pointerId, y: ev.clientY, from: shown ? 1 : 0, span, frac: shown ? 1 : 0 };
+        el.classList.add("dragging");
+      });
+      el.addEventListener("pointermove", (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        drag.frac = Math.max(0, Math.min(1, drag.from + (ev.clientY - drag.y) / scaleNow() / drag.span));
+        setPos(drag.frac);
+      });
+      const end = (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        const d = drag;
+        drag = null;
+        el.classList.remove("dragging");
+        const target = d.frac > d.from;
+        if (ev.type === "pointerup" && Math.abs(d.frac - d.from) >= 0.5) pull(target);
+        else setPos(shown ? 1 : 0);
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      // From a keyboard: Enter or Space moves it to the other end, the arrows to theirs.
+      el.tabIndex = 0;
+      el.setAttribute("role", "button");
+      el.addEventListener("keydown", (ev) => {
+        const to = ev.key === "ArrowDown" ? true : ev.key === "ArrowUp" ? false : (ev.key === "Enter" || ev.key === " ") ? !shown : null;
+        if (to === null) return;
+        ev.preventDefault();
+        if (to !== shown) pull(to);
+      });
+      paint();
+    }
+
+    // ---------- cockpit controls: steps ----------
+
+    // At most this many taps per drag, and at least this long between two, so a fast swipe
+    // can't run a slider off: the key presses stay ones the player made, one per step.
+    const STEPS_PER_DRAG = 5;
+    const STEP_GAP_MS = 140;
+    const levelOf = (e) => Math.max(-(e.steps || 5), Math.min(e.steps || 5, Number(state.levels[e.id]) || 0));
+    // Tick marks at every step, the centre one longer.
+    function ticks(track, steps, axis) {
+      for (let i = 0; i <= steps * 2; i++) {
+        const t = make("i", `lvl-tick${i === steps ? " mid" : ""}`);
+        t.style.setProperty("--at", String(i / (steps * 2)));
+        track.appendChild(t);
+      }
+      track.dataset.axis = axis;
+    }
+    function showLevel(el, e, n) {
+      const steps = e.steps || 5;
+      el.style.setProperty("--pos", String((n + steps) / (steps * 2)));
+      el.style.setProperty("--from", String((Math.min(n, 0) + steps) / (steps * 2)));
+      el.style.setProperty("--to", String((Math.max(n, 0) + steps) / (steps * 2)));
+      el.classList.toggle("at-max", n === steps);
+      el.classList.toggle("at-min", n === -steps);
+      el.querySelector(".lvl-read").textContent = n > 0 ? `+${n}` : n < 0 ? `−${-n}` : "0";
+      el.setAttribute("aria-valuenow", String(n));
+      el.setAttribute("aria-valuetext", tr("{0} steps sent", n > 0 ? `+${n}` : String(n)));
+    }
+
+    // Drag (or tap the track beside the knob, or use the arrow keys) to step a level slider
+    // or fader. Each step is one tap of e.up or e.down; the knob moves only for taps sent.
+    function stepper(el, e, axis) {
+      const steps = e.steps || 5;
+      const track = el.querySelector(".lvl-track");
+      const knob = el.querySelector(".lvl-knob");
+      const get = () => levelOf(e);
+      const set = (n) => { state.levels[e.id] = n; save(); showLevel(el, e, n); };
+      let last = 0;
+      const step = (dir) => {
+        const cur = get(), next = cur + dir;
+        if (next > steps || next < -steps) return false;
+        if (performance.now() - last < STEP_GAP_MS) return false;
+        if (!D.tapStep(dir > 0 ? e.up : e.down)) return null;
+        last = performance.now();
+        set(next);
+        return true;
+      };
+      el.setAttribute("role", "slider");
+      el.setAttribute("aria-label", tr(e.label));
+      el.setAttribute("aria-valuemin", String(-steps));
+      el.setAttribute("aria-valuemax", String(steps));
+      el.setAttribute("aria-orientation", axis === "y" ? "vertical" : "horizontal");
+      el.tabIndex = 0;
+      showLevel(el, e, get());
+      D.bindControl(el, {
+        ids: [e.up.id, e.down.id],
+        // A step the PC skipped (Star Citizen not in front) didn't happen: take it back.
+        deny(id) {
+          const n = get() + (id === e.up.id ? -1 : 1);
+          set(Math.max(-steps, Math.min(steps, n)));
+          el.classList.remove("denied"); void el.offsetWidth; el.classList.add("denied");
+        },
+      });
+      for (const [to, id] of Object.entries(e.follows || {})) {
+        if (!followers.has(id)) followers.set(id, []);
+        followers.get(id).push(() => set(to === "max" ? steps : to === "min" ? -steps : 0));
+      }
+      recentred.push(() => showLevel(el, e, 0));
+
+      const along = (ev) => (axis === "y" ? -ev.clientY : ev.clientX);
+      let drag = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (drag) return;
+        el.setPointerCapture(ev.pointerId);
+        const len = axis === "y" ? track.clientHeight - knob.offsetHeight : track.clientWidth - knob.offsetWidth;
+        drag = { id: ev.pointerId, p: along(ev), from: get(), sent: 0, moved: false, onKnob: ev.target === knob, per: Math.max(8, len / (steps * 2)), ev };
+        el.classList.add("dragging");
+      });
+      const follow = (ev) => {
+        const d = drag;
+        const delta = (along(ev) - d.p) / scaleNow();
+        if (Math.abs(delta) > 6) d.moved = true;
+        const want = Math.max(-steps, Math.min(steps, d.from + Math.round(delta / d.per)));
+        const cur = get();
+        if (want === cur) return;
+        if (d.sent >= STEPS_PER_DRAG) { el.classList.add("capped"); return; }
+        const r = step(want > cur ? 1 : -1);
+        if (r) d.sent++;
+        else if (r === null) d.sent = STEPS_PER_DRAG; // offline: no more from this drag
+      };
+      el.addEventListener("pointermove", (ev) => { if (drag && ev.pointerId === drag.id) follow(ev); });
+      const end = (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        const d = drag;
+        if (ev.type === "pointerup") {
+          if (d.moved) follow(ev);
+          else if (!d.onKnob) {
+            // A tap on the track: one step towards it.
+            const r = knob.getBoundingClientRect();
+            const toward = axis === "y" ? ev.clientY < r.top : ev.clientX > r.right;
+            const away = axis === "y" ? ev.clientY > r.bottom : ev.clientX < r.left;
+            if (toward || away) { last = 0; step(toward ? 1 : -1); }
+          }
+        }
+        drag = null;
+        el.classList.remove("dragging", "capped");
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      el.addEventListener("keydown", (ev) => {
+        const dir = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[ev.key];
+        if (!dir) return;
+        ev.preventDefault();
+        step(dir);
+      });
+    }
+
+    // ---------- cockpit controls: the mode dial ----------
+
+    function dial(el, e, opts, angles, g) {
+      const needle = el.querySelector(".rt-needle");
+      const point = (deg) => { needle.style.transform = `rotate(${90 - deg}deg)`; };
+      const index = () => e.options.findIndex((o) => o.id === state.dials[e.id]);
+      const show = () => {
+        const i = index();
+        el.classList.toggle("unset", i < 0);
+        point(i < 0 ? 90 : angles[i]);
+        opts.forEach((b, j) => b.classList.toggle("rt-on", j === i));
+      };
+      let before = null; // the mode before the last pick, in case the PC skipped it
+      const pick = (i) => {
+        before = state.dials[e.id] || null;
+        state.dials[e.id] = e.options[i].id;
+        save();
+        show();
+      };
+      D.bindControl(el, {
+        ids: e.options.map((o) => o.id),
+        deny(id) { if (state.dials[e.id] === id) { state.dials[e.id] = before; save(); show(); } },
+      });
+      // Tapping a mode presses it as any button does (bindButton); the needle follows.
+      opts.forEach((b, i) => b.addEventListener("pointerdown", () => { if (b.classList.contains("pressed") && D.canPress()) pick(i); }));
+
+      // Turning: drag on the face, away from the buttons. Angles are measured on the ellipse
+      // the modes sit on, so the nearest mode is the one the needle points between.
+      const angleAt = (ev) => {
+        const r = el.getBoundingClientRect(), s = scaleNow();
+        const x = (ev.clientX - r.left) / s - g.cx, y = (ev.clientY - r.top) / s - g.cy;
+        return (Math.atan2(-y / g.ry, x / g.rx) * 180) / Math.PI;
+      };
+      const nearest = (a) => {
+        let best = 0, bestD = 999;
+        angles.forEach((b, i) => { const d = Math.abs(((a - b + 540) % 360) - 180); if (d < bestD) { bestD = d; best = i; } });
+        return best;
+      };
+      let turn = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (turn || ev.target.closest(".hud-btn")) return;
+        el.setPointerCapture(ev.pointerId);
+        turn = { id: ev.pointerId, a0: angleAt(ev), moved: false };
+        el.classList.add("turning");
+      });
+      el.addEventListener("pointermove", (ev) => {
+        if (!turn || ev.pointerId !== turn.id) return;
+        const a = angleAt(ev);
+        if (Math.abs(((a - turn.a0 + 540) % 360) - 180) > 8) turn.moved = true;
+        if (!turn.moved) return;
+        point(a);
+        const i = nearest(a);
+        opts.forEach((b, j) => b.classList.toggle("rt-aim", j === i));
+      });
+      const end = (ev) => {
+        if (!turn || ev.pointerId !== turn.id) return;
+        const t = turn;
+        turn = null;
+        el.classList.remove("turning");
+        opts.forEach((b) => b.classList.remove("rt-aim"));
+        if (ev.type === "pointerup" && t.moved) {
+          const i = nearest(angleAt(ev));
+          if (i !== index() && D.tapStep(e.options[i])) {
+            pick(i);
+            opts[i].classList.add("pressed");
+            setTimeout(() => opts[i].classList.remove("pressed"), 160);
+            return;
+          }
+        }
+        show();
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      el.setAttribute("role", "group");
+      el.setAttribute("aria-label", tr(e.label || "Operator mode"));
+      show();
+    }
 
     function openMenu(e) {
       window.DeckSound?.play("page");
@@ -293,7 +721,98 @@
       D.paged?.(regionId, region.panels[state.panels[regionId]], region.panels[from]);
     }
 
-    function renderRegion(region) {
+    // ---------- Edit layout: the seam between the halves ----------
+
+    // A layout with two halves side by side can move the seam between them (Deck settings,
+    // Edit layout): one half gets wider and its panels stretch, the other narrower. It's
+    // only layout, kept per device with the page positions; nothing is pressed.
+    const halves = (() => {
+      const [a, b] = layout.regions || [];
+      if (!a || !b || layout.regions.length !== 2 || a.x + a.w > b.x) return null;
+      return { a, b, limit: Math.round(Math.min(a.w, b.w) * 0.2), gap: b.x - (a.x + a.w) };
+    })();
+    let editing = false;
+    const split = () => (halves ? Math.max(-halves.limit, Math.min(halves.limit, Math.round(Number(state.split) || 0))) : 0);
+    // A region as the seam leaves it, and how much wider its panels are drawn.
+    function placed(region) {
+      const d = split();
+      if (!d) return { r: region, f: 1 };
+      if (region === halves.a) return { r: { ...region, w: region.w + d }, f: (region.w + d) / region.w };
+      if (region === halves.b) return { r: { ...region, x: region.x + d, w: region.w - d }, f: (region.w - d) / region.w };
+      return { r: region, f: 1 };
+    }
+    // Chrome between the halves (the divider) moves with the seam.
+    function seamAt(e) {
+      const d = split();
+      if (!d || !halves) return e;
+      const lo = halves.a.x + halves.a.w - 4, hi = halves.b.x + 4;
+      return e.x >= lo && e.x <= hi ? { ...e, x: e.x + d } : e;
+    }
+    // The seam handle and the Reset / Lock bar, kept across redraws so a drag survives them.
+    let seamEl = null, barEl = null;
+    function editChrome() {
+      if (!editing || !halves) return;
+      if (!seamEl) {
+        seamEl = make("div", "plates-seam", `<i></i>`);
+        seamEl.setAttribute("role", "slider");
+        seamEl.setAttribute("aria-label", tr("Drag to resize the halves"));
+        seamEl.tabIndex = 0;
+        seamEl.addEventListener("pointerdown", (ev) => {
+          ev.preventDefault();
+          const start = { x: ev.clientX, d: split() };
+          seamEl.classList.add("dragging");
+          let frame = 0;
+          const move = (m) => {
+            state.split = Math.max(-halves.limit, Math.min(halves.limit, Math.round(start.d + (m.clientX - start.x) / scaleNow() / kx)));
+            if (!frame) frame = requestAnimationFrame(() => { frame = 0; render(); });
+          };
+          const up = () => {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", up);
+            window.removeEventListener("pointercancel", up);
+            seamEl.classList.remove("dragging");
+            save();
+            render();
+          };
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", up);
+          window.addEventListener("pointercancel", up);
+        });
+        seamEl.addEventListener("keydown", (ev) => {
+          const by = { ArrowLeft: -8, ArrowRight: 8 }[ev.key];
+          if (!by) return;
+          ev.preventDefault();
+          state.split = split() + by;
+          state.split = split();
+          save();
+          render();
+          seamEl.focus();
+        });
+        barEl = make("div", "plates-bar",
+          `<span class="t"></span><button type="button" class="reset"></button><button type="button" class="lock"></button>`);
+        barEl.querySelector(".t").textContent = tr("Edit layout: drag the seam");
+        barEl.querySelector(".reset").textContent = tr("Reset");
+        barEl.querySelector(".lock").textContent = tr("Lock");
+        barEl.querySelector(".reset").onclick = () => { state.split = 0; save(); render(); };
+        barEl.querySelector(".lock").onclick = () => editPlates(false);
+      }
+      const d = split();
+      const mid = (halves.a.x + halves.a.w + halves.gap / 2 + d) * kx;
+      Object.assign(seamEl.style, { left: `${mid - 22}px`, top: `${halves.a.y * ky}px`, height: `${halves.a.h * ky}px` });
+      seamEl.setAttribute("aria-valuenow", String(d));
+      canvas.append(make("div", "plates-veil"), seamEl, barEl);
+    }
+    function editPlates(on) {
+      if (on && !halves) return false;
+      editing = Boolean(on);
+      if (!editing) { seamEl = null; barEl = null; }
+      window.DeckSound?.play("page");
+      render();
+      return true;
+    }
+
+    function renderRegion(original) {
+      const { r: region, f } = placed(original);
       const el = box(make("div", "hud-region"), region);
       el.dataset.region = region.id;
       const pagerH = region.pager || 44; // pager bar height; phone layouts use a slimmer one
@@ -304,7 +823,8 @@
       const body = make("div", "hud-panel");
       if (slide && slide.region === region.id) body.classList.add(slide.dir > 0 ? "enter-next" : "enter-prev");
       body.style.height = `${region.h * ky - pagerH - 8}px`;
-      renderElements(body, panel.elements);
+      rkx = f;
+      try { renderElements(body, panel.elements); } finally { rkx = 1; }
       el.appendChild(body);
 
       const pager = make("div", "hud-pager",
@@ -322,8 +842,12 @@
 
     function render() {
       canvas.innerHTML = "";
+      followers.clear();
+      recentred = [];
       renderElements(canvas, layout.chrome || []);
       for (const region of layout.regions) canvas.appendChild(renderRegion(region));
+      canvas.classList.toggle("plates-edit", editing);
+      editChrome();
       D.refreshStatus();
       if (D.afterRender) D.afterRender();
     }
@@ -361,6 +885,12 @@
         return changed;
       },
       scale: scaleNow,
+      // Deck settings' Edit layout: unlocks the seam between the halves (false if the layout
+      // has no two halves side by side).
+      editPlates,
+      editing: () => editing,
+      // A button was pressed on this deck: controls that follow it update.
+      pressed(id) { for (const fn of followers.get(id) || []) fn(); },
       // Stops this deck redrawing itself, before another layout is drawn or a grid layout shown.
       dispose() {
         window.removeEventListener("resize", fit);

@@ -39,6 +39,8 @@ body.editor {
 .ed-side .warn { color: #ffb347; font-size: 12px; margin-top: 4px; }
 .ed-side .row { display: flex; gap: 8px; align-items: center; }
 .ed-side .row > * { flex: 1; }
+.ed-side .parts { display: flex; flex-direction: column; gap: 6px; }
+.ed-side .parts button { text-align: left; }
 .ed-side .check { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
 .ed-side .help p { color: #b8c6d6; margin: 0 0 10px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }

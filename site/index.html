@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SpoolUp: a touch control deck for Star Citizen</title>
-<meta name="description" content="Turn any tablet or phone into a touch control panel for Star Citizen. HUD buttons, voice commands, a layout editor and 12 manufacturer themes. Free Windows app, no account. Fan project.">
+<meta name="description" content="Turn any tablet or phone into a touch control panel for Star Citizen. HUD buttons, a gear lever, power sliders and a mode dial, voice commands, a layout editor and 12 manufacturer themes. Free Windows app, no account. Fan project.">
 <meta property="og:title" content="SpoolUp: a touch control deck for Star Citizen">
 <meta property="og:description" content="Turn any tablet or phone into a touch control panel for Star Citizen. Free, open source, no account.">
 <meta property="og:image" content="https://xattribution.github.io/tablet-deck-spooned/img/banner.jpg">
@@ -34,7 +34,7 @@
     <div class="hero-text">
       <p class="kicker">// STAR CITIZEN CONTROL DECK</p>
       <h1>Your tablet becomes<br>a <span>flight deck</span>.</h1>
-      <p class="lead">A HUD-style button deck in your tablet's or phone's browser. Every button presses real keys on your gaming PC: landing gear, quantum, shields, power, mining and more.</p>
+      <p class="lead">A HUD-style button deck in your tablet's or phone's browser. Every button presses real keys on your gaming PC: landing gear, quantum, shields, power, mining and more. New in 2.0: a gear lever, power sliders and a mode dial, drawn by each maker.</p>
       <div class="cta">
         <a class="btn primary js-download" href="https://github.com/xattribution/tablet-deck-spooned/releases/latest">
           <span class="ico" aria-hidden="true">⬇</span>
@@ -57,8 +57,9 @@
     <h2>Everything at your fingertips</h2>
     <div class="cards">
       <article class="card"><span class="icon js-icon" data-icon="ship"></span><h3>A HUD for your tablet</h3><p>Landing, power management, quantum, operator modes, shields, targeting, salvage, mining, doors, comms and emotes, on a two-half HUD that pages through panels. Phones get their own layout. In English, Español, Français or Deutsch.</p></article>
+      <article class="card"><span class="icon js-icon" data-icon="gear"></span><h3>Cockpit controls</h3><p>Pull a landing-gear lever and watch its three lamps go from red to green. Drag the Weapons, Thrusters and Shields sliders, the speed-range fader, and turn the operator-mode dial. Each step is one key press, at most five per drag. Drag the seam to make one half of the HUD wider.</p></article>
       <article class="card"><span class="icon js-icon" data-icon="mic"></span><h3>Hold-to-talk voice</h3><p>"Landing gear", "engage quantum", "shields up". Hold the mic button and speak. Windows' built-in speech recognition, offline.</p></article>
-      <article class="card"><span class="icon js-icon" data-icon="sliders"></span><h3>12 manufacturer themes</h3><p>RSI, Drake, Aegis, Anvil, Origin, MISC, Crusader, Banu, Aopoa, Argo, Consolidated Outland and Esperia, each its own design: Drake's riveted hazard plates, Origin's cream and black gloss, Argo's yellow work panels, Banu's lacquer on wood, and matching Stream Deck keys. With press animations, HUD sounds (on the tablet or in your headset), a night mode, large text and high contrast.</p></article>
+      <article class="card"><span class="icon js-icon" data-icon="sliders"></span><h3>12 manufacturer themes</h3><p>RSI, Drake, Aegis, Anvil, Origin, MISC, Crusader, Banu, Aopoa, Argo, Consolidated Outland and Esperia, each its own design down to the levers, sliders and dials: Drake's riveted hazard plates, Origin's cream and black gloss, Argo's yellow work panels, Banu's lacquer on wood, and matching Stream Deck keys. With press animations, HUD sounds (on the tablet or in your headset), a night mode, large text and high contrast.</p></article>
       <article class="card"><span class="icon js-icon" data-icon="grid"></span><h3>Layout editor</h3><p>Drag buttons around and change their keys, labels, icons and animations. Share layouts as files, or pick a starter layout for Combat, Mining &amp; Salvage, Hauling &amp; Exploration, the Prospector or the Vulture.</p></article>
       <article class="card"><span class="icon js-icon" data-icon="swap"></span><h3>Follows your keybinds</h3><p>Reads your Star Citizen keybinds, so rebinding in-game moves the button with it. An optional profile covers actions with no default key.</p></article>
       <article class="card"><span class="icon js-icon" data-icon="power"></span><h3>A proper Windows app</h3><p>One installer. A window with the QR code, a tray icon, settings, start with Windows, and updates with one click.</p></article>
@@ -73,6 +74,13 @@
       <p>It runs in the browser, so there's nothing to install on the tablet. Scan the QR code, add it to your home screen, and it opens full screen like an app. The screen stays awake mid-flight.</p>
     </div>
     <img src="img/hero.jpg" alt="The deck on an iPad and an iPhone" loading="lazy">
+  </section>
+
+  <section class="block">
+    <p class="kicker">// NEW IN 2.0</p>
+    <h2>Levers, sliders and a dial</h2>
+    <p class="lead-in">From the "Tablet Deck 2" design: hardware-style controls in every maker's style, from Drake's riveted hazard lever to Origin's cream knobs and Anvil's knurled dial. SpoolUp can't read the game, so the sliders show the steps it sent, and Centre sliders resets them without pressing anything.</p>
+    <img class="wide" src="img/controls.jpg" alt="The gear lever, power sliders and operator-mode dial in the Drake, Origin, Anvil and Esperia themes" loading="lazy">
   </section>
 
   <section class="block">
@@ -117,7 +125,7 @@
     <p class="kicker">// FAQ</p>
     <h2>Questions</h2>
     <details><summary>Is it free?</summary><p>Yes, completely, and the source is on GitHub under the MIT license. It's a fan project, and there's no paid version.</p></details>
-    <details><summary>Is it a macro tool? Is it allowed?</summary><p>It presses ordinary keyboard keys, one press per tap, like a second keyboard. No automation or macros, and it doesn't touch the game's files or memory. Keys only go through while Star Citizen is the window in front.</p></details>
+    <details><summary>Is it a macro tool? Is it allowed?</summary><p>It presses ordinary keyboard keys, one press per tap, like a second keyboard. A slider step, a lever pull or a dial turn is one press too. No automation or macros, and it doesn't touch the game's files or memory. Keys only go through while Star Citizen is the window in front.</p></details>
     <details><summary>Windows says "Windows protected your PC". Is it safe?</summary><p>From 1.8.0 the installer is code-signed, so Windows shows its publisher. A brand-new release can still get this warning until enough people have downloaded it, and earlier releases aren't signed: click <b>More info</b>, then <b>Run anyway</b>. Every release lists the installer's checksum, and all the code is public on GitHub.</p></details>
     <details><summary>What do I need?</summary><p>Windows 10 or 11 on the gaming PC, and a tablet or phone with a browser on the same Wi-Fi or network. The voice commands need the English speech recognizer that comes with Windows.</p></details>
     <details><summary>Does it work on a Mac or Linux PC?</summary><p>Not yet: the part that presses keys is Windows-only. The tablet can be anything with a browser.</p></details>
