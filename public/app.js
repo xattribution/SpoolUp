@@ -308,8 +308,9 @@
   $("resetStatesBtn").onclick = resetStates;
   applyNight(store.get("night") === "1");
 
-  // Large text and high contrast, for reading the deck at a glance; each device remembers them.
-  for (const [btn, attr] of [["largeBtn", "data-large"], ["contrastBtn", "data-contrast"]]) {
+  // Large text, high contrast and key labels (each button's key in a corner, for learning
+  // or checking binds); each device remembers them.
+  for (const [btn, attr] of [["largeBtn", "data-large"], ["contrastBtn", "data-contrast"], ["keysBtn", "data-keys"]]) {
     const apply = (on) => {
       document.documentElement.toggleAttribute(attr, on);
       $(btn).setAttribute("aria-checked", String(on));

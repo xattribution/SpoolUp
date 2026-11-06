@@ -116,6 +116,11 @@ The deck should feel like a ship's display, not a web page:
   border and glow in the button's colour, and a one-word status (ON, OPEN,
   DEPLOYED, LOCKED). In button grids the status sits top right, elsewhere under
   the label. Buttons that only switch something off never stay lit.
+- **Key labels** (Deck settings, `data-keys` on `<html>`, styles in `hud.css`) put
+  a button's key in a free corner in small capitals, in `--dim`: top right, under
+  a top-right status line in tablet grids, bottom right in phone grids, top
+  centre on the framed hero and quantum buttons. A new button style needs a
+  corner that's free in every theme, including the cut corners of `--key-clip`.
 - **Icons** are line icons on a 48×48 grid in `public/icons.js`, drawn with
   `currentColor`, using the theme's `--icon-stroke`. Add new ones in the same
   style, not as images.

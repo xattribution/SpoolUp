@@ -374,6 +374,9 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 - **Large text** makes labels bigger and bolder, easier to read at a glance.
 - **High contrast** turns any theme black and white with strong colours, plain
   fonts and no glows.
+- **Key labels** shows the key each button presses in a corner, from your
+  keybinds (so a rebind in-game shows there too). Handy for learning the
+  binds, or checking one when a button doesn't do what you expect.
 - **Button sounds** adds soft HUD sounds, made on the tablet: a chirp per press
   (lower for weapons, higher for navigation), the quantum drive spooling up and
   engaging, the self-destruct alarm, panel flips, voice results and a buzz when

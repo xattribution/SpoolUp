@@ -25,6 +25,8 @@
     "Bigger, bolder labels, easier to read at a glance.": ["Etiquetas más grandes y gruesas, fáciles de leer de un vistazo.", "Libellés plus grands et plus gras, lisibles d'un coup d'œil.", "Größere, fettere Beschriftungen, auf einen Blick lesbar."],
     "High contrast": ["Alto contraste", "Contraste élevé", "Hoher Kontrast"],
     "Black and white with strong colours, over any theme.": ["Blanco y negro con colores intensos, sobre cualquier tema.", "Noir et blanc aux couleurs vives, avec n'importe quel thème.", "Schwarz-Weiß mit kräftigen Farben, für jedes Theme."],
+    "Key labels": ["Teclas en los botones", "Touches sur les boutons", "Tasten anzeigen"],
+    "Show the key each button presses, from your game keybinds.": ["Muestra la tecla que pulsa cada botón, según tus asignaciones del juego.", "Affiche la touche de chaque bouton, d'après vos raccourcis du jeu.", "Zeigt, welche Taste jeder Button drückt, laut deiner Tastenbelegung im Spiel."],
     "Button sounds": ["Sonidos de botones", "Sons des boutons", "Tastentöne"],
     "Soft HUD sounds for presses, panels and voice, on this device.": ["Sonidos HUD suaves al pulsar, cambiar de panel y con la voz, en este dispositivo.", "Sons HUD discrets pour les appuis, les panneaux et la voix, sur cet appareil.", "Dezente HUD-Töne beim Drücken, Blättern und bei Sprachbefehlen, auf diesem Gerät."],
     "Two-finger swipe": ["Deslizar con dos dedos", "Balayage à deux doigts", "Mit zwei Fingern wischen"],

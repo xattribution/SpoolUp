@@ -240,6 +240,24 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-grid .fx-state { left: auto; right: 10px; top: 9px; bottom: auto; text-align: right; }
 .hud-grid .s-std:has(> .fx-state) { padding-bottom: 0; }
 .compact .hud-grid .fx-state, .hud-grid.compact .fx-state { right: 7px; top: 5px; }
+
+/* ---------- key labels (Deck settings: Key labels) ---------- */
+/* The key a button presses, small in a free corner: top right, under a top-right status
+   line in tablet grids, bottom right in phone grids (where the label fills the middle),
+   top centre on the big framed buttons (their corners are cut) and left of the dial. */
+.hud-key { display: none; }
+html[data-keys] .hud-key {
+  display: block; position: absolute; z-index: 2; top: 4px; right: 6px; pointer-events: none;
+  font: 600 8.5px/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  color: var(--dim); text-shadow: var(--state-shadow, 0 1px 4px #000);
+}
+html[data-keys] .s-cell > .hud-key { top: 9px; right: 10px; }
+html[data-keys] .s-cell:has(> .fx-state) > .hud-key { top: 21px; }
+html[data-keys] .compact .hud-grid .hud-key, html[data-keys] .hud-grid.compact .hud-key { top: auto; bottom: 4px; right: 7px; }
+html[data-keys] .s-hero > .hud-key, html[data-keys] .s-quantum > .hud-key { top: 10px; right: auto; left: 50%; transform: translateX(-50%); }
+html[data-keys] .s-dial > .hud-key { right: auto; left: 10px; }
+html[data-keys] .s-tile > .hud-key { top: 5px; right: 7px; }
+html[data-keys][data-large] .hud-key { font-size: 10px; }
 .hud-grid.compact .hud-btn { font-size: 12px; }
 
 /* ---------- operator mode menu ---------- */

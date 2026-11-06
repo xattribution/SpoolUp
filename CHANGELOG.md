@@ -7,6 +7,9 @@ before tagging a release.
 
 ## Unreleased
 
+- **Key labels** (a switch under Display in Deck settings): each HUD button
+  shows the key it presses in a corner, taken from your keybinds, so in-game
+  rebinds show up too.
 - **Button sounds** (a switch under Display in Deck settings, off until you turn
   it on): soft HUD sounds made on the tablet itself, with no sound files and
   nothing sent anywhere. Presses chirp at a pitch that follows the button's

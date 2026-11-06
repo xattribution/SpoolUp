@@ -76,6 +76,18 @@
 
     // ---------- element renderers ----------
 
+    // A button's keys as its key label shows them ("lalt+np_1" is LALT+NUM1); CSS adds the
+    // capitals. Only shown with Key labels on (Deck settings).
+    const KEY_NAMES = {
+      escape: "esc", backspace: "bksp", capslock: "caps", numlock: "numlk", scrolllock: "scrlk", print: "prtsc",
+      insert: "ins", delete: "del", minus: "-", equals: "=", lbracket: "[", rbracket: "]", semicolon: ";",
+      apostrophe: "'", grave: "`", backslash: "\\", comma: ",", period: ".", slash: "/",
+      np_add: "num+", np_subtract: "num−", np_multiply: "num*", np_divide: "num/", np_period: "num.", np_enter: "num enter",
+      up: "↑", down: "↓", left: "←", right: "→",
+    };
+    const keyText = (keys) => String(keys).split("+")
+      .map((k) => KEY_NAMES[k] || k.replace(/^(?:np_|num)(\d)$/, "num$1")).join("+");
+
     function hudButton(def, style) {
       const el = make("button", `hud-btn s-${style || def.style || "std"}`);
       el.type = "button";
@@ -91,6 +103,13 @@
       } else {
         el.innerHTML = `${icon}<span class="hud-lbl"></span>`;
         text(el, ".hud-lbl", def.label);
+      }
+      // The top bar's icon buttons are too small for one.
+      if (def.keys && s !== "top") {
+        const key = make("span", "hud-key");
+        key.setAttribute("aria-hidden", "true"); // the title and aria-label already say it
+        key.textContent = keyText(def.keys);
+        el.appendChild(key);
       }
       el.setAttribute("aria-label", tr(def.label));
       el.title = `${tr(def.label)} — ${def.keys}`;
