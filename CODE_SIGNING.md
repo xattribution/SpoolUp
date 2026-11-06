@@ -1,11 +1,11 @@
 # Code signing policy
 
-Tablet Deck's releases are signed with
+StarPit's releases are signed with
 [Azure Artifact Signing](https://learn.microsoft.com/azure/artifact-signing/),
 Microsoft's code signing service, with a certificate issued to the project
 owner's Microsoft-verified identity, and timestamped. The installer's
 **Properties → Digital Signatures** shows the publisher. (The workflow can also
-sign with [SignPath Foundation](https://signpath.org), which Tablet Deck may
+sign with [SignPath Foundation](https://signpath.org), which StarPit may
 apply to once it's widely known.)
 
 > Status: signed from 1.8.0. Earlier releases (1.7.0 and before) are unsigned and Windows shows an
@@ -16,7 +16,7 @@ apply to once it's widely known.)
 
 Each release's Windows files, all built from this repository:
 
-- `TabletDeck-Setup-<version>.exe`, the installer
+- `StarPit-Setup-<version>.exe`, the installer
 - `TabletDeck.exe`, the app window
 - `TabletDeckServer.exe`, the server (Node.js packed with `server.js` and the
   files in `public/`, `layouts/` and `keybinds/`)
@@ -34,20 +34,20 @@ read; with SignPath instead, every signing request is approved by hand there.
 
 ## Team
 
-- Committers and reviewers: [nodieCode](https://github.com/nodieCode)
-- Approvers: [nodieCode](https://github.com/nodieCode)
+- Committers and reviewers: [xattribution](https://github.com/xattribution)
+- Approvers: [xattribution](https://github.com/xattribution)
 
 Team members use multi-factor authentication on GitHub and SignPath.
 
 ## Privacy
 
-Tablet Deck doesn't collect or send any personal data, and it has no accounts,
+StarPit doesn't collect or send any personal data, and it has no accounts,
 ads or tracking. Its network use is:
 
 - **Your home network:** it serves the deck to tablets and phones on your
   network. Only devices with the pairing code can press keys.
 - **Update checks:** the app window asks GitHub
-  (`api.github.com/repos/nodieCode/tablet-deck/releases/latest`) whether
+  (`api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest`) whether
   there's a newer version, when it starts and once a day. Untick **Check for
   updates automatically** to turn this off. Updates download only when you
   click **Update now**.

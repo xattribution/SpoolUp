@@ -1,8 +1,8 @@
-# Developing Tablet Deck
+# Developing StarPit
 
-Everything for changing Tablet Deck itself: running it from source, editing
+Everything for changing StarPit itself: running it from source, editing
 layouts by hand, the keybind profile, building the installer, releasing, code
-signing, the website and the demo recording. For using Tablet Deck, see the
+signing, the website and the demo recording. For using StarPit, see the
 [README](../README.md).
 
 - [Run from source](#run-from-source)
@@ -86,7 +86,7 @@ layout from `layouts/`, and presses only play their animations. The website's
 | `qr.js` | QR code generator for the console and the app window |
 | `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud-phone.json` and the starter layouts are generated |
-| `keybinds/` | the Tablet Deck Keyboard profile for Star Citizen (generated) |
+| `keybinds/` | the StarPit Keyboard profile for Star Citizen (generated) |
 | `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
 | `tools/` | generators for the phone layout, starter layouts, keybind profile and Stream Deck pack (`make-streamdeck.js`, helpers in `tools/streamdeck/`), and the demo recorder |
 | `streamdeck/` | the Stream Deck pack's sources: action catalog, scene layouts, key art, the plugin, research and handoff notes |
@@ -210,7 +210,7 @@ The pack is generated from the deck's own buttons, icons and themes:
 | `streamdeck/catalog.js` | every action a Stream Deck key can be: the deck's buttons (from `layouts/hud.json`), plus Discord, OBS, media, websites, navigation and the plugin's own |
 | `streamdeck/scenes.js` | the models, the scenes (a page each), the folders, the dial presets and a hand-made grid per scene for the 15-key, XL, + and + XL; the Mini and Neo take the first keys of the 15-key's |
 | `streamdeck/keyart.js` | draws a key, a 144×144 SVG, from a theme's tokens in `public/themes.css` and an icon from `public/icons.js` |
-| `streamdeck/plugin/` | the plugin, `com.nodiecode.tabletdeck.sdPlugin`, and its tests |
+| `streamdeck/plugin/` | the plugin, `com.xattribution.starpit.sdPlugin`, and its tests |
 | `streamdeck/CONTRACT.md` | what the generator and the plugin agree on: action UUIDs, settings, data files |
 | `streamdeck/research/` | the Stream Deck and Star Citizen facts the formats follow, with sources (`*.verified.md` are fact-checked) |
 | `streamdeck/HANDOFF.md` | decisions, status and next steps |
@@ -224,7 +224,7 @@ node tools/make-streamdeck.js
 
 That takes about two minutes and writes `dist/streamdeck/`: `icons/` (an icon
 pack per theme), `profiles/<model>/` (a profile per theme), `keybinds/`, the
-plugin `com.nodiecode.tabletdeck.streamDeckPlugin` and `preview/` (a sheet per
+plugin `com.xattribution.starpit.streamDeckPlugin` and `preview/` (a sheet per
 model and theme, and `index.html`; look at these after a layout change).
 `--themes rsi,origin --models std,plusxl` builds a few, `--skip icons,plugin,preview`
 leaves parts out, `--release` also zips the downloads into `dist/streamdeck/release/`,
@@ -261,7 +261,7 @@ npm install
 npm run build
 ```
 
-This makes `dist/TabletDeck-Setup-<version>.exe` (the version comes from
+This makes `dist/StarPit-Setup-<version>.exe` (the version comes from
 `package.json`). It needs [Inno Setup 6](https://jrsoftware.org/isinfo.php)
 and Node.js 20 or newer. `scripts/build.js`:
 
@@ -333,7 +333,7 @@ and its uninstaller, in one of three ways:
 
 ## The website
 
-`site/` is the website at <https://nodiecode.github.io/tablet-deck/>. The
+`site/` is the website at <https://xattribution.github.io/tablet-deck-spooned/>. The
 **Website** workflow (`.github/workflows/pages.yml`) publishes it to GitHub Pages
 on every push to `main` that touches the site, the deck, the layouts or the
 images. `scripts/build-site.js` puts it together in `_site/`: the page, the

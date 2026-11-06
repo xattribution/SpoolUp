@@ -1,6 +1,6 @@
 # Design
 
-How Tablet Deck looks, and the rules that keep the deck, the layout editor, the
+How StarPit looks, and the rules that keep the deck, the layout editor, the
 website and the Windows app looking like one product. For running and building
 the code, see [DEVELOPMENT.md](DEVELOPMENT.md).
 

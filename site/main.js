@@ -1,4 +1,4 @@
-// Tablet Deck website: the deck's own icons on the feature cards, and download buttons
+// StarPit website: the deck's own icons on the feature cards, and download buttons
 // that point straight at the latest installer with its version, date and size.
 (() => {
   for (const el of document.querySelectorAll(".js-icon")) {
@@ -6,10 +6,10 @@
   }
 
   // Without this (offline, or GitHub's rate limit) the buttons still open the releases page.
-  fetch("https://api.github.com/repos/nodieCode/tablet-deck/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+  fetch("https://api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((release) => {
-      const setup = (release.assets || []).find((a) => /^TabletDeck-Setup-.*\.exe$/.test(a.name));
+      const setup = (release.assets || []).find((a) => /^StarPit-Setup-.*\.exe$/.test(a.name));
       if (!setup) return;
       const mb = (setup.size / 1048576).toFixed(0);
       for (const a of document.querySelectorAll(".js-download")) a.href = setup.browser_download_url;
