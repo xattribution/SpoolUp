@@ -47,7 +47,9 @@
 ### 🛸 A HUD for your tablet
 Landing, power management, quantum, operator modes, shields, targeting,
 salvage, mining, doors, comms, emotes and more, on a two-half HUD that pages through
-panels. Phones get their own layout. In English, Español, Français or Deutsch.
+panels. Cockpit controls from 2.0: a landing-gear lever with three lamps, power
+sliders, a speed-range fader and an operator-mode dial, and halves you can
+resize. Phones get their own layout. In English, Español, Français or Deutsch.
 
 </td>
 <td width="50%" valign="top">
@@ -310,6 +312,38 @@ Hold the phone sideways. Layouts you make in the editor show up in the list too.
 sideways with two fingers over a half to flip it to its next or previous panel,
 like its arrows. So a swipe never presses anything, a press then waits a moment
 (60 ms) in case a second finger follows; with it off, presses are instant.
+
+### Cockpit controls
+
+<p align="center">
+  <img src="docs/controls.jpg" alt="The gear lever, power sliders and operator-mode dial in the Drake, Origin, Anvil and Esperia themes" width="100%">
+</p>
+
+Some controls are drawn like hardware, in each maker's own style. Each one
+still presses one key at a time, through the same focus check as a button:
+
+- **Landing-gear lever** (Power/Landing): pull the knob down to deploy, push it
+  up to retract. Each pull or push taps the gear key once. The three lamps
+  blink red while the gear is in transit and turn green when it's down; like
+  the lit buttons, they follow what SpoolUp pressed.
+- **Power sliders** (Power/Landing): Weapons, Thrusters and Shields. Drag a
+  knob up or down: each step taps that system's up or down key once, at most
+  five per drag. Tap the track beside the knob for a single step. Max and Min
+  sit above and below. The sliders count the steps SpoolUp sent from the
+  centre (it can't read the game), so **Centre sliders** puts them back in
+  the middle without pressing anything; Max, Min and **Reset All** move them
+  too.
+- **Speed-range fader** (Flight Assist): the same, lying down, for Speed
+  Range + and −.
+- **Operator-mode dial** (QT/Systems; its own **Master Modes** panel on
+  phones): turn the needle to a mode and let go, or tap the mode. SCM/NAV is
+  the button in the middle.
+- **Resize the halves:** **Deck settings → Edit layout** unlocks the seam
+  between the two halves. Drag it to make one wider, then **Lock**; **Reset**
+  puts it back. Each tablet keeps its own, and nothing presses while it's
+  unlocked.
+
+The sliders, fader and lever work with a keyboard too (arrow keys, Enter).
 
 ### Lit buttons
 

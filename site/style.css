@@ -89,6 +89,7 @@ h3 { font-size: 20px; }
 .split.reverse > div { order: 2; }
 .split img, .wide { border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
 .wide { margin-top: 22px; }
+.lead-in { max-width: 760px; color: var(--dim); margin: 0; }
 .split p { color: #c5d3e2; }
 
 .steps { list-style: none; counter-reset: step; padding: 0; margin: 26px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
