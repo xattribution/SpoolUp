@@ -10,17 +10,19 @@ body.canvas-mode { overflow: hidden; }
 }
 #canvas {
   --hud-line: color-mix(in srgb, var(--accent) 38%, var(--line));
-  --hud-face: color-mix(in srgb, var(--panel) 82%, transparent);
-  --hud-face-hi: color-mix(in srgb, var(--panel-hi) 90%, transparent);
   position: absolute; left: 50%; top: 50%; transform-origin: 50% 50%;
-  font-family: var(--font-body); color: var(--text);
-  background:
-    linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
-    var(--bg-art), var(--bg);
+  font-family: var(--font-body); color: var(--ink);
+  background: var(--bg-art), var(--bg);
   box-shadow: 0 0 0 1px var(--line), 0 30px 80px rgba(0,0,0,.5);
   overflow: hidden;
 }
+/* Each half of the HUD sits on its maker's plate (makers.css draws its edges and marks). */
+.hud-region { isolation: isolate; }
+.hud-region::before {
+  content: ""; position: absolute; inset: -8px -9px; z-index: -1; pointer-events: none;
+  background: var(--plate); border: 1px solid var(--plate-line); border-radius: 4px;
+}
+.compact .hud-region::before { inset: -3px -6px -4px; }
 #canvas > *, .hud-region > *, .hud-panel > * { position: absolute; }
 /* Offline, what would press a key dims, as on grid layouts, so a lost connection shows on
    the deck itself and not only in the status line. Paging and Deck settings still work. */
@@ -28,17 +30,35 @@ body.canvas-mode { overflow: hidden; }
 body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #canvas > .js-talk { opacity: .45; filter: saturate(.4); }
 
 /* ---------- buttons ---------- */
+/* A button is drawn from variables set on the button itself, so a maker (makers.css) can
+   give each style its own face, marks and lit and pressed looks, in the button's colour
+   (--c):
+     --face     the face's background layers (material, gradient)
+     --mark     layers drawn over the face: rivets, tabs, stripes, sheen
+     --edge     border colour; --bevel the box-shadow that gives it depth
+     --lit      layers added while lit (a state that's on); --lit-ring its box-shadow
+     --press    layers added while pressed; --press-ring, --press-move its shadow and transform
+     --deny     the red flash of a press the PC skipped */
 .hud-btn {
   --c: var(--accent);
+  --face: linear-gradient(180deg, var(--face-hi), var(--face-lo));
+  --mark: none; --lit: linear-gradient(color-mix(in srgb, var(--c) 10%, transparent) 0 0);
+  --edge: var(--hud-line);
+  --bevel: inset 0 1px 0 rgba(255,255,255,.06), var(--key-shadow, 0 0 0 transparent);
+  --press: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 42%, transparent), transparent 75%),
+    linear-gradient(color-mix(in srgb, var(--c) 20%, transparent) 0 0);
+  --press-ring: inset 0 0 0 1px var(--c), inset 0 0 26px color-mix(in srgb, var(--c) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c) 35%, transparent);
+  --press-move: scale(.97);
   display: flex; align-items: center; justify-content: center; gap: 10px;
   padding: 0 10px; margin: 0;
-  background: linear-gradient(180deg, var(--hud-face-hi), var(--hud-face));
-  border: 1px solid var(--hud-line);
-  border-radius: min(var(--key-radius), 6px);
+  background: var(--mark), var(--face);
+  border: 1px solid var(--edge);
+  border-radius: var(--btn-radius);
+  clip-path: var(--btn-clip);
   color: var(--text);
   font: var(--label-weight) 15px/1.1 var(--font-body);
   text-transform: var(--label-case); letter-spacing: var(--label-track);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), var(--key-shadow, 0 0 0 transparent);
+  box-shadow: var(--bevel);
   touch-action: none; cursor: pointer; user-select: none;
   transition: transform .06s ease, background .06s ease, box-shadow .06s ease, border-color .06s ease;
 }
@@ -48,12 +68,12 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-btn[data-color="blue"] { --c: var(--blue); }
 .hud-ico { display: inline-flex; color: var(--c); filter: var(--icon-glow); }
 .hud-ico svg { width: 26px; height: 26px; stroke-width: var(--icon-stroke); }
+.hud-btn.fx-on { background: var(--lit), var(--mark), var(--face); }
 .hud-btn.pressed {
-  transform: scale(.97);
+  transform: var(--press-move);
   border-color: var(--c);
-  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 42%, transparent), transparent 75%),
-    color-mix(in srgb, var(--c) 20%, var(--panel));
-  box-shadow: inset 0 0 0 1px var(--c), inset 0 0 26px color-mix(in srgb, var(--c) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c) 35%, transparent);
+  background: var(--press), var(--mark), var(--face);
+  box-shadow: var(--press-ring);
 }
 
 .s-top { padding: 0; font-size: 14px; }
@@ -74,16 +94,15 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .s-wide .hud-ico svg { width: 20px; height: 20px; }
 
 .s-switch {
+  --face: linear-gradient(var(--face-lo), var(--face-lo)); --edge: var(--line-hi);
   font-size: 12px; padding: 0 6px; white-space: nowrap; letter-spacing: .04em;
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
-  border-color: var(--line-hi);
 }
 
 .s-dial { justify-content: center; position: absolute; border-left: 2px solid var(--c); }
 .s-dial .dial {
   position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   width: 38px; height: 38px; border-radius: 50%;
-  background: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line-hi);
+  background: var(--face-lo); border: 1px solid var(--line-hi);
 }
 .s-dial .dial svg { width: 100%; height: 100%; fill: none; stroke: var(--c); stroke-width: 2.5; }
 .s-dial .dial circle { stroke: var(--line-hi); }
@@ -92,10 +111,9 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 
 /* Big framed buttons: Flight Ready and Engage Quantum. */
 .s-hero, .s-quantum {
+  --edge: color-mix(in srgb, var(--c) 55%, var(--line));
   font-family: var(--font-display); font-size: 19px; font-weight: 400;
-  background: linear-gradient(180deg, var(--hud-face-hi), color-mix(in srgb, var(--bg) 70%, transparent));
   clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 22px, 100% calc(100% - 22px), calc(100% - 22px) 100%, 22px 100%, 0 calc(100% - 22px), 0 22px);
-  border: 1px solid color-mix(in srgb, var(--c) 55%, var(--line));
 }
 .s-hero::before, .s-quantum::before {
   content: ""; position: absolute; inset: 5px; pointer-events: none;
@@ -114,10 +132,9 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .s-std:has(> .fx-state) { padding-bottom: 10px; }
 
 .s-danger {
+  --face: linear-gradient(180deg, color-mix(in srgb, var(--red) 55%, var(--face-hi)), color-mix(in srgb, var(--red) 30%, var(--face-lo)));
+  --edge: var(--red); --bevel: 0 0 18px color-mix(in srgb, var(--red) 35%, transparent);
   font-size: 16px; color: #fff;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--red) 55%, var(--panel)), color-mix(in srgb, var(--red) 30%, var(--panel)));
-  border-color: var(--red);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--red) 35%, transparent);
 }
 
 .s-menu { justify-content: space-between; padding: 0 16px; }
@@ -135,12 +152,12 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .s-pg svg { width: 22px; height: 22px; stroke: var(--text); stroke-width: 2.5; fill: none; }
 
 /* ---------- chrome & decoration ---------- */
-.hud-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; }
+.hud-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-dim); letter-spacing: .08em; text-transform: uppercase; }
 .hud-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
 .hud-status .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .hud-status .dot.on.slow { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
 
-.hud-rule { height: 6px; border-top: 2px solid color-mix(in srgb, var(--text) 75%, transparent); }
+.hud-rule { height: 6px; border-top: 2px solid color-mix(in srgb, var(--ink) 75%, transparent); }
 .hud-rule i { position: absolute; top: -6px; width: 2px; height: 10px; background: var(--red); }
 .hud-rule i:first-child { left: 0; }
 .hud-rule i:last-child { right: 0; }
@@ -148,19 +165,19 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-divider { width: 1px; background: linear-gradient(180deg, transparent, var(--line-hi) 8%, var(--line-hi) 92%, transparent); }
 
 .hud-header {
-  font: 600 11px/1.25 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--text);
+  font: 600 11px/1.25 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
   white-space: nowrap;
 }
 .hud-header b { color: var(--accent); margin-right: 2px; }
 .hud-header em { font-style: normal; color: var(--green); }
-.hud-header .b { color: var(--dim); opacity: .7; }
+.hud-header .b { color: var(--ink-dim); opacity: .8; }
 
 .hud-vlabel {
   width: 40px; display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); background: color-mix(in srgb, var(--ink) 5%, transparent);
 }
 .hud-vlabel span {
-  transform: rotate(-90deg); font: 600 10px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--dim);
+  transform: rotate(-90deg); font: 600 10px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim);
 }
 
 .hud-caption { --c: var(--accent); display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -168,7 +185,7 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-caption[data-color="red"] { --c: var(--red); }
 .hud-caption[data-color="blue"] { --c: var(--blue); }
 .hud-caption .hud-ico svg { width: 26px; height: 26px; }
-.hud-caption .t { font: 600 10px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.hud-caption .t { font: 600 10px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim); }
 
 .hud-bracket svg { width: 100%; height: 100%; display: block; fill: none; stroke: var(--line-hi); stroke-width: 1.5; stroke-dasharray: 3 4; }
 .hud-bracket .f { fill: var(--accent); stroke: none; }
@@ -178,7 +195,7 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
   background:
     repeating-linear-gradient(-45deg, color-mix(in srgb, var(--red) 9%, transparent) 0 8px, transparent 8px 16px),
     color-mix(in srgb, var(--red) 10%, transparent);
-  border-radius: min(var(--key-radius), 6px);
+  border-radius: var(--btn-radius);
 }
 
 /* ---------- eject slider ---------- */
@@ -225,8 +242,8 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-pager .title {
   position: absolute; left: calc(var(--pager-h, 44px) * 1.45 + 8px); right: calc(var(--pager-h, 44px) * 1.45 + 8px); top: 0; bottom: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-  background: color-mix(in srgb, var(--panel) 55%, transparent); border: 1px solid var(--line);
-  border-radius: min(var(--key-radius), 6px);
+  background: linear-gradient(180deg, var(--face-hi), var(--face-lo)); border: 1px solid var(--line);
+  border-radius: var(--btn-radius); clip-path: var(--btn-clip); color: var(--text);
 }
 .hud-pager .title span { font: 400 17px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; }
 .hud-pager .dots { display: flex; gap: 5px; }
@@ -268,7 +285,7 @@ html[data-keys][data-large] .hud-key { font-size: 10px; }
 }
 .hud-menu .sheet {
   position: relative; width: 560px; padding: 18px;
-  background: color-mix(in srgb, var(--panel) 95%, transparent); border: 1px solid var(--line-hi);
+  background: var(--bg-art), var(--bg); border: 1px solid var(--line-hi);
   border-radius: min(var(--key-radius), 10px);
   box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
 }
@@ -294,7 +311,7 @@ html[data-keys][data-large] .hud-key { font-size: 10px; }
   .landscape-only #canvas { visibility: hidden; }
   .landscape-only .hud-rotate {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-    color: var(--text); font: 600 15px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; text-align: center;
+    color: var(--ink); font: 600 15px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; text-align: center;
   }
   .landscape-only .hud-rotate svg { width: 56px; height: 56px; color: var(--accent); stroke-width: 2; animation: hud-tilt 2.4s ease-in-out infinite; }
 }
