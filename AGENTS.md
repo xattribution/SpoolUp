@@ -1,12 +1,12 @@
 # Agent guidelines
 
 Instructions for AI coding agents (and a quick start for human contributors)
-working on StarPit. Read this first, then
+working on SpoolUp. Read this first, then
 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the details it points to.
 
 ## What the project is
 
-StarPit turns a tablet or phone into a HUD-style control deck for Star
+SpoolUp turns a tablet or phone into a HUD-style control deck for Star
 Citizen. The deck runs in the tablet's browser; every button press travels over
 the home network to a small server on the gaming PC, which presses the real keys
 with Windows' `SendInput`. It's a fan project, not affiliated with Cloud
@@ -17,14 +17,14 @@ Imperium Games.
 | `server.js` | the server: serves the deck, pairs tablets, sends keys, runs voice, the layout editor's API |
 | `public/` | the deck, the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud.json` is the source, most others are generated |
-| `keybinds/` | the StarPit Keyboard profile (generated) |
+| `keybinds/` | the SpoolUp Keyboard profile (generated) |
 | `native/` | C# sources: the app window, the key sender, the voice listener, the sound player |
 | `tools/`, `scripts/` | generators, the installer build, release notes |
 | `site/` | the website on GitHub Pages |
 
 ## Ground rules
 
-These keep StarPit safe to run next to an online game. Don't change them
+These keep SpoolUp safe to run next to an online game. Don't change them
 without the owner's explicit agreement:
 
 - **One press per tap.** A button presses its key or key combo once. No macros,

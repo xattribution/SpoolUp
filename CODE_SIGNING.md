@@ -1,11 +1,11 @@
 # Code signing policy
 
-StarPit's releases are signed with
+SpoolUp's releases are signed with
 [Azure Artifact Signing](https://learn.microsoft.com/azure/artifact-signing/),
 Microsoft's code signing service, with a certificate issued to the project
 owner's Microsoft-verified identity, and timestamped. The installer's
 **Properties → Digital Signatures** shows the publisher. (The workflow can also
-sign with [SignPath Foundation](https://signpath.org), which StarPit may
+sign with [SignPath Foundation](https://signpath.org), which SpoolUp may
 apply to once it's widely known.)
 
 > Status: signed from 1.8.0. Earlier releases (1.7.0 and before) are unsigned and Windows shows an
@@ -16,7 +16,7 @@ apply to once it's widely known.)
 
 Each release's Windows files, all built from this repository:
 
-- `StarPit-Setup-<version>.exe`, the installer
+- `SpoolUp-Setup-<version>.exe`, the installer
 - `TabletDeck.exe`, the app window
 - `TabletDeckServer.exe`, the server (Node.js packed with `server.js` and the
   files in `public/`, `layouts/` and `keybinds/`)
@@ -41,7 +41,7 @@ Team members use multi-factor authentication on GitHub and SignPath.
 
 ## Privacy
 
-StarPit doesn't collect or send any personal data, and it has no accounts,
+SpoolUp doesn't collect or send any personal data, and it has no accounts,
 ads or tracking. Its network use is:
 
 - **Your home network:** it serves the deck to tablets and phones on your

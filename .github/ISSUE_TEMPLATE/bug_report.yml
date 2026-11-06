@@ -5,12 +5,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! Please check [Troubleshooting](https://github.com/nodieCode/tablet-deck#troubleshooting) first; it covers connecting, buttons that do nothing, voice and Windows warnings.
+        Thanks for reporting! Please check [Troubleshooting](https://github.com/xattribution/tablet-deck-spooned#troubleshooting) first; it covers connecting, buttons that do nothing, voice and Windows warnings.
   - type: input
     id: version
     attributes:
-      label: Tablet Deck version
-      description: Shown in the Tablet Deck window's title bar, e.g. "Tablet Deck 1.0.0".
+      label: SpoolUp version
+      description: Shown in the SpoolUp window's title bar, e.g. "SpoolUp 1.0.0".
       placeholder: "1.0.0"
     validations:
       required: true
@@ -44,13 +44,13 @@ body:
       label: How to make it happen
       description: The steps, if you know them. Which layout and which button?
       placeholder: |
-        1. Open the Tablet Deck HUD layout
+        1. Open the SpoolUp HUD layout
         2. Tap ...
   - type: textarea
     id: log
     attributes:
-      label: The last lines of the Tablet Deck window's log
-      description: Copy them from the Tablet Deck window. **Remove your pairing code and IP addresses first.**
+      label: The last lines of the SpoolUp window's log
+      description: Copy them from the SpoolUp window. **Remove your pairing code and IP addresses first.**
       render: text
   - type: checkboxes
     id: checks

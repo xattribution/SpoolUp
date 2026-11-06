@@ -98,7 +98,7 @@
   // layouts/ folder next to the page, and presses only play their animations.
   const DEMO = new URLSearchParams(location.search).has("demo") || window.DECK_DEMO === true;
   const DEMO_LAYOUTS = [
-    [device === "phone" ? "layouts/hud-phone.json" : "layouts/hud.json", "StarPit HUD"],
+    [device === "phone" ? "layouts/hud-phone.json" : "layouts/hud.json", "SpoolUp HUD"],
     ...[["combat", "Combat"], ["mining-salvage", "Mining & Salvage"], ["hauling-exploration", "Hauling & Exploration"],
       ["prospector", "Prospector"], ["vulture", "Vulture"]]
       .map(([id, name]) => [`layouts/${id}${device === "phone" ? "-phone" : ""}.json`, name]),
@@ -357,7 +357,7 @@
   };
 
   // The other way: a HUD half the player pages (its arrows, a two-finger swipe) tells
-  // Stream Decks with the StarPit plugin, which go to the scene with that panel. Only
+  // Stream Decks with the SpoolUp plugin, which go to the scene with that panel. Only
   // the panel it settles on, once paging stops for PAGED_MS, so flipping through several
   // sends one, and nothing if it ends where it started. A Stream Deck's scene, a layout
   // loading and connecting again send nothing, or the two would page each other back.
@@ -503,7 +503,7 @@
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
       else if (msg.t === "sound-status") S.status(msg);
-      // A scene picked on a Stream Deck (its StarPit plugin): flip to its panels. It's
+      // A scene picked on a Stream Deck (its SpoolUp plugin): flip to its panels. It's
       // newer than a page still waiting to go to the Stream Deck, which would undo it.
       else if (msg.t === "scene") { stopPaging(); if (followScenes() && deckCanvas && deckCanvas.showPanels(msg)) window.DeckSound.play("page"); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
@@ -689,7 +689,7 @@
       el.classList.add("listening");
       buzz();
       window.DeckSound.play("listen");
-      if (DEMO) toast("Voice commands work with StarPit on your PC", 2600);
+      if (DEMO) toast("Voice commands work with SpoolUp on your PC", 2600);
       send({ t: "voice", on: true });
     });
     const end = (e) => {
@@ -763,9 +763,9 @@
     // The live status from the PC wins over the one the list was loaded with.
     const state = DEMO ? "ready" : voiceStatus.state;
     const reason = voiceStatus.reason || voiceData.reason;
-    if (!voiceData.on || state === "off") { voiceNote("Voice commands are turned off on the PC. Turn them on in the StarPit window's Settings."); return; }
+    if (!voiceData.on || state === "off") { voiceNote("Voice commands are turned off on the PC. Turn them on in the SpoolUp window's Settings."); return; }
     if (state === "unavailable") {
-      voiceNote(tr("Voice commands can't run on this PC{0}. The StarPit window shows what to do.", reason ? `: ${reason}` : ""));
+      voiceNote(tr("Voice commands can't run on this PC{0}. The SpoolUp window shows what to do.", reason ? `: ${reason}` : ""));
       return;
     }
     const q = $("voiceSearch").value.trim().toLowerCase();
@@ -812,13 +812,13 @@
       <form id="pair" novalidate>
         <div class="pair-emblem"></div>
         <h2><b>//</b> ${tr("Pair this device")}</h2>
-        <p class="pair-help">${tr("Open {0} on your gaming PC and type the pairing code its window shows.", "<strong>StarPit</strong>")}</p>
+        <p class="pair-help">${tr("Open {0} on your gaming PC and type the pairing code its window shows.", "<strong>SpoolUp</strong>")}</p>
         <label for="code">${tr("Pairing code")}</label>
         <input id="code" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32"
           placeholder="${tr("e.g. 1a2b3c4d")}" aria-describedby="pairError">
         <p id="pairError" class="pair-error" role="alert" hidden></p>
         <button type="submit">${tr("Connect")}</button>
-        <p class="pair-hint">${tr("Quicker: scan the QR code in the StarPit window with this device's camera.")}</p>
+        <p class="pair-hint">${tr("Quicker: scan the QR code in the SpoolUp window with this device's camera.")}</p>
       </form>`;
     grid.querySelector(".pair-emblem").innerHTML = emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem);
     const input = $("code"), error = $("pairError"), button = grid.querySelector("#pair button");
@@ -832,8 +832,8 @@
     input.value = wrong === "changed" ? "" : token; // a typo is easier to fix in place
     input.oninput = () => { input.classList.remove("bad"); input.removeAttribute("aria-invalid"); error.hidden = true; };
     if (wrong === "locked") fail("Too many wrong codes. Wait a minute, then try again.");
-    else if (wrong === "changed") fail("The pairing code on the PC has changed. Type the new one from the StarPit window.");
-    else if (wrong) fail("That code didn't match. Check the code in the StarPit window on your PC and try again.");
+    else if (wrong === "changed") fail("The pairing code on the PC has changed. Type the new one from the SpoolUp window.");
+    else if (wrong) fail("That code didn't match. Check the code in the SpoolUp window on your PC and try again.");
     input.focus();
     $("pair").onsubmit = (e) => {
       e.preventDefault();

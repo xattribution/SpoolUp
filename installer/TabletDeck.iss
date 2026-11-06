@@ -1,15 +1,16 @@
-; Tablet Deck installer, for Inno Setup 6. Build it with `npm run build`
+; SpoolUp installer, for Inno Setup 6. Build it with `npm run build`
 ; (scripts/build.js), which passes AppVersion, FileVersion and BuildDir.
 
 #ifndef AppVersion
   #error Build the installer with "npm run build", not by compiling this file directly.
 #endif
 
-#define AppName "Tablet Deck"
+#define AppName "SpoolUp"
 ; The app window (native/launcher.cs), and the server it runs hidden (server.js).
 #define AppExe "TabletDeck.exe"
 #define ServerExe "TabletDeckServer.exe"
-#define RepoUrl "https://github.com/nodieCode/tablet-deck"
+#define RepoUrl "https://github.com/xattribution/tablet-deck-spooned"
+; The app's old name, so upgrades replace the rule older versions added.
 #define FirewallRule "Tablet Deck"
 
 [Setup]
@@ -18,16 +19,17 @@ AppId={{A7A9440D-F358-4D02-81DE-04193AAA6A52}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
-AppPublisher=nodieCode
+AppPublisher=xattribution
 AppPublisherURL={#RepoUrl}
 AppSupportURL={#RepoUrl}/issues
 AppUpdatesURL={#RepoUrl}/releases
 VersionInfoVersion={#FileVersion}
 VersionInfoProductName={#AppName}
 VersionInfoDescription={#AppName} Setup
-VersionInfoCopyright=Copyright (c) 2026 nodieCode. MIT License.
+VersionInfoCopyright=Copyright (c) 2026 nodieCode and xattribution. MIT License.
 SourceDir=..
-DefaultDirName={autopf}\{#AppName}
+; The app's old name, so new installs and upgrades of older versions share one folder.
+DefaultDirName={autopf}\Tablet Deck
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 ; Program Files and the firewall rule need administrator rights.
@@ -36,7 +38,7 @@ UsedUserAreasWarning=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
-OutputBaseFilename=TabletDeck-Setup-{#AppVersion}
+OutputBaseFilename=SpoolUp-Setup-{#AppVersion}
 SetupIconFile={#BuildDir}\icon.ico
 UninstallDisplayIcon={app}\{#AppExe}
 UninstallDisplayName={#AppName}
@@ -55,11 +57,11 @@ RestartApplications=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-WelcomeLabel2=This will install [name/ver] on your computer.%n%nTablet Deck turns a tablet or phone on your home network into a touch control panel for Star Citizen.%n%nFan project. Not affiliated with or endorsed by Cloud Imperium Games.
+WelcomeLabel2=This will install [name/ver] on your computer.%n%nSpoolUp turns a tablet or phone on your home network into a touch control panel for Star Citizen.%n%nFan project. Not affiliated with or endorsed by Cloud Imperium Games.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "scprofile"; Description: "Install the Star Citizen keybind profile (Tablet Deck Keyboard)"; GroupDescription: "Star Citizen:"
+Name: "scprofile"; Description: "Install the Star Citizen keybind profile (SpoolUp Keyboard)"; GroupDescription: "Star Citizen:"
 
 [Files]
 Source: "{#BuildDir}\app\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
@@ -75,17 +77,23 @@ Source: "{#BuildDir}\app\keybinds\TabletDeck-StarCitizen.xml"; DestDir: "{code:M
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Tasks: desktopicon
 
+[InstallDelete]
+; The shortcuts older versions made, under the app's old name.
+Type: files; Name: "{autoprograms}\Tablet Deck.lnk"
+Type: files; Name: "{autodesktop}\Tablet Deck.lnk"
+
 [Run]
 ; Let tablets reach the server on private (home) networks only, so Windows doesn't ask.
 ; Deleting first keeps reinstalls and upgrades from adding a second rule.
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#FirewallRule}"""; Flags: runhidden
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#FirewallRule}"" dir=in action=allow program=""{app}\{#ServerExe}"" enable=yes profile=private"; Flags: runhidden; StatusMsg: "Allowing Tablet Deck through Windows Firewall on private networks..."
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#FirewallRule}"" dir=in action=allow program=""{app}\{#ServerExe}"" enable=yes profile=private"; Flags: runhidden; StatusMsg: "Allowing SpoolUp through Windows Firewall on private networks..."
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: postinstall nowait skipifsilent runasoriginaluser
 ; An update started from the app's Update now button runs quietly with /RELAUNCH=1: start it again.
 Filename: "{app}\{#AppExe}"; Flags: nowait runasoriginaluser; Check: UpdatingFromApp
 
 [Registry]
 ; The window's "Start with Windows" checkbox writes this value; uninstalling removes it.
+; It and the key below keep the app's old name, as the window does.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "Tablet Deck"; Flags: uninsdeletevalue dontcreatekey
 ; The window remembers the last version it ran here, to show "What's new" after an update.
 Root: HKCU; Subkey: "Software\Tablet Deck"; Flags: uninsdeletekey dontcreatekey
@@ -121,7 +129,7 @@ end;
 function RegisterWindowMessage(Name: String): Cardinal;
   external 'RegisterWindowMessageW@user32.dll stdcall';
 
-// Asks a running Tablet Deck window to quit (it stops the server, which releases held
+// Asks a running SpoolUp window to quit (it stops the server, which releases held
 // keys), and waits up to 10 s for it. See Program.QuitMessage in native/launcher.cs.
 procedure CloseRunningApp();
 var
@@ -212,7 +220,7 @@ begin
   begin
     Settings := ExpandConstant('{userappdata}\TabletDeck');
     if DirExists(Settings) and not UninstallSilent and
-       (MsgBox('Also delete your Tablet Deck settings (pairing code, port and any layouts you added)?' + #13#10#13#10 + Settings,
+       (MsgBox('Also delete your SpoolUp settings (pairing code, port and any layouts you added)?' + #13#10#13#10 + Settings,
                mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES) then
       DelTree(Settings, True, True, True);
   end;

@@ -44,7 +44,7 @@ function findBrowser() {
 
 // Starts the browser without a window and connects to its first tab.
 async function openBrowser() {
-  const profile = fs.mkdtempSync(path.join(os.tmpdir(), "starpit-demo-"));
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), "spoolup-demo-"));
   const proc = spawn(findBrowser(), [
     "--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
     `--window-size=${SIZE.width},${SIZE.height}`, "--hide-scrollbars", "--mute-audio",

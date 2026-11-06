@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="StarPit: turn any tablet or phone into a touch control panel for Star Citizen" width="100%">
+  <img src="docs/banner.jpg" alt="SpoolUp: turn any tablet or phone into a touch control panel for Star Citizen" width="100%">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 > are original designs, not the companies' logos.
 
 **Contents:** [Features](#features) · [Get started](#get-started) ·
-[Troubleshooting](#troubleshooting) · [Using StarPit](#using-starpit) ·
+[Troubleshooting](#troubleshooting) · [Using SpoolUp](#using-spoolup) ·
 [Settings](#settings) · [How it works](#how-it-works) ·
 [Safety and privacy](#safety-and-privacy) · [Developers](#developers)
 
@@ -103,7 +103,7 @@ start with Windows, and updates with one click.
 Profiles for every Stream Deck from the Mini to the + XL in all 12 themes, with
 a page per scene, folders for emergencies, emotes and themes, dials and touch
 strips on the + and + XL, and a Comms page with Discord and OBS. Icon packs with
-every button, and a plugin that presses through StarPit and can keep your
+every button, and a plugin that presses through SpoolUp and can keep your
 tablet and Stream Deck on the same scene. [More](#stream-deck)
 
 </td>
@@ -119,14 +119,14 @@ tablet and Stream Deck on the same scene. [More](#stream-deck)
 You need **Windows 10 or 11** on the gaming PC and a **tablet or phone on the
 same Wi-Fi**. Nothing else.
 
-1. **Download** `StarPit-Setup-<version>.exe` from the
+1. **Download** `SpoolUp-Setup-<version>.exe` from the
    [latest release](https://github.com/xattribution/tablet-deck-spooned/releases/latest)
    and run it. (Windows may warn about an unknown publisher; see
    [Troubleshooting](#troubleshooting).)
-2. **Install.** Setup adds StarPit to the Start menu and lets it through
+2. **Install.** Setup adds SpoolUp to the Start menu and lets it through
    Windows Firewall on private networks. Tick **Install the Star Citizen keybind
    profile** if Setup finds your game.
-3. **Open StarPit** from the Start menu. Its window shows a QR code, an
+3. **Open SpoolUp** from the Start menu. Its window shows a QR code, an
    address like `http://192.168.1.20:8765` and a pairing code.
 4. **Pair your tablet:** scan the QR code with its camera, or open the address
    and type the code. Use "Add to Home Screen" for a full-screen app.
@@ -134,7 +134,7 @@ same Wi-Fi**. Nothing else.
    the window in front; otherwise the tablet shows "Star Citizen not focused"
    and the button flashes red.
 
-In Star Citizen, load the **StarPit Keyboard** profile once (see
+In Star Citizen, load the **SpoolUp Keyboard** profile once (see
 [Keybinds](#keybinds)) so the buttons for actions without a default key work.
 
 ## Troubleshooting
@@ -157,20 +157,20 @@ source code is here.
 - Make sure the tablet is on the same Wi-Fi or network as the PC.
 - Check that Windows treats your network as **Private** (Settings → Network &
   Internet → your network). The firewall rule only covers private networks.
-  StarPit checks this itself: when the network is Public, the window says so
+  SpoolUp checks this itself: when the network is Public, the window says so
   under the address, with a **Set it to Private** link to Windows' network
   settings.
-- Type the address exactly as the StarPit window shows it, including the
+- Type the address exactly as the SpoolUp window shows it, including the
   port (`:8765`).
 - **The QR code opens nothing:** with a VPN, WSL or a virtual machine, your PC
   has more than one address, and the QR code may use one the tablet can't
-  reach. StarPit skips VPN and virtual adapters it recognises, and running
+  reach. SpoolUp skips VPN and virtual adapters it recognises, and running
   from source lists each address with its adapter's name. To choose it
   yourself, open the **Settings folder**, set `"host"` in `config.json` to the
   address of your Wi-Fi or Ethernet (e.g. `"host": "192.168.1.20"`) and restart
-  StarPit. `ipconfig` in a Command Prompt shows which address belongs to
+  SpoolUp. `ipconfig` in a Command Prompt shows which address belongs to
   which adapter.
-- **"Too many wrong codes":** after 5 wrong pairing codes in a minute, StarPit
+- **"Too many wrong codes":** after 5 wrong pairing codes in a minute, SpoolUp
   ignores that device for a minute. Wait, then type the code again.
 </details>
 
@@ -179,9 +179,9 @@ source code is here.
 
 - Click into Star Citizen first: keys are only sent while it's the window in
   front.
-- If Star Citizen runs as administrator, run StarPit as administrator too.
+- If Star Citizen runs as administrator, run SpoolUp as administrator too.
   Windows blocks keypresses from a normal program into an elevated one.
-- For actions with no default key, load the **StarPit Keyboard** profile in
+- For actions with no default key, load the **SpoolUp Keyboard** profile in
   the game (see [Keybinds](#keybinds)).
 </details>
 
@@ -190,7 +190,7 @@ source code is here.
 
 Commands are in English and need the English speech recognizer in Windows. If
 the window says "no en-US speech recognizer installed", add it under
-**Settings → Time & Language → Speech**, then restart StarPit. If commands
+**Settings → Time & Language → Speech**, then restart SpoolUp. If commands
 are often missed or misheard, try a headset mic, or move the **Voice
 strictness** slider in the window.
 </details>
@@ -198,12 +198,12 @@ strictness** slider in the window.
 <details>
 <summary><b>"Port 8765 is already in use"</b></summary>
 
-Another program (or another copy of StarPit) uses that port. Open
-**Settings** in the StarPit window and pick another port.
+Another program (or another copy of SpoolUp) uses that port. Open
+**Settings** in the SpoolUp window and pick another port.
 </details>
 
 <details>
-<summary><b>StarPit closes with "ran into a problem"</b></summary>
+<summary><b>SpoolUp closes with "ran into a problem"</b></summary>
 
 The details are saved in `crash.log` in the Settings folder
 (`%APPDATA%\TabletDeck`). Please
@@ -213,11 +213,11 @@ that file. Meanwhile, the previous version's installer on the
 going again; your settings are kept.
 </details>
 
-## Using StarPit
+## Using SpoolUp
 
 ### The app window
 
-<img src="docs/app-window.png" alt="The StarPit window: HUD panels with the QR code, address and pairing code, telemetry of tablets, where keys go and presses, voice status, settings and a log" width="460" align="right">
+<img src="docs/app-window.png" alt="The SpoolUp window: HUD panels with the QR code, address and pairing code, telemetry of tablets, where keys go and presses, voice status, settings and a log" width="460" align="right">
 
 The window shows the QR code, address and pairing code, and live telemetry: how
 many tablets are connected, where keys go, and the presses of the last minute,
@@ -226,7 +226,7 @@ are the voice status and a log. Stars drift behind the panels while the window
 is in front (they stand still if Windows' "Show animations" is off); click an
 empty spot to send a pulse through them.
 
-- **Minimize** it to keep StarPit running in the tray; double-click the tray
+- **Minimize** it to keep SpoolUp running in the tray; double-click the tray
   icon to bring it back. **Closing** the window quits.
 - **Settings:** pairing code, port, the "only while Star Citizen is in front"
   check, tap length, voice on/off and language, the window's
@@ -234,7 +234,7 @@ empty spot to send a pulse through them.
 - **Edit layout** opens the [layout editor](#layout-editor).
 - **Start with Windows** starts it in the tray when you log in. **Settings
   folder** opens the folder with `config.json` and your own layouts.
-- **Updates:** StarPit checks for a new version when it starts and once a
+- **Updates:** SpoolUp checks for a new version when it starts and once a
   day, and shows **What's new** and **Update now**. Nothing installs until you
   click; your settings are kept. [CHANGELOG.md](CHANGELOG.md) lists every
   version's changes.
@@ -245,16 +245,16 @@ empty spot to send a pulse through them.
 
 The deck uses Star Citizen's default keys where they exist. Actions with no
 default keyboard key (operator modes, shield facings, doors, emotes, targeting
-and so on) get keys from the **StarPit Keyboard** profile. To install it:
+and so on) get keys from the **SpoolUp Keyboard** profile. To install it:
 
 1. Tick it in Setup, or use **Settings → Install keybind profile...** in the
    window. It finds your LIVE, PTU and other copies of the game, or lets you
    pick the folder.
 2. In-game, open **Options → Keybindings → Control Profiles** and load
-   **StarPit Keyboard**. This replaces your current custom binds, so note
+   **SpoolUp Keyboard**. This replaces your current custom binds, so note
    any you want to keep and set them again afterwards.
 
-StarPit also reads your own `actionmaps.xml`, and your binds win: rebind an
+SpoolUp also reads your own `actionmaps.xml`, and your binds win: rebind an
 action in-game and its button follows.
 
 <details>
@@ -288,7 +288,7 @@ choose under **Layout**. Each tablet and phone remembers its own choice:
 
 | Layout | Opens on |
 |---|---|
-| **StarPit HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right |
+| **SpoolUp HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right |
 | **Combat** | Power/Landing, Shields, Targeting and Flight Assist first; Combat, QT/Systems, Operator Modes and Crew first |
 | **Mining & Salvage** | Mining and Salvage first; Operator Modes, QT/Systems, Crew and On Foot first |
 | **Hauling & Exploration** | Power/Landing, Flight Assist and Targeting first; QT/Systems, Crew, On Foot and Emotes first |
@@ -316,10 +316,10 @@ DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, deco
 ESP, G-safety and door locks light up while they're on. Every tablet shows the same,
 voice commands count too, and a press the focus check skips changes nothing.
 
-StarPit can't see the game, so the lights only follow what StarPit
+SpoolUp can't see the game, so the lights only follow what SpoolUp
 pressed. If you use the keyboard, the game changes something by itself, or you
 respawn, they can be wrong: **Reset button lights** under **Display** in Deck
-settings turns them all off. They also start off whenever StarPit starts.
+settings turns them all off. They also start off whenever SpoolUp starts.
 
 ### Open websites on the PC
 
@@ -350,7 +350,7 @@ deck exactly as the tablet does, but clicking a button selects it:
 
 **Save** stores your own copy (e.g. `my-hud`); the built-in layouts never
 change. With **Use on tablets** ticked, connected tablets switch to it and
-reload by themselves. The editor only works on the PC running StarPit.
+reload by themselves. The editor only works on the PC running SpoolUp.
 
 **Share your layout:** **Export** saves the open layout as a `.json` file to
 send to friends. **Import…** opens such a file in the editor, not saved yet, so
@@ -370,7 +370,7 @@ tablet shows what it heard, or "Didn't catch that".
 side button works well) and hold it to talk instead, or press once to start and
 again to stop. A soft sound plays when it starts and stops listening, and the
 tablet's mic lights up. Pick a key Star Citizen doesn't use, since the key still
-reaches the game. StarPit only checks that one key; it doesn't record what
+reaches the game. SpoolUp only checks that one key; it doesn't record what
 you type.
 
 - Every button answers to its name ("landing gear", "fire laser", "max
@@ -450,11 +450,11 @@ language, please say so on [GitHub](https://github.com/xattribution/tablet-deck-
 
 ### Stream Deck
 
-StarPit has a Stream Deck pack: ready-made profiles for every Stream Deck
+SpoolUp has a Stream Deck pack: ready-made profiles for every Stream Deck
 from the Mini to the + XL, in all 12 manufacturer themes, an icon pack per
-theme with every button for pages of your own, and a StarPit plugin. The
+theme with every button for pages of your own, and a SpoolUp plugin. The
 profiles and icons work on their own; with the plugin, presses go through
-StarPit like a tablet's.
+SpoolUp like a tablet's.
 
 <p align="center">
   <img src="docs/streamdeck.jpg" alt="The Stream Deck + XL profile in the RSI theme: the Flight and Combat pages, with scene tabs along the top, power, speed limit, master mode and targets dials, and the touch strip" width="100%">
@@ -464,9 +464,9 @@ Each release has the pack under **Assets**:
 
 | Download | What it is |
 |---|---|
-| `StarPit-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
-| `StarPit-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
-| `com.xattribution.starpit.streamDeckPlugin` | the plugin, with a profile for each model |
+| `SpoolUp-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
+| `SpoolUp-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
+| `com.xattribution.spoolup.streamDeckPlugin` | the plugin, with a profile for each model |
 
 Or build it yourself: see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#the-stream-deck-pack).
 
@@ -504,46 +504,46 @@ Stream Deck offers to install it.
 **Profiles on their own:**
 
 1. Unzip the download for your model and double-click a profile,
-   `StarPit <theme> - <model>.streamDeckProfile`. Import any themes you want
+   `SpoolUp <theme> - <model>.streamDeckProfile`. Import any themes you want
    to switch between. The + XL needs Stream Deck 7.3 or newer.
-2. In Star Citizen, load the **StarPit Keyboard** profile (see
+2. In Star Citizen, load the **SpoolUp Keyboard** profile (see
    [Keybinds](#keybinds); the zip has it too), since many keys press its binds.
 3. The keys are Stream Deck **Hotkeys**: Stream Deck presses them into
-   whatever window is in front, so they work without StarPit, but
-   StarPit's focus check doesn't guard them.
+   whatever window is in front, so they work without SpoolUp, but
+   SpoolUp's focus check doesn't guard them.
 
 Keys marked **PLUGIN** hold a key, or press it for a set time: Engage Quantum,
 Auto Land, SCM/NAV, Max and Min power, Self-D, push to talk and a few more.
-Stream Deck's Hotkey can only tap, so these go through the StarPit plugin,
-and need it and StarPit running. Theme keys open the same page in that
+Stream Deck's Hotkey can only tap, so these go through the SpoolUp plugin,
+and need it and SpoolUp running. Theme keys open the same page in that
 theme's profile; if one doesn't switch after importing, pick its profile once
 in the key's settings.
 
-**With the plugin:** double-click `com.xattribution.starpit.streamDeckPlugin`
-(Windows, Stream Deck 7.3 or newer). It adds a **StarPit** category with
+**With the plugin:** double-click `com.xattribution.spoolup.streamDeckPlugin`
+(Windows, Stream Deck 7.3 or newer). It adds a **SpoolUp** category with
 **Deck Button**, **Deck Dial**, **Scene**, **Theme**, **Hold to Talk**,
 **Status** and **Reset Lights**, and brings a profile for each model, which
 Stream Deck offers to install the first time a Scene key or the scene dial
 switches to it.
 
-- Presses go through StarPit: the focus check, lit buttons (gear, lights,
+- Presses go through SpoolUp: the focus check, lit buttons (gear, lights,
   doors...) shared with your tablets, a red flash when a press is skipped, and
-  the press animations. **Theme** keys redraw every StarPit key in that
+  the press animations. **Theme** keys redraw every SpoolUp key in that
   manufacturer's look.
-- With **Tablets follow scenes** on (it's off at first, in any StarPit
+- With **Tablets follow scenes** on (it's off at first, in any SpoolUp
   key's settings), picking a scene flips tablets that have **Follow Stream Deck
   scenes** on (under **Display** in Deck settings) to that scene's panels.
 - The other way round, flipping a panel on a tablet takes the Stream Deck to
-  the scene with that panel, while it shows the StarPit profile and no key
+  the scene with that panel, while it shows the SpoolUp profile and no key
   on it is held down. Panels two scenes share (Power/Landing, Operator Modes)
   leave it where it is. To stop that, turn off **Follow the tablet** in any
-  StarPit key's settings.
-- It finds StarPit on the same PC by itself. If **Status** shows OFFLINE or
-  WRONG CODE, set the port and pairing code in any StarPit key's settings.
+  SpoolUp key's settings.
+- It finds SpoolUp on the same PC by itself. If **Status** shows OFFLINE or
+  WRONG CODE, set the port and pairing code in any SpoolUp key's settings.
 - A dial notch is one press, at most 5 per turn; turning back drops the ones
   still waiting.
 
-**Icon packs:** double-click `StarPit <theme>.streamDeckIconPack`. Every
+**Icon packs:** double-click `SpoolUp <theme>.streamDeckIconPack`. Every
 button, including the ones that aren't on a page, appears in Stream Deck's icon
 library for keys of your own, and the ones with a press animation (gear struts,
 sliding doors, decoy sparks, the quantum charge...) also come animated.
@@ -562,7 +562,7 @@ with your model and Stream Deck version. In particular:
   fast spin.
 - The + XL's model ID and touch strip size.
 - Hotkeys with right-hand modifiers (RAlt, RCtrl) pressing the right-hand key.
-- The plugin finding StarPit, its first switch to its profiles, and the
+- The plugin finding SpoolUp, its first switch to its profiles, and the
   PLUGIN keys' pictures.
 - **Follow the tablet:** the Stream Deck moving to the right page soon after a
   tablet's panel flips, also with several Stream Decks connected.
@@ -583,7 +583,7 @@ Uninstalling keeps them unless you choose to delete them.
 | `token` | the pairing code; delete it to get a new random one | random |
 | `layout` | the layout tablets show unless they pick their own | `layouts/hud.json` |
 | `phoneLayout` | the same for phones | `layouts/hud-phone.json` |
-| `actionmaps` | keybind files to read, in order (later files win) | the StarPit profile, then your `actionmaps.xml` |
+| `actionmaps` | keybind files to read, in order (later files win) | the SpoolUp profile, then your `actionmaps.xml` |
 | `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
 | `onlyWhenGameFocused` | only press keys while Star Citizen is in front; `false` sends them to whatever window is in front | `true` |
 | `voice` | voice commands on or off | `true` |
@@ -606,7 +606,7 @@ flowchart LR
     tablet["📱 Tablet or phone<br/>any browser"]
     mic["🎙️ PC microphone"]
     subgraph pc["Gaming PC"]
-        server["StarPit"]
+        server["SpoolUp"]
         voice["Voice listener<br/>Windows speech recognition"]
         keys["Key sender"]
     end
@@ -627,7 +627,7 @@ flowchart LR
 ```
 
 The tablet only shows the buttons; everything else happens on the PC. A press
-travels over your home network to StarPit, which checks that Star Citizen is
+travels over your home network to SpoolUp, which checks that Star Citizen is
 the window in front and has the key sender type the button's keys, like a
 second keyboard. One press per tap: no macros or automation, and nothing touches
 the game's files or memory.
@@ -637,12 +637,12 @@ the game's files or memory.
 - Only devices with the pairing code can press keys. After 5 wrong codes in a
   minute, a device is ignored for a minute, so nothing on the network can keep
   guessing. Changing the code in **Settings** disconnects every device paired
-  with the old one. Keep StarPit on your home network; don't expose its port
+  with the old one. Keep SpoolUp on your home network; don't expose its port
   to the internet.
 - The tablet talks to the PC over plain `http`, so the connection isn't
   encrypted. On your own home Wi-Fi that's fine, but on shared networks (LAN
   parties, dorms, hotels) others on the same Wi-Fi could see your pairing code
-  and taps. The firewall rule only allows private networks, so StarPit is
+  and taps. The firewall rule only allows private networks, so SpoolUp is
   blocked on networks Windows marks as public.
 - Held keys are released at once if the tablet disconnects (or after 5 seconds
   if it goes quiet), and releasing a held button always goes through, so no key
@@ -673,7 +673,7 @@ installer, releasing and code signing are in
 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**. Changes per version are in
 [CHANGELOG.md](CHANGELOG.md).
 
-StarPit is [MIT licensed](LICENSE); the third-party software it ships is
+SpoolUp is [MIT licensed](LICENSE); the third-party software it ships is
 listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Contributions and
 layout ideas are welcome; please
 [open an issue](https://github.com/xattribution/tablet-deck-spooned/issues/new/choose) first

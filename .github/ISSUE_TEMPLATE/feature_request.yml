@@ -1,5 +1,5 @@
 name: Feature request
-description: An idea for something Tablet Deck could do.
+description: An idea for something SpoolUp could do.
 labels: [enhancement]
 body:
   - type: textarea
@@ -24,4 +24,4 @@ body:
   - type: markdown
     attributes:
       value: |
-        Tablet Deck sends one key press per tap and never reads or changes the game, so it can't add macros, automation or anything that reads game data.
+        SpoolUp sends one key press per tap and never reads or changes the game, so it can't add macros, automation or anything that reads game data.
