@@ -114,50 +114,34 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
 
 | piece | state | where |
 |---|---|---|
-| Key art renderer | done; arcs become cubics (SVG Tiny), previewed in all 12 themes; badges top right, labels fit 110 px, light-theme blanks use the page colour | `streamdeck/keyart.js` |
+| Key art renderer | done; badges top right, labels fit 110 px, light-theme blanks in the page colour | `streamdeck/keyart.js` |
 | Research (7 topics) | done, fact-checked | `streamdeck/research/` |
-| New icons (76: emotes, ship, comms/media/stream, navigation) | done, merged, art-directed | `public/icons.js` |
+| Icons (76 new, plus `keypad` for the site) | done | `public/icons.js` |
 | Action catalog (170 actions) | done; every scene ref resolves | `streamdeck/catalog.js` |
-| Scene layouts for 7 models | done; folder Back at 0,0 on every model (as the app writes it), blocks centred, Power turned to one row per system where it only fits sideways | `streamdeck/scenes.js` |
-| Generator/plugin contract | done | `streamdeck/CONTRACT.md` |
-| Scene sync (server relay, tablets follow) | done, tested | `server.js`, `public/canvas.js` `showPanels`, `public/app.js` |
-| Star Citizen 4.x key fixes | done (14ad54d); Decoupled, Throttle Mode, Next Hostile added (29f66ce) | `layouts/hud.json`, `tools/make-profile.js` |
-| Tablet Comms panel (`cm-*`) | done, translated, tested in a dry run (29f66ce) | `layouts/hud.json` |
-| Server fixes the plugin asked for | done (cea566f): half-open sockets dropped at once, taps of the same keys queued (max 4), releases on disconnect logged, `tapMs` in hello; plus unpressable rebinds no longer fatal and tapMs capped at 200 (6e74b0e) | `server.js` |
-| Generator | built and validated; a fix agent is applying the validator's 8 defects (workflow `streamdeck-generator`) | `tools/make-streamdeck.js`, `tools/streamdeck/` |
-| Plugin | built (81/81 end-to-end checks); review then fix running (workflow `streamdeck-plugin`) | `streamdeck/plugin/` |
-| Docs for the pack | after the generator and plugin | README, CHANGELOG, DEVELOPMENT, DESIGN |
+| Scene layouts for 7 models | done; Back at 0,0 in folders, blocks centred and turned to fit, all six + XL dials used on every page | `streamdeck/scenes.js` |
+| Generator | done (e0327da): icon packs, 84 standalone profiles at 144 px, keybinds, plugin with 7 bundled profiles, previews, `--check`, `--release` (ffa1088) | `tools/make-streamdeck.js`, `tools/streamdeck/` |
+| Plugin | done (7c59d99): all review defects fixed, every test passes (check, words 12, rules 21, load 6, inspector 16, end to end 81), MinimumVersion 7.3 | `streamdeck/plugin/` |
+| Server press safety | done (d07ef9a, cea566f, 6e74b0e): taps that could mix take turns, presses against a held modifier are skipped, half-open sockets dropped, unpressable rebinds not fatal, tapMs <= 200 | `server.js` |
+| Release | the Release workflow builds the pack and attaches 9 downloads (a zip per model, the icon packs, the plugin) | `.github/workflows/release.yml` |
+| Docs | done (8584055): README section and feature card, DEVELOPMENT, DESIGN, CHANGELOG, site card | |
+| Layout critique | workflow `streamdeck-layout-critique` running: 5 lenses, synthesis, apply, verify | `streamdeck/scenes.js` and key art |
 
-The session's scratchpad (downloads, test harnesses) goes away with the container. The
-plugin's locale JSON files are their own source (the script that wrote them was scratch).
+The session's scratchpad goes away with the container. The plugin's locale JSON files are
+their own source.
 
 ## Next steps
 
-1. When the generator fix lands: check it wrote hold/timed deck actions as the plugin's
-   `.key` action marked "PLUGIN" (not a tapping Hotkey), OBS states (lit art first,
-   `State: 1`), the keybind profile copied into `dist/streamdeck/keybinds/`, and the Neo
-   controller keyed on `model.type === 9`. Then:
-   - key images: draw every model's keys at **144 px** (Elgato's @2x size, what the
-     research recommends), not each device's native size (`KEY_PX` in the generator);
-   - the plugin's requests: `"page": "<scene id>"` in plugin keys' settings on bundled
-     scene pages, the plugin dial for the scenes dial in bundled profiles, manifest
-     `Version` from `package.json` when packing;
-   - raise the plugin manifest's `Software.MinimumVersion` to "7.3" (it bundles a + XL
-     profile, DeviceType 13, which needs 7.3, and 7.3.0 fixed `switchToProfile`).
-2. When the plugin fix lands: review its report, run `node streamdeck/plugin/test/check.js`
-   and `node streamdeck/plugin/test/run.js`, commit `streamdeck/plugin/` by explicit path.
-3. Build the whole pack (`node tools/make-streamdeck.js`, about 2 minutes), look at the
-   previews, run a layout critique pass (intuitive? consistent across models? themes?),
-   fix, `--check`, commit.
-4. Docs: README section for the Stream Deck pack (install the icon pack, import a profile,
-   or install the plugin; standalone hotkeys don't pass the focus check; theme keys; PLUGIN
-   keys; the dial = one press per detent question for the owner), CHANGELOG, DEVELOPMENT
-   (how to build), DESIGN (key art rules).
-5. Things only real hardware can answer (`research/profiles.md` 11,
-   `research/navigation.md` 10, the plugin's and generator's reports): collect them in the
-   README's "please check" list.
-6. **Waiting on the owner:** may a dial detent press once per detent (the plugin spaces
-   detents 150 ms apart, at most 5 per turn)? Until answered, dials ship as built.
+1. When the critique workflow lands: review its change list and diff, rebuild the whole pack
+   (`node tools/make-streamdeck.js`, about 100 s), look at the previews, `--check`, rerun the
+   plugin tests (its test data comes from `scenes.js`), commit.
+2. Possible simplification: the plugin queues all its own presses strictly (a 1.5 s Auto Land
+   makes its other keys wait). The server now schedules only presses that could mix, so the
+   plugin could send non-clashing taps at once. Only after testing on hardware.
+3. Hardware questions (README "Not tried on a real Stream Deck yet", plus the plugin's and
+   generator's reports): profile import, theme keys after import, dial order, + XL model id
+   and strip, right-hand modifiers, the plugin's first switch to its profiles.
+4. **Waiting on the owner:** may a dial notch press once per notch (at most 5 per turn,
+   spaced)? Until answered, dials ship as built.
 
 ## Earlier work in this session (for context)
 
