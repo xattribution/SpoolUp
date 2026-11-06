@@ -7,8 +7,12 @@ before tagging a release.
 
 ## Unreleased
 
-- **Two quick taps are two presses.** Taps of the same button now take turns
-  instead of overlapping, which the game saw as one longer press.
+- **Presses no longer mix.** Two quick taps of one button are two presses (the
+  game saw one longer press), and buttons tapped together take turns when their
+  keys could combine: Weapons + (F5) pressed while Shields − held LAlt reached
+  the game as Weapons −. While you hold Proximity PTT, Engage Quantum or Laser
+  Power, which hold a modifier key, other buttons are skipped and flash red
+  rather than press with it.
 - **Keys let go sooner when a tablet vanishes mid-press.** A tab that's closed
   without saying goodbye releases its held buttons straight away, not 5 seconds
   later.

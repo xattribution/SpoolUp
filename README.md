@@ -509,8 +509,15 @@ the game's files or memory.
   parties, dorms, hotels) others on the same Wi-Fi could see your pairing code
   and taps. The firewall rule only allows private networks, so Tablet Deck is
   blocked on networks Windows marks as public.
-- Held keys are released if the tablet disconnects or goes quiet for 5 seconds,
-  and releasing a held button always goes through, so no key stays stuck. The
+- Held keys are released at once if the tablet disconnects (or after 5 seconds
+  if it goes quiet), and releasing a held button always goes through, so no key
+  stays stuck.
+- Presses don't mix. Buttons tapped at the same moment, from one tablet or
+  several, take turns when their keys could combine (Weapons + on F5 pressed
+  under Shields −'s LAlt would reach the game as LAlt+F5, Weapons −). And while
+  you hold a button that holds a modifier key (Proximity PTT holds LAlt, Engage
+  Quantum RAlt, Laser Power RCtrl), other buttons that don't use that modifier
+  are skipped and flash red. Holding plain Push to Talk blocks nothing. The
   tablet checks the other way too: if the PC stops answering, it says
   Reconnecting… instead of looking connected. While connected, it shows the
   round trip to the PC ("Connected · 8 ms").

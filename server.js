@@ -413,8 +413,8 @@ async function releaseCombo(scancodes) {
 }
 
 // Tells a tablet a press was skipped because the game isn't the window in front.
-function skipped(btn, client) {
-  console.log(`${btn.label}: skipped, Star Citizen not focused`);
+function skipped(btn, client, why = "Star Citizen not focused") {
+  console.log(`${btn.label}: skipped, ${why}`);
   ui({ t: "press", label: btn.label, blocked: true });
   client?.send({ t: "blocked", id: btn.id });
 }
@@ -469,23 +469,50 @@ async function tapButton(btn, client, ms = btn.ms || config.tapMs, kind = btn.mo
   await releaseCombo(btn.scancodes);
 }
 
-// Taps of the same keys run one after another: two overlapping taps would share one
-// key-down and the game would see a single, longer press. A few may wait their turn; more
-// are dropped rather than pressed long after they were asked for, and a tap whose tablet
-// disconnected while it waited is dropped too.
-const TAPS_WAITING = 4;
-const tapQueues = new Map(); // scancodes -> { last, count }
+// The keyboard is shared, so presses that overlap can mix: Weapons + (F5) pressed while
+// Shields − (LAlt+F7) holds LAlt reaches the game as LAlt+F5, Weapons −, and two taps of one
+// key share a single key-down. So a tap waits for the earlier taps it could mix with: those
+// sharing a key, or any with a modifier when it has one or they do. Plain taps of different
+// keys still overlap, so a long Auto Land doesn't hold up the lights. A few may wait; more
+// are dropped rather than pressed long after they were asked for, and so is a tap whose
+// tablet disconnected while it waited.
+const MODIFIER_KEYS = new Set(["lalt", "ralt", "lctrl", "rctrl", "lshift", "rshift"].map((k) => SCANCODES[k].join(":")));
+const keyIds = (btn) => new Set(btn.scancodes.map((sc) => sc.join(":")));
+const TAPS_WAITING = 6;
+const tapsAhead = []; // { keys, mod, done } for taps waiting or pressing, oldest first
 function queueTap(btn, client, ...rest) {
-  const k = btn.scancodes.map((sc) => sc.join(":")).join("+");
-  const q = tapQueues.get(k) || { last: Promise.resolve(), count: 0 };
-  if (q.count >= TAPS_WAITING) return q.last;
-  q.count++;
-  tapQueues.set(k, q);
-  q.last = q.last
-    .then(() => (client?.gone ? undefined : tapButton(btn, client, ...rest)))
+  const keys = keyIds(btn);
+  const me = { keys, mod: [...keys].some((k) => MODIFIER_KEYS.has(k)) };
+  const ahead = tapsAhead.filter((t) => t.mod || me.mod || [...t.keys].some((k) => keys.has(k)));
+  if (ahead.length >= TAPS_WAITING) return Promise.resolve();
+  me.done = Promise.all(ahead.map((t) => t.done))
+    .then(() => {
+      if (client?.gone) return undefined;
+      if (heldModifierAgainst(btn)) { skipped(btn, client, "a held button is holding a modifier key"); return undefined; }
+      return tapButton(btn, client, ...rest);
+    })
     .catch((err) => console.error(`${btn.label}: ${err.message}`))
-    .finally(() => { if (--q.count === 0) tapQueues.delete(k); });
-  return q.last;
+    .finally(() => tapsAhead.splice(tapsAhead.indexOf(me), 1));
+  tapsAhead.push(me);
+  return me.done;
+}
+
+// Modifier keys held down by hold buttons (Proximity PTT holds LAlt, Engage Quantum RAlt),
+// counted. While one is down, a press without it would reach the game with it, as another
+// action, so that press is skipped and its button flashes, like a press the focus check skips.
+// Holding plain Push to Talk (Numpad +) holds no modifier and blocks nothing.
+const heldModifiers = new Map();
+function holdModifiers(keys, delta) {
+  for (const k of keys) {
+    if (!MODIFIER_KEYS.has(k)) continue;
+    const n = (heldModifiers.get(k) || 0) + delta;
+    if (n > 0) heldModifiers.set(k, n); else heldModifiers.delete(k);
+  }
+}
+function heldModifierAgainst(btn) {
+  const keys = keyIds(btn);
+  for (const k of heldModifiers.keys()) if (!keys.has(k)) return true;
+  return false;
 }
 
 // ---------- voice commands ----------
@@ -1085,6 +1112,7 @@ server.on("upgrade", (req, socket) => {
     if (!hold.pressing) return;
     await hold.pressing;
     await releaseCombo(hold.sc);
+    holdModifiers(hold.mods, -1);
   };
   const releaseAll = async () => {
     for (const [id, hold] of held) {
@@ -1154,10 +1182,17 @@ server.on("upgrade", (req, socket) => {
         return;
       }
       if (held.get(btn.id) !== hold) return;
+      if (heldModifierAgainst(btn)) {
+        held.delete(btn.id);
+        skipped(btn, client, "a held button is holding a modifier key");
+        return;
+      }
       console.log(`${btn.label} (${btn.keys}) down`);
       ui({ t: "press", label: btn.label });
       applyState(btn);
       report(btn, "down");
+      hold.mods = keyIds(btn);
+      holdModifiers(hold.mods, 1);
       hold.pressing = pressCombo(btn.scancodes);
       await hold.pressing;
     } else if (msg.t === "up" && held.has(btn.id)) {
