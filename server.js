@@ -99,6 +99,8 @@ function loadConfig() {
     changed = true;
   }
   if (!config.tapMs) { config.tapMs = 60; changed = true; }
+  // Star Citizen counts a press held past 0.25 s as a hold, so a tap stays well short of it.
+  if (!(config.tapMs >= 20 && config.tapMs <= 200)) { config.tapMs = Math.min(200, Math.max(20, Math.round(+config.tapMs) || 60)); changed = true; }
   if (config.onlyWhenGameFocused === undefined) { config.onlyWhenGameFocused = true; changed = true; }
   if (config.voice === undefined) { config.voice = true; changed = true; }
   if (!config.voiceLanguage) { config.voiceLanguage = "en-US"; changed = true; }
@@ -138,7 +140,7 @@ const SETTINGS = {
   shortEmotes: onOff,
   token: (v) => (/^[a-z0-9]{1,32}$/i.test(v) ? v.toLowerCase() : undefined),
   port: wholeNumber(1024, 65535),
-  tapMs: wholeNumber(20, 1000),
+  tapMs: wholeNumber(20, 200),
   voiceLanguage: (v) => (/^[a-z]{2}(-[A-Za-z]{2,4})?$/.test(v) ? v : undefined),
   // Push-to-talk from a PC key: its Windows virtual-key code (0 = none) and a name to show.
   pttKey: wholeNumber(0, 255),
@@ -250,7 +252,10 @@ function loadLayout(device, chosen) {
 
 // Gives every button its keys (from the keybind files when it has an scAction) and
 // scancodes, and returns them by id. Throws on an unknown key or a duplicate id, so the
-// layout editor's saves get the same checks as loading.
+// layout editor's saves get the same checks as loading. A keybind file's key that can't
+// be pressed (one Tablet Deck has no scancode for) only costs that button its rebind: it
+// keeps the layout's keys, and the server says so once instead of refusing to start.
+const unpressableRebinds = new Set();
 function prepareLayout(layout) {
   const overrides = readActionmapOverrides(config.actionmaps);
   const buttons = new Map();
@@ -258,7 +263,19 @@ function prepareLayout(layout) {
     if (Array.isArray(node)) { node.forEach(collect); return; }
     if (!node || typeof node !== "object") return;
     if (typeof node.id === "string" && typeof node.keys === "string") {
-      if (node.scAction && overrides[node.scAction]) node.keys = overrides[node.scAction];
+      const rebind = node.scAction && overrides[node.scAction];
+      if (rebind) {
+        try {
+          parseCombo(rebind);
+          node.keys = rebind;
+        } catch (err) {
+          const note = `${node.scAction}: ${rebind}`;
+          if (!unpressableRebinds.has(note)) {
+            unpressableRebinds.add(note);
+            console.log(`Keybinds: ${err.message} for ${node.scAction}; "${node.label || node.id}" keeps ${node.keys}.`);
+          }
+        }
+      }
       node.scancodes = parseCombo(node.keys);
       if (buttons.has(node.id)) throw new Error(`Duplicate button id "${node.id}"`);
       buttons.set(node.id, node);

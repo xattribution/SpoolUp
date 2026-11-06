@@ -7,6 +7,11 @@ before tagging a release.
 
 ## Unreleased
 
+- **A keybind Tablet Deck can't press no longer stops it from starting.** If
+  your actionmaps.xml binds an action to a key it has no code for, that button
+  keeps its own key and the console says which one.
+- **Taps stay taps:** the tap length (Settings, `tapMs`) now goes up to 200 ms,
+  since Star Citizen counts a press held past 0.25 s as a hold.
 - **A Comms panel** on the right half: push to talk and proximity push to talk
   (held for as long as you hold the button), the voice channel, hail target,
   accept and decline invites, chat, contacts, the inner thought wheel and wipe

@@ -449,7 +449,7 @@ Uninstalling keeps them unless you choose to delete them.
 | `layout` | the layout tablets show unless they pick their own | `layouts/hud.json` |
 | `phoneLayout` | the same for phones | `layouts/hud-phone.json` |
 | `actionmaps` | keybind files to read, in order (later files win) | the Tablet Deck profile, then your `actionmaps.xml` |
-| `tapMs` | how long a tap holds the key, in milliseconds | `60` |
+| `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
 | `onlyWhenGameFocused` | only press keys while Star Citizen is in front; `false` sends them to whatever window is in front | `true` |
 | `voice` | voice commands on or off | `true` |
 | `voiceLanguage` | the Windows speech recognizer to use | `en-US` |
