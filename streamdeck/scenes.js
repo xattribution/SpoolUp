@@ -103,8 +103,8 @@ const BLOCKS = {
   ],
   // The same two on a 4x2 deck (Neo, Stream Deck +), one page each with Back at 0,0.
   // Shields like arrow keys: front over rear, left and right beside rear, top and bottom
-  // at the left. Power without Max and Min, which are timed, and which the + has on its
-  // dials' pushes.
+  // at the left. Power as its steps and Reset All: the + has Max on its power dials'
+  // pushes, and Min is a few steps down.
   shieldsWide: [
     [null, "sh-up", "sh-front", "sh-reset"],
     ["sh-down", "sh-left", "sh-back", "sh-right"],
@@ -112,6 +112,12 @@ const BLOCKS = {
   powerWide: [
     [null, "pw-wep-up", "pw-thr-up", "pw-shd-up"],
     ["pw-reset", "pw-wep-down", "pw-thr-down", "pw-shd-down"],
+  ],
+  // The Neo has no dials, so its Power folder takes two pages: the steps with More where
+  // Reset All was, then Max, Min and Reset All in the same columns.
+  powerPaged: [
+    [[null, "pw-wep-up", "pw-thr-up", "pw-shd-up"], ["@more", "pw-wep-down", "pw-thr-down", "pw-shd-down"]],
+    [[null, "pw-wep-max", "pw-thr-max", "pw-shd-max"], ["pw-reset", "pw-wep-min", "pw-thr-min", "pw-shd-min"]],
   ],
 };
 
@@ -325,6 +331,12 @@ const PLUS = {
 // Neo (7 keys and a scenes key; its touch points page): the first 7 keys of the 15-key
 // layout, read row by row, which is ordered most-used first, without its folder keys.
 const firstOf = (grid, n) => grid.flat().filter((ref) => ref && !/^@folder:(power|shields|emergency)$/.test(ref)).slice(0, n);
+// ...but on Mining and Salvage the Flight mode key takes the seventh slot (the 15-key's
+// Module 3 and Speed Limiter), as on every other deck, so a Neo can leave those modes.
+const NEO = {
+  mining: ["mn-mode", "mn-fire", "mn-type", "op-scan", "mn-module-1", "mn-module-2", "op-flight"],
+  salvage: ["op-salvage", "sv-mod-left", "sv-mod-right", "op-scan", "sv-spacing-down", "sv-spacing-up", "op-flight"],
+};
 
 // Stream Deck Mini (5 keys and a scenes key): its own five per scene, since the 15-key's
 // first five would split its pairs (Beam Spacing − without +, Module 1 alone). Quantum
@@ -369,7 +381,8 @@ function layoutFor(modelId) {
     } else {
       // corner: the last key opens the scenes menu
       const n = m.cols * m.rows - 1;
-      ((modelId === "mini" && MINI[scene.id]) || firstOf(STD[scene.id], n)).forEach((ref, i) => put(i % m.cols, Math.floor(i / m.cols), ref));
+      const own = { mini: MINI, neo: NEO }[modelId] || {};
+      (own[scene.id] || firstOf(STD[scene.id], n)).forEach((ref, i) => put(i % m.cols, Math.floor(i / m.cols), ref));
       put(m.cols - 1, m.rows - 1, "@folder:scenes");
     }
     return { scene: scene.id, keys, dials };
@@ -395,12 +408,16 @@ function folderPages(modelId, id, folder) {
   for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) if (!(c === back[0] && r === back[1])) slots.push([c, r]);
   // Fixed slots (Emergency's), for the reasons given in FOLDERS.
   if (folder.at && folder.at[modelId]) return [{ keys: { [`${back[0]},${back[1]}`]: "@back", ...Object.fromEntries(Object.entries(folder.at[modelId]).map(([ref, slot]) => [slot, ref])) } }];
-  // A block's own form for a deck of its shape (BLOCKS.shieldsWide on a 4x2).
+  // A block's own form for a deck of its shape (BLOCKS.shieldsWide on a 4x2), or its pages
+  // on one without dials (BLOCKS.powerPaged), "@more" chaining each to the next.
   const wide = folder.grid && BLOCKS[`${folder.grid}Wide`];
-  if (wide && wide.length === m.rows && wide[0].length === m.cols) {
-    const keys = { [`${back[0]},${back[1]}`]: "@back" };
-    wide.forEach((row, r) => row.forEach((ref, c) => { if (ref) keys[`${c},${r}`] = ref; }));
-    return [{ keys }];
+  const forms = folder.grid && ((!m.dials && BLOCKS[`${folder.grid}Paged`]) || (wide && [wide]));
+  if (forms && forms.every((g) => g.length === m.rows && g[0].length === m.cols)) {
+    return forms.map((grid, n) => {
+      const keys = { [`${back[0]},${back[1]}`]: "@back" };
+      grid.forEach((row, r) => row.forEach((ref, c) => { if (ref) keys[`${c},${r}`] = ref === "@more" ? `@more:${id}:${n + 1}` : ref; }));
+      return { keys };
+    });
   }
   if (folder.grid) {
     // A block goes whole, centred beside Back (under the top row on the XLs, whose top row

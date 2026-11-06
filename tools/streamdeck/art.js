@@ -75,14 +75,14 @@ function createArt({ icons, themes, tokens }) {
     return keyart.arcsToCubics(`M${x + tl} ${y}H${x + w - tr}${tr ? `A${tr} ${tr} 0 0 1 ${x + w} ${y + tr}` : ""}V${y + h - br}${br ? `A${br} ${br} 0 0 1 ${x + w - br} ${y + h}` : ""}H${x + bl}${bl ? `A${bl} ${bl} 0 0 1 ${x} ${y + h - bl}` : ""}V${y + tl}${tl ? `A${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ""}Z`);
   }
 
-  // Text that fits `width` at no more than `size` (the theme font's glyph width, like keyart's).
+  // Text that fits `width` at no more than `size` (the theme font's glyph widths, as keys use).
   function fitText(text, th, width, size, min = 8) {
     const t = th.font.upper ? String(text).toUpperCase() : String(text);
-    const per = th.font.per + th.font.track;
+    const em = (s) => keyart.textWidth(s, th);
     let s = size;
-    while (s > min && t.length * s * per > width) s -= 0.5;
+    while (s > min && em(t) * s > width) s -= 0.5;
     let out = t;
-    while (out.length > 1 && out.length * s * per > width) out = out.slice(0, -1);
+    while (out.length > 1 && em(out) * s > width) out = out.slice(0, -1);
     return { text: out === t ? t : `${out.slice(0, -1)}…`, size: s };
   }
   const text = (th, x, y, t, { size, anchor = "start", fill, weight = th.font.weight, font = th.font.family }) =>
@@ -98,8 +98,11 @@ function createArt({ icons, themes, tokens }) {
   function panelBody(th, d, id, { x = 0 } = {}) {
     const c = d ? colorOf(th, d.color) : th.dim;
     const W = 200, H = 100, f = 3, shape = outline(th, x + f, f, W - 2 * f, H - 2 * f);
-    const bgTop = th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55);
-    const bgBottom = th.light ? keyart.mix(th.bg, th.panel, 0.45) : th.bg;
+    // An unused dial on a light theme is flat, in its blank keys' colour: a white face
+    // glares on a lit strip.
+    const flat = !d && th.light && keyart.mix(th.bg, th.line, 0.5);
+    const bgTop = flat || (th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55));
+    const bgBottom = flat || (th.light ? keyart.mix(th.bg, th.panel, 0.45) : th.bg);
     const parts = [`<defs><linearGradient id="pb${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bgTop}"/><stop offset="1" stop-color="${bgBottom}"/></linearGradient>
       <radialGradient id="pg${id}" cx="0.2" cy="0.1" r="0.9"><stop offset="0" stop-color="${c}" stop-opacity="${d ? 0.22 : 0.06}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>`];
     parts.push(`<rect x="${x}" width="${W}" height="${H}" fill="${th.light ? th.bg : "#000"}"/>`);

@@ -44,14 +44,35 @@ const FONT_KIND = {
   Comfortaa: "rounded", Montserrat: "rounded",
 };
 const firstFamily = (stack) => (String(stack || "").split(",")[0] || "").replace(/["']/g, "").trim();
-// Each display font's average glyph width per em over the labels, in the theme's case and
-// weight, to fit labels drawn in it. Other fonts, and the plugin's Windows fonts, use a
-// rough 0.64 in capitals and 0.56 in mixed case.
-const GLYPH_WIDTH = {
-  "Exo 2": { upper: 0.58, mixed: 0.51 }, "Saira Stencil One": 0.6, Rajdhani: 0.49, "Black Ops One": 0.66,
-  Montserrat: 0.67, Oxanium: 0.6, "Chakra Petch": 0.6, Cinzel: 0.67, Marcellus: 0.5, Comfortaa: 0.57,
+// Each display font's glyph widths at the weight a theme draws its labels in, in hundredths
+// of an em (rounded up), measured in Chrome with the Google fonts (canvas measureText at
+// 100 px, no letter spacing): GLYPHS in order, then LOWER for the fonts a theme keeps in
+// mixed case. A label is fitted to its own letters, so QUANTUM gets the room its Q and M
+// take and LIGHTS none it doesn't need. Other characters count as the font's average
+// letter; other fonts, and the plugin's Windows fonts, a rough 0.64 em in capitals and 0.56
+// in mixed case.
+const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 &+-/:−", LOWER = "abcdefghijklmnopqrstuvwxyz";
+const GLYPH_WIDTHS = {
+  "Exo 2 600": "64 64 58 68 57 55 64 69 28 36 62 53 90 72 68 61 68 64 58 60 68 63 97 63 60 58 62 42 58 57 63 55 59 53 62 59 22 77 55 43 54 25 59 57 59 50 59 56 40 58 60 27 27 54 32 88 60 58 60 59 42 53 40 59 56 84 56 55 52",
+  "Saira Stencil One 700": "69 67 57 68 62 58 66 72 33 43 69 55 89 72 70 65 70 68 62 59 69 67 100 68 64 62 66 41 62 61 66 63 67 58 68 67 26 74 54 38 43 33 54",
+  "Rajdhani 700": "56 56 54 56 48 45 55 58 27 53 56 45 73 59 56 53 57 55 54 45 56 53 81 54 52 53 54 34 50 51 55 51 53 44 55 53 22 62 57 32 41 21 57",
+  "Black Ops One 600": "74 73 71 73 70 65 73 74 44 67 67 63 91 74 72 72 72 73 73 62 73 67 95 66 64 63 74 57 72 73 68 74 74 64 76 74 26 82 71 62 37 36 62",
+  "Montserrat 600": "75 77 72 83 67 64 78 81 32 53 73 60 96 81 85 73 85 74 63 61 79 73 115 70 67 67 68 39 59 59 68 59 63 61 66 63 28 71 59 39 38 25 59",
+  "Oxanium 600": "66 65 62 69 60 58 68 71 30 61 66 55 89 74 71 64 71 65 59 61 70 65 95 64 61 61 58 58 58 58 58 58 58 58 58 58 24 67 58 38 42 28 58",
+  "Marcellus 400": "68 57 68 72 49 47 75 73 27 25 65 46 102 74 81 52 81 60 46 60 71 66 102 70 63 65 81 30 54 51 58 47 56 49 54 56 30 77 65 41 44 24 65 52 59 51 61 55 32 59 57 25 24 49 25 89 57 61 59 59 40 36 39 57 48 76 53 51 47",
+  "Comfortaa 700": "71 73 78 79 70 63 78 88 31 63 67 65 99 83 93 63 93 64 69 67 85 74 94 72 67 75 58 40 59 60 66 63 59 55 59 59 30 74 55 40 47 20 55 68 71 61 71 63 37 68 69 31 29 57 30 94 69 68 71 71 49 55 41 69 55 73 56 54 54",
+  "Chakra Petch 700": "65 67 66 69 61 58 68 70 28 58 66 57 81 70 70 65 70 68 64 59 70 65 88 66 64 60 66 39 58 61 58 61 63 53 64 63 28 67 57 44 53 24 57",
+  "Montserrat 700": "77 77 73 83 68 64 78 81 33 55 74 61 96 81 85 74 85 74 64 62 79 75 117 72 68 68 68 40 59 60 69 60 64 62 66 64 29 73 60 39 40 27 60",
+  "Cinzel 700": "72 68 78 83 64 60 84 87 39 39 76 62 96 87 88 66 89 75 58 67 83 73 98 73 71 67 66 40 62 57 62 56 63 55 61 63 25 81 49 38 43 23 49",
 };
 const roughWidth = (upper) => (upper ? 0.64 : 0.56);
+// ("Exo 2", "600") -> { A: 0.64, ... }, or null for a font not measured.
+function glyphWidths(family, weight) {
+  const list = GLYPH_WIDTHS[`${family} ${weight}`];
+  if (!list) return null;
+  const chars = [...GLYPHS, ...LOWER];
+  return Object.fromEntries(list.split(" ").map((n, i) => [chars[i], Number(n) / 100]));
+}
 
 const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
 
@@ -63,7 +84,9 @@ function theme(tokens, id = "") {
   const top = t["key-top"] || "none";
   const display = firstFamily(t["font-display"]), body = firstFamily(t["font-body"]);
   const fallback = WINDOWS_FONTS[FONT_KIND[display] || "default"];
-  const upper = (t["label-case"] || "uppercase") === "uppercase", glyph = GLYPH_WIDTH[display];
+  const upper = (t["label-case"] || "uppercase") === "uppercase", weight = t["label-weight"] || "600";
+  const widths = glyphWidths(display, weight);
+  const letters = widths ? [...(upper ? GLYPHS.slice(0, 26) : LOWER)].map((ch) => widths[ch]).filter((w) => w !== undefined) : [];
   // The backdrop's first glow: its colour and where it sits.
   const glow = /radial-gradient\(ellipse [^,]*at ([\d.-]+)% ([\d.-]+)%, (rgba?\([^)]+\))/.exec(t["bg-art"] || "");
   return {
@@ -91,9 +114,11 @@ function theme(tokens, id = "") {
       body: `'${body}', ${fallback}`,
       windows: fallback,
       upper,
-      weight: t["label-weight"] || "600",
+      weight,
       track: num(t["label-track"], 0.06),
-      per: glyph === undefined ? roughWidth(upper) : typeof glyph === "number" ? glyph : glyph[upper ? "upper" : "mixed"],
+      // The average letter, for characters the table doesn't have.
+      per: letters.length ? letters.reduce((a, b) => a + b, 0) / letters.length : roughWidth(upper),
+      widths,
       googleFamilies: [...new Set([display, body])],
     },
   };
@@ -228,24 +253,32 @@ function icon(body, th, cx, cy, size, color, { glow = th.glow, strength = 1 } = 
   return (glow ? layer(th.stroke + 6, 0.07 * strength) + layer(th.stroke + 3, 0.14 * strength) : "") + layer(th.stroke, 1);
 }
 
-// Splits a label into at most two lines that fit, and picks a font size for them. `own`:
-// drawn in the theme's display font, whose glyph width theme() knows; else a rough one.
+// A line's width in ems with the theme's tracking. `own`: drawn in the theme's display font,
+// whose glyph widths theme() knows; else the rough average.
+function textWidth(text, th, own = true) {
+  const widths = own ? th.font.widths : null, rough = own ? th.font.per : roughWidth(th.font.upper);
+  let em = 0;
+  for (const ch of String(text)) em += (widths && widths[ch] !== undefined ? widths[ch] : rough) + th.font.track;
+  return em;
+}
+
+// Splits a label into at most two lines that fit, and picks a font size for them (`own` as
+// for textWidth).
 function fitLabel(label, th, width, maxSize, own = true) {
   const text = th.font.upper ? String(label).toUpperCase() : String(label);
-  const per = own ? th.font.per : roughWidth(th.font.upper); // average glyph width per font size
-  const fits = (s, size) => s.length * size * (per + th.font.track) <= width;
+  const fits = (s, size) => textWidth(s, th, own) * size <= width;
   let size = maxSize;
   if (fits(text, size)) return { lines: [text], size };
-  // The split with the shortest longer line.
+  // The split with the narrower longer line.
   const twoLines = (words) => {
     let best = null;
     for (let i = 1; i < words.length; i++) {
-      const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
-      const longest = Math.max(a.length, b.length);
-      if (!best || longest < best.longest) best = { lines: [a, b], longest };
+      const lines = [words.slice(0, i).join(" "), words.slice(i).join(" ")];
+      const longest = Math.max(...lines.map((l) => textWidth(l, th, own)));
+      if (!best || longest < best.longest) best = { lines, longest };
     }
     let s = maxSize;
-    while (s > 11 && !fits("x".repeat(best.longest), s)) s -= 1;
+    while (s > 11 && best.longest * s > width) s -= 1;
     return { lines: best.lines, size: Math.min(s, maxSize * 0.9) };
   };
   // Short tails ("+", "−", "2") stay with the word before them rather than make a line.
@@ -439,4 +472,4 @@ function blank(th) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.light ? mix(th.bg, th.line, 0.5) : th.bg}"/><path d="M66 72h12M72 66v12" stroke="${th.line}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
-module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, face, mix, arcsToCubics, outline };
+module.exports = { SIZE, parseThemes, theme, key, blank, icon, label, textWidth, face, mix, arcsToCubics, outline };
