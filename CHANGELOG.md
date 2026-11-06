@@ -5,7 +5,7 @@ section becomes the notes of its
 [GitHub release](https://github.com/nodieCode/tablet-deck/releases), so add one
 before tagging a release.
 
-## Unreleased
+## 1.7.0 (2026-11-06)
 
 - **A Stream Deck pack.** Profiles for every Stream Deck from the Mini to the
   new + XL, in all 12 manufacturer themes, with a page per scene (Flight, Combat,
@@ -13,7 +13,7 @@ before tagging a release.
   emergencies, shields, power, emotes, websites and themes, and dials and touch
   strips on the + and + XL. The Comms page has Star Citizen's push to talk,
   hail and invites, Discord, OBS and media keys. An icon pack per theme has
-  every button (220) for pages of your own. The **Tablet Deck plugin** presses
+  every button (222, the animated ones also as GIFs) for pages of your own. The **Tablet Deck plugin** presses
   through Tablet Deck, with the focus check, lit buttons, animations and live
   theme changes. Scenes can follow both ways: picking a scene on the Stream
   Deck flips tablets that follow it (**Tablets follow scenes**, off until

@@ -76,14 +76,17 @@ async function main() {
   }
   page.dials.forEach((d, i) => { if (d && !d.action) sd.send(ev.appear(`${U}.dial`, `d${i}`, "XL", { dial: d }, { controller: "Encoder", column: i })); });
   await new Promise((r) => setTimeout(r, 2500));
-  // Raise shield power (lit), turn weapons up three detents, push the targets dial.
+  // Light a toggle, turn weapons up three detents, push the targets dial (wherever the
+  // layout puts them).
   const keyAt = (ref) => Object.entries(page.keys).find(([, v]) => v === ref)[0].split(",").map(Number);
-  const [sc, sr] = keyAt("qt-flight-ready");
-  sd.send(ev.key("keyDown", `${U}.key`, `k${sc}-${sr}`, "XL", { action: "qt-flight-ready" }));
-  sd.send(ev.key("keyUp", `${U}.key`, `k${sc}-${sr}`, "XL", { action: "qt-flight-ready" }));
+  const lit = ["qt-flight-ready", "pl-gear", "fa-lights", "fa-decoupled", "cr-doors-toggle"].find((r) => Object.values(page.keys).includes(r));
+  const [sc, sr] = keyAt(lit);
+  sd.send(ev.key("keyDown", `${U}.key`, `k${sc}-${sr}`, "XL", { action: lit }));
+  sd.send(ev.key("keyUp", `${U}.key`, `k${sc}-${sr}`, "XL", { action: lit }));
   sd.send(ev.dial("dialRotate", `${U}.dial`, "d0", "XL", { dial: page.dials[0] }, { column: 0, ticks: 3 }));
-  sd.send(ev.dial("dialDown", `${U}.dial`, "d3", "XL", { dial: page.dials[3] }, { column: 3 }));
-  sd.send(ev.dial("dialUp", `${U}.dial`, "d3", "XL", { dial: page.dials[3] }, { column: 3 }));
+  const ti = Math.max(0, page.dials.findIndex((d) => d && d.label === "Targets"));
+  sd.send(ev.dial("dialDown", `${U}.dial`, `d${ti}`, "XL", { dial: page.dials[ti] }, { column: ti }));
+  sd.send(ev.dial("dialUp", `${U}.dial`, `d${ti}`, "XL", { dial: page.dials[ti] }, { column: ti }));
   await new Promise((r) => setTimeout(r, 250));
   const lastImg = (ctx) => { const l = sd.find((m) => m.event === "setImage" && m.context === ctx); return l.length ? l[l.length - 1].payload.image : null; };
   const lastFb = (ctx) => Object.assign({}, ...sd.find((m) => m.event === "setFeedback" && m.context === ctx).map((m) => m.payload));

@@ -458,7 +458,7 @@ Each release has the pack under **Assets**:
 | Download | What it is |
 |---|---|
 | `TabletDeck-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
-| `TabletDeck-StreamDeck-IconPacks.zip` | 12 icon packs, 220 icons each |
+| `TabletDeck-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
 | `com.nodiecode.tabletdeck.streamDeckPlugin` | the plugin, with a profile for each model |
 
 Or build it yourself: see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#the-stream-deck-pack).
@@ -474,14 +474,16 @@ scenes depends on the model:
 |---|---|---|
 | **Stream Deck + XL** | 9×4, 6 dials, touch strip | tabs along the top row; the last dial turns through them, push for Themes |
 | **Stream Deck XL** | 8×4 | tabs along the top row |
-| **Stream Deck +** | 4×2, 4 dials, touch strip | the last dial |
+| **Stream Deck +** | 4×2, 4 dials, touch strip | the last dial turns through them, push for the Scenes folder |
 | **Stream Deck** (15 keys, MK.2, Scissor Keys) and **Stream Deck Mobile** | 5×3 | the right column: Scenes, Next, Previous |
 | **Stream Deck Neo** and **Mini** | 4×2 and 3×2 | the last key opens Scenes |
 
-On the + and + XL, the dials do power (turn for − and +, push for max), the
-speed limit, laser power, beam spacing, targets, the voice channel, invites
-(turn to decline or accept), media and volume, and the touch strip shows what
-each one does. There are no profiles for the Studio or the Pedal (Stream Deck
+On the + and + XL, the dials are knobs: each sets a level or cycles through
+options, one press per notch (at most 5 a turn), and pushing one is a single
+press. Power (turn for − and +, push for max), the speed limit, laser power,
+beam spacing, the salvage modifier, master mode (SCM and NAV, push for
+Quantum), targets, the voice channel, brightness and volume; the touch strip
+shows what each one does. There are no profiles for the Studio or the Pedal (Stream Deck
 doesn't support profiles there), but the plugin's actions work on them.
 
 **Comms.** The Comms page has Star Citizen's own push to talk, proximity push
@@ -536,7 +538,8 @@ switches to it.
 
 **Icon packs:** double-click `Tablet Deck <theme>.streamDeckIconPack`. Every
 button, including the ones that aren't on a page, appears in Stream Deck's icon
-library for keys of your own.
+library for keys of your own, and the ones with a press animation (gear struts,
+sliding doors, decoy sparks, the quantum charge...) also come animated.
 
 <details>
 <summary>Not tried on a real Stream Deck yet</summary>
