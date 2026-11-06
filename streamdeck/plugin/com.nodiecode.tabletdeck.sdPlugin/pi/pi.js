@@ -85,6 +85,7 @@
     if (document.activeElement !== $("port")) $("port").value = globals.port || "";
     if (document.activeElement !== $("code")) $("code").value = globals.code || "";
     $("follow").checked = Boolean(globals.follow);
+    $("followTablet").checked = globals.followTablet !== false;
     $("motion").checked = globals.motion !== false;
   }
 
@@ -99,6 +100,7 @@
   $("port").addEventListener("input", typed);
   $("code").addEventListener("input", typed);
   $("follow").addEventListener("change", (e) => saveGlobals({ follow: e.target.checked }));
+  $("followTablet").addEventListener("change", (e) => saveGlobals({ followTablet: e.target.checked }));
   $("motion").addEventListener("change", (e) => saveGlobals({ motion: e.target.checked }));
   $("test").addEventListener("click", () => {
     $("test").disabled = true;

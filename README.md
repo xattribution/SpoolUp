@@ -523,6 +523,9 @@ switches to it.
   manufacturer's look.
 - Picking a scene flips tablets that have **Follow Stream Deck scenes** on
   (under **Display** in Deck settings) to that scene's panels.
+- The other way round, flipping a panel on a tablet takes the Stream Deck to
+  the scene with that panel, while it shows the Tablet Deck profile. To stop
+  that, turn off **Follow the tablet** in any Tablet Deck key's settings.
 - It finds Tablet Deck on the same PC by itself. If **Status** shows OFFLINE or
   WRONG CODE, set the port and pairing code in any Tablet Deck key's settings.
 - A dial notch is one press, at most 5 per turn; turning back drops the ones

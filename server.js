@@ -1057,6 +1057,7 @@ server.on("upgrade", (req, socket) => {
   emit({ t: "client", on: true, device });
   ui({ t: "clients", count: ++connectedTablets });
   const client = {
+    device, // a tablet's paged panels go only to Stream Decks
     send: (obj) => { if (!socket.destroyed) wsSend(socket, JSON.stringify(obj)); },
     // Closing runs the same clean-up as a dropped connection, held keys included.
     close: () => socket.destroy(),
@@ -1155,6 +1156,15 @@ server.on("upgrade", (req, socket) => {
       if (!name(msg.scene)) return;
       const scene = { t: "scene", scene: msg.scene, left: name(msg.left), right: name(msg.right) };
       for (const c of tablets) if (c !== client) c.send(scene);
+      return;
+    }
+    // A tablet's player paged one HUD half: Stream Decks (the plugin) go to the scene with
+    // that panel. Only a side and a panel id pass through, and never to tablets, which
+    // would page each other.
+    if (msg.t === "panel") {
+      if ((msg.side !== "left" && msg.side !== "right") || typeof msg.panel !== "string" || !/^[a-z0-9-]{1,40}$/.test(msg.panel)) return;
+      const panel = { t: "panel", side: msg.side, panel: msg.panel };
+      for (const c of tablets) if (c !== client && c.device === "streamdeck") c.send(panel);
       return;
     }
     if (msg.t === "sound") { playSound(msg); return; }

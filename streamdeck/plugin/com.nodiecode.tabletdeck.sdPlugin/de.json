@@ -152,6 +152,8 @@
     "The code is kept in Stream Deck's settings on this PC, never in exported profiles.": "Der Code bleibt in den Stream-Deck-Einstellungen auf diesem PC, nie in exportierten Profilen.",
     "Tablets follow scenes": "Tablets folgen Szenen",
     "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.": "Wechselt die Szene am Stream Deck, wechseln Tablets, die Stream-Deck-Szenen folgen, zu ihren Panels.",
+    "Follow the tablet": "Dem Tablet folgen",
+    "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the Tablet Deck profile.": "Wechselst du auf einem Tablet das Panel, wechselt das Stream Deck zur passenden Szene, wenn es das Tablet-Deck-Profil zeigt.",
     "Key animations": "Tastenanimationen",
     "Press effects on keys and the touch strip. Turn off for still keys.": "Druckeffekte auf Tasten und Touch-Leiste. Ausschalten für ruhige Tasten."
   }

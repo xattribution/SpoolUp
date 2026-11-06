@@ -34,7 +34,8 @@ const ANIM_MS = { flash: 400, ripple: 650, gear: 900, doors: 900, lock: 650, bur
 // Effects that show the shared state (lit) rather than only play on a press.
 const STATE_ANIMS = new Set(["ripple", "gear", "glow", "doors"]);
 
-const DEFAULTS = { theme: "rsi", follow: false, motion: true, port: 0, code: "" };
+// follow: tablets follow this plugin's scenes; followTablet: Stream Decks follow a tablet's panels.
+const DEFAULTS = { theme: "rsi", follow: false, followTablet: true, motion: true, port: 0, code: "" };
 
 function createActions({ sd, tablet, data, draw, log }) {
   const { t } = data;
@@ -44,6 +45,8 @@ function createActions({ sd, tablet, data, draw, log }) {
   const devices = new Map();        // device id -> { type, name, size }
   const sceneOn = new Map();        // device id -> scene index shown there
   const sceneAt = new Map();        // device id -> when the scene last changed (dials flash)
+  const switchedAt = new Map();     // device id -> when the plugin last switched its profile page
+  const quietUntil = new Map();     // device id -> until when its page changes aren't told to tablets
   const holds = new Map();          // deck action id -> Set of ctx holding it down on Tablet Deck
   const talkers = new Set();        // talk ctx held down
   const toggles = new Map();        // deck action id -> on, for effects without a shared state
@@ -79,14 +82,18 @@ function createActions({ sd, tablet, data, draw, log }) {
     }
   }
 
-  function goToScene(ctx, index) {
+  // tell: false for a switch that follows a tablet, which mustn't page the tablets back.
+  function goToScene(device, index, { tell = true } = {}) {
     const n = data.SCENES.length;
     if (!n) return false;
     const i = ((index % n) + n) % n;
-    const profile = profileFor(ctx.device);
-    if (profile) sd.send({ event: "switchToProfile", context: sd.pluginUUID, device: ctx.device, payload: { profile, page: i } });
+    const profile = profileFor(device);
+    if (profile) {
+      sd.send({ event: "switchToProfile", context: sd.pluginUUID, device, payload: { profile, page: i } });
+      switchedAt.set(device, now());
+    }
     if (!profile && !G.follow) return false;
-    setScene(ctx.device, i);
+    setScene(device, i, { tell });
     return true;
   }
 
@@ -482,31 +489,78 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (Object.keys(payload).length) sd.send({ event: "setTriggerDescription", context: ctx.context, payload });
   }
 
-  // A spun scene dial switches at most once per SCENE_MS, adding up the steps in between:
-  // each switch makes Stream Deck rebuild the page (36 keys and 6 strips on a + XL), and
-  // every key on it gets a new picture.
+  // A device switches scene at most once per SCENE_MS, the newest wish winning: a spun scene
+  // dial adds up its steps in between, and of a tablet's panels the last one counts. Each
+  // switch makes Stream Deck rebuild the page (36 keys and 6 strips on a + XL), and every
+  // key on it gets a new picture.
   const SCENE_MS = 250;
-  const sceneSteps = new Map(); // device -> { n, ctx, timer, at }
-  function stepScene(ctx, n) {
-    let s = sceneSteps.get(ctx.device);
-    if (!s) sceneSteps.set(ctx.device, (s = { n: 0, ctx, timer: null, at: 0 }));
-    s.n += n;
-    s.ctx = ctx;
+  const sceneSteps = new Map(); // device -> { n, ctx, to, timer, at }; to: a tablet's scene, or -1
+  function queueScene(device, { ctx = null, n = 0, to = -1 }) {
+    let s = sceneSteps.get(device);
+    if (!s) sceneSteps.set(device, (s = { n: 0, ctx: null, to: -1, timer: null, at: 0 }));
+    if (ctx) { s.n += n; s.ctx = ctx; s.to = -1; } else { s.to = to; s.n = 0; }
     if (s.timer) return;
     const go = () => {
       s.timer = null;
-      const steps = s.n;
+      const { n: steps, ctx: c, to: want } = s;
       s.n = 0;
-      if (!steps) return;
+      s.to = -1;
+      if (!steps && want < 0) return;
       s.at = now();
-      const c = s.ctx;
-      const cur = sceneOn.has(c.device) ? sceneOn.get(c.device) : 0;
-      if (!goToScene(c, cur + steps) && contexts.has(c.context)) alert(c);
-      if (contexts.has(c.context)) paint(c);
+      if (want >= 0) followTo(device, want);
+      else {
+        const cur = sceneOn.has(device) ? sceneOn.get(device) : 0;
+        if (!goToScene(device, cur + steps) && contexts.has(c.context)) alert(c);
+        if (contexts.has(c.context)) paint(c);
+      }
       s.timer = setTimeout(go, SCENE_MS);
     };
     const wait = s.at + SCENE_MS - now();
     if (wait > 0) s.timer = setTimeout(go, wait); else go();
+  }
+  function stepScene(ctx, n) { queueScene(ctx.device, { ctx, n }); }
+
+  // ---------- following the tablet ----------
+
+  // A player paged one half of a tablet's HUD ({ t: "panel", side, panel }): each Stream
+  // Deck on a scene page of the Tablet Deck profile goes to the scene with that panel on
+  // that side (SCENES[].tablet), without telling the tablets, which would page back. It
+  // stays when its scene has that panel already, or when no scene or several do (Mining and
+  // Salvage share Operator Modes), and it's never taken out of a folder or a profile of the
+  // player's own. A panel matches as when a tablet follows a scene: phone layouts split
+  // some ("landing" and "power" for "power-landing", "systems" for "qt-systems").
+  const FOLLOW_MS = 1000; // how long a switched page's keys may take to appear
+  const panelFits = (panel, id) => panel === id || id.split("-").includes(panel) || panel.startsWith(id);
+  function followPanel(side, panel) {
+    if (G.followTablet === false || (side !== "left" && side !== "right") || typeof panel !== "string" || !panel) return;
+    const fits = [];
+    data.SCENES.forEach((sc, i) => { const id = sc.tablet && sc.tablet[side]; if (typeof id === "string" && id && panelFits(panel, id)) fits.push(i); });
+    if (fits.length !== 1) return;
+    for (const device of devices.keys()) {
+      const s = sceneSteps.get(device);
+      const at = s && s.to >= 0 ? s.to : sceneOn.get(device); // where it's headed, if a switch waits
+      if (at !== fits[0] && profileFor(device) && onScenePage(device)) queueScene(device, { to: fits[0] });
+    }
+  }
+
+  // Whether a device shows a scene page of the Tablet Deck profile: the plugin's keys there
+  // carry the scene as `page`, a folder's and other profiles' don't. Just after the plugin
+  // switched it, the new page's keys may not have appeared yet.
+  function onScenePage(device) {
+    let others = false;
+    for (const c of contexts.values()) {
+      if (c.device !== device) continue;
+      if (sceneIndex(c.settings.page) >= 0) return true;
+      others = true;
+    }
+    return !others && now() - (switchedAt.get(device) || 0) < FOLLOW_MS;
+  }
+
+  // A tablet's scene once its turn comes, checked again: the player may have moved on.
+  function followTo(device, i) {
+    if (G.followTablet === false || sceneOn.get(device) === i || !onScenePage(device)) return;
+    quietUntil.set(device, now() + FOLLOW_MS);
+    goToScene(device, i, { tell: false });
   }
 
   function rotate(ctx, ticks) {
@@ -520,7 +574,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (r.kind === "scene-step") { stepScene(ctx, r.step * n); return; }
     if (r.kind === "theme-next") { nextTheme(dir); return; }
     if (r.kind === "theme") { setTheme(r.id); return; }
-    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) alert(ctx); return; }
+    if (r.kind === "scene") { if (!goToScene(ctx.device, r.index)) alert(ctx); return; }
     if (r.kind !== "deck" || !online()) { alert(ctx); paint(ctx); return; }
     // A turn the other way drops what's still waiting from the last one; at most 5 wait.
     if (ctx.queue) ctx.queue = ctx.queue.filter((p) => p.dir !== -dir);
@@ -541,8 +595,8 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (!r) return;
     if (r.kind === "theme-next") { nextTheme(1); return; }
     if (r.kind === "theme") { setTheme(r.id); return; }
-    if (r.kind === "scene") { if (!goToScene(ctx, r.index)) alert(ctx); return; }
-    if (r.kind === "scene-step") { const cur = sceneOn.get(ctx.device) || 0; goToScene(ctx, cur + r.step); return; }
+    if (r.kind === "scene") { if (!goToScene(ctx.device, r.index)) alert(ctx); return; }
+    if (r.kind === "scene-step") { const cur = sceneOn.get(ctx.device) || 0; goToScene(ctx.device, cur + r.step); return; }
     if (r.kind !== "deck" || !online()) { alert(ctx); paint(ctx); return; }
     if (!touch && r.def.mode === "hold") { if (!hold(ctx, r.def.id)) { alert(ctx); return; } }
     else if (ctx.queue && ctx.queue.filter((p) => !p.dir).length >= MAX_DETENTS) { alert(ctx); return; } // pushed faster than they go
@@ -705,6 +759,9 @@ function createActions({ sd, tablet, data, draw, log }) {
       case "reload":
         tablet.reconnect(); // the layout was changed in the editor: get its buttons again
         break;
+      case "panel":
+        followPanel(msg.side, msg.panel); // a tablet's player paged a HUD half
+        break;
       default:
         break;
     }
@@ -742,10 +799,12 @@ function createActions({ sd, tablet, data, draw, log }) {
   }
 
   // Bundled profiles may name the scene page a key sits on ("page": "<scene id>"), so the
-  // plugin knows the current scene even after Stream Deck's own page keys moved it.
+  // plugin knows the current scene even after Stream Deck's own page keys moved it. Just
+  // after following a tablet it tells the tablets nothing: a page from an earlier switch
+  // may still be appearing, and would page them back.
   function noticePage(ctx) {
     const i = sceneIndex(ctx.settings.page);
-    if (i >= 0) setScene(ctx.device, i);
+    if (i >= 0) setScene(ctx.device, i, { tell: !(quietUntil.get(ctx.device) > now()) });
   }
 
   function onEvent(msg) {
@@ -834,7 +893,7 @@ function createActions({ sd, tablet, data, draw, log }) {
       }
       case "scene": {
         const i = sceneIndex(ctx.settings.scene);
-        if (i < 0 || !goToScene(ctx, i)) alert(ctx);
+        if (i < 0 || !goToScene(ctx.device, i)) alert(ctx);
         break;
       }
       case "theme":

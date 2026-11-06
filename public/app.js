@@ -356,6 +356,26 @@
     $("followBtn").setAttribute("aria-checked", String(on));
   };
 
+  // The other way: a HUD half the player pages (its arrows, a two-finger swipe) tells
+  // Stream Decks with the Tablet Deck plugin, which go to the scene with that panel. Only
+  // the panel it settles on, once paging stops for PAGED_MS, so flipping through several
+  // sends one, and nothing if it ends where it started. A Stream Deck's scene, a layout
+  // loading and connecting again send nothing, or the two would page each other back.
+  const PAGED_MS = 400;
+  const paging = {}; // side -> { from, timer } while a half is being paged
+  function panelPaged(side, panel, from) {
+    if (side !== "left" && side !== "right") return; // only the two halves of a HUD
+    const p = paging[side] || (paging[side] = { from });
+    clearTimeout(p.timer);
+    p.timer = setTimeout(() => {
+      delete paging[side];
+      if (panel !== p.from) send({ t: "panel", side, panel });
+    }, PAGED_MS);
+  }
+  function stopPaging() {
+    for (const side of Object.keys(paging)) { clearTimeout(paging[side].timer); delete paging[side]; }
+  }
+
   function applySwipe(on) {
     store.set(swipeKey, on ? "on" : "off");
     $("swipeBtn").setAttribute("aria-checked", String(on));
@@ -483,8 +503,9 @@
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
       else if (msg.t === "sound-status") S.status(msg);
-      // A scene picked on a Stream Deck (its Tablet Deck plugin): flip to its panels.
-      else if (msg.t === "scene") { if (followScenes() && deckCanvas && deckCanvas.showPanels(msg)) window.DeckSound.play("page"); }
+      // A scene picked on a Stream Deck (its Tablet Deck plugin): flip to its panels. It's
+      // newer than a page still waiting to go to the Stream Deck, which would undo it.
+      else if (msg.t === "scene") { stopPaging(); if (followScenes() && deckCanvas && deckCanvas.showPanels(msg)) window.DeckSound.play("page"); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
       else if (msg.t === "voice-status") applyVoiceStatus(msg);
@@ -820,12 +841,14 @@
   let deckCanvas = null;
   function showLayout(l) {
     layout = l;
+    stopPaging(); // its panels are the old layout's
     $("title").textContent = tr(layout.name);
     document.title = tr(layout.name);
     if (layout.canvas) {
       document.body.classList.add("canvas-mode");
       deckCanvas = window.renderCanvas(layout, {
         send, bindButton, bindTalk, buzz, store, refreshStatus, openPicker, openVoiceHelp, toggleFullscreen,
+        paged: panelPaged,
         deckIcon: window.deckIcon,
         emblemHtml: () => emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem),
       });
@@ -838,6 +861,7 @@
   }
   // Takes a canvas layout off the screen, for a grid layout or the pairing form.
   function leaveCanvas() {
+    stopPaging();
     if (deckCanvas) { deckCanvas.dispose(); deckCanvas = null; }
     document.body.classList.remove("canvas-mode");
     $("stage").hidden = true;

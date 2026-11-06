@@ -281,12 +281,16 @@
       const region = layout.regions.find((r) => r.id === regionId);
       if (!region) return;
       const n = region.panels.length;
-      state.panels[regionId] = (Math.min(state.panels[regionId] || 0, n - 1) + d + n) % n;
+      const from = Math.min(state.panels[regionId] || 0, n - 1);
+      state.panels[regionId] = (from + d + n) % n;
       save();
       window.DeckSound?.play("page"); // sound.js isn't loaded in the layout editor
       slide = { region: regionId, dir: d };
       render();
       slide = null;
+      // The player paged it (a Stream Deck scene goes through showPanels), so the deck may
+      // tell Stream Decks; the layout editor doesn't.
+      D.paged?.(regionId, region.panels[state.panels[regionId]], region.panels[from]);
     }
 
     function renderRegion(region) {
@@ -337,9 +341,10 @@
         }
         return false;
       },
-      // Pages each half to a panel by id, for a Stream Deck scene ({ left, right }). Phone
-      // layouts name some panels differently ("landing" for "power-landing", "emotes-1"), so
-      // a panel matches by its id, a word of it, or its start. A half with no match stays.
+      // Pages each half to a panel by id, for a Stream Deck scene ({ left, right }), without
+      // telling Stream Decks (that would page them back). Phone layouts name some panels
+      // differently ("landing" for "power-landing", "emotes-1"), so a panel matches by its
+      // id, a word of it, or its start. A half with no match stays.
       showPanels(want) {
         let changed = false;
         for (const region of layout.regions) {

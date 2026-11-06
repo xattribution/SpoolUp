@@ -15,9 +15,11 @@ before tagging a release.
   hail and invites, Discord, OBS and media keys. An icon pack per theme has
   every button (220) for pages of your own. The **Tablet Deck plugin** presses
   through Tablet Deck, with the focus check, lit buttons, animations and live
-  theme changes, and picking a scene on the Stream Deck flips tablets that
-  follow it. The profiles also work on their own, without Tablet Deck. Each
-  release has the pack as downloads; see "Stream Deck" in the README.
+  theme changes; picking a scene on the Stream Deck flips tablets that follow
+  it, and flipping a panel on a tablet takes the Stream Deck to that panel's
+  scene (**Follow the tablet**, on unless turned off in the plugin's settings).
+  The profiles also work on their own, without Tablet Deck. Each release has
+  the pack as downloads; see "Stream Deck" in the README.
 - **Presses no longer mix.** Two quick taps of one button are two presses (the
   game saw one longer press), and buttons tapped together take turns when their
   keys could combine: Weapons + (F5) pressed while Shields − held LAlt reached

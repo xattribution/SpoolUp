@@ -69,14 +69,35 @@ Port and pairing code: read `%APPDATA%\TabletDeck\config.json` (`port`, `token`)
 property inspector (host 127.0.0.1, port 8765, code). Messages, client -> server: `{t:"hb", n}` every
 1.5 s (the server answers `{t:"hb", n}` with the same n; give up on the link after 5 s without any
 message, as public/app.js does), `{t:"tap", id}`, `{t:"down", id}` / `{t:"up", id}` for hold buttons,
-`{t:"voice", on}` for hold to talk, `{t:"reset-states"}`. Server -> client: `{t:"hello", states, voiceStatus, ...}`,
+`{t:"voice", on}` for hold to talk, `{t:"reset-states"}`, `{t:"scene", scene, left, right}` (below).
+Server -> client: `{t:"hello", states, voiceStatus, ...}`,
 `{t:"state", group, on}`, `{t:"states", states}`, `{t:"blocked", id}` (press skipped: Star Citizen not
-in front), `{t:"listening", on}`, `{t:"heard"...}`, `{t:"unheard"}`, `{t:"reload"}`. Read public/app.js's
+in front), `{t:"listening", on}`, `{t:"heard"...}`, `{t:"unheard"}`, `{t:"reload"}`,
+`{t:"panel", side, panel}` (below). Read public/app.js's
 connect() and server.js's upgrade handler for the exact behaviour. A press must always be released:
 send "up" for every "down" on keyUp, willDisappear, deviceDidDisconnect, systemDidWakeUp and when
 either socket closes. One press per tap: no repeats or sequences; a dial detent counts as one tap
 (at most 5 per dialRotate event).
 
-The main session will add, in server.js: `device=streamdeck` connections logged as "Stream Deck
-connected", and `{t:"scene", scene}` from the plugin broadcast to tablets (which may follow by paging
-their HUD halves). Don't edit server.js yourself; tell the main session what you need.
+server.js logs `device=streamdeck` connections as "Stream Deck connected". Scenes go both ways, and
+neither direction answers the other, so they can't page each other back and forth:
+
+- **Stream Deck to tablets:** the plugin sends `{t:"scene", scene, left, right}` when a device's scene
+  changes and **Tablets follow scenes** is on (`left`/`right`: the scene's `tablet` panels). The
+  server passes it to every other client; tablets with Follow Stream Deck scenes on page their HUD
+  halves to those panels (`showPanels` in public/canvas.js) and send nothing for it.
+- **Tablets to Stream Decks:** a tablet sends `{t:"panel", side, panel}` (`side` "left" or "right",
+  `panel` the id of the panel in its layout) when the player pages that HUD half (its arrows, a
+  two-finger swipe), once paging has stopped for 400 ms, and only if the half moved: never for a
+  scene, a layout loading or a reconnect, and never from a grid layout. The server passes it only to
+  `device=streamdeck` clients. With **Follow the tablet** on (global setting `followTablet`, on unless
+  set to false), the plugin takes each device that shows a scene page of its bundled profile (a
+  visible key carries `settings.page`) to the one scene whose `tablet[side]` is that panel, with
+  `switchToProfile` as its own scene keys do, at most once per 250 ms per device, and sends no
+  `scene` for it. A panel matches as tablets match scenes (the id, a word of it or its start, so a
+  phone layout's `landing`, `power` and `systems` count). The device stays where it is when its scene
+  has that panel already, when no scene or several do (`modes` is Mining's and Salvage's,
+  `power-landing` Flight's and Hauling's), and while it shows a folder or a profile of the player's own.
+
+The server checks both: scene names and panel ids are `^[a-z0-9-]{1,40}$`, `side` is left or right,
+and nothing else passes through. Don't edit server.js yourself; tell the main session what you need.

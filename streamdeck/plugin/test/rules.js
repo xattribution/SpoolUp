@@ -93,7 +93,7 @@ async function main() {
   const pluginDir = path.join(tmp, `${U}.sdPlugin`);
   fs.cpSync(SRC, pluginDir, { recursive: true });
   writeData(pluginDir);
-  const DIAL = JSON.parse(fs.readFileSync(path.join(pluginDir, "data", "scenes.json"), "utf8")).DIAL;
+  const { DIAL, SCENES } = JSON.parse(fs.readFileSync(path.join(pluginDir, "data", "scenes.json"), "utf8"));
   let sd = null, stream = null;
   try {
     if (!(await within(8000, () => / running \(/.test(server.log), 100))) throw new Error("server didn't start");
@@ -238,6 +238,78 @@ async function main() {
     await sleep(300);
     const switches = sd.find((m) => m.event === "switchToProfile", m0).length;
     check("the scene dial spun for a second (20 events): at most 5 profile switches", switches <= 5, `${switches} switchToProfile`);
+
+    console.log("\nFollowing the tablet");
+    // A tablet pages its HUD halves ({t:"panel"}); a Stream Deck showing a scene page of the
+    // plugin's profile goes to the scene with that panel, one on a profile of the player's own
+    // stays, and nothing goes back to the tablet (tablets follow scenes here, so an echo shows).
+    const tabMsgs = [];
+    const tab = new WebSocket(`ws://127.0.0.1:${port}/ws?t=${encodeURIComponent(token)}&device=tablet`);
+    tab.onmessage = (e) => tabMsgs.push(JSON.parse(e.data));
+    await within(3000, () => tab.readyState === WebSocket.OPEN);
+    const tabBeat = setInterval(() => { if (tab.readyState === WebSocket.OPEN) tab.send(JSON.stringify({ t: "hb", n: 0 })); }, 1500);
+    const panelTo = (side, panel) => tab.send(JSON.stringify({ t: "panel", side, panel }));
+    const sceneIdx = (id) => SCENES.findIndex((s) => s.id === id);
+    const switchesOn = (device, from) => sd.commands.slice(from).filter((c) => c.msg.event === "switchToProfile" && c.msg.device === device);
+    const FD = "DEV-FOLLOW", OWN = "DEV-OWN";
+    const onPage = (ctx, page) => [A.scene, ctx, FD, { scene: "combat", page }, { column: 4, row: 0 }];
+    sd.send(ev.device(FD, 0, 5, 3, "Stream Deck"));
+    sd.send(ev.device(OWN, 0, 5, 3, "Stream Deck"));
+    sd.send({ event: "didReceiveGlobalSettings", payload: { settings: { follow: true } } });
+    const show = (k) => sd.send(ev.appear(...k));
+    const hide = (k) => sd.send(ev.disappear(...k));
+    let fk = onPage("f-1", "flight");
+    show(fk);
+    sd.send(ev.appear(A.key, "o-gear", OWN, { action: "pl-gear" }, { column: 0, row: 0 }));
+    await sleep(300);
+    let p0 = sd.mark(), pt0 = tabMsgs.length;
+    panelTo("right", "crew");
+    const swH = await within(1500, () => switchesOn(FD, p0)[0]);
+    check("a tablet's right half on Crew: the Stream Deck on the profile's Flight page goes to Hauling", swH && swH.msg.payload.page === sceneIdx("hauling") && swH.msg.payload.profile === "profiles/Tablet Deck Stream Deck", JSON.stringify(swH && swH.msg.payload));
+    check("  ...the one on a profile of the player's own stays", !switchesOn(OWN, p0).length);
+    // Stream Deck shows Hauling, with a page from before arriving late in between.
+    hide(fk);
+    show(onPage("f-late", "flight"));
+    hide(onPage("f-late", "flight"));
+    show((fk = onPage("f-2", "hauling")));
+    await sleep(500);
+    check("  ...and sends no scene back to the tablet, the late page included", !tabMsgs.slice(pt0).some((m) => m.t === "scene"), JSON.stringify(tabMsgs.slice(pt0).filter((m) => m.t !== "hb")));
+    p0 = sd.mark();
+    panelTo("right", "crew");
+    panelTo("right", "modes");
+    panelTo("left", "flight-assist");
+    await sleep(600);
+    check("already on its scene, several scenes (Modes) or none (Flight Assist): no switch", !switchesOn(FD, p0).length, `${switchesOn(FD, p0).length} switches`);
+    // Stream Deck's own page keys move it a moment later: tablets are told again.
+    await sleep(300);
+    pt0 = tabMsgs.length;
+    hide(fk);
+    show((fk = onPage("f-3", "mining")));
+    const told = await within(1500, () => tabMsgs.slice(pt0).find((m) => m.t === "scene"));
+    check("  ...a page change on the Stream Deck itself still reaches the tablet", told && told.scene === "mining", JSON.stringify(told));
+    p0 = sd.mark();
+    panelTo("right", "systems");
+    const swF = await within(1500, () => switchesOn(FD, p0)[0]);
+    check("a phone's Systems panel (part of QT & Systems): Flight", swF && swF.msg.payload.page === sceneIdx("flight"), JSON.stringify(swF && swF.msg.payload));
+    await sleep(300);
+    p0 = sd.mark();
+    panelTo("left", "shields");
+    await sleep(50);
+    panelTo("right", "comms");
+    await sleep(800);
+    const pair = switchesOn(FD, p0);
+    check("two halves 50 ms apart: Combat, then Comms at least 250 ms later", pair.length === 2 && pair[0].msg.payload.page === sceneIdx("combat") && pair[1].msg.payload.page === sceneIdx("comms") && pair[1].time - pair[0].time >= 240, pair.map((c) => `${c.msg.payload.page} @${c.time - pair[0].time}`).join(", "));
+    sd.send({ event: "didReceiveGlobalSettings", payload: { settings: { follow: true, followTablet: false } } });
+    await sleep(300);
+    p0 = sd.mark();
+    panelTo("right", "crew");
+    await sleep(600);
+    check("with Follow the tablet off: no switch", !switchesOn(FD, p0).length);
+    check("the tablet never gets a panel message", !tabMsgs.some((m) => m.t === "panel"));
+    clearInterval(tabBeat);
+    tab.close();
+    hide(fk);
+    sd.send({ event: "didReceiveGlobalSettings", payload: { settings: {} } });
 
     console.log("\nHolds are released");
     const qtB = [A.key, "k-qt-b", "DEV-15", { action: "qt-engage" }, { column: 0, row: 0 }];
