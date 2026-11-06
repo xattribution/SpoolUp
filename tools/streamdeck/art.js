@@ -50,9 +50,10 @@ function createArt({ icons, themes, tokens }) {
     return keyart.key({ theme: th, icon: icon(a.icon), label: a.keyLabel || a.label, color: a.color, lit, status });
   }
   // Navigation (scene tabs, the Scenes folder, Back, Next...) is drawn as tabs: quiet, with
-  // the current scene the one lit.
+  // the current scene the one lit. `tab`: a folder key in a tab row (the XLs' Themes and
+  // Emotes) is a tab too.
   const sceneKey = (th, scene, lit) => keyart.key({ theme: th, icon: icon(scene.icon), label: scene.short || scene.name, color: scene.color, lit, tab: true });
-  const folderKey = (th, folder) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder", tab: folder.items === "@scenes" });
+  const folderKey = (th, folder, { tab = false } = {}) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder", tab: tab || folder.items === "@scenes" });
   const navKey = (th, kind) => {
     const k = { back: ["back", "Back"], next: ["page-next", "Next"], prev: ["page-prev", "Previous"], more: ["page-next", "More"], home: ["home", "Home"] }[kind];
     return keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined, tab: true });

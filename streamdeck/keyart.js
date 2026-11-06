@@ -254,7 +254,13 @@ function fitLabel(label, th, width, maxSize, own = true) {
     if (list.length && w.length <= 2) list[list.length - 1] += ` ${w}`; else list.push(w);
     return list;
   }, []);
-  if (words.length > 1) return twoLines(words);
+  if (words.length > 1) {
+    // One line still wins if it fits at the size two lines would get ("ON FOOT" a little
+    // over the width).
+    const split = twoLines(words);
+    while (size > split.size && !fits(text, size)) size -= 1;
+    return size >= split.size && fits(text, size) ? { lines: [text], size } : split;
+  }
   while (size > 10 && !fits(text, size)) size -= 1;
   // ...unless keeping one would shrink the line below 16 px ("THRUSTERS +"): then it does.
   if (size < 16 && raw.length > 1 && raw[raw.length - 1].length <= 2) {

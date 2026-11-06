@@ -276,7 +276,9 @@ function buildProfile(env, modelId, variant, theme) {
         const child = folderPage(arg, n, at);
         if (!child) return blank(where);
         const f = scenes.FOLDERS[arg] || { name: arg, icon: "folder" };
-        const s = withImg(kind === "@more" ? art.navKey(th, "more") : art.folderKey(th, f), kind === "@more" ? "More" : f.name);
+        // On a scene page of the XLs the top row is the tab bar, folders included.
+        const tab = model.nav === "tabs" && !at.path.includes(">") && /,0$/.test(at.slot || "");
+        const s = withImg(kind === "@more" ? art.navKey(th, "more") : art.folderKey(th, f, { tab }), kind === "@more" ? "More" : f.name);
         return { json: P.action(id(where), "com.elgato.streamdeck.profile.openchild", { settings: { ProfileUUID: child }, states: s.states }), img: s.img };
       }
       if (kind === "@theme") {
