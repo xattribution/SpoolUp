@@ -3,7 +3,7 @@
   "Description": "Star-Citizen-Steuerung über Tablet Deck: Live-Leuchten, Tastenanimationen, Drehregler und Szenen, mit Tablet Decks Fokusprüfung. Fanprojekt, nicht mit Cloud Imperium Games verbunden.",
   "com.nodiecode.tabletdeck.key": {
     "Name": "Deck-Taste",
-    "Tooltip": "Drückt eine Tablet-Deck-Taste über dessen Fokusprüfung, mit Live-Leuchten."
+    "Tooltip": "Drückt eine Tablet-Deck-Taste über Tablet Decks Fokusprüfung, mit Live-Leuchten."
   },
   "com.nodiecode.tabletdeck.dial": {
     "Name": "Deck-Drehregler",

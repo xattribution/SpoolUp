@@ -17,19 +17,21 @@ function chunk(type, data) {
 
 const paeth = (a, b, c) => { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); return pa <= pb && pa <= pc ? a : pb <= pc ? b : c; };
 
-// An 8-bit RGB or RGBA PNG (non-interlaced, what Chromium writes) -> { width, height, rgba }.
+// An 8-bit RGB, RGBA or palette PNG (non-interlaced: what Chromium and encode() write) ->
+// { width, height, rgba }.
 function decode(buf) {
   if (!buf.subarray(0, 8).equals(SIGNATURE)) throw new Error("not a PNG");
-  let pos = 8, width = 0, height = 0, channels = 0;
+  let pos = 8, width = 0, height = 0, channels = 0, plte = null;
   const idat = [];
   while (pos < buf.length) {
     const len = buf.readUInt32BE(pos), type = buf.toString("ascii", pos + 4, pos + 8);
     const data = buf.subarray(pos + 8, pos + 8 + len);
     if (type === "IHDR") {
       width = data.readUInt32BE(0); height = data.readUInt32BE(4);
-      if (data[8] !== 8 || (data[9] !== 2 && data[9] !== 6) || data[12] !== 0) throw new Error("unexpected PNG format");
-      channels = data[9] === 6 ? 4 : 3;
-    } else if (type === "IDAT") idat.push(data);
+      if (data[8] !== 8 || ![2, 3, 6].includes(data[9]) || data[12] !== 0) throw new Error("unexpected PNG format");
+      channels = { 2: 3, 3: 1, 6: 4 }[data[9]];
+    } else if (type === "PLTE") plte = data;
+    else if (type === "IDAT") idat.push(data);
     else if (type === "IEND") break;
     pos += 12 + len;
   }
@@ -49,6 +51,7 @@ function decode(buf) {
     }
     const row = y * width * 4;
     if (channels === 4) cur.copy(rgba, row);
+    else if (channels === 1) for (let x = 0; x < width; x++) { plte.copy(rgba, row + x * 4, cur[x] * 3, cur[x] * 3 + 3); rgba[row + x * 4 + 3] = 255; }
     else for (let x = 0; x < width; x++) { rgba[row + x * 4] = cur[x * 3]; rgba[row + x * 4 + 1] = cur[x * 3 + 1]; rgba[row + x * 4 + 2] = cur[x * 3 + 2]; rgba[row + x * 4 + 3] = 255; }
     [prev, cur] = [cur, prev];
   }
