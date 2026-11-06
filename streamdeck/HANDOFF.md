@@ -114,44 +114,50 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
 
 | piece | state | where |
 |---|---|---|
-| Key art renderer | done; arcs become cubics (SVG Tiny), previewed in all 12 themes | `streamdeck/keyart.js` |
+| Key art renderer | done; arcs become cubics (SVG Tiny), previewed in all 12 themes; badges top right, labels fit 110 px, light-theme blanks use the page colour | `streamdeck/keyart.js` |
 | Research (7 topics) | done, fact-checked | `streamdeck/research/` |
 | New icons (76: emotes, ship, comms/media/stream, navigation) | done, merged, art-directed | `public/icons.js` |
-| Action catalog (161 actions) | done | `streamdeck/catalog.js` |
-| Scene layouts for 7 models | first version done (all pages full, within grids, 7 of 10 pages) | `streamdeck/scenes.js` |
+| Action catalog (170 actions) | done; every scene ref resolves | `streamdeck/catalog.js` |
+| Scene layouts for 7 models | done; folder Back at 0,0 on every model (as the app writes it), blocks centred, Power turned to one row per system where it only fits sideways | `streamdeck/scenes.js` |
 | Generator/plugin contract | done | `streamdeck/CONTRACT.md` |
 | Scene sync (server relay, tablets follow) | done, tested | `server.js`, `public/canvas.js` `showPanels`, `public/app.js` |
-| Generator | being built by a workflow (build, validate, fix) | `tools/make-streamdeck.js` |
-| Plugin | being built by a workflow (build, review, fix) | `streamdeck/plugin/` |
-| Star Citizen 4.x key fixes | workflow running (audit, skeptic, apply, re-audit) | `layouts/hud.json`, `tools/make-profile.js` |
-| Tablet Comms panel (`cm-*` ids the layouts use) | after the 4.x fixes land, so they don't both edit hud.json | `layouts/hud.json` |
-| PC sounds player review fixes | applied, being verified | `native/sound.cs` |
+| Star Citizen 4.x key fixes | done (14ad54d); Decoupled, Throttle Mode, Next Hostile added (29f66ce) | `layouts/hud.json`, `tools/make-profile.js` |
+| Tablet Comms panel (`cm-*`) | done, translated, tested in a dry run (29f66ce) | `layouts/hud.json` |
+| Server fixes the plugin asked for | done (cea566f): half-open sockets dropped at once, taps of the same keys queued (max 4), releases on disconnect logged, `tapMs` in hello; plus unpressable rebinds no longer fatal and tapMs capped at 200 (6e74b0e) | `server.js` |
+| Generator | built and validated; a fix agent is applying the validator's 8 defects (workflow `streamdeck-generator`) | `tools/make-streamdeck.js`, `tools/streamdeck/` |
+| Plugin | built (81/81 end-to-end checks); review then fix running (workflow `streamdeck-plugin`) | `streamdeck/plugin/` |
 | Docs for the pack | after the generator and plugin | README, CHANGELOG, DEVELOPMENT, DESIGN |
 
-The session's scratchpad (downloads, test harnesses) goes away with the container.
+The session's scratchpad (downloads, test harnesses) goes away with the container. The
+plugin's locale JSON files are their own source (the script that wrote them was scratch).
 
 ## Next steps
 
-0. When the 4.x key fixes land, check these three by hand (found by the Star Citizen
-   fact-check after the fix workflow had started; `research/starcitizen.verified.md`
-   correction 10): `cb-missile` uses `v_weapon_launch_missile_cinematic`, which is the
-   cinematic camera toggle, not a launch (use `v_weapon_toggle_launch_missile`, press);
-   `v_toggle_all_doors` needs `vehicle_general` as well as `spaceship_general` in
-   ACTIONMAPS; Engage Quantum's hold B fires `v_master_mode_cycle_long` (SCM/NAV) in 4.x.
-1. When the 4.x key fixes land: add the Comms panel to `layouts/hud.json` with the `cm-*`
-   ids `streamdeck/scenes.js` uses (VoIP push to talk `np_add` hold, proximity PTT
-   `lalt+np_add` hold, cycle channel `np_period`, hail `9`, accept/decline invite
-   `lbracket`/`rbracket`, PIT wheel `lalt+f`, wipe visor `lalt+x`: see
-   `research/starcitizen.md` section 3), their scActions in `tools/make-profile.js`
-   `ACTIONMAPS`, and regenerate (phone, starters, profile). Translations for the labels.
-2. When the generator and plugin land: build the whole pack, look at the previews, then a
-   layout critique pass (intuitive? consistent across models? themes?) and fix.
-3. Docs: README section for the Stream Deck pack (install the icon pack, import a profile,
-   or install the plugin; standalone hotkeys don't pass the focus check; theme keys; the
-   dial = one press per detent question for the owner), CHANGELOG, DEVELOPMENT (how to
-   build: `node tools/make-streamdeck.js`), DESIGN (key art rules).
-4. Things only real hardware can answer are listed in `research/profiles.md` 11 and
-   `research/navigation.md` 10; collect them in the README's "please check" list.
+1. When the generator fix lands: check it wrote hold/timed deck actions as the plugin's
+   `.key` action marked "PLUGIN" (not a tapping Hotkey), OBS states (lit art first,
+   `State: 1`), the keybind profile copied into `dist/streamdeck/keybinds/`, and the Neo
+   controller keyed on `model.type === 9`. Then:
+   - key images: draw every model's keys at **144 px** (Elgato's @2x size, what the
+     research recommends), not each device's native size (`KEY_PX` in the generator);
+   - the plugin's requests: `"page": "<scene id>"` in plugin keys' settings on bundled
+     scene pages, the plugin dial for the scenes dial in bundled profiles, manifest
+     `Version` from `package.json` when packing;
+   - raise the plugin manifest's `Software.MinimumVersion` to "7.3" (it bundles a + XL
+     profile, DeviceType 13, which needs 7.3, and 7.3.0 fixed `switchToProfile`).
+2. When the plugin fix lands: review its report, run `node streamdeck/plugin/test/check.js`
+   and `node streamdeck/plugin/test/run.js`, commit `streamdeck/plugin/` by explicit path.
+3. Build the whole pack (`node tools/make-streamdeck.js`, about 2 minutes), look at the
+   previews, run a layout critique pass (intuitive? consistent across models? themes?),
+   fix, `--check`, commit.
+4. Docs: README section for the Stream Deck pack (install the icon pack, import a profile,
+   or install the plugin; standalone hotkeys don't pass the focus check; theme keys; PLUGIN
+   keys; the dial = one press per detent question for the owner), CHANGELOG, DEVELOPMENT
+   (how to build), DESIGN (key art rules).
+5. Things only real hardware can answer (`research/profiles.md` 11,
+   `research/navigation.md` 10, the plugin's and generator's reports): collect them in the
+   README's "please check" list.
+6. **Waiting on the owner:** may a dial detent press once per detent (the plugin spaces
+   detents 150 ms apart, at most 5 per turn)? Until answered, dials ship as built.
 
 ## Earlier work in this session (for context)
 
