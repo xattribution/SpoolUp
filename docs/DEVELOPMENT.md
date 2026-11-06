@@ -188,10 +188,17 @@ that are active at the same time share a key. `node tools/make-profile.js --chec
 only reports whether the committed file is up to date (the installer build runs
 it).
 
-Buttons marked `"verify": true` use Star Citizen defaults that the profile
-doesn't set (power management, system power toggles, SCM/NAV, eject, chat,
-docking camera). The mining buttons are marked too: the profile binds them, but
-their action names couldn't be confirmed against the game's files.
+A button that sends its action's own default key (Star Citizen 4.10's
+`Data/Libs/Config/defaultProfile.xml`) also gets that key in `DEFAULTS`. The
+profile writes nothing for those, and the game's own pairs on one key (F5 tapped
+or held, N tapped or held) aren't counted as clashes. Give such buttons an
+`scAction` anyway, so a player's own rebind reaches them.
+
+Buttons marked `"verify": true` need a check in-game: the profile gives them a
+keyboard key for an action whose game default is on the mouse (Engage Quantum,
+Fire Laser, Fracture/Extract, Laser Power +, Speed Range + / −), and it isn't
+known yet whether that key replaces the mouse bind, or (Launch Missile) the
+held press hasn't been tried in the game.
 
 ## Building the installer
 

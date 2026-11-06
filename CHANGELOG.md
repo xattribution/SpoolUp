@@ -7,6 +7,18 @@ before tagging a release.
 
 ## Unreleased
 
+- **Buttons follow Star Citizen 4.10's keys.** Decoy is now H and Noise J,
+  Flight Ready RAlt+R and Request Docking RAlt+N; SCM/NAV and the docking camera
+  are held long enough to count; Engage Quantum presses RAlt+J (holding B
+  switched SCM/NAV instead); Launch Missile launches (it toggled the missile
+  camera); the Speed Limiter and Speed Range buttons work again; and the salvage
+  modifiers, Salvage and Guns modes, Fewer Missiles, Panic Decoys, Prev Attacker
+  and Toggle Doors moved off keys the game also uses for Flight Ready, night
+  vision, the disintegrate beam, the voice channel and more. That also fixes the
+  Speed Limit, Modifier and Beam dials on the Stream Deck + and + XL. Install the
+  keybind profile again (Settings → Install keybind profile...) and load
+  **Tablet Deck Keyboard** again in-game. Layouts you made in the layout editor
+  keep some of their old keys; see "Buttons to double-check" in the README.
 - **Follow Stream Deck scenes** (a switch under Display in Deck settings, on
   unless turned off): picking a scene on a Stream Deck with the new Tablet Deck
   plugin flips the tablet's HUD halves to that scene's panels.

@@ -245,15 +245,27 @@ action in-game and its button follows.
 <details>
 <summary>Buttons to double-check</summary>
 
-A few buttons use defaults the profile doesn't set: power management, system
-power toggles, SCM/NAV, eject, chat and the docking camera. Check those on your
-keybinding screen.
+The buttons' keys are checked against Star Citizen 4.10's own default
+keybinds. A few still need a look in-game:
 
-The mining buttons' action names couldn't be confirmed against the game's
-files. After loading the profile, check that **Options → Keybindings → Vehicles
-→ Mining** shows Fire Laser on RCtrl+F, Fracture/Extract on RCtrl+T, laser power
-on RCtrl+W / RCtrl+S and the modules on LAlt+1-3. If one is missing, rebind it
-there to the same key.
+- **Engage Quantum, Fire Laser, Fracture/Extract, Laser Power + and Speed
+  Range + / −**: the profile gives these keyboard keys (RAlt+J, RCtrl+F,
+  RCtrl+T, RCtrl+W, LAlt+PgUp / PgDn), but the game's own default for each is
+  on the mouse (hold left mouse to engage quantum, left mouse to fire the
+  mining laser, LAlt+mouse wheel for the speed limit). After loading the
+  profile, check on your keybinding screen that the mouse bind is still there;
+  if it's gone, bind it again next to the keyboard key.
+- **Launch Missile** holds RAlt+\ for 0.4 s, since the game wants a held press
+  to launch.
+- **Match Speed and Reset Limit** have no Star Citizen 4.10 action any more, so
+  they don't do anything useful in-game yet.
+- **Layouts you made in the layout editor** keep the keys they were saved with.
+  Buttons there that carry no Star Citizen action still press the old keys
+  (Decoy G, Noise H, Flight Ready R, Request Docking LAlt+N, a quick tap for
+  SCM/NAV and the docking camera, Engage Quantum holding B). Look Behind
+  (LAlt+.), Speed Range + / − (LAlt+Y / LCtrl+Y) and Launch Missile (a quick
+  tap) don't work there either. Edit those buttons, or start the layout again
+  from a built-in one.
 </details>
 
 ### Layouts

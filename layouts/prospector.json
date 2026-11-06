@@ -46,6 +46,7 @@
         "air traffic control"
       ],
       "keys": "lalt+n",
+      "scAction": "v_atc_request",
       "mode": "tap",
       "x": 631,
       "y": 14,
@@ -62,7 +63,7 @@
         "open chat"
       ],
       "keys": "f12",
-      "verify": true,
+      "scAction": "toggle_chat",
       "mode": "tap",
       "x": 695,
       "y": 14,
@@ -80,6 +81,7 @@
         "friends list"
       ],
       "keys": "f11",
+      "scAction": "toggle_contact",
       "mode": "tap",
       "x": 759,
       "y": 14,
@@ -98,6 +100,7 @@
         "map"
       ],
       "keys": "f2",
+      "scAction": "v_starmap",
       "mode": "tap",
       "x": 823,
       "y": 14,
@@ -115,6 +118,7 @@
         "open mobi glass"
       ],
       "keys": "f1",
+      "scAction": "mobiglas",
       "mode": "tap",
       "x": 887,
       "y": 14,
@@ -257,7 +261,6 @@
               "voiceMs": 600,
               "keys": "rctrl+s",
               "scAction": "v_decrease_mining_throttle",
-              "verify": true,
               "mode": "hold"
             },
             {
@@ -300,7 +303,6 @@
               ],
               "keys": "lalt+1",
               "scAction": "v_mining_use_consumable1",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             },
@@ -314,7 +316,6 @@
               ],
               "keys": "lalt+2",
               "scAction": "v_mining_use_consumable2",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             },
@@ -328,7 +329,6 @@
               ],
               "keys": "lalt+3",
               "scAction": "v_mining_use_consumable3",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             }
@@ -361,7 +361,8 @@
                 "flight ready",
                 "ready for flight"
               ],
-              "keys": "r",
+              "keys": "ralt+r",
+              "scAction": "v_flightready",
               "mode": "tap",
               "color": "green"
             },
@@ -384,6 +385,7 @@
                 "retract landing gear"
               ],
               "keys": "n",
+              "scAction": "v_toggle_landing_system",
               "mode": "tap"
             },
             {
@@ -400,6 +402,7 @@
                 "toggle lights"
               ],
               "keys": "l",
+              "scAction": "v_lights",
               "mode": "tap"
             },
             {
@@ -425,7 +428,9 @@
                 "jump"
               ],
               "voiceMs": 1500,
-              "keys": "b",
+              "keys": "ralt+j",
+              "scAction": "v_toggle_qdrive_engagement",
+              "verify": true,
               "mode": "hold",
               "color": "blue"
             },
@@ -438,6 +443,7 @@
                 "leave seat"
               ],
               "keys": "y",
+              "scAction": "pl_exit",
               "mode": "timed",
               "ms": 1200,
               "color": "red"
@@ -492,6 +498,7 @@
             "retract landing gear"
           ],
           "keys": "n",
+          "scAction": "v_toggle_landing_system",
           "mode": "tap",
           "x": 4,
           "y": 45,
@@ -514,6 +521,7 @@
             "toggle vtol"
           ],
           "keys": "k",
+          "scAction": "v_vtol_toggle",
           "mode": "tap",
           "x": 244,
           "y": 45,
@@ -534,6 +542,7 @@
             "land the ship"
           ],
           "keys": "n",
+          "scAction": "v_autoland",
           "mode": "timed",
           "ms": 1500,
           "x": 4,
@@ -553,7 +562,8 @@
             "dock",
             "request dock"
           ],
-          "keys": "lalt+n",
+          "keys": "ralt+n",
+          "scAction": "v_toggle_docking_request",
           "mode": "tap",
           "x": 4,
           "y": 45,
@@ -573,6 +583,7 @@
             "group": "vtol"
           },
           "keys": "k",
+          "scAction": "v_vtol_toggle",
           "mode": "tap",
           "x": 244,
           "y": 45,
@@ -592,8 +603,9 @@
             "dock camera"
           ],
           "keys": "0",
-          "verify": true,
-          "mode": "tap",
+          "scAction": "v_dock_toggle_view",
+          "mode": "timed",
+          "ms": 400,
           "x": 4,
           "y": 101,
           "w": 472,
@@ -644,7 +656,7 @@
             "maximum weapons"
           ],
           "keys": "f5",
-          "verify": true,
+          "scAction": "v_engineering_assignment_weapons_max",
           "mode": "timed",
           "ms": 900,
           "color": "red",
@@ -666,7 +678,7 @@
             "maximum thrusters"
           ],
           "keys": "f6",
-          "verify": true,
+          "scAction": "v_engineering_assignment_engine_max",
           "mode": "timed",
           "ms": 900,
           "color": "blue",
@@ -686,7 +698,7 @@
             "maximum shields"
           ],
           "keys": "f7",
-          "verify": true,
+          "scAction": "v_engineering_assignment_shields_max",
           "mode": "timed",
           "ms": 900,
           "color": "green",
@@ -706,7 +718,7 @@
             "more power to weapons"
           ],
           "keys": "f5",
-          "verify": true,
+          "scAction": "v_engineering_assignment_weapons_increase",
           "mode": "tap",
           "color": "red",
           "x": 58,
@@ -727,7 +739,7 @@
             "more power to engines"
           ],
           "keys": "f6",
-          "verify": true,
+          "scAction": "v_engineering_assignment_engine_increase",
           "mode": "tap",
           "color": "blue",
           "x": 198,
@@ -746,7 +758,7 @@
             "more power to shields"
           ],
           "keys": "f7",
-          "verify": true,
+          "scAction": "v_engineering_assignment_shields_increase",
           "mode": "tap",
           "color": "green",
           "x": 338,
@@ -792,7 +804,7 @@
             "less power to weapons"
           ],
           "keys": "lalt+f5",
-          "verify": true,
+          "scAction": "v_engineering_assignment_weapons_decrease",
           "mode": "tap",
           "color": "red",
           "x": 58,
@@ -813,7 +825,7 @@
             "less power to engines"
           ],
           "keys": "lalt+f6",
-          "verify": true,
+          "scAction": "v_engineering_assignment_engine_decrease",
           "mode": "tap",
           "color": "blue",
           "x": 198,
@@ -832,7 +844,7 @@
             "less power to shields"
           ],
           "keys": "lalt+f7",
-          "verify": true,
+          "scAction": "v_engineering_assignment_shields_decrease",
           "mode": "tap",
           "color": "green",
           "x": 338,
@@ -850,7 +862,7 @@
             "minimum weapons"
           ],
           "keys": "lalt+f5",
-          "verify": true,
+          "scAction": "v_engineering_assignment_weapons_min",
           "mode": "timed",
           "ms": 900,
           "color": "red",
@@ -871,7 +883,7 @@
             "minimum thrusters"
           ],
           "keys": "lalt+f6",
-          "verify": true,
+          "scAction": "v_engineering_assignment_engine_min",
           "mode": "timed",
           "ms": 900,
           "color": "blue",
@@ -890,7 +902,7 @@
             "minimum shields"
           ],
           "keys": "lalt+f7",
-          "verify": true,
+          "scAction": "v_engineering_assignment_shields_min",
           "mode": "timed",
           "ms": 900,
           "color": "green",
@@ -911,7 +923,7 @@
             "reset all power"
           ],
           "keys": "f8",
-          "verify": true,
+          "scAction": "v_engineering_assignment_reset",
           "mode": "tap",
           "x": 2,
           "y": 571,
@@ -946,6 +958,7 @@
             "toggle power"
           ],
           "keys": "u",
+          "scAction": "v_power_toggle",
           "mode": "tap",
           "color": "green",
           "x": 1,
@@ -971,7 +984,7 @@
             "toggle weapons"
           ],
           "keys": "p",
-          "verify": true,
+          "scAction": "v_power_toggle_weapons",
           "mode": "tap",
           "color": "red",
           "x": 123,
@@ -1000,7 +1013,7 @@
             "thrusters off"
           ],
           "keys": "i",
-          "verify": true,
+          "scAction": "v_power_toggle_thrusters",
           "mode": "tap",
           "color": "blue",
           "x": 244,
@@ -1026,7 +1039,7 @@
             "toggle shields"
           ],
           "keys": "o",
-          "verify": true,
+          "scAction": "v_power_toggle_shields",
           "mode": "tap",
           "color": "green",
           "x": 365,
@@ -1054,7 +1067,8 @@
             "flight ready",
             "ready for flight"
           ],
-          "keys": "r",
+          "keys": "ralt+r",
+          "scAction": "v_flightready",
           "mode": "tap",
           "color": "green",
           "x": 9,
@@ -1073,8 +1087,9 @@
             "master mode"
           ],
           "keys": "b",
-          "verify": true,
-          "mode": "tap",
+          "scAction": "v_master_mode_cycle_long",
+          "mode": "timed",
+          "ms": 400,
           "x": 47,
           "y": 252,
           "w": 189,
@@ -1110,7 +1125,7 @@
                 "guns mode",
                 "gun mode"
               ],
-              "keys": "ralt+g",
+              "keys": "ralt+b",
               "scAction": "v_set_guns_mode",
               "mode": "tap",
               "color": "red"
@@ -1170,7 +1185,7 @@
               "voice": [
                 "salvage mode"
               ],
-              "keys": "ralt+s",
+              "keys": "ralt+x",
               "scAction": "v_set_salvage_mode",
               "mode": "tap",
               "color": "amber"
@@ -1189,7 +1204,9 @@
             "jump"
           ],
           "voiceMs": 1500,
-          "keys": "b",
+          "keys": "ralt+j",
+          "scAction": "v_toggle_qdrive_engagement",
+          "verify": true,
           "mode": "hold",
           "color": "blue",
           "x": 65,
@@ -1210,7 +1227,7 @@
           "label": "Slide to eject",
           "voice": false,
           "keys": "ralt+y",
-          "verify": true,
+          "scAction": "v_eject",
           "mode": "timed",
           "ms": 600,
           "x": 21,
@@ -1227,6 +1244,7 @@
           "label": "Self-D",
           "voice": false,
           "keys": "backspace",
+          "scAction": "v_self_destruct",
           "mode": "hold",
           "color": "red",
           "x": 338,
@@ -1287,7 +1305,7 @@
                 "toggle speed limiter"
               ],
               "keys": "lalt+minus",
-              "scAction": "v_ifcs_toggle_speed_limiter",
+              "scAction": "v_ifcs_speed_limiter_toggle",
               "mode": "tap"
             },
             {
@@ -1310,8 +1328,9 @@
               "voice": [
                 "increase speed range"
               ],
-              "keys": "lalt+y",
-              "scAction": "v_speed_range_up",
+              "keys": "lalt+pgup",
+              "scAction": "v_ifcs_speed_limiter_increment",
+              "verify": true,
               "mode": "tap"
             },
             {
@@ -1321,8 +1340,9 @@
               "voice": [
                 "decrease speed range"
               ],
-              "keys": "lctrl+y",
-              "scAction": "v_speed_range_down",
+              "keys": "lalt+pgdn",
+              "scAction": "v_ifcs_speed_limiter_decrement",
+              "verify": true,
               "mode": "tap"
             },
             {
@@ -1383,6 +1403,7 @@
                 "toggle lights"
               ],
               "keys": "l",
+              "scAction": "v_lights",
               "mode": "tap"
             },
             {
@@ -1390,7 +1411,7 @@
               "icon": "eye",
               "label": "Look Behind",
               "voice": false,
-              "keys": "lalt+period",
+              "keys": "comma",
               "scAction": "v_view_look_behind",
               "mode": "hold"
             },
@@ -1403,6 +1424,7 @@
                 "leave seat"
               ],
               "keys": "y",
+              "scAction": "pl_exit",
               "mode": "timed",
               "ms": 1200,
               "color": "red"
@@ -1547,7 +1569,7 @@
               "voice": [
                 "previous attacker"
               ],
-              "keys": "lalt+4",
+              "keys": "ralt+4",
               "scAction": "v_target_cycle_attacker_back",
               "mode": "tap",
               "color": "red"
@@ -1618,7 +1640,7 @@
               "id": "sv-mod-left",
               "icon": "chev-left",
               "label": "Modifier Left",
-              "keys": "ralt+l",
+              "keys": "ralt+lbracket",
               "scAction": "v_salvage_cycle_modifiers_left",
               "mode": "tap",
               "color": "amber"
@@ -1627,7 +1649,7 @@
               "id": "sv-mod-right",
               "icon": "chev-right",
               "label": "Modifier Right",
-              "keys": "ralt+r",
+              "keys": "ralt+rbracket",
               "scAction": "v_salvage_cycle_modifiers_right",
               "mode": "tap",
               "color": "amber"
@@ -1722,7 +1744,6 @@
               "voiceMs": 600,
               "keys": "rctrl+s",
               "scAction": "v_decrease_mining_throttle",
-              "verify": true,
               "mode": "hold"
             },
             {
@@ -1764,7 +1785,6 @@
               ],
               "keys": "lalt+1",
               "scAction": "v_mining_use_consumable1",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             },
@@ -1778,7 +1798,6 @@
               ],
               "keys": "lalt+2",
               "scAction": "v_mining_use_consumable2",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             },
@@ -1792,7 +1811,6 @@
               ],
               "keys": "lalt+3",
               "scAction": "v_mining_use_consumable3",
-              "verify": true,
               "mode": "tap",
               "color": "blue"
             }
@@ -1832,7 +1850,7 @@
                 "guns mode",
                 "gun mode"
               ],
-              "keys": "ralt+g",
+              "keys": "ralt+b",
               "scAction": "v_set_guns_mode",
               "mode": "tap",
               "color": "red"
@@ -1892,7 +1910,7 @@
               "voice": [
                 "salvage mode"
               ],
-              "keys": "ralt+s",
+              "keys": "ralt+x",
               "scAction": "v_set_salvage_mode",
               "mode": "tap",
               "color": "amber"
@@ -1921,7 +1939,8 @@
                 "flares",
                 "launch decoy"
               ],
-              "keys": "g",
+              "keys": "h",
+              "scAction": "v_weapon_countermeasure_decoy_launch",
               "mode": "tap",
               "color": "amber"
             },
@@ -1934,7 +1953,8 @@
                 "chaff",
                 "launch noise"
               ],
-              "keys": "h",
+              "keys": "j",
+              "scAction": "v_weapon_countermeasure_noise_launch",
               "mode": "tap",
               "color": "amber"
             },
@@ -1946,7 +1966,7 @@
               "voice": [
                 "panic"
               ],
-              "keys": "lctrl+h",
+              "keys": "rctrl+h",
               "scAction": "v_weapon_countermeasure_decoy_launch_panic",
               "mode": "tap",
               "color": "red"
@@ -1962,8 +1982,10 @@
                 "missile away"
               ],
               "keys": "ralt+backslash",
-              "scAction": "v_weapon_launch_missile_cinematic",
-              "mode": "tap",
+              "scAction": "v_weapon_launch_missile",
+              "verify": true,
+              "mode": "timed",
+              "ms": 400,
               "color": "red"
             },
             {
@@ -1973,7 +1995,7 @@
               "voice": [
                 "less missiles"
               ],
-              "keys": "lctrl+g",
+              "keys": "ralt+minus",
               "scAction": "v_weapon_decrease_max_missiles",
               "mode": "tap"
             },
@@ -2051,7 +2073,7 @@
               "voice": [
                 "doors"
               ],
-              "keys": "np_period",
+              "keys": "ralt+o",
               "scAction": "v_toggle_all_doors",
               "mode": "tap",
               "color": "amber"
@@ -2136,6 +2158,7 @@
                 "open inventory"
               ],
               "keys": "i",
+              "scAction": "pc_pit_inventory",
               "mode": "tap"
             },
             {
@@ -2149,6 +2172,7 @@
                 "switch camera"
               ],
               "keys": "f4",
+              "scAction": "thirdperson",
               "mode": "tap"
             },
             {

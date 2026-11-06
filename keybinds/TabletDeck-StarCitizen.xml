@@ -135,7 +135,7 @@
    <rebind input="kb1_ralt+f"/>
   </action>
   <action name="v_set_guns_mode">
-   <rebind input="kb1_ralt+g"/>
+   <rebind input="kb1_ralt+b"/>
   </action>
   <action name="v_set_mining_mode">
    <rebind input="kb1_ralt+m"/>
@@ -147,7 +147,7 @@
    <rebind input="kb1_ralt+q"/>
   </action>
   <action name="v_set_salvage_mode">
-   <rebind input="kb1_ralt+s"/>
+   <rebind input="kb1_ralt+x"/>
   </action>
   <action name="v_set_scan_mode">
    <rebind input="kb1_ralt+v"/>
@@ -176,7 +176,7 @@
    <rebind input="kb1_ralt+np_5"/>
   </action>
   <action name="v_weapon_countermeasure_decoy_launch_panic">
-   <rebind input="kb1_lctrl+h"/>
+   <rebind input="kb1_rctrl+h"/>
   </action>
  </actionmap>
  <actionmap name="spaceship_general">
@@ -190,7 +190,7 @@
    <rebind input="kb1_lalt+o"/>
   </action>
   <action name="v_toggle_all_doors">
-   <rebind input="kb1_np_period"/>
+   <rebind input="kb1_ralt+o"/>
   </action>
   <action name="v_unlock_all_doors">
    <rebind input="kb1_lalt+u"/>
@@ -203,15 +203,6 @@
   <action name="v_increase_mining_throttle">
    <rebind input="kb1_rctrl+w"/>
   </action>
-  <action name="v_mining_use_consumable1">
-   <rebind input="kb1_lalt+1"/>
-  </action>
-  <action name="v_mining_use_consumable2">
-   <rebind input="kb1_lalt+2"/>
-  </action>
-  <action name="v_mining_use_consumable3">
-   <rebind input="kb1_lalt+3"/>
-  </action>
   <action name="v_toggle_mining_laser_fire">
    <rebind input="kb1_rctrl+f"/>
   </action>
@@ -221,15 +212,24 @@
  </actionmap>
  <actionmap name="spaceship_missiles">
   <action name="v_weapon_decrease_max_missiles">
-   <rebind input="kb1_lctrl+g"/>
+   <rebind input="kb1_ralt+minus"/>
   </action>
-  <action name="v_weapon_launch_missile_cinematic">
+  <action name="v_weapon_launch_missile">
    <rebind input="kb1_ralt+backslash"/>
   </action>
  </actionmap>
  <actionmap name="spaceship_movement">
+  <action name="v_ifcs_speed_limiter_decrement">
+   <rebind input="kb1_lalt+pgdn"/>
+  </action>
+  <action name="v_ifcs_speed_limiter_increment">
+   <rebind input="kb1_lalt+pgup"/>
+  </action>
   <action name="v_ifcs_speed_limiter_reset_scm">
    <rebind input="kb1_lalt+s"/>
+  </action>
+  <action name="v_ifcs_speed_limiter_toggle">
+   <rebind input="kb1_lalt+minus"/>
   </action>
   <action name="v_ifcs_toggle_esp">
    <rebind input="kb1_lalt+semicolon"/>
@@ -237,31 +237,27 @@
   <action name="v_ifcs_toggle_gforce_safety">
    <rebind input="kb1_lalt+i"/>
   </action>
-  <action name="v_ifcs_toggle_speed_limiter">
-   <rebind input="kb1_lalt+minus"/>
-  </action>
   <action name="v_master_mode_set_nav">
    <rebind input="kb1_ralt+np_period"/>
   </action>
   <action name="v_master_mode_set_scm">
    <rebind input="kb1_ralt+insert"/>
   </action>
-  <action name="v_speed_range_down">
-   <rebind input="kb1_lctrl+y"/>
-  </action>
-  <action name="v_speed_range_up">
-   <rebind input="kb1_lalt+y"/>
-  </action>
   <action name="v_target_match_vel">
    <rebind input="kb1_lctrl+v"/>
   </action>
  </actionmap>
+ <actionmap name="spaceship_quantum">
+  <action name="v_toggle_qdrive_engagement">
+   <rebind input="kb1_ralt+j"/>
+  </action>
+ </actionmap>
  <actionmap name="spaceship_salvage">
   <action name="v_salvage_cycle_modifiers_left">
-   <rebind input="kb1_ralt+l"/>
+   <rebind input="kb1_ralt+lbracket"/>
   </action>
   <action name="v_salvage_cycle_modifiers_right">
-   <rebind input="kb1_ralt+r"/>
+   <rebind input="kb1_ralt+rbracket"/>
   </action>
   <action name="v_salvage_decrease_beam_spacing">
    <rebind input="kb1_ralt+comma"/>
@@ -275,7 +271,7 @@
    <rebind input="kb1_lalt+7"/>
   </action>
   <action name="v_target_cycle_attacker_back">
-   <rebind input="kb1_lalt+4"/>
+   <rebind input="kb1_ralt+4"/>
   </action>
   <action name="v_target_cycle_friendly_back">
    <rebind input="kb1_lalt+6"/>
@@ -305,11 +301,11 @@
   <action name="v_open_all_doors">
    <rebind input="kb1_lalt+o"/>
   </action>
+  <action name="v_toggle_all_doors">
+   <rebind input="kb1_ralt+o"/>
+  </action>
   <action name="v_unlock_all_doors">
    <rebind input="kb1_lalt+u"/>
-  </action>
-  <action name="v_view_look_behind">
-   <rebind input="kb1_lalt+period"/>
   </action>
  </actionmap>
 </ActionMaps>
