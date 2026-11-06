@@ -87,6 +87,9 @@ function createActions({ sd, tablet, data, draw, log }) {
     const n = data.SCENES.length;
     if (!n) return false;
     const i = ((index % n) + n) % n;
+    // A scene picked here is newer than a tablet's panel still waiting to be followed.
+    const waiting = tell && sceneSteps.get(device);
+    if (waiting) waiting.to = -1;
     const profile = profileFor(device);
     if (profile) {
       sd.send({ event: "switchToProfile", context: sd.pluginUUID, device, payload: { profile, page: i } });
@@ -526,9 +529,10 @@ function createActions({ sd, tablet, data, draw, log }) {
   // Deck on a scene page of the Tablet Deck profile goes to the scene with that panel on
   // that side (SCENES[].tablet), without telling the tablets, which would page back. It
   // stays when its scene has that panel already, or when no scene or several do (Mining and
-  // Salvage share Operator Modes), and it's never taken out of a folder or a profile of the
-  // player's own. A panel matches as when a tablet follows a scene: phone layouts split
-  // some ("landing" and "power" for "power-landing", "systems" for "qt-systems").
+  // Salvage share Operator Modes), while a key or dial on it is held, and it's never taken
+  // out of a folder or a profile of the player's own. A panel matches as when a tablet
+  // follows a scene: phone layouts split some ("landing" and "power" for "power-landing",
+  // "systems" for "qt-systems").
   const FOLLOW_MS = 1000; // how long a switched page's keys may take to appear
   const panelFits = (panel, id) => panel === id || id.split("-").includes(panel) || panel.startsWith(id);
   function followPanel(side, panel) {
@@ -537,10 +541,20 @@ function createActions({ sd, tablet, data, draw, log }) {
     data.SCENES.forEach((sc, i) => { const id = sc.tablet && sc.tablet[side]; if (typeof id === "string" && id && panelFits(panel, id)) fits.push(i); });
     if (fits.length !== 1) return;
     for (const device of devices.keys()) {
+      // A switch still waiting there (the scene dial's steps, an earlier panel) gives way to
+      // this newer one, even one for the scene it shows.
       const s = sceneSteps.get(device);
-      const at = s && s.to >= 0 ? s.to : sceneOn.get(device); // where it's headed, if a switch waits
-      if (at !== fits[0] && profileFor(device) && onScenePage(device)) queueScene(device, { to: fits[0] });
+      const waits = Boolean(s && (s.n || s.to >= 0));
+      if ((waits || sceneOn.get(device) !== fits[0]) && profileFor(device) && onScenePage(device) && !inUse(device)) queueScene(device, { to: fits[0] });
     }
+  }
+
+  // A key or dial on the device is down, or a dial's turns are still going out: a new page
+  // would take them away mid-press (willDisappear lets go of a hold, push to talk included,
+  // and drops the turns still waiting), so a tablet's panel doesn't switch it.
+  function inUse(device) {
+    for (const c of contexts.values()) if (c.device === device && (c.pressed || c.holding || c.talking || (c.queue && c.queue.length))) return true;
+    return false;
   }
 
   // Whether a device shows a scene page of the Tablet Deck profile: the plugin's keys there
@@ -558,7 +572,7 @@ function createActions({ sd, tablet, data, draw, log }) {
 
   // A tablet's scene once its turn comes, checked again: the player may have moved on.
   function followTo(device, i) {
-    if (G.followTablet === false || sceneOn.get(device) === i || !onScenePage(device)) return;
+    if (G.followTablet === false || sceneOn.get(device) === i || !onScenePage(device) || inUse(device)) return;
     quietUntil.set(device, now() + FOLLOW_MS);
     goToScene(device, i, { tell: false });
   }

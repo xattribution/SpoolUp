@@ -103,8 +103,8 @@ start with Windows, and updates with one click.
 Profiles for every Stream Deck from the Mini to the + XL in all 12 themes, with
 a page per scene, folders for emergencies, emotes and themes, dials and touch
 strips on the + and + XL, and a Comms page with Discord and OBS. Icon packs with
-every button, and a plugin that presses through Tablet Deck and flips your
-tablet to the same scene. [More](#stream-deck)
+every button, and a plugin that presses through Tablet Deck and can keep your
+tablet and Stream Deck on the same scene. [More](#stream-deck)
 
 </td>
 </tr>
@@ -521,11 +521,14 @@ switches to it.
   doors...) shared with your tablets, a red flash when a press is skipped, and
   the press animations. **Theme** keys redraw every Tablet Deck key in that
   manufacturer's look.
-- Picking a scene flips tablets that have **Follow Stream Deck scenes** on
-  (under **Display** in Deck settings) to that scene's panels.
+- With **Tablets follow scenes** on (it's off at first, in any Tablet Deck
+  key's settings), picking a scene flips tablets that have **Follow Stream Deck
+  scenes** on (under **Display** in Deck settings) to that scene's panels.
 - The other way round, flipping a panel on a tablet takes the Stream Deck to
-  the scene with that panel, while it shows the Tablet Deck profile. To stop
-  that, turn off **Follow the tablet** in any Tablet Deck key's settings.
+  the scene with that panel, while it shows the Tablet Deck profile and no key
+  on it is held down. Panels two scenes share (Power/Landing, Operator Modes)
+  leave it where it is. To stop that, turn off **Follow the tablet** in any
+  Tablet Deck key's settings.
 - It finds Tablet Deck on the same PC by itself. If **Status** shows OFFLINE or
   WRONG CODE, set the port and pairing code in any Tablet Deck key's settings.
 - A dial notch is one press, at most 5 per turn; turning back drops the ones
@@ -551,6 +554,8 @@ with your model and Stream Deck version. In particular:
 - Hotkeys with right-hand modifiers (RAlt, RCtrl) pressing the right-hand key.
 - The plugin finding Tablet Deck, its first switch to its profiles, and the
   PLUGIN keys' pictures.
+- **Follow the tablet:** the Stream Deck moving to the right page soon after a
+  tablet's panel flips, also with several Stream Decks connected.
 </details>
 
 ## Settings

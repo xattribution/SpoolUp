@@ -93,11 +93,16 @@ neither direction answers the other, so they can't page each other back and fort
   `device=streamdeck` clients. With **Follow the tablet** on (global setting `followTablet`, on unless
   set to false), the plugin takes each device that shows a scene page of its bundled profile (a
   visible key carries `settings.page`) to the one scene whose `tablet[side]` is that panel, with
-  `switchToProfile` as its own scene keys do, at most once per 250 ms per device, and sends no
-  `scene` for it. A panel matches as tablets match scenes (the id, a word of it or its start, so a
-  phone layout's `landing`, `power` and `systems` count). The device stays where it is when its scene
-  has that panel already, when no scene or several do (`modes` is Mining's and Salvage's,
-  `power-landing` Flight's and Hauling's), and while it shows a folder or a profile of the player's own.
+  `switchToProfile` as its own scene keys do, at most once per 250 ms per device (the newest wish
+  wins: a panel replaces the scene dial's steps still waiting, a scene picked on the device drops a
+  panel still waiting), and sends no `scene` for it, nor for its page changes in the second after
+  (a page from before may still be appearing). A panel matches as tablets match scenes (the id, a
+  word of it or its start, so a phone layout's `landing`, `power` and `systems` count). The device
+  stays where it is when its scene has that panel already, when no scene or several do (`modes` is
+  Mining's and Salvage's, `power-landing` Flight's and Hauling's), while a key or dial on it is down
+  or a dial's turns are still going out (a new page would let go of a hold mid-press), and while it
+  shows a folder or a profile of the player's own. A key copied from the bundled profile into one of
+  the player's own keeps its `page`, so that profile counts as the bundled one.
 
 The server checks both: scene names and panel ids are `^[a-z0-9-]{1,40}$`, `side` is left or right,
 and nothing else passes through. Don't edit server.js yourself; tell the main session what you need.

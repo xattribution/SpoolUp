@@ -87,6 +87,15 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   "24" (global `WebSocket`), `Software.MinimumVersion` "7.3" (a + XL profile needs 7.3, which also fixed `switchToProfile`), `SDKVersion` 3, Windows only.
   `setImage` takes SVG/PNG data URLs but no animated formats, at most ~10 updates a second:
   animation = frames from `streamdeck/keyart.js`.
+- **Scenes sync both ways** (`CONTRACT.md`, "Talking to Tablet Deck"): a scene picked on the
+  Stream Deck pages tablets (the plugin's **Tablets follow scenes**, off by default, and the
+  tablet's **Follow Stream Deck scenes**, on by default); a HUD half paged on a tablet sends
+  `{t:"panel"}` (400 ms after paging stops, only to `device=streamdeck` clients) and the Stream Deck
+  goes to the one scene with that panel (**Follow the tablet**, on by default). Neither direction
+  answers the other, so they can't page each other back. Panels two scenes share (Power/Landing,
+  Operator Modes) don't move it, and a device on a folder, on the player's own profile or with a key
+  held stays. Hardware question: whether `switchToProfile` with a page moves an already-shown
+  profile promptly.
 - **No new npm dependencies.** The generator renders PNGs by driving an installed
   Edge/Chrome over the DevTools protocol, like `tools/record-demo.js`, with the theme's Google
   font (the tablet already loads those fonts); writes ZIPs with Node's zlib.
@@ -120,7 +129,7 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
 | Action catalog (170 actions) | done; every scene ref resolves | `streamdeck/catalog.js` |
 | Scene layouts for 7 models | done; Back at 0,0 in folders, blocks centred and turned to fit, all six + XL dials used on every page | `streamdeck/scenes.js` |
 | Generator | done (e0327da): icon packs, 84 standalone profiles at 144 px, keybinds, plugin with 7 bundled profiles, previews, `--check`, `--release` (ffa1088) | `tools/make-streamdeck.js`, `tools/streamdeck/` |
-| Plugin | done (7c59d99): all review defects fixed, every test passes (check, words 12, rules 21, load 6, inspector 16, end to end 81), MinimumVersion 7.3 | `streamdeck/plugin/` |
+| Plugin | done (7c59d99): all review defects fixed, every test passes (check, words 12, rules 30, load 6, inspector 16, end to end 81), MinimumVersion 7.3; scenes sync both ways (6cb89c8, then its review fixes) | `streamdeck/plugin/` |
 | Server press safety | done (d07ef9a, cea566f, 6e74b0e): taps that could mix take turns, presses against a held modifier are skipped, half-open sockets dropped, unpressable rebinds not fatal, tapMs <= 200 | `server.js` |
 | Release | the Release workflow builds the pack and attaches 9 downloads (a zip per model, the icon packs, the plugin) | `.github/workflows/release.yml` |
 | Docs | done (8584055): README section and feature card, DEVELOPMENT, DESIGN, CHANGELOG, site card | |
