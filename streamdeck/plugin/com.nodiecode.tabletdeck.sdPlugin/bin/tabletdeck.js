@@ -137,7 +137,9 @@ class TabletDeck {
       this.log(`Connected to Tablet Deck on port ${target.port} (${target.source === "auto" ? "settings found on this PC" : "code from the property inspector"}).`);
       this.send({ t: "hb", n: performance.now() }); // measure the round trip straight away
     };
-    sock.onerror = () => { /* a close follows */ };
+    // Node's WebSocket reports a refused upgrade (a wrong code's 403) with an error and no
+    // close, so both end the attempt.
+    sock.onerror = () => { if (!opened) ended(); };
     sock.onmessage = (e) => {
       let msg;
       try { msg = JSON.parse(e.data); } catch { return; }
@@ -153,10 +155,12 @@ class TabletDeck {
       }
       this.emit("message", msg);
     };
-    sock.onclose = () => {
+    sock.onclose = () => ended();
+    const ended = () => {
       clearTimeout(giveUp);
       if (this.ws !== sock) return;
       this.ws = null;
+      sock.onopen = sock.onclose = sock.onmessage = sock.onerror = null;
       if (opened) {
         this.log("Lost the link to Tablet Deck.");
         this.dropped();

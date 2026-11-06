@@ -116,6 +116,7 @@ function createActions({ sd, tablet, data, draw, log }) {
 
   // A hold button goes down once however many keys hold it, and up when the last lets go.
   function hold(ctx, id) {
+    if (ctx.holding) unhold(ctx); // a second keyDown without a keyUp: let go of the first
     let set = holds.get(id);
     if (!set) {
       if (!tablet.send({ t: "down", id })) return false;
@@ -325,8 +326,10 @@ function createActions({ sd, tablet, data, draw, log }) {
     let label = "", icon = "default", color = "", value = "", hint = "", valueColor = th.dim;
     const flashP = Math.max(fade(ctx.flashAt, at), isSceneDial(d) ? fade(sceneAt.get(ctx.device), at) : 0);
     const blocked = Boolean(ctx.blockedUntil && ctx.blockedUntil > at);
-    if (!d) {
-      label = t("Deck Dial");
+    const usable = d && ["ccw", "cw", "press"].some((r) => { const x = resolve(d[r]); return x && x.kind !== "unsupported"; });
+    if (!d || !usable) {
+      label = t(d && d.label ? d.label : "Deck Dial");
+      icon = d && d.icon ? d.icon : "default";
       value = t("Not set");
     } else if (isSceneDial(d)) {
       // The scene dial shows where it is: the current scene's icon, colour and name.
@@ -351,13 +354,15 @@ function createActions({ sd, tablet, data, draw, log }) {
       hint = pw ? `${t("PUSH")} · ${pw}` : "";
     }
     if (blocked) { value = t("NOT FOCUSED"); valueColor = th.colors.red; }
-    else if (off && d && !isSceneDial(d)) { value = t("OFFLINE"); valueColor = th.dim; }
+    else if (off && usable && !isSceneDial(d)) { value = t("OFFLINE"); valueColor = th.dim; }
+    // The value line is 118 px wide: long words get a smaller size rather than an ellipsis.
+    const size = value.length <= 8 ? 22 : value.length <= 11 ? 17 : value.length <= 14 ? 13 : 12;
     const bg = draw.strip(th, { color, place, flash: G.motion === false ? 0 : flashP, blocked, offline: off && !(d && isSceneDial(d)) });
     sd.feedback(ctx.context, {
       bg: svgBase64(bg),
       icon: svgBase64(draw.stripIcon(th, icon, color, { offline: off && !(d && isSceneDial(d)), strength: flashP > 0 ? 1.8 : 1 })),
       label: { value: upper(label), color: th.text },
-      value: { value: upper(value), color: valueColor },
+      value: { value: upper(value), color: valueColor, font: { size, weight: 700 } },
       hint: { value: upper(hint), color: th.dim },
     });
   }
@@ -369,7 +374,7 @@ function createActions({ sd, tablet, data, draw, log }) {
     const d = dialOf(ctx);
     if (!d) return;
     const name = (ref) => { const r = resolve(ref); return r && r.kind === "deck" ? t(r.def.label) : wordFor(ctx, ref); };
-    const rotate = [name(d.ccw), name(d.cw)].filter(Boolean).join(" / ");
+    const rotate = isSceneDial(d) ? t(d.label || "Scenes") : [name(d.ccw), name(d.cw)].filter(Boolean).join(" / ");
     const push = name(d.press);
     const payload = {};
     if (rotate) payload.rotate = rotate;
@@ -489,13 +494,15 @@ function createActions({ sd, tablet, data, draw, log }) {
     if (a.kind === "charge" && full) linger(ctx, { word: "ENGAGED", lit: true, ms: 1500 });
   }
 
-  // A press's effect on a deck key, as on the tablet.
-  function pressAnim(ctx, def) {
+  // A press's effect on a deck key, as on the tablet. tap: a press nobody holds (voice),
+  // so hold effects run once instead of until the key comes up.
+  function pressAnim(ctx, def, { tap = false } = {}) {
     const kind = animFor(def);
-    if (kind === "charge") return play(ctx, { kind, ms: def.chargeMs || 1200, holdAtEnd: def.mode === "hold" });
-    if (kind === "hazard") return play(ctx, { kind, ms: def.armMs || def.ms || 2000, holdAtEnd: def.mode === "hold" });
+    const held = def.mode === "hold" && !tap;
+    if (kind === "charge") return play(ctx, { kind, ms: def.chargeMs || 1200, holdAtEnd: held });
+    if (kind === "hazard") return play(ctx, { kind, ms: def.armMs || def.ms || 2000, holdAtEnd: held });
     if (kind === "timed") return play(ctx, { kind, ms: def.ms || 600 });
-    if (kind === "streak") return play(ctx, def.mode === "hold" ? { kind, ms: ANIM_MS.streak, loop: true } : { kind, ms: ANIM_MS.streak });
+    if (kind === "streak") return play(ctx, held ? { kind, ms: ANIM_MS.streak, loop: true } : { kind, ms: ANIM_MS.streak });
     if (kind === "lock") return play(ctx, { kind, ms: ANIM_MS.lock, then: (c) => linger(c, { word: "LOCKED", lit: true, kind: "lock", ms: 1400 }) });
     // With a shared state, the server's answer plays the state's effect (see "state").
     if (STATE_ANIMS.has(kind) && def.state) {
@@ -540,7 +547,8 @@ function createActions({ sd, tablet, data, draw, log }) {
           if (!def || !def.state || def.state.group !== msg.group) continue;
           const kind = animFor(def);
           // The state changed live: play its effect (doors slide, gear struts, a ripple).
-          if (was !== Boolean(msg.on) && STATE_ANIMS.has(kind) && !(def.state.set === false && kind !== "doors")) {
+          // Buttons that only switch it off (Close Doors) play theirs on their own press.
+          if (was !== Boolean(msg.on) && STATE_ANIMS.has(kind) && def.state.set !== false) {
             if (kind === "gear" || kind === "doors") play(c, { kind, ms: ANIM_MS[kind], dir: msg.on ? 1 : -1, word: def.state.set === undefined || kind === "gear" ? transitional(kind, msg.on) : "" });
             else if (msg.on) play(c, { kind, ms: ANIM_MS[kind] });
             else paint(c);
@@ -581,7 +589,7 @@ function createActions({ sd, tablet, data, draw, log }) {
       case "heard":
         for (const c of contexts.values()) if (c.kind === "talk") linger(c, { word: "HEARD", ms: 1200 });
         // The heard button was pressed by voice: its keys play their press.
-        for (const c of keysFor(msg.id)) { const def = deckDef(c); if (def && !STATE_ANIMS.has(animFor(def))) pressAnim(c, def); }
+        for (const c of keysFor(msg.id)) { const def = deckDef(c); if (def && !STATE_ANIMS.has(animFor(def))) pressAnim(c, def, { tap: true }); }
         break;
       case "unheard":
         for (const c of contexts.values()) if (c.kind === "talk") linger(c, { word: "NOT HEARD", ms: 1200 });
@@ -594,8 +602,11 @@ function createActions({ sd, tablet, data, draw, log }) {
     }
   });
 
+  // A new link state redraws everything (offline marks); a new round trip only the Status keys.
+  let linkState = null;
   tablet.on("link", (link) => {
-    repaintAll();
+    if (link.state !== linkState) { linkState = link.state; repaintAll(); }
+    else for (const c of contexts.values()) if (c.kind === "status") paint(c);
     for (const context of piOpen) sd.send({ event: "sendToPropertyInspector", context, payload: { type: "link", link } });
   });
 
@@ -758,7 +769,7 @@ function createActions({ sd, tablet, data, draw, log }) {
         strings: data.strings,
         link: { ...tablet.link },
         categories: data.categories.filter((c) => used.has(c.id)).map((c) => ({ id: c.id, name: t(c.name) })),
-        actions: deckActions.map((a) => ({ id: a.id, label: t(a.label), category: a.category, mode: a.mode, color: a.color || "", icon: data.icons[a.icon] || data.icons.default || "" })),
+        actions: deckActions.map((a) => ({ id: a.id, label: t(a.label), category: a.category, mode: a.mode, color: a.color || "", iconName: a.icon, icon: data.icons[a.icon] || data.icons.default || "" })),
         scenes: data.SCENES.map((s) => ({ id: s.id, name: t(s.name), icon: data.icons[s.icon] || "" })),
         themes: THEMES.map((x) => ({ id: x.id, name: x.name, accent: (data.themeTokens[x.id] || {}).accent || "" })),
         // Presets whose every part the plugin can press (media and Discord dials are

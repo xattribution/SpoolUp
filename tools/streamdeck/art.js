@@ -14,6 +14,27 @@ const svg = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" width="${w}
 const TEXT = "__THEME_TEXT__";
 const emblemIcon = (emblem) => `<g transform="scale(.75)">${emblem}</g>`;
 
+// A --key-clip polygon's points, read with nested calc() kept whole.
+const POLYGON = /polygon\(((?:[^()]|\([^()]*\))*)\)/;
+const clipPoints = (clip) => {
+  const m = POLYGON.exec(clip || "");
+  return m ? m[1].split(/,(?![^(]*\))/).map((p) => p.trim().split(/\s+(?![^(]*\))/)) : null;
+};
+// One clip coordinate as keyart reads it: calc(100% - Npx), a percentage, or px (x 0.9).
+function clipValue(e, full) {
+  const calc = /calc\(100% - ([\d.]+)px\)/.exec(e.trim());
+  if (calc) return full - parseFloat(calc[1]) * 0.9;
+  if (e.trim().endsWith("%")) return (parseFloat(e) / 100) * full;
+  return parseFloat(e) * 0.9;
+}
+
+// keyart draws the folder badge in the bottom-right corner, where a long label ("EMERGENCY",
+// "THEMES") runs under it at real key size. The pack's keys carry it in the top-right corner
+// instead, clear of the label and inside every theme's cut or rounded corners. If keyart
+// draws its badge some other way, the key is left as it is.
+const BADGE_AT = 'd="M112 116h8l3 3h9v13h-20Z"';
+const badgeUp = (drawn) => drawn.replace(BADGE_AT, 'd="M104 18h8l3 3h9v13h-20Z"');
+
 function createArt({ icons, themes, tokens }) {
   const themeCache = new Map();
   const theme = (id) => {
@@ -29,16 +50,17 @@ function createArt({ icons, themes, tokens }) {
 
   // ---------- keys ----------
 
-  // A catalog action. Timed presses become "hold" on a Hotkey key, which can't time them.
-  function actionKey(th, a, { lit = false, standalone = true } = {}) {
-    const status = lit ? (a.state && a.state.on) || "ON" : standalone && a.mode === "timed" ? "HOLD" : undefined;
+  // A catalog action. `mark`: a word under the label when not lit, such as PLUGIN on a key
+  // that only works through the Tablet Deck plugin.
+  function actionKey(th, a, { lit = false, mark } = {}) {
+    const status = lit ? (a.state && a.state.on) || "ON" : mark;
     return keyart.key({ theme: th, icon: icon(a.icon), label: a.label, color: a.color, lit, status });
   }
   const sceneKey = (th, scene, lit) => keyart.key({ theme: th, icon: icon(scene.icon), label: scene.short || scene.name, color: scene.color, lit });
-  const folderKey = (th, folder) => keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder" });
+  const folderKey = (th, folder) => badgeUp(keyart.key({ theme: th, icon: icon(folder.icon), label: folder.name, color: folder.color, badge: "folder" }));
   const navKey = (th, kind) => {
     const k = { back: ["back", "Back"], next: ["page-next", "Next"], prev: ["page-prev", "Previous"], more: ["page-next", "More"], home: ["home", "Home"] }[kind];
-    return keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined });
+    return badgeUp(keyart.key({ theme: th, icon: icon(k[0]), label: k[1], badge: kind === "more" ? "folder" : undefined }));
   };
   // A theme's key is drawn in that theme, so the folder previews every look.
   function themeKey(id, lit = false) {
@@ -51,22 +73,8 @@ function createArt({ icons, themes, tokens }) {
 
   // The key face's outline (rounded or cut corners, per theme) for any box.
   function outline(th, x, y, w, h) {
-    if (th.clip) {
-      const pts = /polygon\(([^)]*(?:\([^)]*\)[^)]*)*)\)/.exec(th.clip);
-      if (pts) {
-        const ev = (e, full) => {
-          const calc = /calc\(100% - ([\d.]+)px\)/.exec(e.trim());
-          if (calc) return full - parseFloat(calc[1]) * 0.9;
-          if (e.trim().endsWith("%")) return (parseFloat(e) / 100) * full;
-          return parseFloat(e) * 0.9;
-        };
-        const coords = pts[1].split(/,(?![^(]*\))/).map((p) => {
-          const [px, py] = p.trim().split(/\s+(?![^(]*\))/);
-          return [x + ev(px, w), y + ev(py, h)];
-        });
-        return `M${coords.map((c) => c.map((v) => v.toFixed(1)).join(" ")).join("L")}Z`;
-      }
-    }
+    const points = clipPoints(th.clip);
+    if (points) return `M${points.map(([px, py]) => [x + clipValue(px, w), y + clipValue(py, h)].map((v) => v.toFixed(1)).join(" ")).join("L")}Z`;
     const [tl, tr, br, bl] = th.radius.map((r) => Math.min(r, w / 2, h / 2));
     return keyart.arcsToCubics(`M${x + tl} ${y}H${x + w - tr}${tr ? `A${tr} ${tr} 0 0 1 ${x + w} ${y + tr}` : ""}V${y + h - br}${br ? `A${br} ${br} 0 0 1 ${x + w - br} ${y + h}` : ""}H${x + bl}${bl ? `A${bl} ${bl} 0 0 1 ${x} ${y + h - bl}` : ""}V${y + tl}${tl ? `A${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ""}Z`);
   }
@@ -106,31 +114,51 @@ function createArt({ icons, themes, tokens }) {
     parts.push(keyart.icon(icon(d.icon), th, x + 40, 56, 50, c));
     const title = fitText(d.label, th, 112, 18, 11);
     parts.push(text(th, x + 76, 31, title.text, { size: title.size, fill: th.text }));
-    // Turn left / right on one line, push on the next; small arrows rather than glyphs, which
-    // not every theme font has.
-    const hint = (t, w) => fitText(t || "", th, w, 12, 8);
-    const ccw = hint(d.hints.ccw, 52), cw = hint(d.hints.cw, 52), push = hint(d.hints.press, 78);
+    // What turning left and right and pushing do. Symbols ("−", "+") share a line, large;
+    // words share it smaller, or get a line each. A pair is drawn alike, so "DOWN" and "UP"
+    // match. Arrows are drawn, since not every theme font has them.
+    const per = (th.font.upper ? 0.7 : 0.6) + th.font.track;
+    const sym = (t) => String(t || "").length <= 2;
+    const wide = (t, size) => String(t || "").length * size * per;
     const small = { fill: th.dim, weight: 700, font: th.font.body };
-    if (d.hints.ccw) parts.push(`<path d="M${x + 82} 50l-6 4 6 4Z" fill="${c}"/>`, text(th, x + 86, 58, ccw.text, { ...small, size: ccw.size }));
-    if (d.hints.cw) parts.push(`<path d="M${x + 184} 50l6 4-6 4Z" fill="${c}"/>`, text(th, x + 180, 58, cw.text, { ...small, size: cw.size, anchor: "end" }));
-    if (d.hints.press) {
-      parts.push(`<circle cx="${x + 80}" cy="${78}" r="4" fill="none" stroke="${c}" stroke-width="2"/><circle cx="${x + 80}" cy="78" r="1.5" fill="${c}"/>`);
-      parts.push(text(th, x + 90, 82, push.text, { ...small, size: push.size, fill: th.text }));
+    const { ccw: l, cw: r, press } = d.hints;
+    const big = [l, r].filter(Boolean).every(sym);
+    const oneLine = (!l || !r || wide(l, big ? 18 : 13) + wide(r, big ? 18 : 13) + 34 <= 112);
+    const arrow = (ax, y, dir) => `<path d="M${ax} ${y - 5}L${ax + dir * 6} ${y}L${ax} ${y + 5}Z" fill="${c}"/>`;
+    // A push or turn that only works through the Tablet Deck plugin says so, as its keys do.
+    const via = new Set(d.plugin || []);
+    const tag = (tx, y) => text(th, tx, y, "PLUGIN", { ...small, size: 9, anchor: "end" });
+    if (via.has("ccw") || via.has("cw")) parts.push(tag(x + 188, 17));
+    if (oneLine) {
+      const look = { ...small, size: big ? 18 : 13, fill: big ? th.text : th.dim };
+      if (l) { const t = fitText(l, th, 46, look.size, 9); parts.push(arrow(x + 82, 56, -1), text(th, x + 87, big ? 62 : 60, t.text, { ...look, size: t.size })); }
+      if (r) { const t = fitText(r, th, 46, look.size, 9); parts.push(arrow(x + 184, 56, 1), text(th, x + 179, big ? 62 : 60, t.text, { ...look, size: t.size, anchor: "end" })); }
+    } else {
+      const a = fitText(l, th, 100, 12, 8), b = fitText(r, th, 100, 12, 8);
+      parts.push(arrow(x + 82, 49, -1), text(th, x + 88, 53, a.text, { ...small, size: a.size }));
+      parts.push(arrow(x + 76, 66, 1), text(th, x + 88, 70, b.text, { ...small, size: b.size }));
+    }
+    if (press) {
+      const t = fitText(press, th, via.has("press") ? 54 : 96, 13, 8), y = oneLine ? 84 : 88;
+      parts.push(`<circle cx="${x + 80}" cy="${y - 4}" r="4.5" fill="none" stroke="${c}" stroke-width="2"/><circle cx="${x + 80}" cy="${y - 4}" r="1.6" fill="${c}"/>`);
+      parts.push(text(th, x + 91, y, t.text, { ...small, size: t.size, fill: th.text }));
+      if (via.has("press")) parts.push(tag(x + 188, y));
     }
     if (th.radius[0] < 12 && !th.clip) parts.push(`<path d="M${x + 8} 20V8H20" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/><path d="M${x + 192} 80V92H180" fill="none" stroke="${c}" stroke-width="2" opacity=".6"/>`);
     return parts.join("");
   }
-  // d: { label, icon, color, hints: { ccw, cw, press } } or null for an unused dial.
+  // d: { label, icon, color, hints: { ccw, cw, press }, plugin: [hints that need the plugin] }
+  // or null for an unused dial.
   // (Drawn at any size: the renderer scales the viewBox, e.g. to 400x200 for @2x.)
-  const dialPanel = (th, d) => svg(200, 100, panelBody(th, d, "0"));
+  const dialPanel = (th, d) => svg(200, 100, panelBody(th, d, `${th.id}d`));
   // The whole strip: every dial's panel side by side.
-  const strip = (th, dials) => svg(200 * dials.length, 100, dials.map((d, i) => panelBody(th, d, `s${i}`, { x: i * 200 })).join(""));
+  const strip = (th, dials) => svg(200 * dials.length, 100, dials.map((d, i) => panelBody(th, d, `${th.id}s${i}`, { x: i * 200 })).join(""));
   // What a folder's strip shows: its name and the way out, since dials rest while it's open.
   function folderStrip(th, folder, count) {
     const W = 200 * count, c = colorOf(th, folder.color), shape = outline(th, 3, 3, W - 6, 94);
     const title = fitText(folder.name, th, W - 260, 24, 12);
-    return svg(W, 100, `<defs><linearGradient id="fb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55)}"/><stop offset="1" stop-color="${th.bg}"/></linearGradient></defs>
-      <rect width="${W}" height="100" fill="${th.light ? th.bg : "#000"}"/><path d="${shape}" fill="url(#fb)"/>
+    return svg(W, 100, `<defs><linearGradient id="fb${th.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${th.light ? th.panel : keyart.mix(th.panelHi, th.bg, 0.55)}"/><stop offset="1" stop-color="${th.bg}"/></linearGradient></defs>
+      <rect width="${W}" height="100" fill="${th.light ? th.bg : "#000"}"/><path d="${shape}" fill="url(#fb${th.id})"/>
       <path d="${shape}" fill="none" stroke="${keyart.mix(th.lineHi, c, 0.6)}" stroke-width="1.6"/>
       ${keyart.icon(icon(folder.icon), th, 50, 50, 56, c)}
       ${text(th, 96, 58, title.text, { size: title.size, fill: th.text })}

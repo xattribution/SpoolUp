@@ -74,17 +74,17 @@ function keyState(image, title = "") {
 }
 
 // One action instance. `plugin` is { Name, UUID, Version } (another plugin, or ours); for the
-// app's own actions it comes from BUILTIN.
-function action(id, uuid, { name, plugin, settings = {}, states = [{}], extra = {} } = {}) {
+// app's own actions it comes from BUILTIN. `state`: the state it starts in.
+function action(id, uuid, { name, plugin, settings = {}, states = [{}], state = 0, extra = {} } = {}) {
   const p = plugin || (BUILTIN[uuid] && { ...BUILTIN[uuid], Version: "1.0" });
-  return { ActionID: id, LinkedTitle: true, Name: name || NAMES[uuid] || uuid, ...(p ? { Plugin: p } : {}), Settings: settings, State: 0, States: states, UUID: uuid, ...extra };
+  return { ActionID: id, LinkedTitle: true, Name: name || NAMES[uuid] || uuid, ...(p ? { Plugin: p } : {}), Settings: settings, State: state, States: states, UUID: uuid, ...extra };
 }
 
 // The controllers a page of this model has; every page lists all of them, even empty.
 function controllers(model, { keys = {}, dials = null, background = null } = {}) {
   const list = [{ Actions: keys, Type: "Keypad" }];
   if (model.dials) list.push({ Actions: dials || {}, ...(background ? { Background: img(background) } : {}), Type: "Encoder" });
-  if (model.nav === "corner" && model.touchPaging) list.push({ Actions: {}, Type: "Neo" });
+  if (model.type === 9) list.push({ Actions: {}, Type: "Neo" }); // the Neo's info bar and touch keys
   return list;
 }
 

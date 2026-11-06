@@ -18,7 +18,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // the usual places on macOS and Linux, for building elsewhere).
 function findBrowser(explicit) {
   if (explicit) {
-    if (!fs.existsSync(explicit)) throw new Error(`No browser at ${explicit}`);
+    if (!fs.existsSync(explicit)) throw Object.assign(new Error(`No browser at ${explicit}`), { usage: true });
     return explicit;
   }
   const env = process.env;
@@ -36,7 +36,7 @@ function findBrowser(explicit) {
     "/usr/bin/microsoft-edge", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser",
   ];
   const found = candidates.find((p) => p && fs.existsSync(p));
-  if (!found) throw new Error("Microsoft Edge or Google Chrome is needed: pass --browser <path> or set TABLETDECK_BROWSER.");
+  if (!found) throw Object.assign(new Error("Microsoft Edge or Google Chrome is needed: pass --browser <path> or set TABLETDECK_BROWSER."), { usage: true });
   return found;
 }
 
@@ -153,9 +153,11 @@ class Renderer {
   }
 
   // jobs: [{ svg, w, h }] -> PNG buffers in the same order. Jobs are packed onto sheets of at
-  // most `sheet` px square, with a gap so nothing bleeds between neighbours.
-  async renderSvgs(jobs, { sheet = 2048, gap = 4, onProgress } = {}) {
+  // most `sheet` px square, with a gap so nothing bleeds between neighbours. With `encoder`
+  // (an EncoderPool) the images are encoded on worker threads while the next sheet is drawn.
+  async renderSvgs(jobs, { sheet = 2048, gap = 4, onProgress, encoder } = {}) {
     const out = new Array(jobs.length);
+    const encoding = [];
     let i = 0;
     while (i < jobs.length) {
       // Shelf packing in job order: rows of images, a new row when one is full.
@@ -174,9 +176,14 @@ class Renderer {
       const height = Math.max(...placed.map((p) => p.y + p.h));
       const html = placed.map((p, n) => positioned(p.svg, p.x, p.y, p.w, p.h, `s${n}_`)).join("");
       const shot = png.decode(await this.capture(html, width, height));
-      for (const p of placed) out[p.index] = png.encode(png.crop(shot, p.x, p.y, p.w, p.h));
+      for (const p of placed) {
+        const tile = png.crop(shot, p.x, p.y, p.w, p.h);
+        if (encoder) encoding.push(encoder.encode(tile).then((buf) => { out[p.index] = buf; }));
+        else out[p.index] = png.encodeBest(tile);
+      }
       if (onProgress) onProgress(i, jobs.length);
     }
+    await Promise.all(encoding);
     return out;
   }
 

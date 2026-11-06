@@ -26,6 +26,7 @@ const scenes = require("../streamdeck/scenes");
 const keyart = require("../streamdeck/keyart");
 const { createArt, TEXT } = require("./streamdeck/art");
 const { Renderer, findBrowser } = require("./streamdeck/browser");
+const { EncoderPool } = require("./streamdeck/encoder");
 const { zip, unzip } = require("./streamdeck/zip");
 const png = require("./streamdeck/png");
 const P = require("./streamdeck/profile");
@@ -38,9 +39,28 @@ const PLUGIN_UUID = "com.nodiecode.tabletdeck";
 const PLUGIN_SRC = path.join(ROOT, "streamdeck", "plugin", `${PLUGIN_UUID}.sdPlugin`);
 const ICONPACK_ID = (theme) => `com.nodiecode.tabletdeck.icons.${theme}`;
 const MAX_PAGES = 10; // Stream Deck's limit per profile; folders don't count
+// Profile keys are drawn at each model's own key size (research/devices.verified.md): sharper
+// than letting the app shrink a 144 px picture, and a profile repeats its keys on every page,
+// so small decks' profiles get several times smaller. Mobile phones get 144. Icon packs and
+// the plugin always use 144 (their rules ask for it).
+const KEY_PX = { mini: 80, neo: 96, std: 72, mobile: 144, plus: 120, xl: 96, plusxl: 112 };
+const keyPx = (modelId) => scenes.MODELS[modelId].keyPx || KEY_PX[modelId] || 144;
+const DIAL_ICON_PX = 72;
+// Plugins whose state 0 is the active one (OBS: recording, live) and 1 idle: their lit picture
+// goes first and keys start in state 1 (research/plugins.verified.md correction 3). Discord's
+// are the other way round, like the rest.
+const ON_FIRST = new Set(["com.elgato.obsstudio"]);
+// Stream Deck's Hotkey only taps (research/profiles.verified.md correction 1), so a deck
+// button that must be held, or held for a set time, goes through the Tablet Deck plugin in
+// the standalone profiles too, marked PLUGIN, rather than tap and do the wrong thing. A dial
+// turn is one tap per detent either way (the plugin's own dial taps hold buttons too), so
+// there only a timed press needs the plugin.
+const viaPlugin = (a, turn = false) => !!a && a.kind === "deck" && (a.mode === "timed" || (a.mode === "hold" && !turn));
 
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 const sha1 = (s) => crypto.createHash("sha1").update(s).digest("hex");
+// A mistake in the command line: shown without a stack trace.
+const usage = (msg) => Object.assign(new Error(msg), { usage: true });
 const mb = (n) => `${(n / 1048576).toFixed(n < 1048576 ? 2 : 1)} MB`;
 
 // ---------- options ----------
@@ -48,7 +68,7 @@ const mb = (n) => `${(n / 1048576).toFixed(n < 1048576 ? 2 : 1)} MB`;
 function parseArgs(argv) {
   const o = { out: path.join(ROOT, "dist", "streamdeck"), themes: null, models: null, skip: new Set(), check: false, browser: null };
   for (let i = 0; i < argv.length; i++) {
-    const a = argv[i], next = () => { if (i + 1 >= argv.length) throw new Error(`${a} needs a value`); return argv[++i]; };
+    const a = argv[i], next = () => { if (i + 1 >= argv.length) throw usage(`${a} needs a value`); return argv[++i]; };
     if (a === "--out") o.out = path.resolve(next());
     else if (a === "--themes") o.themes = next().split(",").map((s) => s.trim()).filter(Boolean);
     else if (a === "--models") o.models = next().split(",").map((s) => s.trim()).filter(Boolean);
@@ -56,9 +76,9 @@ function parseArgs(argv) {
     else if (a === "--browser") o.browser = next();
     else if (a === "--check") o.check = true;
     else if (a === "--help" || a === "-h") { console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(4, 12).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")); process.exit(0); }
-    else throw new Error(`Unknown option ${a}`);
+    else throw usage(`Unknown option ${a} (see --help)`);
   }
-  for (const s of o.skip) if (!["icons", "profiles", "plugin", "preview"].includes(s)) throw new Error(`--skip takes icons, profiles, plugin, preview (not "${s}")`);
+  for (const s of o.skip) if (!["icons", "profiles", "plugin", "preview"].includes(s)) throw usage(`--skip takes icons, profiles, plugin, preview (not "${s}")`);
   return o;
 }
 
@@ -112,15 +132,40 @@ class ImageStore {
     const jobs = [...this.pending.entries()].sort((a, b) => b[1].h - a[1].h || b[1].w - a[1].w);
     if (!jobs.length) return;
     let last = 0;
-    const out = await renderer.renderSvgs(jobs.map(([, j]) => j), {
-      onProgress: (n, total) => { if (n - last >= 400 || n === total) { log(`  rendered ${n}/${total} images`); last = n; } },
-    });
-    jobs.forEach(([key], i) => this.done.set(key, out[i]));
+    const encoder = new EncoderPool();
+    try {
+      const out = await renderer.renderSvgs(jobs.map(([, j]) => j), {
+        encoder,
+        onProgress: (n, total) => { if (n - last >= 2000 || n === total) { log(`  drawn ${n}/${total} images`); last = n; } },
+      });
+      jobs.forEach(([key], i) => this.done.set(key, out[i]));
+    } finally {
+      await encoder.close();
+    }
     this.pending.clear();
   }
 }
 
 // ---------- layout ----------
+
+// Stream Deck keeps a folder's Back key in the top-left corner: every folder the app writes
+// has it at 0,0 (research/navigation.verified.md 2.2), and in the one script-written profile
+// seen again after the app had it, Back keys placed elsewhere had moved to 0,0 and the key
+// that was there was gone. So Back goes to 0,0 here and that key takes Back's old slot
+// (theme slots keep reading order); a folder with Back at 0,0 already is left alone.
+function backAtOrigin(layout) {
+  const folders = {};
+  for (const [id, pages] of Object.entries(layout.folders)) folders[id] = pages.map((p) => {
+    const back = Object.keys(p.keys).find((k) => p.keys[k] === "@back");
+    if (!back || back === "0,0") return p;
+    const keys = { ...p.keys, "0,0": "@back" };
+    if (p.keys["0,0"]) keys[back] = p.keys["0,0"]; else delete keys[back];
+    const page = { ...p, keys };
+    if (p.themes) page.themes = p.themes.map(([c, r]) => (c === 0 && r === 0 ? back.split(",").map(Number) : [c, r])).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+    return page;
+  });
+  return { ...layout, folders };
+}
 
 // The themes folder lists all twelve themes; scenes.js gives the slots on one page, and on
 // small decks they're chained into More pages here.
@@ -140,6 +185,7 @@ function withThemePages(layout, themeIds) {
   }
   return { ...layout, folders: { ...layout.folders, themes: pages } };
 }
+const layoutOf = (modelId, themeIds) => withThemePages(backAtOrigin(scenes.layoutFor(modelId)), themeIds);
 
 // What a dial's refs do, shortened for its touch-strip panel ("Weapons −" on the Weapons
 // dial is just "−").
@@ -154,12 +200,15 @@ function hintFor(ref, dialLabel) {
   const short = a.label.split(/\s+/).filter((w) => !drop.has(w.toLowerCase())).join(" ");
   return (short || a.label).replace(/^Previous\b/, "Prev");
 }
-const dialArt = (d) => {
+// `standalone`: which of the dial's turns and push go through the Tablet Deck plugin there.
+const dialArt = (d, standalone) => {
   if (d.action) {
     const a = catalog.byId.get(d.action);
     return a ? { label: a.label, icon: a.icon, color: a.color, hints: { ccw: "−", cw: "+", press: "Mute" } } : null;
   }
-  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hintFor(d.ccw, d.label), cw: hintFor(d.cw, d.label), press: hintFor(d.press, d.label) } };
+  const refs = { ccw: d.ccw, cw: d.cw, press: d.press };
+  const plugin = standalone ? Object.keys(refs).filter((k) => viaPlugin(refs[k] && catalog.byId.get(refs[k]), k !== "press")) : [];
+  return { label: d.label, icon: d.icon, color: d.color, hints: { ccw: hintFor(d.ccw, d.label), cw: hintFor(d.cw, d.label), press: hintFor(d.press, d.label) }, plugin };
 };
 
 // ---------- profiles ----------
@@ -174,7 +223,7 @@ const bundledName = (model) => `Tablet Deck ${model.name}`;
 function buildProfile(env, modelId, variant, theme) {
   const { art, store, themes, warn } = env;
   const model = scenes.MODELS[modelId];
-  const layout = withThemePages(scenes.layoutFor(modelId), themes.map((t) => t.id));
+  const layout = layoutOf(modelId, themes.map((t) => t.id));
   const th = art.theme(theme.id);
   const standalone = variant === "standalone";
   const key = `${variant}|${standalone ? theme.id : ""}|${modelId}`;
@@ -183,27 +232,37 @@ function buildProfile(env, modelId, variant, theme) {
     name: standalone ? standaloneName(theme, model) : bundledName(model),
     model, pages: [], folders: [], defaultPage: null,
   };
-  const previews = [], previewed = new Set();
+  // Previews: the scene pages, then each folder page once, in the order they're first reached.
+  const pagePreviews = [], folderPreviews = [], previewed = new Set();
   const counts = { keys: 0, dials: 0, folders: 0, blanks: 0 };
   const plugin = env.plugin;
   const id = (where) => P.uuidFrom(`action|${key}|${where}`);
-  const image = (svg, w, h) => store.add(svg, w, h);
+  const px = keyPx(modelId);
+  const image = (svg, w = px, h = px) => store.add(svg, w, h);
 
   // ---- one slot ----
-  const blank = (where) => { counts.blanks++; return { json: P.action(id(where), "com.elgato.streamdeck.system.hotkey", { settings: hotkeySettings(null), states: [P.keyState(image(art.blankKey(th)))] }), img: image(art.blankKey(th)) }; };
-  const ours = (where, suffix, name, settings = {}) => P.action(id(where), `${PLUGIN_UUID}.${suffix}`, {
+  // An empty slot: a Hotkey with nothing set, there only to carry the blank picture, so a
+  // page reads as one panel.
+  const blank = (where) => {
+    counts.blanks++;
+    const k = image(art.blankKey(th));
+    return { json: P.action(id(where), "com.elgato.streamdeck.system.hotkey", { settings: hotkeySettings(null), states: [P.keyState(k)] }), img: k };
+  };
+  // One of our plugin's actions. Without `states` it draws itself (bundled profiles); a
+  // standalone profile gives it the key's picture, marked PLUGIN.
+  const ours = (where, suffix, name, settings = {}, states = null) => P.action(id(where), `${PLUGIN_UUID}.${suffix}`, {
     name, plugin: { Name: "Tablet Deck", UUID: PLUGIN_UUID, Version: plugin.version }, settings,
-    states: Array.from({ length: plugin.states(`${PLUGIN_UUID}.${suffix}`) }, () => ({})),
+    states: states || Array.from({ length: plugin.states(`${PLUGIN_UUID}.${suffix}`) }, () => ({})),
   });
   const themeTarget = (themeId) => profileUuid("standalone", themeId, modelId);
 
-  // A ref -> { json, img } for a key. `at`: { where, sceneIndex, path, child } (child: inside
-  // an Action Trigger, where pictures aren't shown).
+  // A ref -> { json, img } for a key. `at`: { where, sceneIndex, path, child, turn } (child:
+  // inside an Action Trigger, where pictures aren't shown; turn: a dial turn, not its push).
   function resolve(ref, at) {
     const where = at.where;
-    const withImg = (svg, title, extraStates) => {
+    const withImg = (svg, title) => {
       const k = at.child ? null : image(svg);
-      return { states: [P.keyState(k, title), ...(extraStates || [])], img: k };
+      return { states: [P.keyState(k, title)], img: k };
     };
     if (!ref) return at.child ? null : blank(where);
     if (ref.startsWith("@")) {
@@ -242,18 +301,23 @@ function buildProfile(env, modelId, variant, theme) {
       return blank(where);
     }
     const a = catalog.byId.get(ref);
-    if (!a) { warn(`${modelId}: "${ref}" isn't in the catalog (left blank)`); return at.child ? null : blank(where); }
+    if (!a) { env.missing.add(ref); return at.child ? null : blank(where); }
     return actionFor(a, at);
   }
 
   function actionFor(a, at) {
     const where = at.where;
     const lit = (svg) => (at.child ? undefined : [P.keyState(image(svg), a.label)]);
-    const idle = () => (at.child ? null : image(art.actionKey(th, a, { standalone })));
-    const states1 = () => [P.keyState(idle(), a.label)];
+    const idle = (mark) => (at.child ? null : image(art.actionKey(th, a, { mark })));
+    // Our plugin's action in a standalone profile, with a picture saying it needs the plugin.
+    const viaOurs = (suffix, settings) => {
+      const k = idle("PLUGIN");
+      return { json: ours(where, suffix, a.label, settings, k ? [P.keyState(k, a.label)] : null), img: k };
+    };
     switch (a.kind) {
       case "deck": {
         if (!standalone) return { json: ours(where, "key", a.label, { action: a.id }), img: null };
+        if (viaPlugin(a, at.turn)) return viaOurs("key", { action: a.id });
         let combo;
         try { hotkey(a.keys); combo = a.keys; } catch (err) { warn(`${a.id}: ${err.message}`); return blank(where); }
         // A toggle (lit while on) flips its picture with each tap; Open/Close-style buttons
@@ -273,11 +337,15 @@ function buildProfile(env, modelId, variant, theme) {
         return { json: P.action(id(where), uuid, { settings, states: [P.keyState(k, a.label)] }), img: k };
       }
       case "plugin": {
+        const n = a.plugin.states || 1;
         const k = idle();
-        const states = [P.keyState(k, a.label)];
-        if ((a.plugin.states || 1) > 1) states.push(...(lit(art.actionKey(th, a, { lit: true, standalone })) || [{}]));
+        let states = [at.child ? {} : P.keyState(k, a.label)];
+        if (n > 1) states.push(at.child ? {} : P.keyState(image(art.actionKey(th, a, { lit: true })), a.label));
+        while (states.length < n) states.push(states[0]);
+        const onFirst = n > 1 && ON_FIRST.has(a.plugin.uuid);
+        if (onFirst) states = [states[1], states[0], ...states.slice(2)];
         return {
-          json: P.action(id(where), a.plugin.action, { name: a.label, plugin: { Name: a.plugin.name, UUID: a.plugin.uuid, Version: a.plugin.version }, settings: a.plugin.settings || {}, states: at.child ? Array.from({ length: a.plugin.states || 1 }, () => ({})) : states }),
+          json: P.action(id(where), a.plugin.action, { name: a.label, plugin: { Name: a.plugin.name, UUID: a.plugin.uuid, Version: a.plugin.version }, settings: a.plugin.settings || {}, states, state: onFirst ? 1 : 0 }),
           img: k,
         };
       }
@@ -286,10 +354,14 @@ function buildProfile(env, modelId, variant, theme) {
         return ref ? resolve(ref, at) : blank(where);
       }
       case "tabletdeck": {
-        // Voice, lights and status need the plugin; a standalone profile leaves the key blank.
-        if (standalone) return at.child ? null : blank(where);
         const suffix = { talk: "talk", status: "status", "lights-reset": "lights", theme: "theme", scene: "scene" }[a.tabletdeck];
-        return suffix ? { json: ours(where, suffix, a.label), img: null } : blank(where);
+        if (!suffix) return at.child ? null : blank(where);
+        if (!standalone) return { json: ours(where, suffix, a.label), img: null };
+        // A standalone profile has Hold to Talk through the plugin, like the held buttons.
+        // Status and Reset Lights show and clear the lights of the plugin's own keys, which
+        // these profiles hardly use, and themes and scenes have built-in keys here: blank.
+        if (a.tabletdeck === "talk") return viaOurs("talk", {});
+        return at.child ? null : blank(where);
       }
       default:
         warn(`${a.id}: unknown kind ${a.kind}`);
@@ -302,9 +374,9 @@ function buildProfile(env, modelId, variant, theme) {
   function dialFor(d, i, at) {
     const where = `${at.where}/dial${i}`;
     if (!d) return null;
-    const look = dialArt(d);
+    const look = dialArt(d, standalone);
     const panel = look ? image(art.dialPanel(th, look), 200, 100) : null;
-    const icon = look ? image(art.dialIcon(th, look), 144, 144) : null;
+    const icon = look ? image(art.dialIcon(th, look), DIAL_ICON_PX, DIAL_ICON_PX) : null;
     if (d.action) {
       const a = catalog.byId.get(d.action);
       if (!a || a.kind !== "plugin" || !a.dial) { warn(`${modelId}: dial action "${d.action}" isn't a dial plugin action`); return null; }
@@ -317,7 +389,7 @@ function buildProfile(env, modelId, variant, theme) {
       return { json: ours(where, "dial", d.label, { dial: { label: d.label, icon: d.icon, color: d.color || "", ccw: d.ccw || null, cw: d.cw || null, press: d.press || null } }), look, icon };
     }
     const children = refs.map((r, n) => {
-      const child = r ? resolve(r, { ...at, where: `${where}/${n}`, child: true }) : null;
+      const child = r ? resolve(r, { ...at, where: `${where}/${n}`, child: true, turn: n !== 1 }) : null;
       // An unused direction is a Hotkey with nothing set, so the three slots keep their order.
       return child ? child.json : P.action(id(`${where}/${n}`), "com.elgato.streamdeck.system.hotkey", { settings: hotkeySettings(null) });
     });
@@ -351,18 +423,21 @@ function buildProfile(env, modelId, variant, theme) {
     const pages = layout.folders[folderId];
     if (!pages || !pages[n]) { warn(`${modelId}: no folder page ${folderId}:${n}`); return null; }
     const pathHere = `${at.path}@${at.slot || "dial"}>${folderId}.${n}`;
-    if (pathHere.split(">").length > 8) throw new Error(`${modelId}: folders nest too deep (${pathHere})`);
+    // A folder inside itself would never end; long More chains (emotes on a Mini) are fine.
+    if (at.path.split(">").slice(1).some((p) => p.split("@")[0] === `${folderId}.${n}`) || pathHere.split(">").length > 32) throw new Error(`${modelId}: folder ${folderId} opens itself (${pathHere})`);
     const uuid = P.uuidFrom(`page|${key}|${pathHere}`);
     const folder = scenes.FOLDERS[folderId] || { name: folderId, icon: "folder" };
     const page = { uuid, name: pages.length > 1 ? `${folder.name} ${n + 1}` : folder.name, controllers: null };
     profile.folders.push(page);
     counts.folders++;
+    const pv = `${folderId}.${n}`;
+    const preview = previewed.has(pv) ? null : { title: `Folder: ${page.name}`, keys: {}, strip: null, dials: null };
+    if (preview) { previewed.add(pv); folderPreviews.push(preview); }
     const { keys, imgs } = fillKeys(pages[n].keys, { path: pathHere, sceneIndex: at.sceneIndex });
     // Dials rest while a folder is open; the strip says which folder it is.
     const strip = model.dials ? image(art.folderStrip(th, folder, model.dials), 200 * model.dials, 100) : null;
     page.controllers = P.controllers(model, { keys, dials: {}, background: strip });
-    const pv = `${folderId}.${n}`;
-    if (!previewed.has(pv)) { previewed.add(pv); previews.push({ title: `Folder: ${page.name}`, keys: imgs, strip, dials: null }); }
+    if (preview) Object.assign(preview, { keys: imgs, strip });
     return uuid;
   }
 
@@ -387,11 +462,11 @@ function buildProfile(env, modelId, variant, theme) {
       strip = image(art.strip(th, dialLooks.map((x) => (x ? x.look : null))), 200 * model.dials, 100);
     } else if (p.dials && p.dials.some(Boolean)) warn(`${modelId}: ${scene.id} has dials but the model has none`);
     page.controllers = P.controllers(model, { keys, dials, background: strip });
-    previews.splice(profile.pages.length - 1, 0, { title: `${i + 1} · ${scene.name}`, keys: imgs, strip, dials: dialLooks });
+    pagePreviews.push({ title: `${i + 1} · ${scene.name}`, keys: imgs, strip, dials: dialLooks });
   });
   if (profile.pages.length > MAX_PAGES) warn(`${modelId}: ${profile.pages.length} pages, Stream Deck shows at most ${MAX_PAGES}`);
   profile.defaultPage = { uuid: P.uuidFrom(`page|${key}|default`), name: "", controllers: P.controllers(model) };
-  return { profile, previews, counts };
+  return { profile, previews: [...pagePreviews, ...folderPreviews], counts };
 }
 
 // ---------- icon packs ----------
@@ -404,33 +479,48 @@ function planIconPack(env, theme) {
   const th = art.theme(theme.id);
   const cats = new Map(catalog.categories.map((c) => [c.id, c]));
   const items = [];
-  const add = (name, label, tags, svg) => items.push({ file: `${slug(name)}.png`, name: label, tags: [...new Set(tags)], img: store.add(svg) });
+  const add = (name, label, tags, svg, category) => items.push({ file: `${slug(name)}.png`, name: label, tags: [...new Set(tags)], img: store.add(svg), category });
+  // Names as Stream Deck's icon library lists them, so none is there twice: scene keys say
+  // so ("Flight scene" next to the Flight operator mode), and actions sharing a label ("Back"
+  // on shields and in navigation) get their category.
+  const uses = new Map();
+  for (const a of catalog.actions) uses.set(a.label, (uses.get(a.label) || 0) + 1);
+  const nameOf = (a) => (uses.get(a.label) > 1 ? `${a.label} (${(cats.get(a.category) || { name: a.category }).name})` : a.label);
   for (const a of catalog.actions) {
     const c = cats.get(a.category) || { id: a.category, name: a.category };
     const tags = [c.id, ...words(c.name), ...(a.kind === "deck" ? ["starcitizen"] : [a.kind])];
-    add(a.id, a.label, tags, art.actionKey(th, a));
-    if (a.state || (a.plugin && a.plugin.states > 1)) add(`${a.id}-lit`, `${a.label} (lit)`, [...tags, "lit"], art.actionKey(th, a, { lit: true }));
+    add(a.id, nameOf(a), tags, art.actionKey(th, a), a.category);
+    if (a.state || (a.plugin && a.plugin.states > 1)) add(`${a.id}-lit`, `${nameOf(a)} (lit)`, [...tags, "lit"], art.actionKey(th, a, { lit: true }));
   }
   for (const s of scenes.SCENES) {
-    add(`scene-${s.id}`, s.name, ["scene", "navigation", ...words(s.name)], art.sceneKey(th, s, false));
-    add(`scene-${s.id}-lit`, `${s.name} (current)`, ["scene", "navigation", "lit", ...words(s.name)], art.sceneKey(th, s, true));
+    add(`scene-${s.id}`, `${s.name} scene`, ["scene", "navigation", ...words(s.name)], art.sceneKey(th, s, false));
+    add(`scene-${s.id}-lit`, `${s.name} scene (current)`, ["scene", "navigation", "lit", ...words(s.name)], art.sceneKey(th, s, true));
   }
   for (const [id, f] of Object.entries(scenes.FOLDERS)) add(`folder-${id}`, `${f.name} folder`, ["folder", "navigation", ...words(f.name)], art.folderKey(th, f));
   add("nav-more", "More", ["navigation", "folder"], art.navKey(th, "more"));
   add(`theme-${theme.id}`, `${theme.name} theme`, ["theme", ...words(theme.full)], art.themeKey(theme.id, false));
   add("blank", "Blank", ["blank"], art.blankKey(th));
   const emblem = keyart.key({ theme: th, icon: `<g transform="scale(.75)">${theme.emblem}</g>`, showLabel: false }).split(TEXT).join(th.text);
+  const named = new Set();
+  for (const it of items) { if (named.has(it.name)) env.warn(`icon pack: "${it.name}" is listed twice`); named.add(it.name); }
   return { theme, items, icon: store.add(emblem, 56, 56) };
 }
 
 // A contact sheet of the pack's keys for its previews/ folder (1280x800, like Icon Pack Man).
 function packPreviewHtml(pack, store) {
-  const pick = [];
-  const seen = new Set();
-  const want = (re) => { for (const it of pack.items) if (re.test(it.file) && !seen.has(it.file) && pick.length < 40) { seen.add(it.file); pick.push(it); } };
-  want(/^theme-/); want(/^scene-[a-z]+\.png$/);
-  for (const re of [/-lit\.png$/, /^(qt|pl|fa|cb|sh|mn|sv|tg|cr|em|sd)-/]) want(re);
-  want(/./);
+  // The theme key and the scenes, a row of lit keys, then a round of every category; each key
+  // once, lit or not.
+  const pick = [], seen = new Set();
+  const take = (it) => {
+    const base = it && it.file.replace(/-lit\.png$/, ".png");
+    if (it && !seen.has(base) && pick.length < 40) { seen.add(base); pick.push(it); }
+  };
+  take(pack.items.find((it) => it.file.startsWith("theme-")));
+  pack.items.filter((it) => /^scene-[a-z]+\.png$/.test(it.file)).forEach(take);
+  pack.items.filter((it) => /-lit\.png$/.test(it.file) && !it.file.startsWith("scene-")).slice(0, 8).forEach(take);
+  const byCat = new Map();
+  for (const it of pack.items) if (it.category && !/-lit\.png$/.test(it.file)) { if (!byCat.has(it.category)) byCat.set(it.category, []); byCat.get(it.category).push(it); }
+  for (let round = 0; pick.length < 40 && round < 20; round++) for (const list of byCat.values()) take(list[round]);
   const cells = pick.map((it) => `<img src="data:image/png;base64,${store.get(it.img).toString("base64")}" width="144" height="144">`).join("");
   return `<div style="width:1280px;height:800px;background:#000;display:grid;grid-template-columns:repeat(8,144px);gap:16px;padding:8px;box-sizing:border-box;justify-content:center;align-content:center">${cells}</div>`;
 }
@@ -465,6 +555,21 @@ function writeIconPack(env, pack, previewPng) {
 }
 
 // ---------- the plugin ----------
+
+// The deck's translations (public/i18n.js: English -> [es, fr, de]), so the plugin shows
+// button labels in the player's language. Optional: the plugin falls back to English.
+function deckLabels() {
+  try {
+    const src = read("public/i18n.js");
+    const start = src.indexOf("const T = {");
+    const end = src.indexOf("\n  };", start);
+    if (start < 0 || end < 0) return null;
+    return vm.runInNewContext(`${src.slice(start, end + 5)}\nT`, {});
+  } catch (err) {
+    console.warn(`  ! couldn't read public/i18n.js (${err.message}); the plugin gets no translations`);
+    return null;
+  }
+}
 
 // What the plugin's source manifest declares, so bundled profiles give each of our actions
 // as many states as it has; works (with one state each) before the plugin exists.
@@ -520,11 +625,13 @@ function writePlugin(env, info, images, bundled) {
   const files = new Map(); // path in the plugin -> Buffer
   if (fs.existsSync(PLUGIN_SRC)) for (const rel of listFiles(PLUGIN_SRC)) if (!rel.startsWith("data/") && !rel.startsWith("profiles/")) files.set(rel, fs.readFileSync(path.join(PLUGIN_SRC, rel)));
   // What the plugin reads at run time (streamdeck/CONTRACT.md).
-  files.set("data/catalog.json", Buffer.from(JSON.stringify(catalog.actions)));
+  files.set("data/catalog.json", Buffer.from(JSON.stringify({ actions: catalog.actions, categories: catalog.categories })));
   files.set("data/icons.json", Buffer.from(JSON.stringify(env.icons)));
   files.set("data/themes.json", Buffer.from(JSON.stringify(env.tokens)));
   files.set("data/scenes.json", Buffer.from(JSON.stringify({ SCENES: scenes.SCENES, MODELS: scenes.MODELS, DIAL: scenes.DIAL })));
   files.set("bin/keyart.js", fs.readFileSync(path.join(ROOT, "streamdeck", "keyart.js")));
+  const labels = deckLabels();
+  if (labels) files.set("data/i18n.json", Buffer.from(JSON.stringify(labels)));
   for (const im of images) {
     files.set(`${im.path}.png`, env.store.get(im.x1));
     files.set(`${im.path}@2x.png`, env.store.get(im.x2));
@@ -542,6 +649,54 @@ function writePlugin(env, info, images, bundled) {
   fs.writeFileSync(file, zip([...files.keys()].sort().map((rel) => ({ name: `${PLUGIN_UUID}.sdPlugin/${rel}`, data: files.get(rel) }))));
   return { stage, file, files: files.size };
 }
+
+// ---------- keybinds ----------
+
+// The standalone profiles' Hotkeys press the Tablet Deck Keyboard profile's keys for actions
+// Star Citizen has no default key for, so the profile ships next to them.
+const KEYBINDS = "TabletDeck-StarCitizen.xml";
+const KEYBINDS_README = `Tablet Deck Keyboard: the Star Citizen keybinds the Stream Deck profiles use
+
+The "Tablet Deck <theme> - <model>" profiles press Star Citizen's default keys, and for
+actions the game has no default key for (operator modes, shield faces, doors, emotes,
+targeting and more) the keys in this profile. Load it once, or those keys press nothing
+useful.
+
+1. Copy ${KEYBINDS} into the game's Controls\\Mappings folder, for example
+   StarCitizen\\LIVE\\user\\client\\0\\Controls\\Mappings (create the Controls and Mappings
+   folders if they're missing). Tablet Deck's window does this for you: Settings, Install
+   keybind profile.
+2. In Star Citizen, open Options > Keybindings > Control Profiles and load
+   "Tablet Deck Keyboard". This replaces your current custom binds, so note any you want to
+   keep and set them again afterwards.
+
+Good to know:
+- Stream Deck presses these keys into whichever window is in front. Tablet Deck's check that
+  Star Citizen has focus only covers keys that go through Tablet Deck.
+- Keys marked PLUGIN must be held, or held for a set time, which Stream Deck's own Hotkey
+  can't do. They need the Tablet Deck plugin (com.nodiecode.tabletdeck.streamDeckPlugin) and
+  Tablet Deck running on this PC, and they go through its focus check.
+`;
+function writeKeybinds(out) {
+  const dir = path.join(out, "keybinds");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.copyFileSync(path.join(ROOT, "keybinds", KEYBINDS), path.join(dir, KEYBINDS));
+  fs.writeFileSync(path.join(dir, "README.txt"), KEYBINDS_README.replace(/\n/g, "\r\n"));
+  return path.join(dir, KEYBINDS);
+}
+
+// Stream Deck versions as numbers to compare ("7.10" after "7.9").
+const versionAtLeast = (v, min) => {
+  const a = String(v || "0").split(".").map(Number), b = min.split(".").map(Number);
+  for (let i = 0; i < b.length; i++) if ((a[i] || 0) !== b[i]) return (a[i] || 0) > b[i];
+  return true;
+};
+// research/profiles.verified.md 7: a plugin that switches to its bundled profiles wants 7.3+
+// (7.3.0 fixed switching from them), and 7.3 is also the first app with the + XL.
+const minVersionNote = (manifest) => {
+  const v = manifest && manifest.Software && manifest.Software.MinimumVersion;
+  return v && !versionAtLeast(v, "7.3") ? `plugin manifest: Software.MinimumVersion is "${v}"; switching to bundled profiles needs Stream Deck 7.3 or later (research/profiles.verified.md 7)` : null;
+};
 
 // ---------- previews ----------
 
@@ -580,7 +735,8 @@ function previewHtml(env, title, model, panels, theme) {
 }
 
 function writePreviewIndex(out, list) {
-  const rows = list.map((p) => `<figure><a href="${encodeURI(p.file)}"><img src="${encodeURI(p.file)}" loading="lazy" alt=""></a><figcaption>${p.title}</figcaption></figure>`).join("\n");
+  // Stream Deck + XL first: the flagship layout.
+  const rows = [...list].sort((a, b) => (b.file.startsWith("plusxl-") ? 1 : 0) - (a.file.startsWith("plusxl-") ? 1 : 0)).map((p) => `<figure><a href="${encodeURI(p.file)}"><img src="${encodeURI(p.file)}" loading="lazy" alt=""></a><figcaption>${p.title}</figcaption></figure>`).join("\n");
   fs.writeFileSync(path.join(out, "index.html"), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tablet Deck Stream Deck previews</title>
@@ -609,7 +765,7 @@ function checkLayouts(env) {
   }
   for (const [modelId, model] of Object.entries(scenes.MODELS)) {
     let layout;
-    try { layout = withThemePages(scenes.layoutFor(modelId), env.themes.map((t) => t.id)); } catch (err) { errors.push(`${modelId}: layoutFor failed: ${err.message}`); continue; }
+    try { layout = layoutOf(modelId, env.themes.map((t) => t.id)); } catch (err) { errors.push(`${modelId}: layoutFor failed: ${err.message}`); continue; }
     if (layout.pages.length > MAX_PAGES) errors.push(`${modelId}: ${layout.pages.length} pages (at most ${MAX_PAGES})`);
     const checkRef = (ref, where) => {
       if (!ref) return;
@@ -657,6 +813,9 @@ function checkBuilt(out) {
   if (!fs.existsSync(out)) return { errors, notes: ["nothing built yet"] };
   const profilesByModel = new Map(); // model -> Set(profile uuid)
   const rotateTargets = [];
+  // Labels of deck buttons a Hotkey can't press (held or timed), and of those it can.
+  const held = new Set(), tapped = new Set();
+  for (const a of catalog.actions) if (a.kind === "deck") (viaPlugin(a) ? held : tapped).add(a.label);
   const walkFiles = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walkFiles(path.join(dir, e.name)) : [path.join(dir, e.name)]) : [];
   const all = walkFiles(out);
   const checkProfile = (label, buf) => {
@@ -682,21 +841,24 @@ function checkBuilt(out) {
         if (!e) { errors.push(`${label} ${dir}: ${where} image ${ref} is missing`); return; }
         const s = png.size(e.data);
         if (!s) errors.push(`${label} ${dir}: ${ref} isn't a PNG`);
-        else if (want && (s.width !== want[0] || s.height !== want[1])) errors.push(`${label} ${dir}: ${ref} is ${s.width}x${s.height}, expected ${want.join("x")}`);
+        else if (want === "square" ? s.width !== s.height || s.width < 72 || s.width > 288 : want && (s.width !== want[0] || s.height !== want[1])) errors.push(`${label} ${dir}: ${ref} is ${s.width}x${s.height}, expected ${want === "square" ? "a square of 72 to 288 px" : want.join("x")}`);
       };
       for (const ctl of pm.Controllers) {
         if (ctl.Background) checkImage(ctl.Background, null, `${ctl.Type} background`);
         for (const [slot, a] of Object.entries(ctl.Actions || {})) {
-          const walk = (act, where) => {
-            (act.States || []).forEach((st) => { if (st.Image) checkImage(st.Image, [144, 144], where); });
+          // turn: a dial turn inside an Action Trigger, where a held button taps (viaPlugin).
+          const walk = (act, where, turn = false) => {
+            (act.States || []).forEach((st) => { if (st.Image) checkImage(st.Image, "square", where); });
+            if (!(Number.isInteger(act.State) && act.State >= 0 && act.State < Math.max(1, (act.States || []).length))) errors.push(`${label} ${dir} ${where}: State ${act.State} with ${(act.States || []).length} states`);
+            if (/^com\.elgato\.streamdeck\.system\.hotkey/.test(act.UUID) && act.States && act.States[0] && !turn && held.has(act.States[0].Title) && !tapped.has(act.States[0].Title)) errors.push(`${label} ${dir} ${where}: "${act.States[0].Title}" must be held, which a Hotkey can't do`);
             if (act.Encoder) {
-              if (act.Encoder.Icon) checkImage(act.Encoder.Icon, [144, 144], `${where} dial icon`);
+              if (act.Encoder.Icon) checkImage(act.Encoder.Icon, "square", `${where} dial icon`);
               if (act.Encoder.background) checkImage(act.Encoder.background, [200, 100], `${where} dial background`);
             }
             if (act.UUID === "com.elgato.streamdeck.profile.openchild" && !known.has(P.pageDir(act.Settings.ProfileUUID))) errors.push(`${label} ${dir} ${where}: folder ${act.Settings.ProfileUUID} has no page`);
             if (act.UUID === "com.elgato.streamdeck.page.goto" && !(act.Settings.PageIndex >= 1 && act.Settings.PageIndex <= m.Pages.Pages.length)) errors.push(`${label} ${dir} ${where}: PageIndex ${act.Settings.PageIndex}`);
             if (act.UUID === "com.elgato.streamdeck.profile.rotate") rotateTargets.push({ label, model: m.Device.Model, uuid: act.Settings.ProfileUUID });
-            (act.Actions || []).forEach((c, i) => walk(c, `${where}/${i}`));
+            (act.Actions || []).forEach((c, i) => walk(c, `${where}/${i}`, act.UUID === "com.elgato.streamdeck.keys.adaptor" && i !== 1));
           };
           walk(a, `${ctl.Type} ${slot}`);
         }
@@ -707,7 +869,11 @@ function checkBuilt(out) {
   for (const f of all.filter((x) => x.endsWith(".streamDeckProfile") && !x.includes(`${path.sep}plugin${path.sep}`))) {
     try { checkProfile(path.relative(out, f), fs.readFileSync(f)); profiles++; } catch (err) { errors.push(`${path.relative(out, f)}: ${err.message}`); }
   }
-  for (const t of rotateTargets) if (!(profilesByModel.get(t.model) || new Set()).has(t.uuid)) notes.push(`${t.label}: Switch Profile target ${t.uuid} isn't among the built profiles (built with --themes?)`);
+  if (profiles && !fs.existsSync(path.join(out, "keybinds", KEYBINDS))) errors.push(`keybinds/${KEYBINDS} is missing: the standalone profiles' hotkeys need it`);
+  // Theme keys name the same model's profile in another theme; with only some themes built,
+  // the others' targets can't be checked here.
+  const open = rotateTargets.filter((t) => !(profilesByModel.get(t.model) || new Set()).has(t.uuid));
+  if (rotateTargets.length) notes.push(`${rotateTargets.length - open.length} of ${rotateTargets.length} Switch Profile keys point at a profile built here${open.length ? ` (the rest at themes not built this time: ${new Set(open.map((t) => t.uuid)).size} profiles)` : ""}`);
   for (const f of all.filter((x) => x.endsWith(".streamDeckIconPack"))) {
     const label = path.relative(out, f);
     try {
@@ -722,7 +888,7 @@ function checkBuilt(out) {
       if (!byName.has(`${root}${m.Icon}`)) errors.push(`${label}: pack icon ${m.Icon} is missing`);
       if (m.License && !byName.has(`${root}${m.License}`)) errors.push(`${label}: license ${m.License} is missing`);
       const list = JSON.parse(byName.get(`${root}icons.json`).data);
-      const listed = new Set();
+      const listed = new Set(), names = new Set();
       for (const it of list) {
         if (!it.path || !it.name || !Array.isArray(it.tags)) errors.push(`${label}: bad icons.json entry ${JSON.stringify(it)}`);
         if (it.tags.some((t) => /, /.test(t))) errors.push(`${label}: ${it.path} has a comma list as a tag`);
@@ -730,7 +896,9 @@ function checkBuilt(out) {
         if (!e) errors.push(`${label}: ${it.path} is listed but missing`);
         else { const s = png.size(e.data); if (!s || s.width !== 144 || s.height !== 144) errors.push(`${label}: ${it.path} isn't a 144x144 PNG`); }
         if (it.path.length > 80) errors.push(`${label}: ${it.path} is longer than 80 characters`);
+        if (names.has(it.name)) errors.push(`${label}: two icons are named "${it.name}"`);
         listed.add(it.path);
+        names.add(it.name);
       }
       for (const e of entries) if (e.name.startsWith(`${root}icons/`) && !e.dir && !listed.has(e.name.slice(root.length + 6))) errors.push(`${label}: ${e.name} has no icons.json entry`);
       packs++;
@@ -755,6 +923,8 @@ function checkBuilt(out) {
         else { try { checkProfile(`plugin ${p.Name}`, e.data); profiles++; } catch (err) { errors.push(`plugin ${p.Name}: ${err.message}`); } }
         if ("ReadOnly" in p) errors.push(`plugin: Profiles use "Readonly" (lower-case o)`);
       }
+      const note = (m.Profiles || []).length ? minVersionNote(m) : null;
+      if (note) notes.push(note);
       notes.push(`plugin: ${entries.length} files, ${(m.Profiles || []).length} bundled profiles`);
     } catch (err) { errors.push(`plugin: ${err.message}`); }
   }
@@ -768,7 +938,7 @@ async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const t0 = Date.now();
   const src = loadSources();
-  const env = { ...src, out: opts.out, store: new ImageStore(), warnings: new Set() };
+  const env = { ...src, out: opts.out, store: new ImageStore(), warnings: new Set(), missing: new Set() };
   env.warn = (msg) => env.warnings.add(msg);
   env.art = createArt({ icons: src.icons, themes: src.themes, tokens: src.tokens });
 
@@ -783,11 +953,12 @@ async function main() {
     process.exit(n ? 1 : 0);
   }
 
-  const themes = opts.themes ? opts.themes.map((id) => src.themes.find((t) => t.id === id) || (() => { throw new Error(`No theme "${id}" (themes: ${src.themes.map((t) => t.id).join(", ")})`); })()) : src.themes;
+  const themes = opts.themes ? opts.themes.map((id) => src.themes.find((t) => t.id === id) || (() => { throw usage(`No theme "${id}" (themes: ${src.themes.map((t) => t.id).join(", ")})`); })()) : src.themes;
   const models = opts.models || Object.keys(scenes.MODELS);
-  for (const m of models) if (!scenes.MODELS[m]) throw new Error(`No model "${m}" (models: ${Object.keys(scenes.MODELS).join(", ")})`);
-  const { errors } = checkLayouts(env);
-  for (const e of errors) env.warn(e);
+  for (const m of models) if (!scenes.MODELS[m]) throw usage(`No model "${m}" (models: ${Object.keys(scenes.MODELS).join(", ")})`);
+  // Layout problems don't stop a build (the check does); refs the catalog doesn't have yet
+  // become blank keys and are listed once.
+  for (const e of checkLayouts(env).errors) if (!/isn't in the catalog$/.test(e) && models.some((m) => e.startsWith(`${m} `) || !scenes.MODELS[e.split(" ")[0]])) env.warn(e);
 
   fs.mkdirSync(opts.out, { recursive: true });
   const timings = {};
@@ -796,12 +967,14 @@ async function main() {
   // Plan: every picture is added to the store, then all are drawn in one browser session.
   let t = Date.now();
   const packs = opts.skip.has("icons") ? [] : themes.map((th) => planIconPack(env, th));
-  const standalone = [];
-  if (!opts.skip.has("profiles")) for (const th of themes) for (const m of models) standalone.push({ theme: th, modelId: m, ...buildProfile(env, m, "standalone", th) });
+  // Bundled profiles are made of our plugin's actions, and standalone ones use them for held
+  // keys: both need its version and states.
   const info = pluginInfo();
   env.plugin = info;
-  // Standalone profiles never use our plugin's actions; this only matters for the bundled ones.
+  const standalone = [];
+  if (!opts.skip.has("profiles")) for (const th of themes) for (const m of models) standalone.push({ theme: th, modelId: m, ...buildProfile(env, m, "standalone", th) });
   const bundled = opts.skip.has("plugin") ? [] : models.filter((m) => scenes.MODELS[m]).map((m) => ({ modelId: m, ...buildProfile(env, m, "bundled", src.themes[0]) }));
+  if (bundled.length && minVersionNote(info.manifest)) env.warn(minVersionNote(info.manifest));
   const pluginImages = !opts.skip.has("plugin") && info.manifest ? plannedPluginImages(env, info.manifest) : [];
   lap("plan", t);
 
@@ -841,6 +1014,7 @@ async function main() {
       fs.writeFileSync(file, buffer);
       results.files.push({ kind: "profile", file, count: pages, images });
     }
+    if (standalone.length) results.files.push({ kind: "keybind profile", file: writeKeybinds(opts.out) });
     lap("profiles", t);
 
     t = Date.now();
@@ -876,7 +1050,7 @@ async function main() {
   const by = (kind) => results.files.filter((f) => f.kind === kind);
   const total = (list) => list.reduce((n, f) => n + fs.statSync(f.file).size, 0);
   console.log("");
-  for (const kind of ["icon pack", "profile", "plugin", "preview"]) {
+  for (const kind of ["icon pack", "profile", "keybind profile", "plugin", "preview"]) {
     const list = by(kind);
     if (!list.length) continue;
     console.log(`${list.length} ${kind}${list.length > 1 ? "s" : ""}, ${mb(total(list))}`);
@@ -887,6 +1061,7 @@ async function main() {
   if (standalone.length) console.log(`Profiles hold ${counted.keys} keys, ${counted.dials} dials and ${counted.folders} folder pages.`);
   if (results.plugin) console.log(`Plugin: ${results.plugin.profiles} bundled profiles, ${results.plugin.images} manifest images drawn.`);
   console.log(`Times: ${Object.entries(timings).map(([k, v]) => `${k} ${(v / 1000).toFixed(1)}s`).join(", ")}; total ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
+  if (env.missing.size) console.log(`Not in the catalog yet, left blank: ${[...env.missing].sort().join(", ")}.`);
   if (env.warnings.size) {
     console.log(`${env.warnings.size} warning(s):`);
     for (const w of [...env.warnings].slice(0, 30)) console.log(`  ! ${w}`);
@@ -895,4 +1070,4 @@ async function main() {
   console.log(`Output: ${opts.out}`);
 }
 
-main().catch((err) => { console.error(err.stack || err.message); process.exit(1); });
+main().catch((err) => { console.error(err.usage ? err.message : err.stack || err.message); process.exit(1); });

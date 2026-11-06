@@ -100,11 +100,28 @@ function encode({ width, height, rgba }) {
   return Buffer.concat([SIGNATURE, chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(rows, { level: 6, memLevel: 9 })), chunk("IEND", Buffer.alloc(0))]);
 }
 
-// Chromium dithers gradients, so a key's dark backdrop is fine noise that PNG can't squeeze:
-// a 144 px key comes out at 15-20 KB, and a profile repeats its keys on every page. An
-// opaque image is therefore stored with a palette of at most 256 colours (median cut, no
-// dithering): the noise goes, the gradients and glows stay smooth, and keys shrink 3-4x.
-// Images with transparency (action-list icons) stay RGBA.
+// Chromium dithers gradients, so a key's dark backdrop comes out as fine noise that PNG
+// can't squeeze (15-20 KB a key), and a profile repeats its keys on every page. So an opaque
+// image first has that noise smoothed away where the picture is flat (never across an edge),
+// then is stored with a palette of at most 256 colours (median cut, no dithering): keys
+// shrink about 2.5x and look the same. Images with transparency (list icons) stay RGBA.
+function smoothFlat({ width: w, height: h, rgba }, threshold = 3) {
+  const out = Buffer.from(rgba);
+  const near = [-4, 4, -w * 4, w * 4, -w * 4 - 4, -w * 4 + 4, w * 4 - 4, w * 4 + 4];
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    const i = (y * w + x) * 4;
+    let flat = true;
+    for (let n = 0; n < 8 && flat; n++) for (let c = 0; c < 3; c++) if (Math.abs(rgba[i + c] - rgba[i + near[n] + c]) > threshold) { flat = false; break; }
+    if (!flat) continue;
+    for (let c = 0; c < 3; c++) {
+      let sum = rgba[i + c];
+      for (let n = 0; n < 8; n++) sum += rgba[i + near[n] + c];
+      out[i + c] = Math.round(sum / 9);
+    }
+  }
+  return { width: w, height: h, rgba: out };
+}
+
 function quantize(rgba, max = 256) {
   const counts = new Map();
   for (let i = 0; i < rgba.length; i += 4) {
@@ -170,10 +187,10 @@ function encodeIndexed({ width, height, rgba }) {
   return Buffer.concat([SIGNATURE, chunk("IHDR", ihdr), chunk("PLTE", plte), chunk("IDAT", zlib.deflateSync(rows, { level: 9 })), chunk("IEND", Buffer.alloc(0))]);
 }
 
-// Opaque images get a palette (see quantize), others stay full RGBA.
+// Opaque images get a palette (see smoothFlat), others stay full RGBA.
 function encodeBest(img) {
   for (let i = 3; i < img.rgba.length; i += 4) if (img.rgba[i] !== 255) return encode(img);
-  return encodeIndexed(img);
+  return encodeIndexed(smoothFlat(img));
 }
 
 // Width and height from a PNG's header, without decoding it.
