@@ -18,7 +18,10 @@
 //   err <text>                           a bad line or an audio error; nothing stops for it
 //
 // Each output in use gets one waveOut stream, fed 10 ms at a time by its own thread, which
-// closes it after 3 s with nothing playing so a Bluetooth headset isn't held open.
+// closes it after 3 s with nothing playing so a Bluetooth headset isn't held open. An output
+// that won't open (busy, or held in exclusive mode) has its sounds play on the default output
+// for a few seconds before it's tried again. A play is dropped while the player already holds
+// 64 sounds or 90 s of them, far more than the deck's sounds ever come to.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -54,6 +57,11 @@ public static class Synth
     public const int Rate = 44100;
     const int MaxTones = 48;
     const double MaxLength = 6; // s, the whole sound
+    // A tone's peak gain stops at the deck's loudest (a press), and its tones' lengths add up
+    // to 8 s at most, tails included, as server.js checks too: so nothing a tablet sends is
+    // much louder or longer than the deck's own sounds, and every render is short.
+    const double MaxLevel = 0.5;
+    const double MaxToneSeconds = 8;
     // Web Audio's exponential ramps can't start or end at 0, so the tablet's envelopes run
     // from and to 0.0001 (-80 dB), and its oscillators stop 30 ms after the envelope ends.
     const double Floor = 0.0001;
@@ -68,7 +76,7 @@ public static class Synth
         var parts = field.Split(';');
         if (parts.Length > MaxTones) throw new FormatException("more than " + MaxTones + " tones");
         var tones = new List<Tone>(parts.Length);
-        double longest = 0;
+        double longest = 0, total = 0;
         for (int i = 0; i < parts.Length; i++)
         {
             string which = "tone " + (i + 1) + ": ";
@@ -86,7 +94,7 @@ public static class Synth
             k.F0 = Number(f[1], 20, 12000, which + "f0");
             k.F1 = Number(f[2], 20, 12000, which + "f1");
             k.Len = Number(f[3], 0.005, 4, which + "len");
-            k.Level = Number(f[4], 0, 1, which + "level");
+            k.Level = Number(f[4], 0, MaxLevel, which + "level");
             k.At = Number(f[5], 0, 4, which + "at");
             k.Attack = Number(f[6], 0.001, 1, which + "attack");
             string sustain = f[7].Trim();
@@ -99,9 +107,11 @@ public static class Synth
             k.Lp1 = Cutoff(f[10], which + "lp1");
             if ((k.Lp0 == 0) != (k.Lp1 == 0)) throw new FormatException(which + "lowpass needs both cutoffs or neither");
             longest = Math.Max(longest, k.At + k.End);
+            total += k.End + Tail;
             tones.Add(k);
         }
         if (longest > MaxLength + 1e-9) throw new FormatException("longer than " + MaxLength + " s");
+        if (total > MaxToneSeconds + 1e-9) throw new FormatException("tones adding up to more than " + MaxToneSeconds + " s");
         return tones;
     }
 
@@ -125,11 +135,17 @@ public static class Synth
     public static float[] Render(IList<Tone> tones, double volume)
     {
         double master = 0.5 * (volume >= 0 ? Math.Min(volume, 1) : 0);
-        int length = 0;
-        foreach (var k in tones) length = Math.Max(length, Start(k) + Samples(k));
-        var mix = new float[length];
+        var mix = new float[Length(tones)];
         if (master > 0) foreach (var k in tones) Add(mix, k, master);
         return mix;
+    }
+
+    // How many samples Render makes of these tones.
+    public static int Length(IList<Tone> tones)
+    {
+        int length = 0;
+        foreach (var k in tones) length = Math.Max(length, Start(k) + Samples(k));
+        return length;
     }
 
     static int Start(Tone k) { return (int)Math.Round(k.At * Rate); }
@@ -256,12 +272,16 @@ public static class Synth
     }
 
     // A mixed sample as 16-bit PCM, through the PC's stand-in for the tablet's compressor:
-    // untouched up to half scale, then eased toward 0.98, so overlapping sounds never clip.
+    // untouched up to Knee, just above the deck's loudest sound (a press at full volume peaks
+    // at 0.285), then eased toward Ceiling (-8 dBFS). Overlapping sounds never clip, and
+    // nothing a tablet sends can play much louder than the deck's own sounds in a headset.
+    const double Knee = 0.3, Ceiling = 0.4;
+
     public static short Pcm16(double x)
     {
         double a = Math.Abs(x);
         if (double.IsNaN(a)) return 0;
-        if (a > 0.5) x = (x < 0 ? -1 : 1) * (0.5 + 0.48 * Math.Tanh((a - 0.5) / 0.48));
+        if (a > Knee) x = (x < 0 ? -1 : 1) * (Knee + (Ceiling - Knee) * Math.Tanh((a - Knee) / (Ceiling - Knee)));
         return (short)Math.Round(x * 32767);
     }
 }
@@ -273,6 +293,12 @@ static class Sound
     const int IdleSamples = Synth.Rate * 3;     // an output closes after this much silence
     const int FadeSamples = Synth.Rate * 80 / 1000;
     const int StuckMs = 2000;                   // no buffer back for this long: the output is gone
+    const int RefusedMs = 5000;                 // an output that wouldn't open isn't tried again for this long
+    // Far more than the deck's sounds ever come to (the server lets 32 play at once, and all but
+    // a hold's are under a second), so only a flood or a stuck output reaches them, and the
+    // player's memory stays bounded.
+    const int MostSounds = 64;
+    const long MostSamples = Synth.Rate * 90L;  // 90 s of sound, about 4 million samples
 
     const uint WAVE_MAPPER = 0xFFFFFFFF;
     const uint CALLBACK_EVENT = 0x00050000;
@@ -362,17 +388,26 @@ static class Sound
     sealed class Playing
     {
         public readonly int Id;
-        public float[] Samples; // set once rendered
+        public readonly int Size; // its samples, once rendered
+        public bool Held;         // counted in holding and heldSamples
+        public float[] Samples;   // set once rendered
         public int Pos;
         public int FadeLeft = -1; // samples of the stop fade still to play; -1 = not stopping
-        public Playing(int id) { Id = id; }
+        public Playing(int id, int size) { Id = id; Size = size; }
     }
 
-    // Guards outputs, byId and everything in a Playing and in Output.Sounds. Held only to mix
-    // or hand over sounds, never across a WinMM call, so nobody waits on audio for it.
+    // Guards outputs, byId, refused, the counts below and everything in a Playing and in
+    // Output.Sounds. Held only to mix or hand over sounds, never across a WinMM call, so nobody
+    // waits on audio for it.
     static readonly object sync = new object();
     static readonly Dictionary<string, Output> outputs = new Dictionary<string, Output>(StringComparer.Ordinal);
     static readonly Dictionary<int, Playing> byId = new Dictionary<int, Playing>();
+    // Outputs that wouldn't open (busy, or held in exclusive mode by another app), and when they
+    // last refused. Kept until the output opens again, so its error is said once.
+    static readonly Dictionary<string, int> refused = new Dictionary<string, int>(StringComparer.Ordinal);
+    static int holding;       // sounds taken on and not yet played out or dropped
+    static long heldSamples;  // their samples
+    static bool full;         // a sound was turned away since the player last held none
     static volatile bool quitting;
     static readonly Dictionary<string, bool> missing = new Dictionary<string, bool>(StringComparer.Ordinal);
     static readonly List<Output> stranded = new List<Output>();
@@ -405,6 +440,7 @@ static class Sound
         stdout.NewLine = "\n";
         Say("ready");
         new Thread(Work) { IsBackground = true, Priority = ThreadPriority.AboveNormal }.Start();
+        new Thread(Answer) { IsBackground = true }.Start();
         var stdin = new StreamReader(Console.OpenStandardInput(), new UTF8Encoding(false));
         string line;
         while ((line = stdin.ReadLine()) != null)
@@ -429,7 +465,7 @@ static class Sound
         {
             case "devices":
                 if (f.Length != 1) break;
-                Post(ListDevices);
+                AskDevices();
                 return;
             case "play":
                 if (f.Length != 5) break;
@@ -438,9 +474,10 @@ static class Sound
                 if (device.Length > 64) throw new FormatException("output name longer than 64 characters");
                 double volume = Synth.Number(f[3], 0, 1, "volume");
                 var tones = Synth.Parse(f[4]);
-                var sound = new Playing(id);
-                lock (sync) byId[id] = sound; // so a stop that comes before it starts still finds it
-                Post(() => Begin(sound, device, tones, volume));
+                // Nothing to hear: not worth a render, or opening an output.
+                if (volume == 0 || tones.TrueForAll(k => k.Level == 0)) return;
+                var sound = new Playing(id, Synth.Length(tones));
+                if (Hold(sound)) Post(() => Begin(sound, device, tones, volume));
                 return;
             case "stop":
                 if (f.Length != 2) break;
@@ -466,14 +503,84 @@ static class Sound
         }
     }
 
-    // Under sync.
+    // Takes a sound on, listed by id so a stop that comes before it starts still finds it,
+    // unless the player already holds too much. Said once until everything held has played out.
+    static bool Hold(Playing sound)
+    {
+        bool taken, first = false;
+        lock (sync)
+        {
+            taken = holding < MostSounds && heldSamples + sound.Size <= MostSamples;
+            if (taken)
+            {
+                holding++;
+                heldSamples += sound.Size;
+                sound.Held = true;
+                byId[sound.Id] = sound;
+            }
+            else
+            {
+                first = !full;
+                full = true;
+            }
+        }
+        if (first) Say("err too many sounds at once: new ones are dropped until these have played");
+        return taken;
+    }
+
+    // Under sync. Once a sound has played out, been stopped or been dropped.
     static void Forget(Playing sound)
     {
         Playing listed;
         if (byId.TryGetValue(sound.Id, out listed) && listed == sound) byId.Remove(sound.Id);
+        if (!sound.Held) return;
+        sound.Held = false;
+        holding--;
+        heldSamples -= sound.Size;
+        if (holding == 0) full = false;
     }
 
-    // ---------- the worker: renders sounds and lists outputs, in order ----------
+    // ---------- the outputs' names, listed on a thread of their own ----------
+
+    // So a "devices" never waits behind a queue of renders.
+    static readonly object listing = new object();
+    static int asked; // "devices" not answered yet
+
+    static void AskDevices()
+    {
+        lock (listing)
+        {
+            asked++;
+            Monitor.Pulse(listing);
+        }
+    }
+
+    // One look at the outputs answers every "devices" asked by then: the server takes the
+    // answers in order, one for each, and they'd all be the same.
+    static void Answer()
+    {
+        while (true)
+        {
+            int n;
+            lock (listing)
+            {
+                while (asked == 0) Monitor.Wait(listing);
+                n = asked;
+                asked = 0;
+            }
+            string answer;
+            try { answer = ListDevices(); }
+            catch (Exception ex)
+            {
+                // Still answered, with no outputs, or the server's answers would fall out of step.
+                Say("err " + OneLine(ex.Message));
+                answer = "devices\t-1";
+            }
+            for (int i = 0; i < n; i++) Say(answer);
+        }
+    }
+
+    // ---------- the worker: renders sounds, in order ----------
 
     static readonly Queue<Action> jobs = new Queue<Action>();
 
@@ -503,6 +610,16 @@ static class Sound
 
     static void Begin(Playing sound, string device, List<Tone> tones, double volume)
     {
+        // Stopped before its turn came (a spool let go at once, or a flood of plays and stops):
+        // there's nothing to fade, so it isn't rendered at all.
+        lock (sync)
+        {
+            if (quitting || sound.FadeLeft >= 0)
+            {
+                Forget(sound);
+                return;
+            }
+        }
         // A name that isn't one of the outputs plays in the default output's stream, so there's
         // at most one stream per real output, whatever names a tablet sends.
         if (device.Length > 0 && Resolve(device) == WAVE_MAPPER) device = "";
@@ -515,24 +632,37 @@ static class Sound
         }
         lock (sync)
         {
-            sound.Samples = samples;
-            if (quitting) { Forget(sound); return; }
-            Output output;
-            if (!outputs.TryGetValue(device, out output))
+            if (quitting || sound.FadeLeft >= 0) // stopped while it rendered
             {
-                output = new Output(device);
-                outputs.Add(device, output);
-                // Above the game's threads: it needs a moment every 10 ms, or the sound stutters.
-                output.Thread = new Thread(output.Run) { IsBackground = true, Priority = ThreadPriority.Highest };
-                output.Thread.Start();
+                Forget(sound);
+                return;
             }
-            output.Sounds.Add(sound);
+            sound.Samples = samples;
+            // An output that refused to open a moment ago would only refuse again.
+            int when;
+            if (refused.TryGetValue(device, out when) && Environment.TickCount - when < RefusedMs) device = "";
+            Running(device).Sounds.Add(sound);
         }
+    }
+
+    // Under sync. The output with that name, its stream started if it isn't running.
+    static Output Running(string device)
+    {
+        Output output;
+        if (!outputs.TryGetValue(device, out output))
+        {
+            output = new Output(device);
+            outputs.Add(device, output);
+            // Above the game's threads: it needs a moment every 10 ms, or the sound stutters.
+            output.Thread = new Thread(output.Run) { IsBackground = true, Priority = ThreadPriority.Highest };
+            output.Thread.Start();
+        }
+        return output;
     }
 
     // "devices", the default output's place in the list, then the names. An output that can't
     // be read (it's just gone) or has no name is left out, and the default's place allows for it.
-    static void ListDevices()
+    static string ListDevices()
     {
         uint count = waveOutGetNumDevs();
         int preferred = Preferred(count), listed = -1;
@@ -544,7 +674,7 @@ static class Sound
             if (i == preferred) listed = names.Count;
             names.Add(name);
         }
-        Say("devices\t" + listed.ToString(CultureInfo.InvariantCulture) + (names.Count > 0 ? "\t" + string.Join("\t", names) : ""));
+        return "devices\t" + listed.ToString(CultureInfo.InvariantCulture) + (names.Count > 0 ? "\t" + string.Join("\t", names) : "");
     }
 
     // Windows' default output's index, or -1. WAVE_MAPPER is a UINT, so as a handle on x64
@@ -662,10 +792,19 @@ static class Sound
                 r = waveOutOpen(out wave, device, ref format, callback, IntPtr.Zero, CALLBACK_EVENT | WAVE_MAPPED);
             if (r != 0)
             {
+                // Busy, or held in exclusive mode by another app, say. Said once until it opens.
                 wave = IntPtr.Zero;
-                Say(Failed("can't open " + Label(), r));
+                bool first;
+                lock (sync)
+                {
+                    first = !refused.ContainsKey(Name);
+                    refused[Name] = Environment.TickCount;
+                    HandOver();
+                }
+                if (first) Say(Failed("can't open " + Label(), r));
                 return false;
             }
+            lock (sync) refused.Remove(Name);
             for (int i = 0; i < Buffers; i++)
             {
                 // Unmanaged, so they stay put while WinMM holds them.
@@ -769,6 +908,17 @@ static class Sound
             }
             queued[i] = true;
             return true;
+        }
+
+        // Under sync, when this output won't open: it's taken off the list and its sounds play
+        // on the default output instead, as a missing output's do. The default has no fallback.
+        void HandOver()
+        {
+            Output listed;
+            if (outputs.TryGetValue(Name, out listed) && listed == this) outputs.Remove(Name);
+            if (Name.Length == 0 || Sounds.Count == 0 || quitting) return;
+            Running("").Sounds.AddRange(Sounds);
+            Sounds.Clear();
         }
 
         // Takes this output off the list, so the next sound for it opens a fresh stream (and
