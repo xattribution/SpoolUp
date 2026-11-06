@@ -142,10 +142,13 @@ In Star Citizen, load the **Tablet Deck Keyboard** profile once (see
 <details>
 <summary><b>Windows says "Windows protected your PC" or "unknown publisher"</b></summary>
 
-The installer isn't code-signed yet. Click **More info**, then **Run anyway**.
-Your browser may also say the file isn't commonly downloaded; choose **Keep**.
-Each release lists the installer's SHA-256 checksum if you want to check your
-download, and all the source code is here.
+Releases are code-signed from 1.7.0: the installer's **Properties → Digital
+Signatures** shows the publisher. Windows can still warn about a new release
+until enough people have downloaded it, and earlier or test builds aren't
+signed: click **More info**, then **Run anyway**. Your browser may also say the
+file isn't commonly downloaded; choose **Keep**. Each release lists the
+installer's SHA-256 checksum if you want to check your download, and all the
+source code is here.
 </details>
 
 <details>

@@ -304,10 +304,24 @@ already released.
 
 ## Code signing
 
-Builds are unsigned until code signing is set up, so Windows SmartScreen warns
-about an "unknown publisher", and antivirus tools are warier of the key sender,
-which types keys into other programs. The workflow supports two ways:
+Published releases are always signed: a run with **Publish** (or a version tag)
+stops before building when no signing is set up. Test builds stay unsigned, so
+Windows SmartScreen warns about an "unknown publisher" there, and antivirus tools
+are warier of the key sender, which types keys into other programs. The workflow
+signs `TabletDeck.exe`, `TabletDeckServer.exe`, the native helpers, the installer
+and its uninstaller, in one of three ways:
 
+- **Azure Artifact Signing** (option C in `release.yml`), the way Quartermaster's
+  `tools/sign.sh` signs: [jsign](https://github.com/ebourg/jsign) 7.6, pinned by
+  its SHA-256, against an Artifact Signing account, as an app registration with
+  the Certificate Profile Signer role on the certificate profile, timestamped by
+  `timestamp.acs.microsoft.com`. In the repository's **Settings → Secrets and
+  variables → Actions**, add the secrets `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` and
+  `AZURE_CLIENT_SECRET` and the variables `TD_SIGN_ENDPOINT` (the account's
+  endpoint without `https://`, such as `wus2.codesigning.azure.net`) and
+  `TD_SIGN_ALIAS` (`<signing account>/<certificate profile>`): the same values as
+  Quartermaster's `sign.env` (its `QM_SIGN_ENDPOINT` and `QM_SIGN_ALIAS`). Only the
+  two build steps that sign see the secrets.
 - **SignPath Foundation** (free for open source): set the `SIGNPATH_API_TOKEN`
   secret and the `SIGNPATH_ORGANIZATION_ID` variable. The build then runs in two
   stages so SignPath signs the app files before they go into the installer, and
@@ -315,7 +329,7 @@ which types keys into other programs. The workflow supports two ways:
   `.signpath/artifact-configurations/`. [CODE_SIGNING.md](../CODE_SIGNING.md) is
   the signing policy, and [docs/SIGNPATH.md](SIGNPATH.md) the setup steps.
 - **Your own certificate:** a `.pfx` in the `SIGNING_CERT_PFX_BASE64` and
-  `SIGNING_CERT_PASSWORD` secrets.
+  `SIGNING_CERT_PASSWORD` secrets. It wins over option C when both are set.
 
 ## The website
 

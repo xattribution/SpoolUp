@@ -1,14 +1,16 @@
 # Code signing policy
 
-Tablet Deck plans to sign its releases with free code signing from
-[SignPath.io](https://about.signpath.io) and a certificate by
-[SignPath Foundation](https://signpath.org).
+Tablet Deck's releases are signed with
+[Azure Artifact Signing](https://learn.microsoft.com/azure/artifact-signing/),
+Microsoft's code signing service, with a certificate issued to the project
+owner's Microsoft-verified identity, and timestamped. The installer's
+**Properties → Digital Signatures** shows the publisher. (The workflow can also
+sign with [SignPath Foundation](https://signpath.org), which Tablet Deck may
+apply to once it's widely known.)
 
-> Status: not signed yet. SignPath Foundation signs projects once they're
-> widely known, and Tablet Deck will apply again when it is. Until then,
-> releases are unsigned and Windows shows an "unknown publisher" warning (see
-> Troubleshooting in the README). Each release lists its installer's SHA-256
-> checksum.
+> Status: signed from 1.7.0. Earlier releases are unsigned and Windows shows an
+> "unknown publisher" warning for them (see Troubleshooting in the README).
+> Each release lists its installer's SHA-256 checksum.
 
 ## What is signed
 
@@ -25,8 +27,10 @@ Each release's Windows files, all built from this repository:
 They're built only by the **Release** workflow (`.github/workflows/release.yml`)
 on GitHub-hosted runners, from this repository's `main` branch, when a release
 is published (a version tag, or the workflow run by hand with **Publish**).
-Test builds and anything built on a personal computer are never signed. Every
-signing request is approved by hand in SignPath before it's signed.
+Test builds and anything built on a personal computer are never signed, and a
+release with no signing set up stops before it's built. The signing credentials
+are the repository's own secrets, which only the two build steps that sign can
+read; with SignPath instead, every signing request is approved by hand there.
 
 ## Team
 
