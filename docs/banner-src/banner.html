@@ -1,0 +1,81 @@
+<!doctype html>
+<!-- Source of docs/banner.jpg (the README banner and the site's link preview). To render it:
+     open this file in Chromium at a 1280x340 viewport with deviceScaleFactor 2 (Playwright:
+     page.screenshot({ type: "jpeg", quality: 92 })), giving 2560x680. -->
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Oxanium:wght@600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05090f;
+    --accent: #4fb3ff;
+    --text: #e8eef5;
+    --title-size: 75.5px;
+    --title-track: .148em;
+    --tag-size: 24px;
+    --tag-weight: 400;
+    --chip-size: 15px;
+    --chip-track: .12em;
+  }
+  html, body { margin: 0; width: 1280px; height: 340px; overflow: hidden; background: var(--bg); }
+  body {
+    position: relative;
+    background:
+      linear-gradient(rgba(79,179,255,.06) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgba(79,179,255,.06) 1px, transparent 1px) 0 0 / 32px 32px,
+      radial-gradient(560px 300px at 1240px 360px, rgba(79,179,255,.125), transparent 100%),
+      radial-gradient(860px 400px at 380px -30px, rgba(79,179,255,.22), rgba(79,179,255,.10) 55%, transparent 100%),
+      var(--bg);
+  }
+  .corner { position: absolute; width: 28px; height: 28px; border: 0 solid rgba(79,179,255,.7); }
+  .tl { left: 18px; top: 18px; border-width: 1.5px 0 0 1.5px; }
+  .tr { right: 18px; top: 18px; border-width: 1.5px 1.5px 0 0; }
+  .bl { left: 18px; bottom: 18px; border-width: 0 0 1.5px 1.5px; }
+  .br { right: 18px; bottom: 18px; border-width: 0 1.5px 1.5px 0; }
+
+  .icon {
+    position: absolute; left: 123px; top: 74px; width: 190px; height: 190px;
+    border: 1px solid rgba(79,179,255,.5); border-radius: 44px; overflow: hidden;
+    box-shadow: 0 0 46px rgba(79,179,255,.2), 0 0 130px rgba(79,179,255,.1);
+  }
+  .icon img { display: block; width: 190px; height: 190px; }
+
+  .copy { position: absolute; left: 360px; top: 0; }
+  h1 {
+    position: absolute; left: -2px; top: var(--title-top, 82px); margin: 0; white-space: nowrap;
+    font: 700 var(--title-size)/1 "Oxanium", system-ui, sans-serif; letter-spacing: var(--title-track);
+    color: var(--text); text-shadow: 0 0 22px rgba(79,179,255,.45);
+  }
+  h1 .hi { color: var(--accent); text-shadow: 0 0 28px rgba(79,179,255,.55); }
+  h1 .gap { display: inline-block; width: var(--word-gap, 0px); }
+  .tag {
+    position: absolute; left: -2px; top: var(--tag-top, 171.5px); margin: 0; white-space: nowrap; letter-spacing: .04em;
+    font: var(--tag-weight) var(--tag-size)/1.2 "Exo 2", system-ui, sans-serif; color: #c5d3e2;
+  }
+  .chips { position: absolute; left: -2px; top: 225px; display: flex; gap: 10px; }
+  .chip {
+    box-sizing: border-box; height: 35px; padding: 0 var(--chip-pad, 14px); display: flex; align-items: center;
+    border: 1px solid rgba(79,179,255,.55); border-radius: 6px; background: #0c1c2b;
+    font: 600 var(--chip-size)/1 "Exo 2", system-ui, sans-serif; letter-spacing: var(--chip-track);
+    color: #d9efff; text-transform: uppercase; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+  <div class="icon"><img src="../../public/icon.svg" alt=""></div>
+  <div class="copy">
+    <h1 id="title"><span id="w1">SPOOL</span><span class="hi" id="w2">UP</span></h1>
+    <p class="tag">Turn any tablet or phone into a touch control panel for Star Citizen</p>
+    <div class="chips">
+      <span class="chip">No app needed</span>
+      <span class="chip">Voice commands</span>
+      <span class="chip">12 ship themes</span>
+      <span class="chip">Local network</span>
+    </div>
+  </div>
+</body>
+</html>
