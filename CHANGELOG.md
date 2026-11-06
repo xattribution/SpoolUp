@@ -22,6 +22,10 @@ before tagging a release.
 - **A speed-range fader.** Speed Range + and − are now one fader on the
   Flight Assist panel: each step left or right taps Speed Range − or + once,
   the same way as the power sliders.
+- **An operator-mode dial.** The Oprt Mode menu on QT/Systems is now a dial
+  with a needle: turn it to a mode and let go, or tap the mode, and it taps
+  that mode's key once. SCM/NAV sits in the middle. On phones the dial has
+  its own panel, Master Modes, next to QT/Systems.
 
 ## 1.9.0 (2026-11-06)
 

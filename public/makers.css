@@ -35,6 +35,9 @@
     linear-gradient(180deg, rgba(79,179,255,.06), transparent 40%), #0a1220;
 }
 [data-theme="rsi"] .lvl-knob { background: linear-gradient(180deg, rgba(79,179,255,.18), rgba(17,27,41,.95)); border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 0 14px -4px var(--c), 0 4px 10px rgba(0,0,0,.5); }
+[data-theme="rsi"] .hud-rotary .rt-face { background: repeating-conic-gradient(rgba(79,179,255,.18) 0 1deg, transparent 1deg 10deg), radial-gradient(circle, #0b1420 0 40%, rgba(79,179,255,.07) 41% 69%, rgba(9,16,27,.85) 70%); border-color: #35598a; }
+[data-theme="rsi"] .hud-rotary .rt-ticks { stroke: #4fb3ff; }
+[data-theme="rsi"] .hud-rotary .rt-needle { width: 4px; left: calc(50% - 2px); background: linear-gradient(0deg, transparent 0 38%, #4fb3ff 38%); }
 
 /* ====================================================================================
    Drake: scratched gunmetal slabs, rivets, hazard stripes, stencil type
@@ -124,6 +127,14 @@
 [data-theme="drake"] .lvl-knob { border-radius: 0; border: 2px solid #0b0a08; background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 90%, #000) 0 5px, #14130f 5px 10px); box-shadow: inset 0 2px 0 rgba(255,255,255,.2), 0 3px 0 #0b0a08; }
 [data-theme="drake"] .lvl-knob::after { background: #14130f; box-shadow: none; }
 [data-theme="drake"] .lvl-tick { background: rgba(242,194,48,.35); }
+[data-theme="drake"] .hud-rotary .rt-face {
+  background: radial-gradient(circle, transparent 0 40%, rgba(0,0,0,.35) 41%),
+    repeating-conic-gradient(from -2deg, rgba(242,194,48,.35) 0 4deg, transparent 4deg 30deg), var(--scratches), #1a1915;
+  border: 3px solid #0b0a08; box-shadow: inset 0 0 0 3px #3d392f, inset 0 0 30px rgba(0,0,0,.6);
+}
+[data-theme="drake"] .hud-rotary .rt-ticks { stroke: #f2c230; stroke-width: 4; stroke-linecap: butt; }
+[data-theme="drake"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 0; clip-path: polygon(50% 0, 100% 14px, 100% 100%, 0 100%, 0 14px); background: repeating-linear-gradient(-45deg, #f2c230 0 5px, #14130f 5px 10px); box-shadow: none; }
+[data-theme="drake"] .hud-rotary .rt-hub { border-radius: 4px; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
 
 /* ====================================================================================
    Aegis: carbon weave, graphite with cut corners, red tactical marks
@@ -189,6 +200,10 @@
 [data-theme="aegis"] .lvl-track { border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); background: repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 5px), #121418; border-color: #3a3f47; }
 [data-theme="aegis"] .lvl-knob { border-radius: 0; border-color: #5c636e; background: linear-gradient(180deg, #3a3f47, #1f2226); clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%); box-shadow: none; }
 [data-theme="aegis"] .lvl-tick { background: rgba(255,59,59,.3); }
+[data-theme="aegis"] .hud-rotary .rt-face { background: repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 2px, transparent 2px 5px), radial-gradient(circle, transparent 0 40%, rgba(255,59,59,.06) 41% 68%, #121418 69%); border-color: #3a3f47; }
+[data-theme="aegis"] .hud-rotary .rt-ticks { stroke: #ff3b3b; stroke-linecap: butt; }
+[data-theme="aegis"] .hud-rotary .rt-needle { width: 8px; left: calc(50% - 4px); border-radius: 0; clip-path: polygon(50% 0, 100% 20px, 60% 100%, 40% 100%, 0 20px); background: linear-gradient(0deg, transparent 0 40%, #ff3b3b 40%); box-shadow: none; }
+[data-theme="aegis"] .hud-rotary .rt-hub { border-radius: 0; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
 
 /* ====================================================================================
    Anvil: olive drab armour, screwed plates, indicator lamps, stencil type
@@ -258,6 +273,10 @@
 [data-theme="anvil"] .lvl-knob::after { background: var(--c); box-shadow: 0 0 6px var(--c); border-radius: 50%; }
 [data-theme="anvil"] .lvl-track[data-axis="y"] .lvl-knob::after { left: calc(50% - 5px); right: auto; width: 10px; top: calc(50% - 5px); height: 10px; }
 [data-theme="anvil"] .lvl-track[data-axis="x"] .lvl-knob::after { top: calc(50% - 5px); bottom: auto; height: 10px; left: calc(50% - 5px); width: 10px; }
+[data-theme="anvil"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 39%, #23281c 40% 66%, transparent 67%), repeating-conic-gradient(#4f583f 0 3deg, #353c2d 3deg 6deg); border: 3px solid #222719; box-shadow: 0 0 0 3px #424a37, inset 0 0 20px rgba(0,0,0,.5); }
+[data-theme="anvil"] .hud-rotary .rt-ticks { stroke: #eaa53a; stroke-width: 3; }
+[data-theme="anvil"] .hud-rotary .rt-needle { width: 8px; left: calc(50% - 4px); background: linear-gradient(0deg, transparent 0 38%, #ece9d2 38%); box-shadow: 0 0 0 1px #222719; }
+[data-theme="anvil"] .hud-rotary .rt-hub { box-shadow: 0 0 0 4px #222719, 0 0 0 6px #5d6748; }
 
 /* ====================================================================================
    Origin: cream luxury, black gloss controls, gold hairlines, a cream dial
@@ -340,6 +359,9 @@
 [data-theme="origin"] .hud-fader .lvl-track { --kw: 40px; }
 [data-theme="origin"] .hud-fader .lvl-knob::after { top: 30%; bottom: 30%; background: #caa468; }
 [data-theme="origin"] .lvl-tick { background: rgba(201,166,107,.45); }
+[data-theme="origin"] .hud-rotary .rt-face { background: radial-gradient(circle at 50% 35%, #fffdf8, #efe6d3 55%, #d9cdb4); border: 0; box-shadow: 0 0 0 1px #caa468, 0 10px 30px rgba(43,38,32,.18), inset 0 -6px 14px rgba(150,120,80,.15); }
+[data-theme="origin"] .hud-rotary .rt-ticks { stroke: #caa468; stroke-width: 1.5; }
+[data-theme="origin"] .hud-rotary .rt-needle { width: 3px; left: calc(50% - 1.5px); background: linear-gradient(0deg, transparent 0 40%, #8b6d3e 40%); box-shadow: none; }
 
 /* ====================================================================================
    MISC: teal-slate enamel, grey bezel, orange tabs, gauge dials
@@ -390,6 +412,9 @@
 [data-theme="misc"] .lvl-knob { border-radius: 8px; border: 2px solid #b0c9c8; background: linear-gradient(180deg, #ffa24f, #e8711a); box-shadow: 0 3px 0 #9c4a0e, 0 5px 8px rgba(0,0,0,.35); }
 [data-theme="misc"] .lvl-knob::after { background: #2a1406; box-shadow: none; }
 [data-theme="misc"] .lvl-fill { background: color-mix(in srgb, var(--c) 55%, transparent); border-radius: 3px; }
+[data-theme="misc"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, #213a3c 41% 64%, #2c4c4e 65%); border: 4px solid #93b8b8; box-shadow: inset 0 0 0 2px #213a3c; }
+[data-theme="misc"] .hud-rotary .rt-ticks { stroke: #ff8a2a; stroke-width: 4; }
+[data-theme="misc"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 5px; background: linear-gradient(0deg, transparent 0 36%, #ff8a2a 36%); box-shadow: 0 2px 0 #9c4a0e; }
 
 /* ====================================================================================
    Crusader: open sky, frosted plates, pearl-white capsules
@@ -446,6 +471,9 @@
 [data-theme="crusader"] .lvl-track[data-axis="x"] { background: linear-gradient(180deg, #d4e3f0, #eef4fa 50%, #d4e3f0); }
 [data-theme="crusader"] .lvl-knob { border-radius: 999px; border: 1px solid #fff; background: linear-gradient(180deg, #ffffff, #dbe7f2); box-shadow: 0 5px 12px rgba(21,48,77,.22); }
 [data-theme="crusader"] .lvl-tick { background: color-mix(in srgb, var(--c) 40%, transparent); }
+[data-theme="crusader"] .hud-rotary .rt-face { background: radial-gradient(circle at 50% 30%, #ffffff, #e5eef6 70%); border: 1px solid #fff; box-shadow: 0 10px 30px rgba(21,48,77,.18), inset 0 0 0 6px rgba(255,255,255,.7); }
+[data-theme="crusader"] .hud-rotary .rt-ticks { stroke: #2a78c8; stroke-width: 2.5; }
+[data-theme="crusader"] .hud-rotary .rt-needle { width: 6px; left: calc(50% - 3px); background: linear-gradient(0deg, transparent 0 38%, #2a78c8 38%); box-shadow: 0 0 10px rgba(42,120,200,.4); }
 
 /* ====================================================================================
    Banu: plum lacquer on carved wood, soft seed shapes, warm glow
@@ -491,6 +519,9 @@
 [data-theme="banu"] .lvl-track { border-radius: 24px 24px 30px 30px / 18px 18px 24px 24px; border-color: rgba(255,200,140,.25); background: radial-gradient(ellipse at 50% 0, rgba(242,163,58,.12), transparent 60%), #2a1729; }
 [data-theme="banu"] .lvl-knob { border: 0; border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 40% 30%, #ffd59a, color-mix(in srgb, var(--c) 70%, #f2a33a) 50%, #6a3a18); box-shadow: 0 0 14px -2px rgba(242,163,58,.5), 0 4px 8px rgba(0,0,0,.4); }
 [data-theme="banu"] .lvl-knob::after { display: none; }
+[data-theme="banu"] .hud-rotary .rt-face { border-radius: 48% 52% 50% 50% / 55% 55% 45% 45%; background: radial-gradient(circle, transparent 0 40%, rgba(242,163,58,.1) 41% 70%), #2a1729; border-color: rgba(255,200,140,.25); box-shadow: 0 0 30px -8px rgba(242,163,58,.4), inset 0 0 24px rgba(0,0,0,.4); }
+[data-theme="banu"] .hud-rotary .rt-ticks { stroke: #f2a33a; stroke-width: 5; }
+[data-theme="banu"] .hud-rotary .rt-needle { width: 12px; left: calc(50% - 6px); border-radius: 50% 50% 2px 2px / 30% 30% 2px 2px; background: linear-gradient(0deg, transparent 0 40%, #f2a33a 40%, #ffd59a); box-shadow: 0 0 14px rgba(242,163,58,.6); }
 
 /* ====================================================================================
    Aopoa: jade light, flowing plates, deep green forms with a living rim
@@ -538,6 +569,9 @@
 [data-theme="aopoa"] .lvl-knob { border: 0; border-radius: 999px; background: radial-gradient(ellipse at 40% 30%, #c8fff0, color-mix(in srgb, var(--c) 80%, #3ee6b0) 55%, #0f5b47); box-shadow: 0 0 16px -2px var(--c), 0 0 0 2px rgba(62,230,176,.25); }
 [data-theme="aopoa"] .lvl-knob::after { display: none; }
 [data-theme="aopoa"] .lvl-fill { border-radius: 3px; box-shadow: 0 0 8px var(--c); }
+[data-theme="aopoa"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, rgba(62,230,176,.12) 41% 66%, transparent 67%), linear-gradient(160deg, #1e5245, #0f3129); border: 0; box-shadow: 0 0 0 2px rgba(62,230,176,.35), 0 0 30px -6px #3ee6b0; }
+[data-theme="aopoa"] .hud-rotary .rt-ticks { stroke: #3ee6b0; }
+[data-theme="aopoa"] .hud-rotary .rt-needle { width: 6px; left: calc(50% - 3px); border-radius: 3px; background: linear-gradient(0deg, transparent 0 38%, #c8fff0 38%, #3ee6b0); box-shadow: 0 0 14px #3ee6b0; }
 
 /* ====================================================================================
    Argo: safety-yellow work panels, black utility keys, hazard bands, big codes
@@ -603,6 +637,10 @@
 [data-theme="argo"] .lvl-tick { background: #ffc21f; opacity: .7; }
 [data-theme="argo"] .lvl-knob { border-radius: 3px; border: 2px solid #1a1505; background: repeating-linear-gradient(-45deg, #ffc21f 0 5px, #171717 5px 10px); box-shadow: 0 3px 0 #000; }
 [data-theme="argo"] .lvl-knob::after { background: #171717; box-shadow: none; }
+[data-theme="argo"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, #171717 41%); border: 4px solid #1a1505; box-shadow: inset 0 0 0 6px #ffc21f, inset 0 0 0 9px #1a1505; }
+[data-theme="argo"] .hud-rotary .rt-ticks { stroke: #ffc21f; stroke-width: 5; stroke-linecap: butt; }
+[data-theme="argo"] .hud-rotary .rt-needle { width: 12px; left: calc(50% - 6px); border-radius: 0; background: linear-gradient(0deg, transparent 0 38%, #ffc21f 38%); box-shadow: 0 0 0 2px #1a1505; }
+[data-theme="argo"] .hud-rotary .rt-hub { border-radius: 8px; }
 
 /* ====================================================================================
    Consolidated Outland: desert sand, sunset stripes, warm brown kit
@@ -658,6 +696,10 @@
 [data-theme="cnou"] .lvl-track { border-radius: 6px; border-color: #b07a4c; background: linear-gradient(180deg, #3b2f27, #2f251f); }
 [data-theme="cnou"] .lvl-knob { border: 0; border-radius: 8px; background: linear-gradient(180deg, transparent 62%, #ff6a13 62% 74%, #ffb03b 74% 84%, transparent 84%), linear-gradient(180deg, #7a604e, #4b3c32); box-shadow: 0 4px 8px rgba(59,42,30,.5), inset 0 1px 0 rgba(255,244,232,.25); }
 [data-theme="cnou"] .lvl-knob::after { display: none; }
+[data-theme="cnou"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, #3b2f27 41%), linear-gradient(180deg, #ffb03b, #ff6a13); border: 0; box-shadow: 0 0 0 2px #b07a4c, 0 8px 20px rgba(59,42,30,.3); }
+[data-theme="cnou"] .hud-rotary .rt-face::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: radial-gradient(circle, transparent 0 40%, #3b2f27 41%); }
+[data-theme="cnou"] .hud-rotary .rt-ticks { z-index: 1; stroke: #ffb03b; stroke-width: 3; }
+[data-theme="cnou"] .hud-rotary .rt-needle { z-index: 1; width: 7px; left: calc(50% - 3.5px); background: linear-gradient(0deg, transparent 0 38%, #ff6a13 38%, #ffb03b); box-shadow: none; }
 
 /* ====================================================================================
    Esperia: Tevarin plum night, swept blade shapes, coral light with a prism edge
@@ -707,6 +749,10 @@
 [data-theme="esperia"] .lvl-knob { border: 0; border-radius: 2px 14px 2px 14px; background: linear-gradient(160deg, #ffb3a0, var(--accent) 60%, #8d2f4f); box-shadow: -2px 0 0 rgba(255,60,100,.5), 2px 0 0 rgba(110,200,255,.4), 0 0 14px -3px var(--accent); }
 [data-theme="esperia"] .lvl-knob::after { background: #21162a; box-shadow: none; }
 [data-theme="esperia"] .lvl-tick { background: rgba(255,122,92,.35); }
+[data-theme="esperia"] .hud-rotary .rt-face { background: conic-gradient(from 200deg, transparent, rgba(255,122,92,.25), transparent 40%), radial-gradient(circle, transparent 0 40%, #21162a 41%); border-color: #9a5e78; box-shadow: -2px 0 0 rgba(255,60,100,.35), 2px 0 0 rgba(110,200,255,.3); }
+[data-theme="esperia"] .hud-rotary .rt-ticks { stroke: #ff7a5c; }
+[data-theme="esperia"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 0; clip-path: polygon(50% 0, 100% 60%, 50% 100%, 0 60%); background: linear-gradient(0deg, transparent 0 36%, #ffb3a0 50%, #ff7a5c); box-shadow: none; }
+[data-theme="esperia"] .hud-rotary .rt-hub { border-radius: 4px 40px 4px 40px; }
 
 /* ====================================================================================
    High contrast (Deck settings) gives every maker the same plain black, white and strong
@@ -748,3 +794,7 @@ html[data-contrast] #canvas .lvl-knob::after { display: block; background: var(-
 html[data-contrast] #canvas .lvl-tick { background: #bdbdbd; opacity: 1; }
 html[data-contrast] #canvas .lvl-fill { background: var(--c); box-shadow: none; }
 html[data-contrast] #canvas .lvl-read, html[data-contrast] #canvas .lvl-cap .t, html[data-contrast] #canvas .fd-head .t, html[data-contrast] #canvas .fd-end { color: #fff; }
+html[data-contrast] #canvas .hud-rotary .rt-face { background: #000; border: 1px solid #fff; box-shadow: none; border-radius: 50%; }
+html[data-contrast] #canvas .hud-rotary .rt-face::after { display: none; }
+html[data-contrast] #canvas .hud-rotary .rt-ticks { stroke: #fff; }
+html[data-contrast] #canvas .hud-rotary .rt-needle { background: #fff; box-shadow: none; clip-path: none; }

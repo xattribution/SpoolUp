@@ -35,6 +35,7 @@
     // screen's shape differs from the layout's, element boxes stretch along the longer
     // axis by kx/ky so there are no empty bands.
     let s = 1, kx = 1, ky = 1;
+    let rkx = 1; // extra horizontal stretch of the half being drawn (Edit layout's seam)
     const scaleNow = () => s;
     function measure() {
       const aw = stage.clientWidth || W, ah = stage.clientHeight || H;
@@ -318,6 +319,48 @@
         return el;
       },
 
+      // Operator-mode dial: the modes sit round a face with a needle, and the hub in the
+      // middle is its own button (SCM/NAV). Turning the needle to a mode and letting go, or
+      // tapping the mode, is one tap of that mode's button. The needle shows the mode last
+      // picked here, since SpoolUp can't see the game's.
+      rotary(e) {
+        const el = box(make("div", "hud-rotary", `<div class="rt-face"><svg class="rt-ticks" aria-hidden="true"></svg><i class="rt-needle"></i></div>`), e);
+        const W = e.w * kx * rkx, H = e.h * ky;
+        const n = e.options.length;
+        const bw = Math.max(64, Math.min(100, W * 0.21)), bh = Math.max(44, Math.min(52, H * 0.19));
+        const cx = W / 2, cy = H / 2, rx = W / 2 - bw / 2 - 2, ry = H / 2 - bh / 2 - 2;
+        const hub = Math.max(64, Math.min(110, Math.min(rx, ry) * 0.9));
+        const face = el.querySelector(".rt-face");
+        const fr = Math.min(cx, cy) - 2;
+        Object.assign(face.style, { left: `${cx - fr}px`, top: `${cy - fr}px`, width: `${fr * 2}px`, height: `${fr * 2}px` });
+        el.style.setProperty("--needle", `${Math.max(20, fr - 14)}px`);
+        // Each mode's angle (degrees, 0 to the right, counter-clockwise), first at the top.
+        const angles = e.options.map((_, i) => 90 - (i * 360) / n);
+        const ticks = el.querySelector(".rt-ticks");
+        ticks.setAttribute("viewBox", `0 0 ${fr * 2} ${fr * 2}`);
+        ticks.innerHTML = angles.map((a) => {
+          const r = (a * Math.PI) / 180, c = Math.cos(r), s2 = Math.sin(r);
+          return `<line x1="${fr + c * (fr - 12)}" y1="${fr - s2 * (fr - 12)}" x2="${fr + c * (fr - 3)}" y2="${fr - s2 * (fr - 3)}"/>`;
+        }).join("");
+        const opts = e.options.map((o, i) => {
+          const r = (angles[i] * Math.PI) / 180;
+          const b = hudButton(o, "std");
+          b.classList.add("rt-opt");
+          Object.assign(b.style, { left: `${cx + Math.cos(r) * rx - bw / 2}px`, top: `${cy - Math.sin(r) * ry - bh / 2}px`, width: `${bw}px`, height: `${bh}px` });
+          el.appendChild(b);
+          return b;
+        });
+        if (e.hub) {
+          const h = hudButton(e.hub, "std");
+          h.classList.add("rt-hub");
+          Object.assign(h.style, { left: `${cx - hub / 2}px`, top: `${cy - hub / 2}px`, width: `${hub}px`, height: `${hub}px` });
+          el.appendChild(h);
+        }
+        if (D.placeControl) { D.placeControl(el, e); return el; }
+        dial(el, e, opts, angles, { cx, cy, rx, ry });
+        return el;
+      },
+
       grid(e) {
         const wrap = box(make("div", `hud-grid${e.compact ? " compact" : ""}`), e);
         const rows = Math.ceil(e.buttons.length / e.cols);
@@ -555,6 +598,85 @@
         ev.preventDefault();
         step(dir);
       });
+    }
+
+    // ---------- cockpit controls: the mode dial ----------
+
+    function dial(el, e, opts, angles, g) {
+      const needle = el.querySelector(".rt-needle");
+      const point = (deg) => { needle.style.transform = `rotate(${90 - deg}deg)`; };
+      const index = () => e.options.findIndex((o) => o.id === state.dials[e.id]);
+      const show = () => {
+        const i = index();
+        el.classList.toggle("unset", i < 0);
+        point(i < 0 ? 90 : angles[i]);
+        opts.forEach((b, j) => b.classList.toggle("rt-on", j === i));
+      };
+      let before = null; // the mode before the last pick, in case the PC skipped it
+      const pick = (i) => {
+        before = state.dials[e.id] || null;
+        state.dials[e.id] = e.options[i].id;
+        save();
+        show();
+      };
+      D.bindControl(el, {
+        ids: e.options.map((o) => o.id),
+        deny(id) { if (state.dials[e.id] === id) { state.dials[e.id] = before; save(); show(); } },
+      });
+      // Tapping a mode presses it as any button does (bindButton); the needle follows.
+      opts.forEach((b, i) => b.addEventListener("pointerdown", () => { if (b.classList.contains("pressed") && D.canPress()) pick(i); }));
+
+      // Turning: drag on the face, away from the buttons. Angles are measured on the ellipse
+      // the modes sit on, so the nearest mode is the one the needle points between.
+      const angleAt = (ev) => {
+        const r = el.getBoundingClientRect(), s = scaleNow();
+        const x = (ev.clientX - r.left) / s - g.cx, y = (ev.clientY - r.top) / s - g.cy;
+        return (Math.atan2(-y / g.ry, x / g.rx) * 180) / Math.PI;
+      };
+      const nearest = (a) => {
+        let best = 0, bestD = 999;
+        angles.forEach((b, i) => { const d = Math.abs(((a - b + 540) % 360) - 180); if (d < bestD) { bestD = d; best = i; } });
+        return best;
+      };
+      let turn = null;
+      el.addEventListener("pointerdown", (ev) => {
+        if (turn || ev.target.closest(".hud-btn")) return;
+        el.setPointerCapture(ev.pointerId);
+        turn = { id: ev.pointerId, a0: angleAt(ev), moved: false };
+        el.classList.add("turning");
+      });
+      el.addEventListener("pointermove", (ev) => {
+        if (!turn || ev.pointerId !== turn.id) return;
+        const a = angleAt(ev);
+        if (Math.abs(((a - turn.a0 + 540) % 360) - 180) > 8) turn.moved = true;
+        if (!turn.moved) return;
+        point(a);
+        const i = nearest(a);
+        opts.forEach((b, j) => b.classList.toggle("rt-aim", j === i));
+      });
+      const end = (ev) => {
+        if (!turn || ev.pointerId !== turn.id) return;
+        const t = turn;
+        turn = null;
+        el.classList.remove("turning");
+        opts.forEach((b) => b.classList.remove("rt-aim"));
+        if (ev.type === "pointerup" && t.moved) {
+          const i = nearest(angleAt(ev));
+          if (i !== index() && D.tapStep(e.options[i])) {
+            pick(i);
+            opts[i].classList.add("pressed");
+            setTimeout(() => opts[i].classList.remove("pressed"), 160);
+            return;
+          }
+        }
+        show();
+      };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      el.setAttribute("role", "group");
+      el.setAttribute("aria-label", tr(e.label || "Operator mode"));
+      show();
     }
 
     function openMenu(e) {

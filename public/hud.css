@@ -362,6 +362,36 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 .compact .hud-fader { gap: 4px; }
 .compact .s-recentre .fx-state { bottom: 3px; font-size: 7.5px; }
 
+/* Operator-mode dial: a round face with a tick per mode and a needle from the hub, the
+   modes round it, the hub (SCM/NAV) in the middle. */
+.hud-rotary { --needle: 80px; cursor: grab; }
+.hud-rotary .rt-face {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 38%, color-mix(in srgb, var(--accent) 6%, transparent) 39% 70%, transparent 71%),
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--face-hi) 70%, transparent), color-mix(in srgb, var(--face-lo) 85%, transparent) 70%);
+  border: 1px solid var(--hud-line); box-shadow: inset 0 0 30px rgba(0,0,0,.35);
+}
+.hud-rotary .rt-ticks { position: absolute; inset: 0; width: 100%; height: 100%; stroke: var(--line-hi); stroke-width: 2; stroke-linecap: round; }
+.hud-rotary .rt-needle {
+  position: absolute; left: calc(50% - 3px); bottom: 50%; width: 6px; height: var(--needle);
+  transform-origin: 50% 100%; border-radius: 3px 3px 0 0;
+  background: linear-gradient(0deg, transparent 0 35%, var(--accent) 35%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  transition: transform .25s cubic-bezier(.3,.7,.2,1); pointer-events: none;
+}
+.hud-rotary.turning { cursor: grabbing; }
+.hud-rotary.turning .rt-needle { transition: none; }
+.hud-rotary.unset .rt-needle { opacity: .35; }
+.hud-rotary .rt-opt { position: absolute; flex-direction: column; gap: 4px; padding: 4px 6px; font-size: 11.5px; }
+.hud-rotary .rt-opt .hud-ico svg { width: 20px; height: 20px; }
+.hud-rotary .rt-opt.rt-on { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c), 0 0 14px -4px var(--c); }
+.hud-rotary .rt-opt.rt-aim { border-color: var(--c); }
+.hud-rotary .rt-hub { position: absolute; border-radius: 50%; clip-path: none; font-size: 13px; flex-direction: column; gap: 2px; }
+.hud-rotary .rt-hub .hud-key { top: auto; bottom: 10px; right: auto; left: 50%; transform: translateX(-50%); }
+.hud-rotary .rt-opt .hud-key { display: none; }
+.compact .hud-rotary .rt-opt { font-size: 10px; gap: 2px; }
+.compact .hud-rotary .rt-opt .hud-ico svg { width: 16px; height: 16px; }
+
 /* ---------- regions, panels, pager ---------- */
 .hud-panel { left: 0; top: 0; right: 0; }
 /* Paging: the new panel slides in from the side you paged towards, with a short flicker. */
@@ -381,7 +411,7 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
   .hud-panel.enter-next, .hud-panel.enter-prev { animation: none; }
   .hud-lever .lv-knob, .hud-lever.transit .lv-knob { transition-duration: .01s; }
   .hud-lever.lit.transit .lv-lamps i, .hud-lever.denied .lv-slot { animation: none; }
-  .lvl-knob { transition: none; }
+  .lvl-knob, .hud-rotary .rt-needle { transition: none; }
   .hud-level.denied .lvl-track, .hud-fader.denied .lvl-track { animation: none; }
 }
 .hud-pager { left: 0; right: 0; bottom: 0; height: var(--pager-h, 44px); }

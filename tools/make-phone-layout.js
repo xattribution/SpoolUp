@@ -15,14 +15,12 @@ const W = 734, H = 372;
 const REGION = { y: 50, w: 359, h: 322, pager: 36 };
 const BODY_H = REGION.h - REGION.pager - 8; // 278
 
-// Index every element with an id (and menus by label) from the tablet layout.
+// Index every element with an id from the tablet layout.
 const byId = new Map();
-const menus = new Map();
 (function scan(node) {
   if (Array.isArray(node)) { node.forEach(scan); return; }
   if (!node || typeof node !== "object") return;
   if (typeof node.id === "string") byId.set(node.id, node);
-  if (node.type === "menu") menus.set(node.label, node);
   for (const v of Object.values(node)) if (v && typeof v === "object") scan(v);
 })(tablet);
 
@@ -107,11 +105,15 @@ const panels = {
     elements: [
       el({ type: "header", text: "Ship_systems", x: 2, y: 2 }),
       at("qt-pwr", 0, 20, 85, 52), at("qt-wep", 91, 20, 85, 52), at("qt-thr", 182, 20, 85, 52), at("qt-shld", 273, 20, 86, 52),
-      at("qt-flight-ready", 0, 82, 359, 54),
-      at("qt-scm-nav", 0, 144, 175, 46),
-      { ...JSON.parse(JSON.stringify(menus.get("Oprt Mode"))), x: 184, y: 144, w: 175, h: 46 },
-      at("qt-engage", 34, 200, 291, 74),
+      at("qt-flight-ready", 0, 84, 359, 62),
+      at("qt-engage", 34, 168, 291, 96),
     ],
+  },
+
+  // The operator-mode dial needs a panel of its own on a phone.
+  "master-modes": {
+    title: "Master Modes",
+    elements: [at("qt-modes", 0, 0, REGION.w, BODY_H)],
   },
 
   mining: (() => {
@@ -180,7 +182,7 @@ const phone = {
     { id: "left", x: 0, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
       panels: ["landing", "power", "flight-assist", "shields", "targets", "salvage", "mining"] },
     { id: "right", x: 375, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
-      panels: ["systems", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
+      panels: ["systems", "master-modes", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
   ],
   panels,
 };

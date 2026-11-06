@@ -947,7 +947,7 @@
           "x": 1,
           "y": 35,
           "w": 117,
-          "h": 72
+          "h": 70
         },
         {
           "type": "button",
@@ -973,7 +973,7 @@
           "x": 123,
           "y": 35,
           "w": 117,
-          "h": 72
+          "h": 70
         },
         {
           "type": "button",
@@ -1002,7 +1002,7 @@
           "x": 244,
           "y": 35,
           "w": 117,
-          "h": 72
+          "h": 70
         },
         {
           "type": "button",
@@ -1028,14 +1028,7 @@
           "x": 365,
           "y": 35,
           "w": 117,
-          "h": 72
-        },
-        {
-          "type": "bracket",
-          "x": 50,
-          "y": 112,
-          "w": 380,
-          "h": 24
+          "h": 70
         },
         {
           "type": "button",
@@ -1055,37 +1048,32 @@
           "mode": "tap",
           "color": "green",
           "x": 9,
-          "y": 157,
+          "y": 111,
           "w": 461,
-          "h": 72
+          "h": 54
         },
         {
-          "type": "button",
-          "id": "qt-scm-nav",
-          "anim": "streak",
-          "label": "SCM/NAV",
-          "voice": [
-            "switch master mode",
-            "toggle master mode",
-            "master mode"
-          ],
-          "keys": "b",
-          "scAction": "v_master_mode_cycle_long",
-          "mode": "timed",
-          "ms": 400,
-          "x": 47,
-          "y": 252,
-          "w": 189,
-          "h": 72
-        },
-        {
-          "type": "menu",
-          "label": "Oprt Mode",
-          "title": "Operator mode",
-          "x": 244,
-          "y": 252,
-          "w": 189,
-          "h": 72,
+          "type": "rotary",
+          "id": "qt-modes",
+          "label": "Operator mode",
+          "x": 0,
+          "y": 170,
+          "w": 480,
+          "h": 250,
+          "hub": {
+            "id": "qt-scm-nav",
+            "anim": "streak",
+            "label": "SCM/NAV",
+            "voice": [
+              "switch master mode",
+              "toggle master mode",
+              "master mode"
+            ],
+            "keys": "b",
+            "scAction": "v_master_mode_cycle_long",
+            "mode": "timed",
+            "ms": 400
+          },
           "options": [
             {
               "id": "op-flight",
@@ -1193,9 +1181,9 @@
           "mode": "hold",
           "color": "blue",
           "x": 65,
-          "y": 362,
+          "y": 426,
           "w": 361,
-          "h": 110
+          "h": 82
         },
         {
           "type": "danger-zone",
