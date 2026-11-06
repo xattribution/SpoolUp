@@ -8,7 +8,7 @@ owner's Microsoft-verified identity, and timestamped. The installer's
 sign with [SignPath Foundation](https://signpath.org), which Tablet Deck may
 apply to once it's widely known.)
 
-> Status: signed from 1.7.0. Earlier releases are unsigned and Windows shows an
+> Status: signed from 1.8.0. Earlier releases (1.7.0 and before) are unsigned and Windows shows an
 > "unknown publisher" warning for them (see Troubleshooting in the README).
 > Each release lists its installer's SHA-256 checksum.
 

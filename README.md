@@ -142,7 +142,7 @@ In Star Citizen, load the **Tablet Deck Keyboard** profile once (see
 <details>
 <summary><b>Windows says "Windows protected your PC" or "unknown publisher"</b></summary>
 
-Releases are code-signed from 1.7.0: the installer's **Properties → Digital
+Releases are code-signed from 1.8.0: the installer's **Properties → Digital
 Signatures** shows the publisher. Windows can still warn about a new release
 until enough people have downloaded it, and earlier or test builds aren't
 signed: click **More info**, then **Run anyway**. Your browser may also say the

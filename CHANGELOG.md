@@ -5,11 +5,14 @@ section becomes the notes of its
 [GitHub release](https://github.com/nodieCode/tablet-deck/releases), so add one
 before tagging a release.
 
-## 1.7.0 (2026-11-06)
+## 1.8.0 (2026-11-06)
 
 - **Signed releases.** The installer, the app and its helpers are code-signed
   with Azure Artifact Signing, so Properties → Digital Signatures shows the
   publisher, and Windows and antivirus tools have a name to trust.
+
+## 1.7.0 (2026-11-06)
+
 - **A Stream Deck pack.** Profiles for every Stream Deck from the Mini to the
   new + XL, in all 12 manufacturer themes, with a page per scene (Flight, Combat,
   Mining, Salvage, Hauling & Exploration, On Foot, Comms), folders for
