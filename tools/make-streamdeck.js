@@ -33,6 +33,7 @@ const { zip, unzip } = require("./streamdeck/zip");
 const png = require("./streamdeck/png");
 const P = require("./streamdeck/profile");
 const { hotkey, hotkeySettings } = require("./streamdeck/hotkeys");
+const animate = require("./streamdeck/animate");
 
 const VERSION = require("../package.json").version;
 const AUTHOR = "Tablet Deck";
@@ -488,6 +489,15 @@ function planIconPack(env, theme) {
     const tags = [c.id, ...words(c.name), ...(a.kind === "deck" ? ["starcitizen"] : [a.kind])];
     add(a.id, nameOf(a), tags, art.actionKey(th, a), a.category);
     if (a.state || (a.plugin && a.plugin.states > 1)) add(`${a.id}-lit`, `${nameOf(a)} (lit)`, [...tags, "lit"], art.actionKey(th, a, { lit: true }));
+    // A button with a press animation (gear struts, sliding doors, decoy sparks, the quantum
+    // charge...) also comes as a GIF, which Stream Deck plays on the key. Its frames are drawn
+    // with the static key's own look, so the first frame is that key (drawn once).
+    const kind = animate.kindOf(a);
+    if (kind) {
+      const frames = animate.framesFor({ keyart, theme: th, icon: art.icon(a.icon), label: a.keyLabel || a.label, color: a.color, anim: kind })
+        .map((f) => ({ img: store.add(f.svg), delay: f.delay }));
+      items.push({ file: `${slug(`${a.id}-animated`)}.gif`, name: `${nameOf(a)} (animated)`, tags: [...new Set([...tags, "animated"])], img: frames[0].img, frames, category: a.category });
+    }
   }
   for (const s of scenes.SCENES) {
     add(`scene-${s.id}`, `${s.name} scene`, ["scene", "navigation", ...words(s.name)], art.sceneKey(th, s, false));
@@ -509,6 +519,7 @@ function packPreviewHtml(pack, store) {
   // once, lit or not.
   const pick = [], seen = new Set();
   const take = (it) => {
+    if (it && it.frames) return;
     const base = it && it.file.replace(/-lit\.png$/, ".png");
     if (it && !seen.has(base) && pick.length < 40) { seen.add(base); pick.push(it); }
   };
@@ -529,7 +540,7 @@ function writeIconPack(env, pack, previewPng) {
   const manifest = {
     Name: `Tablet Deck ${pack.theme.name}`,
     Version: VERSION,
-    Description: `${pack.items.length} Star Citizen keys in Tablet Deck's ${pack.theme.full} HUD theme: every Tablet Deck action (with lit versions of the ones that light up), scenes, folders and navigation. Static PNG, 144 x 144. Fan-made; not affiliated with Cloud Imperium Games or Elgato.`,
+    Description: `${pack.items.length} Star Citizen keys in Tablet Deck's ${pack.theme.full} HUD theme: every Tablet Deck action (with lit versions of the ones that light up), scenes, folders and navigation. 144 x 144 PNG, plus animated GIF versions of the keys with a press animation. Fan-made; not affiliated with Cloud Imperium Games or Elgato.`,
     Author: AUTHOR,
     URL: SITE,
     Icon: "icon.png",
@@ -542,7 +553,10 @@ function writeIconPack(env, pack, previewPng) {
     { name: `${root}icon.png`, data: store.get(pack.icon) },
     { name: `${root}manifest.json`, data: JSON.stringify(manifest, null, 4) },
     { name: `${root}license.txt`, data: read("LICENSE") },
-    ...pack.items.map((it) => ({ name: `${root}icons/${it.file}`, data: store.get(it.img) })),
+    ...pack.items.flatMap((it) => (it.gif
+      // Stream Deck shows the PNG of the same name where a GIF can't play; it isn't listed.
+      ? [{ name: `${root}icons/${it.file}`, data: it.gif }, { name: `${root}icons/${it.file.replace(/\.gif$/, ".png")}`, data: store.get(it.img) }]
+      : [{ name: `${root}icons/${it.file}`, data: store.get(it.img) }])),
   ];
   if (previewPng) entries.push({ name: `${root}previews/1-preview.png`, data: previewPng });
   const file = path.join(env.out, "icons", `Tablet Deck ${pack.theme.name}.streamDeckIconPack`);
@@ -968,13 +982,23 @@ function checkBuilt(out) {
         if (it.tags.some((t) => /, /.test(t))) errors.push(`${label}: ${it.path} has a comma list as a tag`);
         const e = byName.get(`${root}icons/${it.path}`);
         if (!e) errors.push(`${label}: ${it.path} is listed but missing`);
-        else { const s = png.size(e.data); if (!s || s.width !== 144 || s.height !== 144) errors.push(`${label}: ${it.path} isn't a 144x144 PNG`); }
+        else if (/\.gif$/.test(it.path)) {
+          for (const p of animate.gifProblems(e.data)) errors.push(`${label}: ${it.path}: ${p}`);
+          const companion = byName.get(`${root}icons/${it.path.replace(/\.gif$/, ".png")}`);
+          const s = companion && png.size(companion.data);
+          if (!s || s.width !== 144 || s.height !== 144) errors.push(`${label}: ${it.path} has no 144x144 PNG of the same name`);
+        } else { const s = png.size(e.data); if (!s || s.width !== 144 || s.height !== 144) errors.push(`${label}: ${it.path} isn't a 144x144 PNG`); }
         if (it.path.length > 80) errors.push(`${label}: ${it.path} is longer than 80 characters`);
         if (names.has(it.name)) errors.push(`${label}: two icons are named "${it.name}"`);
         listed.add(it.path);
         names.add(it.name);
       }
-      for (const e of entries) if (e.name.startsWith(`${root}icons/`) && !e.dir && !listed.has(e.name.slice(root.length + 6))) errors.push(`${label}: ${e.name} has no icons.json entry`);
+      // A GIF's same-named PNG is its companion, unlisted on purpose (research/iconpacks.verified.md).
+      const companion = (rel) => /\.png$/.test(rel) && listed.has(rel.replace(/\.png$/, ".gif"));
+      for (const e of entries) {
+        const rel = e.name.slice(root.length + 6);
+        if (e.name.startsWith(`${root}icons/`) && !e.dir && !listed.has(rel) && !companion(rel)) errors.push(`${label}: ${e.name} has no icons.json entry`);
+      }
       packs++;
     } catch (err) { errors.push(`${label}: ${err.message}`); }
   }
@@ -1071,6 +1095,12 @@ async function main() {
     await env.store.render(renderer, (m) => console.log(m));
     lap("render", t);
     console.log(`  ${count} distinct images in ${renderer.captures} captures`);
+    let gifs = 0;
+    for (const pack of packs) for (const it of pack.items) if (it.frames) {
+      it.gif = animate.gifFromPngs(it.frames.map((f) => env.store.get(f.img)), it.frames.map((f) => f.delay));
+      gifs++;
+    }
+    if (gifs) console.log(`  ${gifs} animated GIFs`);
 
     t = Date.now();
     for (const pack of packs) {
