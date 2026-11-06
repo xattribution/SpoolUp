@@ -2,7 +2,7 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "UUID": "com.xattribution.spoolup",
   "Name": "SpoolUp",
-  "Version": "1.9.0.0",
+  "Version": "2.0.0.0",
   "Author": "xattribution",
   "Description": "Star Citizen controls through SpoolUp: live key lights, press animations, dials and scenes, with SpoolUp's focus check. Fan project, not affiliated with Cloud Imperium Games.",
   "URL": "https://github.com/xattribution/tablet-deck-spooned",
