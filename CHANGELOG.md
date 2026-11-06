@@ -19,6 +19,9 @@ before tagging a release.
   sliders count the taps SpoolUp sent (SpoolUp can't read the game), so
   Centre sliders puts them back in the middle without pressing anything, and
   Max, Min and Reset All move them too.
+- **A speed-range fader.** Speed Range + and − are now one fader on the
+  Flight Assist panel: each step left or right taps Speed Range − or + once,
+  the same way as the power sliders.
 
 ## 1.9.0 (2026-11-06)
 

@@ -144,7 +144,18 @@ const panels = {
 
 // ---------- re-flowed grid panels ----------
 Object.assign(panels, {
-  "flight-assist": gridPanel("flight-assist", 3),
+  "flight-assist": (() => {
+    const [top, rest] = tablet.panels["flight-assist"].elements.filter((e) => e.type === "grid");
+    return {
+      title: "Flight Assist",
+      elements: [
+        { type: "grid", x: 0, y: 0, w: REGION.w, h: 56, cols: 3, compact: true, buttons: top.buttons },
+        at("fa-throttle", 0, 64, 110, 80, { style: "std" }),
+        at("fa-range", 118, 64, 241, 80),
+        { type: "grid", x: 0, y: 152, w: REGION.w, h: 126, cols: 3, compact: true, buttons: rest.buttons },
+      ],
+    };
+  })(),
   shields: gridPanel("shields", 3),
   targets: gridPanel("targets", 2),
   salvage: gridPanel("salvage", 2),

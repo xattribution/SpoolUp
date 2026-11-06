@@ -330,6 +330,7 @@
     "Slide to eject": ["Desliza para eyectar", "Glisser pour s'éjecter", "Schieben zum Ausstoßen"],
     "Smell": ["Oler", "Renifler", "Riechen"],
     "Speed Limiter": ["Limitador de velocidad", "Limiteur de vitesse", "Tempolimit"],
+    "Speed Range": ["Rango de velocidad", "Plage de vitesse", "Tempobereich"],
     "Speed Range +": ["Rango de velocidad +", "Plage de vitesse +", "Tempobereich +"],
     "Speed Range −": ["Rango de velocidad −", "Plage de vitesse −", "Tempobereich −"],
     "Speed Range Down": ["Bajar rango de velocidad", "Baisser la plage de vitesse", "Tempobereich runter"],

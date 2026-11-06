@@ -91,13 +91,14 @@
     "flight-assist": {
       "title": "Flight Assist",
       "elements": [
-        { "type": "grid", "x": 0, "y": 8, "w": 480, "h": 604, "cols": 3, "buttons": [
+        { "type": "grid", "x": 0, "y": 8, "w": 480, "h": 120, "cols": 3, "buttons": [
           { "id": "fa-scm", "icon": "speed", "label": "Master: SCM", "voice": ["scm mode", "combat mode"], "keys": "ralt+insert", "scAction": "v_master_mode_set_scm", "mode": "tap", "color": "green" },
           { "id": "fa-nav", "anim": "streak", "icon": "quantum-mode", "label": "Master: NAV", "voice": ["nav mode", "navigation mode"], "keys": "ralt+np_period", "scAction": "v_master_mode_set_nav", "mode": "tap", "color": "blue" },
-          { "id": "fa-limiter", "icon": "speed", "label": "Speed Limiter", "state": {"group": "speed-limiter"}, "voice": ["speed limiter on", "speed limiter off", "toggle speed limiter"], "keys": "lalt+minus", "scAction": "v_ifcs_speed_limiter_toggle", "mode": "tap" },
-          { "id": "fa-throttle", "icon": "speed", "label": "Throttle Mode", "voice": ["throttle mode", "swap throttle mode"], "keys": "lalt+c", "scAction": "v_ifcs_throttle_swap_mode", "mode": "tap" },
-          { "id": "fa-range-up", "anim": "streak", "icon": "chev-up", "label": "Speed Range +", "voice": ["increase speed range"], "keys": "lalt+pgup", "scAction": "v_ifcs_speed_limiter_increment", "verify": true, "mode": "tap" },
-          { "id": "fa-range-down", "icon": "chev-down", "label": "Speed Range −", "voice": ["decrease speed range"], "keys": "lalt+pgdn", "scAction": "v_ifcs_speed_limiter_decrement", "verify": true, "mode": "tap" },
+          { "id": "fa-limiter", "icon": "speed", "label": "Speed Limiter", "state": {"group": "speed-limiter"}, "voice": ["speed limiter on", "speed limiter off", "toggle speed limiter"], "keys": "lalt+minus", "scAction": "v_ifcs_speed_limiter_toggle", "mode": "tap" }
+        ] },
+        { "type": "button", "style": "cell", "id": "fa-throttle", "icon": "speed", "label": "Throttle Mode", "voice": ["throttle mode", "swap throttle mode"], "keys": "lalt+c", "scAction": "v_ifcs_throttle_swap_mode", "mode": "tap", "x": 0, "y": 140, "w": 152, "h": 120 },
+        { "type": "fader", "id": "fa-range", "label": "Speed Range", "icon": "speed", "color": "blue", "steps": 5, "x": 164, "y": 140, "w": 316, "h": 120, "up": {"id": "fa-range-up", "anim": "streak", "icon": "chev-up", "label": "Speed Range +", "voice": ["increase speed range"], "keys": "lalt+pgup", "scAction": "v_ifcs_speed_limiter_increment", "verify": true, "mode": "tap"}, "down": {"id": "fa-range-down", "icon": "chev-down", "label": "Speed Range −", "voice": ["decrease speed range"], "keys": "lalt+pgdn", "scAction": "v_ifcs_speed_limiter_decrement", "verify": true, "mode": "tap"} },
+        { "type": "grid", "x": 0, "y": 272, "w": 480, "h": 252, "cols": 3, "buttons": [
           { "id": "fa-decoupled", "icon": "swap", "label": "Decoupled", "state": {"group": "decoupled"}, "voice": ["decoupled", "decoupled mode", "toggle decoupled"], "keys": "c", "scAction": "v_ifcs_vector_decoupling_toggle", "mode": "tap" },
           { "id": "fa-esp", "icon": "target", "label": "Toggle ESP", "state": {"group": "esp"}, "voice": ["esp on", "esp off"], "keys": "lalt+semicolon", "scAction": "v_ifcs_toggle_esp", "mode": "tap" },
           { "id": "fa-gsafe", "icon": "power-shields", "label": "G-Safety", "state": {"group": "g-safety"}, "voice": ["g force safety", "toggle g safety"], "keys": "lalt+i", "scAction": "v_ifcs_toggle_gforce_safety", "mode": "tap", "color": "amber" },

@@ -1253,7 +1253,7 @@
           "x": 0,
           "y": 8,
           "w": 480,
-          "h": 604,
+          "h": 120,
           "cols": 3,
           "buttons": [
             {
@@ -1298,44 +1298,72 @@
               "keys": "lalt+minus",
               "scAction": "v_ifcs_speed_limiter_toggle",
               "mode": "tap"
-            },
-            {
-              "id": "fa-throttle",
-              "icon": "speed",
-              "label": "Throttle Mode",
-              "voice": [
-                "throttle mode",
-                "swap throttle mode"
-              ],
-              "keys": "lalt+c",
-              "scAction": "v_ifcs_throttle_swap_mode",
-              "mode": "tap"
-            },
-            {
-              "id": "fa-range-up",
-              "anim": "streak",
-              "icon": "chev-up",
-              "label": "Speed Range +",
-              "voice": [
-                "increase speed range"
-              ],
-              "keys": "lalt+pgup",
-              "scAction": "v_ifcs_speed_limiter_increment",
-              "verify": true,
-              "mode": "tap"
-            },
-            {
-              "id": "fa-range-down",
-              "icon": "chev-down",
-              "label": "Speed Range −",
-              "voice": [
-                "decrease speed range"
-              ],
-              "keys": "lalt+pgdn",
-              "scAction": "v_ifcs_speed_limiter_decrement",
-              "verify": true,
-              "mode": "tap"
-            },
+            }
+          ]
+        },
+        {
+          "type": "button",
+          "style": "cell",
+          "id": "fa-throttle",
+          "icon": "speed",
+          "label": "Throttle Mode",
+          "voice": [
+            "throttle mode",
+            "swap throttle mode"
+          ],
+          "keys": "lalt+c",
+          "scAction": "v_ifcs_throttle_swap_mode",
+          "mode": "tap",
+          "x": 0,
+          "y": 140,
+          "w": 152,
+          "h": 120
+        },
+        {
+          "type": "fader",
+          "id": "fa-range",
+          "label": "Speed Range",
+          "icon": "speed",
+          "color": "blue",
+          "steps": 5,
+          "x": 164,
+          "y": 140,
+          "w": 316,
+          "h": 120,
+          "up": {
+            "id": "fa-range-up",
+            "anim": "streak",
+            "icon": "chev-up",
+            "label": "Speed Range +",
+            "voice": [
+              "increase speed range"
+            ],
+            "keys": "lalt+pgup",
+            "scAction": "v_ifcs_speed_limiter_increment",
+            "verify": true,
+            "mode": "tap"
+          },
+          "down": {
+            "id": "fa-range-down",
+            "icon": "chev-down",
+            "label": "Speed Range −",
+            "voice": [
+              "decrease speed range"
+            ],
+            "keys": "lalt+pgdn",
+            "scAction": "v_ifcs_speed_limiter_decrement",
+            "verify": true,
+            "mode": "tap"
+          }
+        },
+        {
+          "type": "grid",
+          "x": 0,
+          "y": 272,
+          "w": 480,
+          "h": 252,
+          "cols": 3,
+          "buttons": [
             {
               "id": "fa-decoupled",
               "icon": "swap",
