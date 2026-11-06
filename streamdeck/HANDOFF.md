@@ -9,9 +9,9 @@ Branch: `gen/sweet-einstein-7mguuf`, PR: xattribution/tablet-deck-spooned#1 (ope
 
 ## What the owner asked for
 
-An Elgato Stream Deck "mega pack" based on Tablet Deck's designs and icons:
+An Elgato Stream Deck "mega pack" based on SpoolUp's designs and icons:
 
-1. **Icons** for every Tablet Deck action, in the HUD style, usable on their own
+1. **Icons** for every SpoolUp action, in the HUD style, usable on their own
    (an icon pack), including actions too niche for a ready-made page, so players can
    build their own pages.
 2. **Scenes**: ready-made Stream Deck profiles with pages per activity (flight,
@@ -20,11 +20,11 @@ An Elgato Stream Deck "mega pack" based on Tablet Deck's designs and icons:
    - **Every Stream Deck model**, smallest to largest, including the dial/touch strip
      models (Stream Deck +, Studio) with designs and animations for knobs and screens.
    - **Every page in every one of the 12 manufacturer themes**, all in one mega pack.
-   - Usable **without** Tablet Deck (Stream Deck's own Hotkey actions plus the Tablet
-     Deck Keyboard keybind profile), and optionally **fully integrated** with the app.
+   - Usable **without** SpoolUp (Stream Deck's own Hotkey actions plus the SpoolUp
+     Keyboard keybind profile), and optionally **fully integrated** with the app.
    - The Comms page offers Discord mute/deafen and other standard Stream Deck uses
      (media, volume, OBS, timers...).
-3. **Integration** (optional): a Stream Deck plugin that talks to the Tablet Deck
+3. **Integration** (optional): a Stream Deck plugin that talks to the SpoolUp
    server, so presses go through its focus check and keybinds, keys show the shared
    lit states (gear DEPLOYED, doors OPEN), skipped presses flash red, keys animate, and
    scenes can follow / drive the tablet's panels.
@@ -74,20 +74,20 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   can't hold a key. Star Citizen actions that need a hold or a >= 0.25 s press (voice push
   to talk, Engage Quantum, Look Behind, the `delayed_press` binds such as SCM/NAV, docking
   camera, Max/Min power) can't work as standalone Hotkeys. In the standalone pack they use
-  the Tablet Deck plugin's key action instead, drawn with a "PLUGIN" mark, rather than a
+  the SpoolUp plugin's key action instead, drawn with a "PLUGIN" mark, rather than a
   tap that silently does nothing. (Possible later: the keybind profile could rebind those
   actions with a press activation mode, if Star Citizen's actionmaps accept that; unverified.)
 - **Animated icon pack images must be GIF**, with a PNG of the same name next to each
   (`research/iconpacks.verified.md` correction 2); WebP fails Elgato's tool.
-- **Standalone hotkeys don't pass Tablet Deck's focus check** (Elgato's app presses them,
-  into whatever window has focus). Say so in the docs; the plugin route goes through Tablet
-  Deck and keeps the check.
+- **Standalone hotkeys don't pass SpoolUp's focus check** (Elgato's app presses them,
+  into whatever window has focus). Say so in the docs; the plugin route goes through SpoolUp
+  and keeps the check.
 - **Plugin:** plain Node with the raw Stream Deck WebSocket protocol, no `@elgato/streamdeck`
   and no bundler (officially supported: `research/sdk.verified.md` 0, 5.4). `Nodejs.Version`
   "24" (global `WebSocket`), `Software.MinimumVersion` "7.3" (a + XL profile needs 7.3, which also fixed `switchToProfile`), `SDKVersion` 3, Windows only.
   `setImage` takes SVG/PNG data URLs but no animated formats, at most ~10 updates a second:
   animation = frames from `streamdeck/keyart.js`.
-- **Scenes sync both ways** (`CONTRACT.md`, "Talking to Tablet Deck"): a scene picked on the
+- **Scenes sync both ways** (`CONTRACT.md`, "Talking to SpoolUp"): a scene picked on the
   Stream Deck pages tablets (the plugin's **Tablets follow scenes**, off by default, and the
   tablet's **Follow Stream Deck scenes**, on by default); a HUD half paged on a tablet sends
   `{t:"panel"}` (400 ms after paging stops, only to `device=streamdeck` clients) and the Stream Deck
@@ -120,6 +120,15 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
   fixed keys.
 
 ## Status
+
+**1.8.0 renames the app to SpoolUp.** The plugin is now `com.xattribution.spoolup` (folder
+`plugin/com.xattribution.spoolup.sdPlugin`, actions `com.xattribution.spoolup.key` and so
+on), so Stream Deck sees a new plugin: keys placed with the 1.7.0 plugin
+(`com.nodiecode.tabletdeck`) don't move over. Profiles are `SpoolUp <theme> - <model>` and
+`profiles/SpoolUp <model>`, icon packs `SpoolUp <theme>` (`com.xattribution.spoolup.icons.<theme>`),
+downloads `SpoolUp-StreamDeck-*.zip`. Kept: `%APPDATA%\TabletDeck\config.json`,
+`TabletDeck-StarCitizen.xml`, and the seed of the generated profile UUIDs
+(`tools/streamdeck/profile.js`), so profiles keep their UUIDs across the rename.
 
 **Merged into main as Tablet Deck 1.7.0** (PR #1, merge commit 5da2ebd, 2026-11-06). package.json,
 the lockfile, the plugin's source manifest and CHANGELOG (`## 1.7.0 (2026-11-06)`) all say 1.7.0.

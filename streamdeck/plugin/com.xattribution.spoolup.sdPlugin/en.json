@@ -1,13 +1,13 @@
 {
-  "Name": "Tablet Deck",
-  "Description": "Star Citizen controls through Tablet Deck: live key lights, press animations, dials and scenes, with Tablet Deck's focus check. Fan project, not affiliated with Cloud Imperium Games.",
-  "com.nodiecode.tabletdeck.key": {
+  "Name": "SpoolUp",
+  "Description": "Star Citizen controls through SpoolUp: live key lights, press animations, dials and scenes, with SpoolUp's focus check. Fan project, not affiliated with Cloud Imperium Games.",
+  "com.xattribution.spoolup.key": {
     "Name": "Deck Button",
-    "Tooltip": "Presses a Tablet Deck button through its focus check, with live lights."
+    "Tooltip": "Presses a SpoolUp button through its focus check, with live lights."
   },
-  "com.nodiecode.tabletdeck.dial": {
+  "com.xattribution.spoolup.dial": {
     "Name": "Deck Dial",
-    "Tooltip": "One Tablet Deck press per detent; push or touch for a third button.",
+    "Tooltip": "One SpoolUp press per detent; push or touch for a third button.",
     "Encoder": {
       "TriggerDescription": {
         "Rotate": "One press per detent",
@@ -16,25 +16,25 @@
       }
     }
   },
-  "com.nodiecode.tabletdeck.scene": {
+  "com.xattribution.spoolup.scene": {
     "Name": "Scene",
-    "Tooltip": "Goes to a scene page of the Tablet Deck profile; tablets can follow."
+    "Tooltip": "Goes to a scene page of the SpoolUp profile; tablets can follow."
   },
-  "com.nodiecode.tabletdeck.theme": {
+  "com.xattribution.spoolup.theme": {
     "Name": "Theme",
-    "Tooltip": "Draws every Tablet Deck key and dial in a manufacturer theme."
+    "Tooltip": "Draws every SpoolUp key and dial in a manufacturer theme."
   },
-  "com.nodiecode.tabletdeck.talk": {
+  "com.xattribution.spoolup.talk": {
     "Name": "Hold to Talk",
-    "Tooltip": "Hold to speak a Tablet Deck voice command."
+    "Tooltip": "Hold to speak a SpoolUp voice command."
   },
-  "com.nodiecode.tabletdeck.status": {
+  "com.xattribution.spoolup.status": {
     "Name": "Status",
-    "Tooltip": "Shows the link to Tablet Deck and its round trip."
+    "Tooltip": "Shows the link to SpoolUp and its round trip."
   },
-  "com.nodiecode.tabletdeck.lights": {
+  "com.xattribution.spoolup.lights": {
     "Name": "Reset Lights",
-    "Tooltip": "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed."
+    "Tooltip": "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed."
   },
   "Localization": {
     "ON": "ON",
@@ -77,7 +77,7 @@
     "Choose a scene": "Choose a scene",
     "Choose a theme": "Choose a theme",
     "Deck Dial": "Deck Dial",
-    "Tablet Deck": "Tablet Deck",
+    "SpoolUp": "SpoolUp",
     "Hold to Talk": "Hold to Talk",
     "Reset Lights": "Reset Lights",
     "Flight": "Flight",
@@ -123,7 +123,7 @@
     "No buttons match.": "No buttons match.",
     "Hold": "Hold",
     "Timed": "Timed",
-    "Presses go through Tablet Deck, which only sends keys while Star Citizen is in front.": "Presses go through Tablet Deck, which only sends keys while Star Citizen is in front.",
+    "Presses go through SpoolUp, which only sends keys while Star Citizen is in front.": "Presses go through SpoolUp, which only sends keys while Star Citizen is in front.",
     "Preset": "Preset",
     "Custom": "Custom",
     "Label": "Label",
@@ -132,28 +132,28 @@
     "Push and touch": "Push and touch",
     "None": "None",
     "One press per detent, at most 5 per turn.": "One press per detent, at most 5 per turn.",
-    "Goes to this scene's page in the Tablet Deck profile for this Stream Deck.": "Goes to this scene's page in the Tablet Deck profile for this Stream Deck.",
-    "Every Tablet Deck key and dial is drawn in the theme you press.": "Every Tablet Deck key and dial is drawn in the theme you press.",
+    "Goes to this scene's page in the SpoolUp profile for this Stream Deck.": "Goes to this scene's page in the SpoolUp profile for this Stream Deck.",
+    "Every SpoolUp key and dial is drawn in the theme you press.": "Every SpoolUp key and dial is drawn in the theme you press.",
     "Hold to speak a voice command; let go to stop listening.": "Hold to speak a voice command; let go to stop listening.",
-    "Shows the link to Tablet Deck: its round trip, or what's wrong. Press it to try again.": "Shows the link to Tablet Deck: its round trip, or what's wrong. Press it to try again.",
-    "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed.": "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed.",
+    "Shows the link to SpoolUp: its round trip, or what's wrong. Press it to try again.": "Shows the link to SpoolUp: its round trip, or what's wrong. Press it to try again.",
+    "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed.": "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed.",
     "Port": "Port",
     "Pairing code": "Pairing code",
-    "From Tablet Deck on this PC": "From Tablet Deck on this PC",
+    "From SpoolUp on this PC": "From SpoolUp on this PC",
     "Test connection": "Test connection",
     "Connected · {0} ms": "Connected · {0} ms",
     "Connecting…": "Connecting…",
-    "Tablet Deck isn't running on this PC.": "Tablet Deck isn't running on this PC.",
+    "SpoolUp isn't running on this PC.": "SpoolUp isn't running on this PC.",
     "Wrong pairing code.": "Wrong pairing code.",
     "Too many wrong codes: wait a minute.": "Too many wrong codes: wait a minute.",
-    "No pairing code yet: enter the one the Tablet Deck window shows.": "No pairing code yet: enter the one the Tablet Deck window shows.",
-    "Found Tablet Deck's settings on this PC; leave these empty to use them.": "Found Tablet Deck's settings on this PC; leave these empty to use them.",
-    "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.": "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.",
+    "No pairing code yet: enter the one the SpoolUp window shows.": "No pairing code yet: enter the one the SpoolUp window shows.",
+    "Found SpoolUp's settings on this PC; leave these empty to use them.": "Found SpoolUp's settings on this PC; leave these empty to use them.",
+    "SpoolUp's settings weren't found on this PC: enter its port and pairing code.": "SpoolUp's settings weren't found on this PC: enter its port and pairing code.",
     "The code is kept in Stream Deck's settings on this PC, never in exported profiles.": "The code is kept in Stream Deck's settings on this PC, never in exported profiles.",
     "Tablets follow scenes": "Tablets follow scenes",
     "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.": "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.",
     "Follow the tablet": "Follow the tablet",
-    "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the Tablet Deck profile.": "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the Tablet Deck profile.",
+    "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the SpoolUp profile.": "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the SpoolUp profile.",
     "Key animations": "Key animations",
     "Press effects on keys and the touch strip. Turn off for still keys.": "Press effects on keys and the touch strip. Turn off for still keys."
   }

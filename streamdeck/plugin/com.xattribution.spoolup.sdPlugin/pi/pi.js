@@ -1,10 +1,10 @@
-// The property inspector for every Tablet Deck action: what the key or dial does, and the
+// The property inspector for every SpoolUp action: what the key or dial does, and the
 // shared Connection and Options (global settings). Plain HTML and script, nothing loaded
 // from the network. Stream Deck calls connectElgatoStreamDeckSocket once the page has
 // loaded; the plugin answers "init" with the buttons, scenes, themes and the text in
 // Stream Deck's language. Every change is saved at once (there's no Save button).
 (() => {
-  const UUID = "com.nodiecode.tabletdeck";
+  const UUID = "com.xattribution.spoolup";
   const $ = (id) => document.getElementById(id);
   let ws = null, uuid = "", action = "", kind = "", settings = {}, globals = {}, init = null;
   let strings = {};
@@ -65,19 +65,19 @@
     const words = {
       connected: link.rtt ? t("Connected · {0} ms", link.rtt) : t("Connected · {0} ms", "…"),
       connecting: t("Connecting…"),
-      offline: t("Tablet Deck isn't running on this PC."),
+      offline: t("SpoolUp isn't running on this PC."),
       "wrong-code": t("Wrong pairing code."),
       locked: t("Too many wrong codes: wait a minute."),
-      unpaired: t("No pairing code yet: enter the one the Tablet Deck window shows."),
+      unpaired: t("No pairing code yet: enter the one the SpoolUp window shows."),
     };
     const box = $("link");
     box.className = `link ${link.state === "connected" ? (link.rtt > 120 ? "on slow" : "on") : link.state === "connecting" ? "wait" : ""}`;
     $("linkText").textContent = words[link.state] || words.offline;
     if (!test && link.found !== undefined) {
-      $("code").placeholder = link.found ? t("From Tablet Deck on this PC") : "";
+      $("code").placeholder = link.found ? t("From SpoolUp on this PC") : "";
       $("found").textContent = link.found
-        ? t("Found Tablet Deck's settings on this PC; leave these empty to use them.")
-        : t("Tablet Deck's settings weren't found on this PC: enter its port and pairing code.");
+        ? t("Found SpoolUp's settings on this PC; leave these empty to use them.")
+        : t("SpoolUp's settings weren't found on this PC: enter its port and pairing code.");
     }
   }
 
@@ -141,13 +141,13 @@
     else if (kind === "dial") renderDial(box);
     else if (kind === "scene") {
       box.append(heading("SCENE"), choice(init.scenes.map((s) => [s.id, s.name]), settings.scene, (v) => { settings = { ...settings, scene: v }; saveSettings(); }, "Choose a scene"),
-        note("Goes to this scene's page in the Tablet Deck profile for this Stream Deck."));
+        note("Goes to this scene's page in the SpoolUp profile for this Stream Deck."));
     } else if (kind === "theme") {
       box.append(heading("THEME"), choice(init.themes.map((x) => [x.id, x.name]), settings.theme, (v) => { settings = { ...settings, theme: v }; saveSettings(); }, "Choose a theme"),
-        note("Every Tablet Deck key and dial is drawn in the theme you press."));
+        note("Every SpoolUp key and dial is drawn in the theme you press."));
     } else {
-      const text = { talk: "Hold to speak a voice command; let go to stop listening.", status: "Shows the link to Tablet Deck: its round trip, or what's wrong. Press it to try again.", lights: "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed." }[kind];
-      const name = { talk: "Hold to Talk", status: "Tablet Deck", lights: "Reset Lights" }[kind];
+      const text = { talk: "Hold to speak a voice command; let go to stop listening.", status: "Shows the link to SpoolUp: its round trip, or what's wrong. Press it to try again.", lights: "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed." }[kind];
+      const name = { talk: "Hold to Talk", status: "SpoolUp", lights: "Reset Lights" }[kind];
       if (text) box.append(heading(name ? t(name).toUpperCase() : ""), note(text)); else box.hidden = true;
     }
   }
@@ -160,7 +160,7 @@
     return s;
   }
 
-  // Deck Button: a searchable list of every Tablet Deck button, grouped like the catalog.
+  // Deck Button: a searchable list of every SpoolUp button, grouped like the catalog.
   function renderKey(box) {
     const search = el("input", { type: "search", className: "search", placeholder: t("Search buttons"), "aria-label": t("Search buttons") });
     const list = el("div", { className: "list", role: "listbox", "aria-label": t("BUTTON") });
@@ -189,7 +189,7 @@
       if (!shown) list.append(el("p", { className: "empty", textContent: t("No buttons match.") }));
     };
     search.addEventListener("input", fill);
-    box.append(heading("BUTTON"), search, list, el("p", { className: "note", textContent: t("Presses go through Tablet Deck, which only sends keys while Star Citizen is in front.") }));
+    box.append(heading("BUTTON"), search, list, el("p", { className: "note", textContent: t("Presses go through SpoolUp, which only sends keys while Star Citizen is in front.") }));
     fill();
     const picked = list.querySelector('[aria-selected="true"]');
     if (picked) picked.scrollIntoView({ block: "center" });
@@ -244,6 +244,6 @@
     });
     box.append(heading("DIAL"), el("label", { className: "field" }, el("span", { textContent: t("Preset") }), preset), rows,
       el("p", { className: "note", textContent: t("One press per detent, at most 5 per turn.") }),
-      el("p", { className: "note", textContent: t("Presses go through Tablet Deck, which only sends keys while Star Citizen is in front.") }));
+      el("p", { className: "note", textContent: t("Presses go through SpoolUp, which only sends keys while Star Citizen is in front.") }));
   }
 })();

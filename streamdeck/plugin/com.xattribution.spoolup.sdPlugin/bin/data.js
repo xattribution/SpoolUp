@@ -21,7 +21,7 @@ const CATEGORY_NAMES = {
   flight: "Flight", shields: "Shields", targeting: "Targeting", combat: "Combat", modes: "Operator Modes",
   mining: "Mining", salvage: "Salvage", crew: "Crew & Doors", onfoot: "On Foot", emotes: "Emotes",
   comms: "Comms", camera: "Camera", media: "Media & Audio", stream: "Streaming", tools: "Tools & Websites",
-  deck: "Tablet Deck", nav: "Navigation",
+  deck: "SpoolUp", nav: "Navigation",
 };
 
 function readJson(rel, fallback) {

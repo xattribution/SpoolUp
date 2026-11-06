@@ -1,4 +1,4 @@
-// End-to-end test of the Stream Deck plugin against a dry-run Tablet Deck server (which
+// End-to-end test of the Stream Deck plugin against a dry-run SpoolUp server (which
 // presses no keys), with a fake Stream Deck app playing a Stream Deck + XL and a 15-key.
 // What the plugin pressed is read from the server's /events stream (dry runs only), what it
 // sent from a proxy on the link, and the server's own "key d/u" log lines show that every
@@ -19,8 +19,8 @@ const { FakeStreamDeck, ev } = require("./fake-streamdeck");
 const { LinkProxy } = require("./link-proxy");
 const { write: writeData, REPO } = require("./make-test-data");
 
-const SRC = path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const U = "com.nodiecode.tabletdeck";
+const SRC = path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const U = "com.xattribution.spoolup";
 const A = { key: `${U}.key`, dial: `${U}.dial`, scene: `${U}.scene`, theme: `${U}.theme`, talk: `${U}.talk`, status: `${U}.status`, lights: `${U}.lights` };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -128,7 +128,7 @@ async function main() {
     proxy = new LinkProxy(port);
     const proxyPort = await proxy.start();
 
-    // Tablet Deck's config.json where the installed app keeps it, pointing at the proxy.
+    // SpoolUp's config.json where the installed app keeps it, pointing at the proxy.
     const appdata = path.join(tmp, "appdata");
     fs.mkdirSync(path.join(appdata, "TabletDeck"), { recursive: true });
     fs.writeFileSync(path.join(appdata, "TabletDeck", "config.json"), JSON.stringify({ port: proxyPort, token }));
@@ -180,7 +180,7 @@ async function main() {
     Object.values(dials).forEach(appear);
 
     const link = await within(6000, () => stream.find((e) => e.t === "client" && e.on && e.device === "streamdeck")[0]);
-    check("connects to Tablet Deck as device=streamdeck, from config.json in %APPDATA%\\TabletDeck", Boolean(link));
+    check("connects to SpoolUp as device=streamdeck, from config.json in %APPDATA%\\TabletDeck", Boolean(link));
     await within(3000, () => /\d+ MS/.test(lastImage(sd, "x-status")));
     check("Status shows the round trip", /\d+ MS/.test(lastImage(sd, "x-status")), lastImage(sd, "x-status").match(/>[^<]*MS<|OFFLINE|CONNECTING/)?.[0]);
     await sleep(300);
@@ -206,7 +206,7 @@ async function main() {
     c0 = sd.mark();
     turn([A.dial, "p-d3", PLUS, { dial: DIAL.scenes }, { column: 3 }], -1);
     const swPlus = await sd.waitFor((m) => m.event === "switchToProfile" && m.device === PLUS, 2000, c0).catch(() => null);
-    check("  ...and its scene dial picks the Stream Deck + profile", swPlus && swPlus.payload.profile === "profiles/Tablet Deck Stream Deck +", JSON.stringify(swPlus && swPlus.payload));
+    check("  ...and its scene dial picks the Stream Deck + profile", swPlus && swPlus.payload.profile === "profiles/SpoolUp Stream Deck +", JSON.stringify(swPlus && swPlus.payload));
     sd.send(ev.disappear(A.dial, "p-d3", PLUS, {}, { controller: "Encoder", column: 3 }));
     sd.send(ev.disappear(A.dial, "p-d2", PLUS, {}, { controller: "Encoder", column: 2 }));
 
@@ -333,14 +333,14 @@ async function main() {
     c0 = sd.mark();
     turn(dials.scenes, 1);
     const sw = await sd.waitFor((m) => m.event === "switchToProfile", 2000, c0).catch(() => null);
-    check("the scene dial switches to the + XL profile's next page", sw && sw.payload.profile === "profiles/Tablet Deck Stream Deck + XL" && sw.payload.page === 1 && sw.device === XL && sw.context === sd.pluginUUID, JSON.stringify(sw));
+    check("the scene dial switches to the + XL profile's next page", sw && sw.payload.profile === "profiles/SpoolUp Stream Deck + XL" && sw.payload.page === 1 && sw.device === XL && sw.context === sd.pluginUUID, JSON.stringify(sw));
     await within(1000, () => lastValue(sd, "d-scenes") === "COMBAT");
     check("  ...and shows the new scene", lastValue(sd, "d-scenes") === "COMBAT", lastValue(sd, "d-scenes"));
     check("  ...and the combat tab lights", /ACTIVE/.test(lastImage(sd, "s-combat")) && !/ACTIVE/.test(lastImage(sd, "s-flight")));
     c0 = sd.mark();
     press(keys.combat15, "keyDown"); press(keys.combat15, "keyUp");
     const sw15 = await sd.waitFor((m) => m.event === "switchToProfile", 2000, c0).catch(() => null);
-    check("a scene key on the 15-key picks its own profile", sw15 && sw15.payload.profile === "profiles/Tablet Deck Stream Deck" && sw15.payload.page === 1 && sw15.device === STD, JSON.stringify(sw15));
+    check("a scene key on the 15-key picks its own profile", sw15 && sw15.payload.profile === "profiles/SpoolUp Stream Deck" && sw15.payload.page === 1 && sw15.device === STD, JSON.stringify(sw15));
     const s0 = proxy.mark();
     const t0 = tabletMsgs.length;
     press(keys.flight, "keyDown"); press(keys.flight, "keyUp");
@@ -405,7 +405,7 @@ async function main() {
     sd.globals = { ...sd.globals, motion: true };
     sd.send({ event: "didReceiveGlobalSettings", payload: { settings: sd.globals } });
 
-    console.log("\nThe Tablet Deck link");
+    console.log("\nThe SpoolUp link");
     // Cut with a reset (the network going away): the server lets go at once.
     e0 = stream.mark();
     let p0 = proxy.mark();
@@ -486,7 +486,7 @@ async function main() {
     check("closing the Stream Deck socket mid-hold releases the hold", stream.find((e) => e.t === "press" && e.id === "qt-engage", e0).map((e) => e.kind).join() === "down,up");
     check("  ...and the plugin exits cleanly", code === 0, String(code));
     await within(2000, () => stream.find((e) => e.t === "client" && !e.on && e.device === "streamdeck", e0).length);
-    check("  ...after closing its Tablet Deck link", stream.find((e) => e.t === "client" && !e.on && e.device === "streamdeck", e0).length === 1);
+    check("  ...after closing its SpoolUp link", stream.find((e) => e.t === "client" && !e.on && e.device === "streamdeck", e0).length === 1);
     sd.server.close();
     sd = null;
 
@@ -513,7 +513,7 @@ async function main() {
     await sleep(500);
     const allowed = new Set(["hb", "tap", "down", "up", "voice", "reset-states", "scene"]);
     const kinds = new Set(proxy.sent.map((x) => x.msg.t));
-    check("the plugin only ever sent Tablet Deck heartbeats, presses, releases, voice, reset and scenes", [...kinds].every((k) => allowed.has(k)), [...kinds].join(","));
+    check("the plugin only ever sent SpoolUp heartbeats, presses, releases, voice, reset and scenes", [...kinds].every((k) => allowed.has(k)), [...kinds].join(","));
     check("every key the server pressed was released", stuckKeys(server.log).length === 0, JSON.stringify(stuckKeys(server.log)));
   } finally {
     if (sd) await sd.stop().catch(() => {});

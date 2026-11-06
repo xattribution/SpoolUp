@@ -11,7 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const DIR = path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
+const DIR = path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
 
 function check() {
   const problems = [];

@@ -1,7 +1,7 @@
 // The words the plugin draws, in all four languages, without a server: every status a key
 // can show fits on it (keyart shrinks lines over 14 characters, which on a 15-key's 72 px
 // keys is too small to read), and a dial's turn and push words fit its strip's value line
-// with their + or − kept. Drives actions.js with a stub Stream Deck and Tablet Deck, as a
+// with their + or − kept. Drives actions.js with a stub Stream Deck and SpoolUp, as a
 // Stream Deck + XL.
 //
 //   node streamdeck/plugin/test/words.js
@@ -12,8 +12,8 @@ const path = require("path");
 const EventEmitter = require("events");
 const { write: writeData } = require("./make-test-data");
 
-const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.nodiecode.tabletdeck.sdPlugin");
-const U = "com.nodiecode.tabletdeck";
+const SRC = process.env.TD_PLUGIN_SRC || path.join(__dirname, "..", "com.xattribution.spoolup.sdPlugin");
+const U = "com.xattribution.spoolup";
 const LANGS = ["en", "es", "fr", "de"];
 
 let failures = 0, passes = 0;

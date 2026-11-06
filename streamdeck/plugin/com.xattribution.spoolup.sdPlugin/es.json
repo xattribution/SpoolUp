@@ -1,13 +1,13 @@
 {
-  "Name": "Tablet Deck",
-  "Description": "Controles de Star Citizen a través de Tablet Deck: luces en vivo, animaciones al pulsar, diales y escenas, con la comprobación de foco de Tablet Deck. Proyecto de fans, sin relación con Cloud Imperium Games.",
-  "com.nodiecode.tabletdeck.key": {
+  "Name": "SpoolUp",
+  "Description": "Controles de Star Citizen a través de SpoolUp: luces en vivo, animaciones al pulsar, diales y escenas, con la comprobación de foco de SpoolUp. Proyecto de fans, sin relación con Cloud Imperium Games.",
+  "com.xattribution.spoolup.key": {
     "Name": "Botón del deck",
-    "Tooltip": "Pulsa un botón de Tablet Deck a través de su comprobación de foco, con luces en vivo."
+    "Tooltip": "Pulsa un botón de SpoolUp a través de su comprobación de foco, con luces en vivo."
   },
-  "com.nodiecode.tabletdeck.dial": {
+  "com.xattribution.spoolup.dial": {
     "Name": "Dial del deck",
-    "Tooltip": "Una pulsación de Tablet Deck por muesca; pulsa o toca para un tercer botón.",
+    "Tooltip": "Una pulsación de SpoolUp por muesca; pulsa o toca para un tercer botón.",
     "Encoder": {
       "TriggerDescription": {
         "Rotate": "Una pulsación por muesca",
@@ -16,25 +16,25 @@
       }
     }
   },
-  "com.nodiecode.tabletdeck.scene": {
+  "com.xattribution.spoolup.scene": {
     "Name": "Escena",
-    "Tooltip": "Va a la página de una escena del perfil de Tablet Deck; las tablets pueden seguirla."
+    "Tooltip": "Va a la página de una escena del perfil de SpoolUp; las tablets pueden seguirla."
   },
-  "com.nodiecode.tabletdeck.theme": {
+  "com.xattribution.spoolup.theme": {
     "Name": "Tema",
-    "Tooltip": "Dibuja todas las teclas y diales de Tablet Deck con el tema de un fabricante."
+    "Tooltip": "Dibuja todas las teclas y diales de SpoolUp con el tema de un fabricante."
   },
-  "com.nodiecode.tabletdeck.talk": {
+  "com.xattribution.spoolup.talk": {
     "Name": "Mantén para hablar",
-    "Tooltip": "Mantén pulsado para decir un comando de voz de Tablet Deck."
+    "Tooltip": "Mantén pulsado para decir un comando de voz de SpoolUp."
   },
-  "com.nodiecode.tabletdeck.status": {
+  "com.xattribution.spoolup.status": {
     "Name": "Estado",
-    "Tooltip": "Muestra la conexión con Tablet Deck y su latencia."
+    "Tooltip": "Muestra la conexión con SpoolUp y su latencia."
   },
-  "com.nodiecode.tabletdeck.lights": {
+  "com.xattribution.spoolup.lights": {
     "Name": "Apagar luces",
-    "Tooltip": "Apaga todas las teclas iluminadas. Tablet Deck no ve el juego, así que las luces solo muestran lo que se pulsó."
+    "Tooltip": "Apaga todas las teclas iluminadas. SpoolUp no ve el juego, así que las luces solo muestran lo que se pulsó."
   },
   "Localization": {
     "ON": "ON",
@@ -77,7 +77,7 @@
     "Choose a scene": "Elige una escena",
     "Choose a theme": "Elige un tema",
     "Deck Dial": "Dial del deck",
-    "Tablet Deck": "Tablet Deck",
+    "SpoolUp": "SpoolUp",
     "Hold to Talk": "Mantén para hablar",
     "Reset Lights": "Apagar luces",
     "Flight": "Vuelo",
@@ -123,7 +123,7 @@
     "No buttons match.": "Ningún botón coincide.",
     "Hold": "Mantener",
     "Timed": "Temporizado",
-    "Presses go through Tablet Deck, which only sends keys while Star Citizen is in front.": "Las pulsaciones pasan por Tablet Deck, que solo envía teclas mientras Star Citizen está en primer plano.",
+    "Presses go through SpoolUp, which only sends keys while Star Citizen is in front.": "Las pulsaciones pasan por SpoolUp, que solo envía teclas mientras Star Citizen está en primer plano.",
     "Preset": "Predefinido",
     "Custom": "Personalizado",
     "Label": "Etiqueta",
@@ -132,28 +132,28 @@
     "Push and touch": "Pulsar y tocar",
     "None": "Ninguno",
     "One press per detent, at most 5 per turn.": "Una pulsación por muesca, como máximo 5 por giro.",
-    "Goes to this scene's page in the Tablet Deck profile for this Stream Deck.": "Va a la página de esta escena en el perfil de Tablet Deck de este Stream Deck.",
-    "Every Tablet Deck key and dial is drawn in the theme you press.": "Todas las teclas y diales de Tablet Deck se dibujan con el tema que pulses.",
+    "Goes to this scene's page in the SpoolUp profile for this Stream Deck.": "Va a la página de esta escena en el perfil de SpoolUp de este Stream Deck.",
+    "Every SpoolUp key and dial is drawn in the theme you press.": "Todas las teclas y diales de SpoolUp se dibujan con el tema que pulses.",
     "Hold to speak a voice command; let go to stop listening.": "Mantén pulsado para decir un comando de voz; suelta para dejar de escuchar.",
-    "Shows the link to Tablet Deck: its round trip, or what's wrong. Press it to try again.": "Muestra la conexión con Tablet Deck: su latencia o qué falla. Púlsalo para reintentar.",
-    "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed.": "Apaga todas las teclas iluminadas. Tablet Deck no ve el juego, así que las luces solo muestran lo que se pulsó.",
+    "Shows the link to SpoolUp: its round trip, or what's wrong. Press it to try again.": "Muestra la conexión con SpoolUp: su latencia o qué falla. Púlsalo para reintentar.",
+    "Turns off every lit key. SpoolUp can't see the game, so lights only show what was pressed.": "Apaga todas las teclas iluminadas. SpoolUp no ve el juego, así que las luces solo muestran lo que se pulsó.",
     "Port": "Puerto",
     "Pairing code": "Código de emparejamiento",
-    "From Tablet Deck on this PC": "De Tablet Deck en este PC",
+    "From SpoolUp on this PC": "De SpoolUp en este PC",
     "Test connection": "Probar conexión",
     "Connected · {0} ms": "Conectado · {0} ms",
     "Connecting…": "Conectando…",
-    "Tablet Deck isn't running on this PC.": "Tablet Deck no se está ejecutando en este PC.",
+    "SpoolUp isn't running on this PC.": "SpoolUp no se está ejecutando en este PC.",
     "Wrong pairing code.": "Código de emparejamiento erróneo.",
     "Too many wrong codes: wait a minute.": "Demasiados códigos erróneos: espera un minuto.",
-    "No pairing code yet: enter the one the Tablet Deck window shows.": "Aún no hay código: escribe el que muestra la ventana de Tablet Deck.",
-    "Found Tablet Deck's settings on this PC; leave these empty to use them.": "Se encontró la configuración de Tablet Deck en este PC; deja esto vacío para usarla.",
-    "Tablet Deck's settings weren't found on this PC: enter its port and pairing code.": "No se encontró la configuración de Tablet Deck en este PC: escribe su puerto y código.",
+    "No pairing code yet: enter the one the SpoolUp window shows.": "Aún no hay código: escribe el que muestra la ventana de SpoolUp.",
+    "Found SpoolUp's settings on this PC; leave these empty to use them.": "Se encontró la configuración de SpoolUp en este PC; deja esto vacío para usarla.",
+    "SpoolUp's settings weren't found on this PC: enter its port and pairing code.": "No se encontró la configuración de SpoolUp en este PC: escribe su puerto y código.",
     "The code is kept in Stream Deck's settings on this PC, never in exported profiles.": "El código se guarda en la configuración de Stream Deck en este PC, nunca en perfiles exportados.",
     "Tablets follow scenes": "Las tablets siguen las escenas",
     "When the scene changes on Stream Deck, tablets that follow Stream Deck scenes flip to its panels.": "Cuando la escena cambia en el Stream Deck, las tablets que siguen las escenas del Stream Deck pasan a sus paneles.",
     "Follow the tablet": "Seguir la tablet",
-    "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the Tablet Deck profile.": "Cuando cambias de panel en una tablet, el Stream Deck pasa a la escena que le corresponde, si muestra el perfil de Tablet Deck.",
+    "When you flip a panel on a tablet, Stream Deck goes to the matching scene, if it's showing the SpoolUp profile.": "Cuando cambias de panel en una tablet, el Stream Deck pasa a la escena que le corresponde, si muestra el perfil de SpoolUp.",
     "Key animations": "Animaciones de teclas",
     "Press effects on keys and the touch strip. Turn off for still keys.": "Efectos al pulsar en las teclas y la barra táctil. Desactívalo para teclas fijas."
   }

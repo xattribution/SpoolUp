@@ -4,11 +4,11 @@ Both are being written at the same time by different agents. Stick to this exact
 
 ## Shared sources (in the repo, read-only for both)
 
-- `streamdeck/catalog.js`: `{ actions, byId, categories }`. Action kinds: `deck` (a Tablet Deck
+- `streamdeck/catalog.js`: `{ actions, byId, categories }`. Action kinds: `deck` (a SpoolUp
   button: `keys`, `mode` tap|hold|timed, `ms`, `anim`, `state`, `scAction`), `system`
   (`system.uuid`, `system.settings`), `plugin` (`plugin.uuid/name/version/action/settings/states`,
   `dial: true` for dial actions), `website` (`url`), `nav` (`nav`: next|prev|back|home|folder:id),
-  `tabletdeck` (`tabletdeck`: talk|status|lights-reset|theme|scene).
+  `spoolup` (`spoolup`: talk|status|lights-reset|theme|scene).
 - `streamdeck/scenes.js`: `{ MODELS, SCENES, FOLDERS, BLOCKS, DIAL, layoutFor(modelId), refsIn(layout) }`.
   `layoutFor(id)` returns `{ pages: [{ scene, keys: {"c,r": ref}, dials: [dial|null] }], folders: { id: [ { keys, themes? } ] } }`.
   Refs: a catalog id, `@scene:<id>`, `@folder:<id>`, `@back`, `@next`, `@prev`, `@more:<folder>:<n>`
@@ -28,8 +28,8 @@ Icons not yet in icons.js (being designed) fall back to `DECK_ICONS.default`.
 
 ## The plugin
 
-- UUID **`com.nodiecode.tabletdeck`**; source folder in the repo:
-  `streamdeck/plugin/com.nodiecode.tabletdeck.sdPlugin/` (manifest.json, bin/, pi/, layouts/,
+- UUID **`com.xattribution.spoolup`**; source folder in the repo:
+  `streamdeck/plugin/com.xattribution.spoolup.sdPlugin/` (manifest.json, bin/, pi/, layouts/,
   en.json/es.json/fr.json/de.json). Windows only, `SDKVersion` 3, `Software.MinimumVersion` "7.3" (the + XL profile and the `switchToProfile` fix need it),
   `Nodejs.Version` "24" (global WebSocket), no npm dependencies, no bundler.
 - At runtime the plugin reads generated data from its own folder: `data/catalog.json` (the catalog's
@@ -41,17 +41,17 @@ Icons not yet in icons.js (being designed) fall back to `DECK_ICONS.default`.
 
 | action UUID | controller | Settings |
 |---|---|---|
-| `com.nodiecode.tabletdeck.key` | Keypad | `{ "action": "<catalog id>" }` |
-| `com.nodiecode.tabletdeck.dial` | Encoder | `{ "dial": { "label", "icon", "color", "ccw", "cw", "press" } }` (catalog ids) |
-| `com.nodiecode.tabletdeck.scene` | Keypad | `{ "scene": "<scene id>" }` |
-| `com.nodiecode.tabletdeck.theme` | Keypad | `{ "theme": "<theme id>" }` |
-| `com.nodiecode.tabletdeck.talk` | Keypad | `{}` |
-| `com.nodiecode.tabletdeck.status` | Keypad (and Neo infobar if the agent adds it) | `{}` |
-| `com.nodiecode.tabletdeck.lights` | Keypad | `{}` |
+| `com.xattribution.spoolup.key` | Keypad | `{ "action": "<catalog id>" }` |
+| `com.xattribution.spoolup.dial` | Encoder | `{ "dial": { "label", "icon", "color", "ccw", "cw", "press" } }` (catalog ids) |
+| `com.xattribution.spoolup.scene` | Keypad | `{ "scene": "<scene id>" }` |
+| `com.xattribution.spoolup.theme` | Keypad | `{ "theme": "<theme id>" }` |
+| `com.xattribution.spoolup.talk` | Keypad | `{}` |
+| `com.xattribution.spoolup.status` | Keypad (and Neo infobar if the agent adds it) | `{}` |
+| `com.xattribution.spoolup.lights` | Keypad | `{}` |
 
 - Bundled profiles (written by the generator, one per model that has profiles): file
-  `profiles/Tablet Deck <MODELS[id].name>.streamDeckProfile`, manifest `Profiles[]` entry
-  `{ "Name": "profiles/Tablet Deck <name>", "DeviceType": MODELS[id].type, "Readonly": false,
+  `profiles/SpoolUp <MODELS[id].name>.streamDeckProfile`, manifest `Profiles[]` entry
+  `{ "Name": "profiles/SpoolUp <name>", "DeviceType": MODELS[id].type, "Readonly": false,
   "DontAutoSwitchWhenInstalled": true, "AutoInstall": false }` (research: AutoInstall false = prompt on
   first switchToProfile). The plugin's scene action calls `switchToProfile` with that Name for the
   device's type and `page` = the scene's index (0-based). Built-in actions (media, websites,
@@ -60,9 +60,9 @@ Icons not yet in icons.js (being designed) fall back to `DECK_ICONS.default`.
 - The generator adds the manifest's `Profiles` array to a copy of the source manifest when packing;
   the source manifest in the repo has no `Profiles` key.
 
-## Talking to Tablet Deck (the plugin)
+## Talking to SpoolUp (the plugin)
 
-The Tablet Deck server (`server.js`, run `node server.js --dry-run --port <n>` to test without
+The SpoolUp server (`server.js`, run `node server.js --dry-run --port <n>` to test without
 pressing keys) speaks JSON over `ws://127.0.0.1:<port>/ws?t=<pairing code>&device=streamdeck&layout=layouts/hud.json`.
 Port and pairing code: read `%APPDATA%\TabletDeck\config.json` (`port`, `token`) when present, else
 `config.json` next to a source checkout is not reachable, so fall back to global settings set in the

@@ -1,4 +1,4 @@
-// The link to Tablet Deck on this PC. The plugin connects like a tablet (device=streamdeck)
+// The link to SpoolUp on this PC. The plugin connects like a tablet (device=streamdeck)
 // and every press goes through the server, so its focus check and the player's keybinds
 // apply exactly as for a tablet; the plugin never sends a key itself.
 //
@@ -11,16 +11,17 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 
-const HOST = "127.0.0.1"; // only this PC: Stream Deck and Tablet Deck run next to the game
+const HOST = "127.0.0.1"; // only this PC: Stream Deck and SpoolUp run next to the game
 const DEFAULT_PORT = 8765;
 const HB_MS = 1500;
 const DEAD_MS = 5000;
 const LAYOUT = "layouts/hud.json"; // the catalog's button ids come from this layout
 
-// The installed Tablet Deck keeps its port and pairing code in %APPDATA%\TabletDeck. A copy
-// run from source keeps config.json next to server.js, which the plugin can't know, so the
-// property inspector's port and code are the fallback.
-function readTabletDeckConfig() {
+// The installed SpoolUp keeps its port and pairing code in %APPDATA%\TabletDeck (the folder
+// kept its old name, so an update keeps the pairing). A copy run from source keeps
+// config.json next to server.js, which the plugin can't know, so the property inspector's
+// port and code are the fallback.
+function readSpoolUpConfig() {
   if (!process.env.APPDATA) return null;
   try {
     const c = JSON.parse(fs.readFileSync(path.join(process.env.APPDATA, "TabletDeck", "config.json"), "utf8"));
@@ -30,7 +31,7 @@ function readTabletDeckConfig() {
 }
 const validPort = (p) => { const n = Number(p); return Number.isInteger(n) && n > 0 && n < 65536 ? n : 0; };
 
-class TabletDeck {
+class SpoolUp {
   constructor({ log = () => {} } = {}) {
     this.log = log;
     this.settings = { port: 0, code: "" };
@@ -61,11 +62,11 @@ class TabletDeck {
   }
 
   // Where to connect, in order: the property inspector's code (with its port, or the one
-  // Tablet Deck wrote), then the code Tablet Deck wrote on its own port, then on the typed
-  // one. A port typed once and forgotten mustn't hide a Tablet Deck that config.json finds,
+  // SpoolUp wrote), then the code SpoolUp wrote on its own port, then on the typed
+  // one. A port typed once and forgotten mustn't hide a SpoolUp that config.json finds,
   // and a server started with --port doesn't write its port there.
   targets() {
-    const auto = readTabletDeckConfig();
+    const auto = readSpoolUpConfig();
     const port = validPort(this.settings.port) || (auto && auto.port) || DEFAULT_PORT;
     const list = [];
     if (this.settings.code) list.push({ port, code: this.settings.code, source: "settings" });
@@ -136,7 +137,7 @@ class TabletDeck {
       clearTimeout(giveUp);
       this.lastHeard = Date.now();
       this.setLink({ state: "connected", rtt: null, port: target.port, source: target.source });
-      this.log(`Connected to Tablet Deck on port ${target.port} (${target.source === "auto" ? "settings found on this PC" : "code from the property inspector"}).`);
+      this.log(`Connected to SpoolUp on port ${target.port} (${target.source === "auto" ? "settings found on this PC" : "code from the property inspector"}).`);
       this.send({ t: "hb", n: performance.now() }); // measure the round trip straight away
     };
     // Node's WebSocket reports a refused upgrade (a wrong code's 403) with an error and no
@@ -155,7 +156,7 @@ class TabletDeck {
         }
         return;
       }
-      // How long Tablet Deck holds a tap (its Tap time setting), for spacing the plugin's taps.
+      // How long SpoolUp holds a tap (its Tap time setting), for spacing the plugin's taps.
       if (msg.t === "hello") { const ms = Number(msg.tapMs); this.tapMs = Number.isInteger(ms) && ms >= 20 && ms <= 1000 ? ms : 60; }
       this.emit("message", msg);
     };
@@ -166,7 +167,7 @@ class TabletDeck {
       this.ws = null;
       sock.onopen = sock.onclose = sock.onmessage = sock.onerror = null;
       if (opened) {
-        this.log("Lost the link to Tablet Deck.");
+        this.log("Lost the link to SpoolUp.");
         this.dropped();
         this.retry(1000);
         return;
@@ -184,7 +185,7 @@ class TabletDeck {
     };
   }
 
-  // The link went away after being open: Tablet Deck has released everything this plugin
+  // The link went away after being open: SpoolUp has released everything this plugin
   // held (it does that for any client that closes or goes quiet).
   dropped() {
     this.smooth = undefined;
@@ -196,14 +197,14 @@ class TabletDeck {
     if (this.closing) return;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       if (this.answers && Date.now() - this.lastHeard > DEAD_MS) {
-        this.log("Tablet Deck stopped answering; connecting again.");
+        this.log("SpoolUp stopped answering; connecting again.");
         this.reconnect();
         return;
       }
       this.send({ t: "hb", n: performance.now() });
       return;
     }
-    // Waiting after a wrong or missing code: try at once when Tablet Deck's config.json or
+    // Waiting after a wrong or missing code: try at once when SpoolUp's config.json or
     // the property inspector gives a new one.
     if (!this.ws && ["wrong-code", "unpaired", "locked"].includes(this.link.state) && JSON.stringify(this.targets()) !== this.signature) this.connect();
   }
@@ -211,7 +212,7 @@ class TabletDeck {
   // The property inspector's "Test connection": asks the server over HTTP (no second
   // client in its list) whether this port and code would work.
   async test({ port, code } = {}) {
-    const target = code ? { port: validPort(port) || (readTabletDeckConfig() || {}).port || DEFAULT_PORT, code } : this.targets()[0];
+    const target = code ? { port: validPort(port) || (readSpoolUpConfig() || {}).port || DEFAULT_PORT, code } : this.targets()[0];
     if (!target) return { state: "unpaired" };
     const start = performance.now();
     const result = await checkPairing(target);
@@ -247,4 +248,4 @@ function checkPairing({ port, code }) {
   });
 }
 
-module.exports = { TabletDeck, readTabletDeckConfig };
+module.exports = { SpoolUp, readSpoolUpConfig };
