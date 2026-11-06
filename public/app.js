@@ -319,6 +319,14 @@
     apply(store.get(attr) === "1");
   }
 
+  // Button sounds: off unless turned on on this device (sound.js keeps the choice).
+  $("soundBtn").setAttribute("aria-checked", String(window.DeckSound.on));
+  $("soundBtn").onclick = () => {
+    const on = !window.DeckSound.on;
+    window.DeckSound.set(on);
+    $("soundBtn").setAttribute("aria-checked", String(on));
+  };
+
   // Button lights: on unless turned off on this device. Kept as "data-no-lights" so the
   // default (no attribute) is lit.
   function applyLights(on, refresh) {
@@ -339,6 +347,7 @@
   let online = { on: false, text: "Connecting…" };
   let rtt = null; // smoothed round trip in ms, from the heartbeats; null until measured
   function setOnline(on, text) {
+    if (on !== online.on && !DEMO) window.DeckSound.play(on ? "online" : "offline");
     online = { on, text };
     if (!on) rtt = null;
     refreshStatus();
@@ -412,16 +421,19 @@
         if (sample >= 0 && sample < 10000) rtt = rtt === null ? sample : rtt * 0.7 + sample * 0.3;
         refreshStatus();
       }
-      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); denied(msg.id); }
+      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
       else if (msg.t === "voice-status") applyVoiceStatus(msg);
-      else if (msg.t === "heard") toast(tr("Heard: {0}", msg.text || tr(msg.label)));
-      else if (msg.t === "unheard") toast("Didn't catch that");
+      else if (msg.t === "heard") { toast(tr("Heard: {0}", msg.text || tr(msg.label))); window.DeckSound.play("heard"); }
+      else if (msg.t === "unheard") { toast("Didn't catch that"); window.DeckSound.play("unheard"); }
       else if (msg.t === "voice-off") toast(msg.reason);
       // Push-to-talk held on the PC: the mic buttons light up as if held here.
-      else if (msg.t === "listening") for (const el of document.querySelectorAll(".js-talk")) el.classList.toggle("listening", msg.on);
+      else if (msg.t === "listening") {
+        for (const el of document.querySelectorAll(".js-talk")) el.classList.toggle("listening", msg.on);
+        if (msg.on) window.DeckSound.play("listen");
+      }
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));
     };
@@ -535,8 +547,9 @@
       waiting = null;
       el.classList.add("pressed");
       // Offline, nothing reaches the PC: say so, rather than play the effect as if it had.
-      if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); return; }
+      if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); window.DeckSound.play("deny"); return; }
       buzz();
+      window.DeckSound.play("press", btn.color);
       send({ t: btn.mode === "hold" ? "down" : "tap", id: btn.id });
       fx.down(e);
       if (DEMO && el.dataset.stateGroup) demoState(btn);
@@ -581,6 +594,7 @@
       el.setPointerCapture(e.pointerId);
       el.classList.add("listening");
       buzz();
+      window.DeckSound.play("listen");
       if (DEMO) toast("Voice commands work with Tablet Deck on your PC", 2600);
       send({ t: "voice", on: true });
     });

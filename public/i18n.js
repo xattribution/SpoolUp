@@ -25,6 +25,8 @@
     "Bigger, bolder labels, easier to read at a glance.": ["Etiquetas más grandes y gruesas, fáciles de leer de un vistazo.", "Libellés plus grands et plus gras, lisibles d'un coup d'œil.", "Größere, fettere Beschriftungen, auf einen Blick lesbar."],
     "High contrast": ["Alto contraste", "Contraste élevé", "Hoher Kontrast"],
     "Black and white with strong colours, over any theme.": ["Blanco y negro con colores intensos, sobre cualquier tema.", "Noir et blanc aux couleurs vives, avec n'importe quel thème.", "Schwarz-Weiß mit kräftigen Farben, für jedes Theme."],
+    "Button sounds": ["Sonidos de botones", "Sons des boutons", "Tastentöne"],
+    "Soft HUD sounds for presses, panels and voice, on this device.": ["Sonidos HUD suaves al pulsar, cambiar de panel y con la voz, en este dispositivo.", "Sons HUD discrets pour les appuis, les panneaux et la voix, sur cet appareil.", "Dezente HUD-Töne beim Drücken, Blättern und bei Sprachbefehlen, auf diesem Gerät."],
     "Two-finger swipe": ["Deslizar con dos dedos", "Balayage à deux doigts", "Mit zwei Fingern wischen"],
     "Swipe sideways over a half to flip its panels. Presses then wait a moment.": ["Desliza de lado sobre una mitad para pasar sus paneles. Las pulsaciones esperan un momento.", "Balayez latéralement une moitié pour changer de panneau. Les appuis attendent alors un instant.", "Seitlich über eine Hälfte wischen, um ihre Panels zu blättern. Antippen reagiert dann etwas verzögert."],
     "Button lights": ["Luces de botones", "Voyants des boutons", "Tastenbeleuchtung"],

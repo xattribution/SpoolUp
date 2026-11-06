@@ -374,6 +374,11 @@ in **Deck settings**. Each tablet remembers its own. Under **Display**:
 - **Large text** makes labels bigger and bolder, easier to read at a glance.
 - **High contrast** turns any theme black and white with strong colours, plain
   fonts and no glows.
+- **Button sounds** adds soft HUD sounds, made on the tablet: a chirp per press
+  (lower for weapons, higher for navigation), the quantum drive spooling up and
+  engaging, the self-destruct alarm, panel flips, voice results and a buzz when
+  a press didn't go through. They play on the tablet only, and are off until
+  you turn them on.
 - **Button lights** can be turned off. The deck can't read the game, so lit
   buttons only follow your taps; if you also use your keyboard or HOTAS, they can
   drift out of sync. **Reset button lights** clears them while they're on.

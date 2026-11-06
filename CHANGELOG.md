@@ -7,6 +7,12 @@ before tagging a release.
 
 ## Unreleased
 
+- **Button sounds** (a switch under Display in Deck settings, off until you turn
+  it on): soft HUD sounds made on the tablet itself, with no sound files and
+  nothing sent anywhere. Presses chirp at a pitch that follows the button's
+  colour, the quantum drive spools up and engages, self-destruct arming beeps
+  faster as it fills, panels flip, voice commands answer, and a press that
+  didn't go through buzzes.
 - **The deck shows how quick the link to the PC is**, next to Connected
   ("Connected · 8 ms"); the dot turns amber when it's slow enough to feel.
 - **A dead connection is noticed within seconds.** If the PC goes to sleep or the

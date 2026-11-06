@@ -13,6 +13,11 @@
     node.addEventListener("animationend", () => node.remove(), { once: true });
     return node;
   };
+  // Button sounds (sound.js) for the effects that have their own: none in the layout editor.
+  const sound = {
+    play: (name) => window.DeckSound?.play(name),
+    spool: (ms, kind = "charge") => window.DeckSound?.spool(kind, ms) || null,
+  };
   const retrigger = (t, cls) => { t.classList.remove(cls); void t.offsetWidth; t.classList.add(cls); };
   const flash = (t) => once(t._fx, el("span", "fx-flash"));
   const setState = (t, s) => { if (t._state) t._state.textContent = window.DeckI18n ? window.DeckI18n.t(s) : s; };
@@ -96,16 +101,19 @@
         c.classList.remove("drain");
         t.classList.add("fx-charging");
         setState(t, "SPOOLING…");
+        t._spool = sound.spool(def.chargeMs || 1200);
         t._cancel = progress(def.chargeMs || 1200, (p) => { c.style.strokeDashoffset = CIRC * (1 - p); }, () => {
           t._cancel = null;
           t.classList.remove("fx-charging");
           t.classList.add("fx-on");
           flash(t);
+          sound.play("engaged");
           setState(t, "ENGAGED");
         });
       },
       up(t) {
         if (t._cancel) { t._cancel(); t._cancel = null; }
+        if (t._spool) { t._spool(); t._spool = null; }
         t.classList.remove("fx-charging");
         const c = t.querySelector(".fx-ring .prog");
         c.classList.add("drain");
@@ -236,11 +244,13 @@
         bar.classList.remove("drain");
         t.classList.add("fx-arming");
         setState(t, "ARMING…");
+        t._spool = sound.spool(def.armMs || def.ms || 2000, "arming");
         t._cancel = progress(def.armMs || def.ms || 2000, (p) => { bar.style.transform = `scaleX(${p})`; }, () => {
           t._cancel = null;
           t.classList.remove("fx-arming");
           retrigger(t, "fx-ejected");
           flash(t);
+          sound.play("armed");
           setState(t, "ARMED");
           if (def.mode !== "hold") this.reset(t);
         });
@@ -248,6 +258,7 @@
       up(t, def) { if (def.mode === "hold") this.reset(t); },
       reset(t) {
         if (t._cancel) { t._cancel(); t._cancel = null; }
+        if (t._spool) { t._spool(); t._spool = null; }
         t.classList.remove("fx-arming");
         const bar = t._fx.querySelector(".fx-hazard");
         bar.classList.add("drain");

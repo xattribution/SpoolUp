@@ -171,6 +171,12 @@ has focus.
 - **The app window never animates behind the game.** Its stars move only while
   the window is in front; minimized, in the tray or behind Star Citizen, it
   draws nothing.
+- **Sound** is optional (Button sounds, off by default) and made in `public/sound.js`
+  with Web Audio, never from files. Sounds are short and quiet, follow the same
+  moments as the press animations, and use the button colours' meaning: a
+  press's pitch drops from blue to green, the accent, amber and red. A new
+  sound goes in `SOUNDS` there; `fx.js` and `canvas.js` reach it through
+  `window.DeckSound?.`, since the layout editor doesn't load it.
 - **Night mode** is a black overlay (`#night`) over the deck. Anything that must
   stay readable at night goes above it.
 - **Layering** (`z-index`), from bottom to top: deck content and its menus (up

@@ -154,6 +154,7 @@
         el.type = "button";
         text(el, ".hud-lbl", e.label);
         el.onclick = () => {
+          window.DeckSound?.play("page");
           const cur = groupValue(e.group, e.values);
           state.groups[e.group] = e.values[(e.values.indexOf(cur) + 1) % e.values.length];
           save();
@@ -195,6 +196,7 @@
           if (pos >= max * 0.94) {
             D.send({ t: "tap", id: e.id });
             D.buzz(40);
+            window.DeckSound?.play("eject");
             window.DeckFX.pulse(el, "eject");
             el.classList.add("fired");
             setTimeout(() => el.classList.remove("fired"), 600);
@@ -231,6 +233,7 @@
 
 
     function openMenu(e) {
+      window.DeckSound?.play("page");
       const overlay = make("div", "hud-menu", `<div class="sheet"><div class="hud-header"><b>//</b><span></span></div><div class="opts"></div></div>`);
       text(overlay, ".hud-header span", e.title || e.label);
       const opts = overlay.querySelector(".opts");
@@ -261,6 +264,7 @@
       const n = region.panels.length;
       state.panels[regionId] = (Math.min(state.panels[regionId] || 0, n - 1) + d + n) % n;
       save();
+      window.DeckSound?.play("page"); // sound.js isn't loaded in the layout editor
       slide = { region: regionId, dir: d };
       render();
       slide = null;
