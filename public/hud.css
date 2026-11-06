@@ -23,6 +23,16 @@ body.canvas-mode { overflow: hidden; }
   background: var(--plate); border: 1px solid var(--plate-line); border-radius: 4px;
 }
 .compact .hud-region::before { inset: -3px -6px -4px; }
+/* The maker's bezel over the whole HUD (--bezel, --bezel-art), and the veil its plates get
+   while the PC is offline (--veil), both set in makers.css. */
+#canvas::after {
+  content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: var(--bezel-art, none); box-shadow: var(--bezel, none);
+}
+body.offline .hud-region::after {
+  content: ""; position: absolute; inset: -8px -9px; z-index: 3; pointer-events: none;
+  background: var(--veil, none);
+}
 #canvas > *, .hud-region > *, .hud-panel > * { position: absolute; }
 /* Offline, what would press a key dims, as on grid layouts, so a lost connection shows on
    the deck itself and not only in the status line. Paging and Deck settings still work. */
@@ -117,7 +127,7 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 }
 .s-hero::before, .s-quantum::before {
   content: ""; position: absolute; inset: 5px; pointer-events: none;
-  clip-path: inherit; border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+  clip-path: inherit; border-radius: inherit; border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
 }
 .s-quantum { font-size: 22px; letter-spacing: calc(var(--label-track) + .04em); }
 .s-quantum::after {
@@ -206,12 +216,12 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--red) 45%, transparent) var(--fill), transparent var(--fill)),
     radial-gradient(circle, color-mix(in srgb, var(--red) 55%, transparent) 1px, transparent 1.6px) 0 50% / 9px 9px,
-    color-mix(in srgb, var(--bg) 70%, transparent);
+    var(--face-lo);
   display: flex; align-items: center; justify-content: center;
 }
 .hud-slider .txt {
   font: 700 10px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--red);
-  padding: 4px 8px; border: 1px solid var(--red); background: color-mix(in srgb, var(--bg) 85%, transparent);
+  padding: 4px 8px; border: 1px solid var(--red); background: var(--face-lo);
 }
 .hud-slider .knob {
   position: absolute; left: 4px; top: -6px; bottom: -6px; width: 18px;

@@ -65,12 +65,12 @@
 [data-theme="aegis"] {
   --bg: #0c0d10;
   --bg-art: radial-gradient(ellipse 60% 45% at 85% 0, rgba(255,59,59,.10), transparent 60%),
-    conic-gradient(from 45deg, #16181c 25%, #0f1013 0 50%, #16181c 0 75%, #0f1013 0) 0 0 / 6px 6px;
+    conic-gradient(from 45deg, #1b1d22 25%, #0d0e10 0 50%, #1b1d22 0 75%, #0d0e10 0) 0 0 / 6px 6px;
   --panel: #1f2226; --panel-hi: #2a2e34; --line: #33373e; --line-hi: #5c636e;
   --text: #f3f5f8; --dim: #9aa3b0; --ink: #f3f5f8; --ink-dim: #8e97a4;
   --accent: #ff3b3b; --green: #5fd18a; --amber: #ffb648; --red: #ff3b3b; --blue: #8fb6dc;
   --material: carbon; --face-hi: #2b2e34; --face-lo: #1a1c20;
-  --plate: linear-gradient(180deg, rgba(24,26,30,.94), rgba(16,17,20,.94)); --plate-line: #2c3036;
+  --plate: linear-gradient(180deg, rgba(24,26,30,.8), rgba(16,17,20,.86)); --plate-line: #2c3036;
   --font-display: "Rajdhani", "Segoe UI", sans-serif; --font-body: "Rajdhani", "Segoe UI", sans-serif;
   --label-case: uppercase; --label-track: .12em; --label-weight: 700;
   --key-radius: 0; --key-edge: 0; --btn-radius: 0;
@@ -206,7 +206,7 @@
   --plate: linear-gradient(180deg, rgba(240,250,246,.7), rgba(222,240,232,.6)); --plate-line: rgba(23,82,68,.18);
   --font-display: "Comfortaa", "Segoe UI", sans-serif; --font-body: "Comfortaa", "Segoe UI", sans-serif;
   --label-case: none; --label-track: .03em; --label-weight: 700;
-  --key-radius: 34px 34px 10px 34px; --key-clip: none; --key-edge: 0; --btn-radius: 20px 7px 20px 7px; --btn-clip: none;
+  --key-radius: 34px 34px 10px 34px; --key-clip: none; --key-edge: 0; --btn-radius: 12px 12px 22px 4px; --btn-clip: none;
   --key-bg: radial-gradient(ellipse 90% 60% at 30% 0, rgba(120,255,210,.14), transparent 70%), linear-gradient(200deg, #1e5245, #0f3129);
   --key-top: none; --key-top-h: 0px;
   --key-shadow: 0 6px 14px rgba(10,50,40,.22);
@@ -248,7 +248,7 @@
   --text: #fff4e8; --dim: #cdb6a0; --ink: #3b2a1e; --ink-dim: #765b45;
   --accent: #ff6a13; --green: #6fd892; --amber: #ffb03b; --red: #ff5f4f; --blue: #66bfff;
   --material: clay; --face-hi: #4b3c32; --face-lo: #2f251f;
-  --plate: linear-gradient(180deg, rgba(250,242,228,.86), rgba(242,228,204,.8)); --plate-line: #dcc4a0;
+  --plate: linear-gradient(180deg, rgba(250,242,228,.86), rgba(246,234,212,.55)); --plate-line: #dcc4a0;
   --font-display: "Montserrat", "Segoe UI", sans-serif; --font-body: "Montserrat", "Segoe UI", sans-serif;
   --label-case: uppercase; --label-track: .04em; --label-weight: 700;
   --key-radius: 12px; --key-clip: none; --key-edge: 0; --btn-radius: 7px; --btn-clip: none;
