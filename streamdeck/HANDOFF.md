@@ -121,39 +121,38 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
 
 ## Status
 
+**Merged into main as Tablet Deck 1.7.0** (PR #1, merge commit 5da2ebd, 2026-11-06). package.json,
+the lockfile, the plugin's source manifest and CHANGELOG (`## 1.7.0 (2026-11-06)`) all say 1.7.0.
+**Not released yet:** this session's GitHub access couldn't push the `v1.7.0` tag or start the
+Release workflow (403), so the owner publishes it: Actions > Release > Run workflow on `main`
+with "Publish" ticked (it creates the tag), or `git tag v1.7.0 origin/main` and push the tag.
+
 | piece | state | where |
 |---|---|---|
-| Key art renderer | done; badges top right, labels fit 110 px, light-theme blanks in the page colour | `streamdeck/keyart.js` |
-| Research (7 topics) | done, fact-checked | `streamdeck/research/` |
-| Icons (76 new, plus `keypad` for the site) | done | `public/icons.js` |
-| Action catalog (170 actions) | done; every scene ref resolves | `streamdeck/catalog.js` |
-| Scene layouts for 7 models | done; Back at 0,0 in folders, blocks centred and turned to fit, all six + XL dials used on every page | `streamdeck/scenes.js` |
-| Generator | done (e0327da): icon packs, 84 standalone profiles at 144 px, keybinds, plugin with 7 bundled profiles, previews, `--check`, `--release` (ffa1088) | `tools/make-streamdeck.js`, `tools/streamdeck/` |
-| Plugin | done (7c59d99): all review defects fixed, every test passes (check, words 12, rules 30, load 6, inspector 16, end to end 81), MinimumVersion 7.3; scenes sync both ways (6cb89c8, then its review fixes) | `streamdeck/plugin/` |
-| Server press safety | done (d07ef9a, cea566f, 6e74b0e): taps that could mix take turns, presses against a held modifier are skipped, half-open sockets dropped, unpressable rebinds not fatal, tapMs <= 200 | `server.js` |
-| Release | the Release workflow builds the pack and attaches 9 downloads (a zip per model, the icon packs, the plugin) | `.github/workflows/release.yml` |
-| Docs | done (8584055): README section and feature card, DEVELOPMENT, DESIGN, CHANGELOG, site card | |
-| Layout critique | workflow `streamdeck-layout-critique` running: 5 lenses, synthesis, apply, verify | `streamdeck/scenes.js` and key art |
-
-The session's scratchpad goes away with the container. The plugin's locale JSON files are
-their own source.
+| Key art | done: cut-corner themes fixed, quiet tabs, labels sized from each font's real letter widths, Origin contrast | `streamdeck/keyart.js` |
+| Catalog (172 actions) and scenes for 7 models | done, after a five-lens critique (6976b22): fixed slots on the + XL, knob-rule dials, Emergency kept apart | `streamdeck/catalog.js`, `streamdeck/scenes.js` |
+| Generator | done: 84 profiles at 144 px, 12 icon packs (222 icons plus 21 animated GIFs each, 059a805), keybinds, plugin, previews, `--check`, `--release` | `tools/make-streamdeck.js`, `tools/streamdeck/` |
+| Plugin | done: all tests pass (rules 30 with two-way scene sync), MinimumVersion 7.3 | `streamdeck/plugin/` |
+| Two-way scene sync | done (6cb89c8, f3ade20): tablets follow Stream Deck scenes and Stream Decks follow tablet pages, no echo | `server.js`, `public/`, plugin |
+| Server press safety | done: mixing taps take turns, presses against a held modifier are skipped, half-open sockets dropped, a held tablet button lets go across HUD redraws (cf09b53) | `server.js`, `public/app.js` |
+| Release workflow | builds the pack after the installer (non-blocking) and attaches 9 downloads | `.github/workflows/release.yml` |
+| Docs | README section with a + XL picture, DEVELOPMENT, DESIGN, CHANGELOG, site card | |
 
 ## Next steps
 
-1. When the critique workflow lands: review its change list and diff, rebuild the whole pack
-   (`node tools/make-streamdeck.js`, about 100 s), look at the previews, `--check`, rerun the
-   plugin tests (its test data comes from `scenes.js`), commit.
-2. Possible simplification: the plugin queues all its own presses strictly (a 1.5 s Auto Land
-   makes its other keys wait). The server now schedules only presses that could mix, so the
-   plugin could send non-clashing taps at once. Only after testing on hardware.
-3. Hardware questions (README "Not tried on a real Stream Deck yet", plus the plugin's and
-   generator's reports): profile import, theme keys after import, dial order, + XL model id
-   and strip, right-hand modifiers, the plugin's first switch to its profiles.
-4. **Owner's decision on dials (decided):** "use the knobs as knobs". Dials and touch strips
-   are for setting a level or cycling through options (power, speed range, laser power, beam
-   spacing, modifier, targets, voice channel, modes, scenes); one notch is one press (at most 5
-   per turn, spaced); a push is a single press. No one-off or risky actions on a turn. The
-   owner uses their own audio dials personally; defaults favour game levels and cycles.
+1. Publish 1.7.0 (above), then check the run: the Stream Deck step is new on GitHub's runner. If
+   it fails, the release still goes out without the pack; fix and attach the zips by hand.
+2. Hardware checks (README "Not tried on a real Stream Deck yet", the plugin's and generator's
+   reports): profile import, theme keys after import, dial order and one press per notch, the
+   + XL model id and strip, right-hand modifiers, the plugin's first switch to its profiles,
+   the brightness dial inside an Action Trigger, GIFs playing from the icon packs.
+3. In game (Star Citizen 4.10): the buttons marked `"verify": true` in `layouts/hud.json`.
+4. Possible simplification: the plugin queues all its presses strictly; the server now schedules
+   only presses that could mix, so the plugin could send non-clashing taps at once.
+5. Small leftovers from the critique: the + XL On Foot and Comms pages leave one or two dials
+   empty (the knob rule left nothing that sets a level or cycles there); the plugin lists two
+   presets called "Voice Channel" (`channel`, `channelFoot`); `actions.js` and `pi.js` still use
+   red as Hold to Talk's fallback colour (the catalog now makes it blue).
 
 ## Earlier work in this session (for context)
 

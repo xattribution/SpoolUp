@@ -453,6 +453,10 @@ theme with every button for pages of your own, and a Tablet Deck plugin. The
 profiles and icons work on their own; with the plugin, presses go through
 Tablet Deck like a tablet's.
 
+<p align="center">
+  <img src="docs/streamdeck.jpg" alt="The Stream Deck + XL profile in the RSI theme: the Flight and Combat pages, with scene tabs along the top, power, speed limit, master mode and targets dials, and the touch strip" width="100%">
+</p>
+
 Each release has the pack under **Assets**:
 
 | Download | What it is |
