@@ -60,6 +60,7 @@
     "Demo": ["Demo", "Démo", "Demo"],
     "Error": ["Error", "Erreur", "Fehler"],
     "Star Citizen not focused": ["Star Citizen no está en primer plano", "Star Citizen n'est pas au premier plan", "Star Citizen ist nicht im Vordergrund"],
+    "Not connected to the PC": ["Sin conexión con el PC", "Pas connecté au PC", "Nicht mit dem PC verbunden"],
     "Heard: {0}": ["Oído: {0}", "Entendu : {0}", "Gehört: {0}"],
     "Didn't catch that": ["No te he entendido", "Je n'ai pas compris", "Nicht verstanden"],
     "{0}: test mode, not opened": ["{0}: modo de prueba, no se abrió", "{0} : mode test, non ouvert", "{0}: Testmodus, nicht geöffnet"],

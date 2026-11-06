@@ -119,7 +119,8 @@ same Wi-Fi**. Nothing else.
 4. **Pair your tablet:** scan the QR code with its camera, or open the address
    and type the code. Use "Add to Home Screen" for a full-screen app.
 5. **Fly.** Click into Star Citizen. Buttons only press keys while the game is
-   the window in front; otherwise the tablet shows "Star Citizen not focused".
+   the window in front; otherwise the tablet shows "Star Citizen not focused"
+   and the button flashes red.
 
 In Star Citizen, load the **Tablet Deck Keyboard** profile once (see
 [Keybinds](#keybinds)) so the buttons for actions without a default key work.

@@ -16,6 +16,12 @@ before tagging a release.
 - **Changing the pairing code now disconnects devices paired with the old one**,
   and they show the pairing screen with a note that the code changed. Before,
   they kept working until they reconnected, then retried the old code forever.
+- **HUD layouts show a lost connection**: their buttons dim, as on the tabbed
+  grid layout, and a tap says "Not connected to the PC" instead of playing its
+  animation as if it had worked.
+- **A press skipped because Star Citizen wasn't in front now shows on the
+  button too**: it flashes red, and a quantum charge, self-destruct arming or
+  lock-on it started stops instead of ending as ENGAGED, ARMED or LOCKED.
 
 ## 1.6.0 (2026-10-26)
 

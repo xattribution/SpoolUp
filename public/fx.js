@@ -218,9 +218,10 @@
         t._tm = setTimeout(() => {
           t.classList.add("fx-locked");
           setState(t, "LOCKED");
-          t._tm = setTimeout(() => { t.classList.remove("fx-locked", "fx-locking"); setState(t, ""); }, 1400);
+          t._tm = setTimeout(() => this.reset(t), 1400);
         }, 650);
       },
+      reset(t) { clearTimeout(t._tm); t.classList.remove("fx-locked", "fx-locking"); setState(t, ""); },
     },
 
     // Arming bar: fills while held (or for the timed hold), jolts and flashes when complete.
@@ -266,9 +267,14 @@
         t._cancel = progress(def.ms || 600, (p) => { bar.style.transform = `scaleX(${p})`; }, () => {
           t._cancel = null;
           flash(t);
-          bar.classList.add("drain");
-          bar.style.transform = "scaleX(0)";
+          this.reset(t);
         });
+      },
+      reset(t) {
+        if (t._cancel) { t._cancel(); t._cancel = null; }
+        const bar = t._fx.querySelector(".fx-timer");
+        bar.classList.add("drain");
+        bar.style.transform = "scaleX(0)";
       },
     },
   };
@@ -289,6 +295,7 @@
   }
 
   const STATEFUL = new Set(["ripple", "gear", "charge", "glow", "doors", "lock", "hazard"]);
+  const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   window.DeckFX = {
     attach(t, def) {
@@ -304,6 +311,17 @@
         down: (e) => a.down?.call(a, t, e, def),
         up: () => a.up?.call(a, t, def),
         show: (on, animate) => (a.show ? a.show.call(a, t, on, def, animate) : showPlain(t, on, def)),
+        // The PC skipped the press (Star Citizen wasn't in front): stop a charge, arming or
+        // lock-on still running, so it doesn't end as ENGAGED, ARMED or LOCKED, and flash
+        // red with a small shake. The shake is a Web Animation, not a class, so it can't
+        // block the next press's own animation.
+        deny: () => {
+          (a.reset || a.up)?.call(a, t, def);
+          once(t._fx, el("span", "fx-denied"));
+          if (!still() && t.animate) {
+            t.animate([{ translate: "0 0" }, { translate: "-4px 0" }, { translate: "4px 0" }, { translate: "-2px 0" }, { translate: "0 0" }], { duration: 320, easing: "ease-out" });
+          }
+        },
       };
     },
     // One-off effects for controls that aren't buttons (the eject slider).

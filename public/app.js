@@ -412,7 +412,7 @@
         if (sample >= 0 && sample < 10000) rtt = rtt === null ? sample : rtt * 0.7 + sample * 0.3;
         refreshStatus();
       }
-      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); }
+      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); denied(msg.id); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
@@ -514,8 +514,16 @@
     toast("Button lights reset");
   }
 
+  // The PC skipped a press because Star Citizen wasn't in front: besides the toast, every
+  // copy of that button on screen flashes red and stops any charge or arming it started.
+  function denied(id) {
+    for (const el of document.querySelectorAll("[data-btn]")) if (el.dataset.btn === id) el._deny();
+  }
+
   function bindButton(el, btn) {
     const fx = window.DeckFX.attach(el, btn);
+    el.dataset.btn = btn.id;
+    el._deny = fx.deny;
     if (btn.state && typeof btn.state.group === "string") {
       el.dataset.stateGroup = btn.state.group;
       el._showState = fx.show;
@@ -526,6 +534,8 @@
     const press = (e) => {
       waiting = null;
       el.classList.add("pressed");
+      // Offline, nothing reaches the PC: say so, rather than play the effect as if it had.
+      if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); return; }
       buzz();
       send({ t: btn.mode === "hold" ? "down" : "tap", id: btn.id });
       fx.down(e);
