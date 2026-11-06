@@ -134,6 +134,7 @@ body.canvas-mode { overflow: hidden; }
 .hud-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; }
 .hud-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
 .hud-status .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.hud-status .dot.on.slow { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
 
 .hud-rule { height: 6px; border-top: 2px solid color-mix(in srgb, var(--text) 75%, transparent); }
 .hud-rule i { position: absolute; top: -6px; width: 2px; height: 10px; background: var(--red); }

@@ -5,6 +5,18 @@ section becomes the notes of its
 [GitHub release](https://github.com/nodieCode/tablet-deck/releases), so add one
 before tagging a release.
 
+## Unreleased
+
+- **The deck shows how quick the link to the PC is**, next to Connected
+  ("Connected · 8 ms"); the dot turns amber when it's slow enough to feel.
+- **A dead connection is noticed within seconds.** If the PC goes to sleep or the
+  Wi-Fi drops without the connection closing, the deck used to keep saying
+  Connected while taps went nowhere; now it says Reconnecting… and connects again
+  by itself.
+- **Changing the pairing code now disconnects devices paired with the old one**,
+  and they show the pairing screen with a note that the code changed. Before,
+  they kept working until they reconnected, then retried the old code forever.
+
 ## 1.6.0 (2026-10-26)
 
 - **Español, Français and Deutsch:** the deck and the app window can show

@@ -28,6 +28,8 @@ header {
 #status { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 13px; color: var(--dim); white-space: nowrap; }
 #dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); }
 #dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+/* Connected, but the round trip to the PC is slow enough to feel (app.js, SLOW_MS). */
+#dot.on.slow { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
 .hbtn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--panel); border: 1px solid var(--line); color: var(--text);

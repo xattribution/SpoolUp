@@ -871,7 +871,11 @@ server.on("upgrade", (req, socket) => {
   console.log(`Tablet connected: ${who}`);
   emit({ t: "client", on: true, device });
   ui({ t: "clients", count: ++connectedTablets });
-  const client = { send: (obj) => { if (!socket.destroyed) wsSend(socket, JSON.stringify(obj)); } };
+  const client = {
+    send: (obj) => { if (!socket.destroyed) wsSend(socket, JSON.stringify(obj)); },
+    // Closing runs the same clean-up as a dropped connection, held keys included.
+    close: () => socket.destroy(),
+  };
   tablets.add(client);
   client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates) });
 
@@ -897,7 +901,9 @@ server.on("upgrade", (req, socket) => {
     lastSeen = Date.now();
     let msg;
     try { msg = JSON.parse(text); } catch { return; }
-    if (msg.t === "hb") return;
+    // Answered, so the tablet can show the round trip and notice a link that died without
+    // closing (this PC asleep, Wi-Fi gone), which it would otherwise still show as connected.
+    if (msg.t === "hb") { client.send({ t: "hb", n: Number(msg.n) || 0 }); return; }
     if (msg.t === "voice") {
       emit({ t: "voice", result: msg.on ? "listen" : "stop", running: Boolean(voice) });
       if (!voice) {
@@ -1083,6 +1089,12 @@ function applySetting(name, text) {
   saveSetting(name, value);
   // The port only changes when the server restarts, as the window does next.
   if (name !== "port") config[name] = value;
+  // A new pairing code shuts out devices paired with the old one: they're disconnected
+  // (releasing anything they hold) and show the pairing screen when they try again.
+  if (name === "token" && tablets.size) {
+    console.log(`New pairing code: disconnecting ${tablets.size === 1 ? "1 device" : `${tablets.size} devices`} paired with the old one.`);
+    for (const c of tablets) c.close();
+  }
   if (name === "voiceConfidence") {
     console.log(`Voice strictness set to ${Math.round(value * 100)}%.`);
     ui({ t: "voiceConfidence", value });

@@ -466,15 +466,19 @@ the game's files or memory.
 
 - Only devices with the pairing code can press keys. After 5 wrong codes in a
   minute, a device is ignored for a minute, so nothing on the network can keep
-  guessing. Keep Tablet Deck on your home network; don't expose its port to the
-  internet.
+  guessing. Changing the code in **Settings** disconnects every device paired
+  with the old one. Keep Tablet Deck on your home network; don't expose its port
+  to the internet.
 - The tablet talks to the PC over plain `http`, so the connection isn't
   encrypted. On your own home Wi-Fi that's fine, but on shared networks (LAN
   parties, dorms, hotels) others on the same Wi-Fi could see your pairing code
   and taps. The firewall rule only allows private networks, so Tablet Deck is
   blocked on networks Windows marks as public.
 - Held keys are released if the tablet disconnects or goes quiet for 5 seconds,
-  and releasing a held button always goes through, so no key stays stuck.
+  and releasing a held button always goes through, so no key stays stuck. The
+  tablet checks the other way too: if the PC stops answering, it says
+  Reconnecting… instead of looking connected. While connected, it shows the
+  round trip to the PC ("Connected · 8 ms").
 - No accounts, ads or tracking. The only internet traffic is the update check
   (GitHub; you can turn it off) and the theme fonts the tablet loads from Google
   Fonts. See [CODE_SIGNING.md](CODE_SIGNING.md#privacy).

@@ -333,19 +333,30 @@
   // ---------- connection ----------
 
   // Status shows in the header (grid layouts) and in canvas chrome, so update every copy.
+  // While connected it adds the round trip to the PC ("Connected · 8 ms"), and the dot
+  // turns amber when that's slow enough to feel.
+  const SLOW_MS = 120;
   let online = { on: false, text: "Connecting…" };
+  let rtt = null; // smoothed round trip in ms, from the heartbeats; null until measured
   function setOnline(on, text) {
     online = { on, text };
+    if (!on) rtt = null;
     refreshStatus();
   }
   function refreshStatus() {
+    const shown = online.on && rtt !== null;
+    const text = tr(online.text) + (shown ? ` · ${Math.max(1, Math.round(rtt))} ms` : "");
     document.body.classList.toggle("offline", !online.on);
-    for (const d of document.querySelectorAll("#dot, .js-dot")) d.classList.toggle("on", online.on);
-    for (const t of document.querySelectorAll("#statusText, .js-status")) t.textContent = tr(online.text);
+    for (const d of document.querySelectorAll("#dot, .js-dot")) {
+      d.classList.toggle("on", online.on);
+      d.classList.toggle("slow", shown && rtt > SLOW_MS);
+    }
+    for (const t of document.querySelectorAll("#statusText, .js-status")) t.textContent = text;
   }
 
+  const connected = () => Boolean(ws && ws.readyState === WebSocket.OPEN);
   function send(obj) {
-    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+    if (connected()) ws.send(JSON.stringify(obj));
   }
 
   // Short notice at the bottom of the screen, e.g. when the PC skipped a press.
@@ -361,13 +372,47 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), ms);
   }
 
+  // Heartbeats go both ways: the PC drops a tablet it hasn't heard from for 5 s (which
+  // releases its keys) and answers each one. A link can die without closing (the PC
+  // asleep, Wi-Fi gone), and would then still look connected while presses go nowhere, so
+  // with no answer for DEAD_MS the deck gives up on it and connects again. Only once this
+  // PC has answered at all, so a PC too old to answer never looks dead.
+  const DEAD_MS = 5000;
+  let lastHeard = 0, answers = false;
+
   function connect() {
-    ws = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}&device=${device}&layout=${encodeURIComponent(chosenLayout)}`);
-    ws.onopen = () => setOnline(true, "Connected");
-    ws.onmessage = (e) => {
+    const sock = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}&device=${device}&layout=${encodeURIComponent(chosenLayout)}`);
+    ws = sock;
+    answers = false;
+    let opened = false;
+    // A connection attempt that hangs (the PC gone from the network) counts as failed.
+    const giveUp = setTimeout(() => { if (sock.readyState === WebSocket.CONNECTING) sock.close(); }, DEAD_MS);
+    sock.onopen = () => {
+      opened = true;
+      clearTimeout(giveUp);
+      lastHeard = performance.now();
+      setOnline(true, "Connected");
+      send({ t: "hb", n: performance.now() }); // measure the round trip straight away
+    };
+    sock.onclose = () => {
+      clearTimeout(giveUp);
+      if (ws !== sock) return;
+      ws = null;
+      setOnline(false, "Reconnecting…");
+      if (opened) setTimeout(connect, 1000); else retryOrPair();
+    };
+    sock.onerror = () => sock.close();
+    sock.onmessage = (e) => {
       let msg;
       try { msg = JSON.parse(e.data); } catch { return; }
-      if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); }
+      lastHeard = performance.now();
+      if (msg.t === "hb") {
+        answers = true;
+        const sample = performance.now() - msg.n;
+        if (sample >= 0 && sample < 10000) rtt = rtt === null ? sample : rtt * 0.7 + sample * 0.3;
+        refreshStatus();
+      }
+      else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); }
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); }
       else if (msg.t === "state") { states[msg.group] = msg.on; showStates(msg.group); }
       else if (msg.t === "states") { states = msg.states || {}; showStates(); }
@@ -380,10 +425,34 @@
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));
     };
-    ws.onclose = () => { setOnline(false, "Reconnecting…"); setTimeout(connect, 1000); };
-    ws.onerror = () => ws.close();
   }
-  setInterval(() => send({ t: "hb" }), 1500);
+
+  // A connection that never opened may mean the pairing code changed on the PC, or that
+  // this device is locked out after wrong codes. Each try would count as another wrong
+  // code, so ask once over HTTP, which says which, and show the pairing screen then.
+  function retryOrPair() {
+    fetch(`/links.json?t=${encodeURIComponent(token)}`, { cache: "no-store" })
+      .then((r) => {
+        if (r.status === 403) showPairing("changed");
+        else if (r.status === 429) showPairing("locked");
+        else setTimeout(connect, 1000);
+      })
+      .catch(() => setTimeout(connect, 1000));
+  }
+
+  setInterval(() => {
+    if (!connected()) return;
+    if (answers && performance.now() - lastHeard > DEAD_MS) {
+      const dead = ws;
+      dead.onclose = dead.onmessage = dead.onerror = null;
+      dead.close();
+      ws = null;
+      setOnline(false, "Reconnecting…");
+      connect();
+      return;
+    }
+    send({ t: "hb", n: performance.now() });
+  }, 1500);
 
   // ---------- buttons ----------
 
@@ -611,8 +680,13 @@
 
   // Shown until the device has a working pairing code. The deck's own controls stay hidden
   // (body.pairing), since none of them work before pairing.
+  // `wrong` is false, true (the typed code was wrong), "locked" or "changed" (the code
+  // stopped working while the deck was open, so the deck makes way for the form).
   function showPairing(wrong) {
     setOnline(false, "Not paired");
+    leaveCanvas();
+    closePicker();
+    closeVoiceHelp();
     document.body.classList.add("pairing");
     tabs.innerHTML = "";
     grid.innerHTML = `
@@ -636,9 +710,10 @@
       input.setAttribute("aria-invalid", "true");
       buzz([30, 60, 30]);
     };
-    input.value = token;
+    input.value = wrong === "changed" ? "" : token; // a typo is easier to fix in place
     input.oninput = () => { input.classList.remove("bad"); input.removeAttribute("aria-invalid"); error.hidden = true; };
     if (wrong === "locked") fail("Too many wrong codes. Wait a minute, then try again.");
+    else if (wrong === "changed") fail("The pairing code on the PC has changed. Type the new one from the Tablet Deck window.");
     else if (wrong) fail("That code didn't match. Check the code in the Tablet Deck window on your PC and try again.");
     input.focus();
     $("pair").onsubmit = (e) => {
@@ -667,14 +742,18 @@
         emblemHtml: () => emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem),
       });
     } else {
-      if (deckCanvas) { deckCanvas.dispose(); deckCanvas = null; }
-      document.body.classList.remove("canvas-mode");
-      $("stage").hidden = true;
-      $("canvas").innerHTML = "";
+      leaveCanvas();
       if (pageIndex >= layout.pages.length) pageIndex = 0;
       renderTabs();
       renderPage();
     }
+  }
+  // Takes a canvas layout off the screen, for a grid layout or the pairing form.
+  function leaveCanvas() {
+    if (deckCanvas) { deckCanvas.dispose(); deckCanvas = null; }
+    document.body.classList.remove("canvas-mode");
+    $("stage").hidden = true;
+    $("canvas").innerHTML = "";
   }
 
   // Fetches the chosen layout (from the PC, or the layouts/ folder in demo mode) and shows it.
