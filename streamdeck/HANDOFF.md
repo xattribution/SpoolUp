@@ -132,6 +132,12 @@ The session's scratchpad (downloads, test harnesses) goes away with the containe
 
 ## Next steps
 
+0. When the 4.x key fixes land, check these three by hand (found by the Star Citizen
+   fact-check after the fix workflow had started; `research/starcitizen.verified.md`
+   correction 10): `cb-missile` uses `v_weapon_launch_missile_cinematic`, which is the
+   cinematic camera toggle, not a launch (use `v_weapon_toggle_launch_missile`, press);
+   `v_toggle_all_doors` needs `vehicle_general` as well as `spaceship_general` in
+   ACTIONMAPS; Engage Quantum's hold B fires `v_master_mode_cycle_long` (SCM/NAV) in 4.x.
 1. When the 4.x key fixes land: add the Comms panel to `layouts/hud.json` with the `cm-*`
    ids `streamdeck/scenes.js` uses (VoIP push to talk `np_add` hold, proximity PTT
    `lalt+np_add` hold, cycle channel `np_period`, hail `9`, accept/decline invite

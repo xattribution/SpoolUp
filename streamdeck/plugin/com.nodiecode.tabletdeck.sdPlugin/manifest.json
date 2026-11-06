@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "com.nodiecode.tabletdeck",
+  "Name": "Tablet Deck",
+  "Version": "1.6.0.0",
+  "Author": "nodieCode",
+  "Description": "Star Citizen controls through Tablet Deck: live key lights, press animations, dials and scenes, with Tablet Deck's focus check. Fan project, not affiliated with Cloud Imperium Games.",
+  "URL": "https://github.com/nodieCode/tablet-deck",
+  "Icon": "imgs/plugin/icon",
+  "Category": "Tablet Deck",
+  "CategoryIcon": "imgs/plugin/category",
+  "CodePath": "bin/plugin.js",
+  "PropertyInspectorPath": "pi/index.html",
+  "SDKVersion": 3,
+  "Software": { "MinimumVersion": "7.1" },
+  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
+  "Nodejs": { "Version": "24" },
+  "Actions": [
+    {
+      "UUID": "com.nodiecode.tabletdeck.key",
+      "Name": "Deck Button",
+      "Tooltip": "Presses a Tablet Deck button through its focus check, with live lights.",
+      "Icon": "imgs/actions/key/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/key/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.dial",
+      "Name": "Deck Dial",
+      "Tooltip": "One Tablet Deck press per detent; push or touch for a third button.",
+      "Icon": "imgs/actions/dial/icon",
+      "Controllers": ["Encoder"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/dial/key", "ShowTitle": false }],
+      "Encoder": {
+        "layout": "layouts/dial.json",
+        "Icon": "imgs/actions/dial/dial",
+        "StackColor": "#12253b",
+        "TriggerDescription": { "Rotate": "One press per detent", "Push": "Press", "Touch": "Press" }
+      }
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.scene",
+      "Name": "Scene",
+      "Tooltip": "Goes to a scene page of the Tablet Deck profile; tablets can follow.",
+      "Icon": "imgs/actions/scene/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/scene/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.theme",
+      "Name": "Theme",
+      "Tooltip": "Draws every Tablet Deck key and dial in a manufacturer theme.",
+      "Icon": "imgs/actions/theme/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/theme/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.talk",
+      "Name": "Hold to Talk",
+      "Tooltip": "Hold to speak a Tablet Deck voice command.",
+      "Icon": "imgs/actions/talk/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/talk/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.status",
+      "Name": "Status",
+      "Tooltip": "Shows the link to Tablet Deck and its round trip.",
+      "Icon": "imgs/actions/status/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/status/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.nodiecode.tabletdeck.lights",
+      "Name": "Reset Lights",
+      "Tooltip": "Turns off every lit key. Tablet Deck can't see the game, so lights only show what was pressed.",
+      "Icon": "imgs/actions/lights/icon",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "SupportedInKeyLogicActions": false,
+      "OS": ["windows"],
+      "States": [{ "Image": "imgs/actions/lights/key", "ShowTitle": false }]
+    }
+  ]
+}

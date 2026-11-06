@@ -146,9 +146,8 @@ class TabletDeck {
         this.answers = true;
         const sample = performance.now() - Number(msg.n);
         if (sample >= 0 && sample < 10000) {
-          const rtt = this.smooth === undefined || this.link.rtt === null ? sample : this.smooth * 0.7 + sample * 0.3;
-          this.smooth = rtt;
-          this.setLink({ rtt: Math.max(1, Math.round(rtt)) });
+          this.smooth = this.smooth === undefined ? sample : this.smooth * 0.7 + sample * 0.3;
+          this.setLink({ rtt: Math.max(1, Math.round(this.smooth)) });
         }
         return;
       }
@@ -179,8 +178,8 @@ class TabletDeck {
   // held (it does that for any client that closes or goes quiet).
   dropped() {
     this.smooth = undefined;
-    this.setLink({ state: "connecting", rtt: null });
     this.emit("drop");
+    this.setLink({ state: "connecting", rtt: null });
   }
 
   heartbeat() {
