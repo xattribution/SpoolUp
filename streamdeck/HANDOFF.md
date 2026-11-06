@@ -105,30 +105,38 @@ Facts behind these are in [research/](research/README.md) (sources and confidenc
 
 | piece | state | where |
 |---|---|---|
-| Key art renderer | done, previewed across all 12 themes | `streamdeck/keyart.js` |
-| Research (7 topics) | done; fact-checks mostly done | `streamdeck/research/` |
-| New icons (~70) | designed + art-directed by a workflow; merge pending | scratch, then `public/icons.js` |
-| Star Citizen 4.x key fixes | workflow running | `layouts/hud.json`, `tools/make-profile.js` |
-| PC sounds player review fixes | workflow running (C#) | `native/sound.cs` |
-| Action catalog | next (by the main session) | `streamdeck/catalog.js` |
-| Scene layouts per model | after the catalog | `streamdeck/scenes.js` |
-| Generator | after the catalog | `tools/make-streamdeck.js` |
-| Plugin | after the catalog | `streamdeck/plugin/` |
-| Server support for the plugin | not started | `server.js` |
-| Docs | not started | README, CHANGELOG, DEVELOPMENT, DESIGN |
+| Key art renderer | done; arcs become cubics (SVG Tiny), previewed in all 12 themes | `streamdeck/keyart.js` |
+| Research (7 topics) | done, fact-checked | `streamdeck/research/` |
+| New icons (76: emotes, ship, comms/media/stream, navigation) | done, merged, art-directed | `public/icons.js` |
+| Action catalog (161 actions) | done | `streamdeck/catalog.js` |
+| Scene layouts for 7 models | first version done (all pages full, within grids, 7 of 10 pages) | `streamdeck/scenes.js` |
+| Generator/plugin contract | done | `streamdeck/CONTRACT.md` |
+| Scene sync (server relay, tablets follow) | done, tested | `server.js`, `public/canvas.js` `showPanels`, `public/app.js` |
+| Generator | being built by a workflow (build, validate, fix) | `tools/make-streamdeck.js` |
+| Plugin | being built by a workflow (build, review, fix) | `streamdeck/plugin/` |
+| Star Citizen 4.x key fixes | workflow running (audit, skeptic, apply, re-audit) | `layouts/hud.json`, `tools/make-profile.js` |
+| Tablet Comms panel (`cm-*` ids the layouts use) | after the 4.x fixes land, so they don't both edit hud.json | `layouts/hud.json` |
+| PC sounds player review fixes | applied, being verified | `native/sound.cs` |
+| Docs for the pack | after the generator and plugin | README, CHANGELOG, DEVELOPMENT, DESIGN |
 
 The session's scratchpad (downloads, test harnesses) goes away with the container.
 
 ## Next steps
 
-1. Merge the new icons into `public/icons.js` (names must not collide).
-2. Write `streamdeck/catalog.js`: every action (all `layouts/hud.json` buttons, deduplicated,
-   plus Stream Deck extras), with icon, colour, category, keys, mode, animation.
-3. Write `streamdeck/scenes.js` (pages per model; navigation zone; dials and touch strip for
-   + and + XL), then the generator; build one model and check it against real exported
-   profiles before generating all 84 + 7.
-4. The plugin, server support (a `device=streamdeck` client, scene and theme messages),
-   docs. Commit each piece as it works.
+1. When the 4.x key fixes land: add the Comms panel to `layouts/hud.json` with the `cm-*`
+   ids `streamdeck/scenes.js` uses (VoIP push to talk `np_add` hold, proximity PTT
+   `lalt+np_add` hold, cycle channel `np_period`, hail `9`, accept/decline invite
+   `lbracket`/`rbracket`, PIT wheel `lalt+f`, wipe visor `lalt+x`: see
+   `research/starcitizen.md` section 3), their scActions in `tools/make-profile.js`
+   `ACTIONMAPS`, and regenerate (phone, starters, profile). Translations for the labels.
+2. When the generator and plugin land: build the whole pack, look at the previews, then a
+   layout critique pass (intuitive? consistent across models? themes?) and fix.
+3. Docs: README section for the Stream Deck pack (install the icon pack, import a profile,
+   or install the plugin; standalone hotkeys don't pass the focus check; theme keys; the
+   dial = one press per detent question for the owner), CHANGELOG, DEVELOPMENT (how to
+   build: `node tools/make-streamdeck.js`), DESIGN (key art rules).
+4. Things only real hardware can answer are listed in `research/profiles.md` 11 and
+   `research/navigation.md` 10; collect them in the README's "please check" list.
 
 ## Earlier work in this session (for context)
 
