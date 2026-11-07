@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="hud.css">
 <link rel="stylesheet" href="fx.css">
 <link rel="stylesheet" href="makers.css">
+<link rel="stylesheet" href="clusters.css">
+<link rel="stylesheet" href="emotes.css">
 <link rel="stylesheet" href="editor.css">
 </head>
 <body class="editor">
@@ -25,8 +27,8 @@
   <input id="importFile" type="file" accept=".json,application/json" hidden>
   <span class="ed-sep"></span>
   <button id="addBtn" type="button" title="Add a button to the panel you're looking at">Add button</button>
-  <button id="dupBtn" type="button" title="Copy the selected button (Ctrl+D)">Duplicate</button>
-  <button id="delBtn" type="button" title="Delete the selected button (Delete)">Delete</button>
+  <button id="dupBtn" type="button" title="Copy the selected button, or add a copy of the selected cluster (Ctrl+D)">Duplicate</button>
+  <button id="delBtn" type="button" title="Delete the selected item (Delete)">Delete</button>
   <button id="undoBtn" type="button" title="Undo (Ctrl+Z)">Undo</button>
   <button id="redoBtn" type="button" title="Redo (Ctrl+Y)">Redo</button>
   <span class="ed-grow"></span>
@@ -34,7 +36,9 @@
   <label class="ed-check"><input id="useIt" type="checkbox" checked> <span id="useLabel">Use on tablets</span></label>
   <button id="saveBtn" class="primary" type="button">Save</button>
 </div>
+<div class="ed-pbar" id="pbar"></div>
 <div class="ed-body">
+  <aside class="ed-lib-side" id="lib" hidden aria-label="Add and panels"></aside>
   <div class="ed-main" id="pane"><div id="stage"><div id="canvas"></div></div></div>
   <aside class="ed-side" id="props"></aside>
 </div>
@@ -42,6 +46,10 @@
 
 <script src="icons.js"></script>
 <script src="fx.js"></script>
+<script src="grid.js"></script>
+<script src="dial.js"></script>
+<script src="clusters.js"></script>
+<script src="emotes.js"></script>
 <script src="canvas.js"></script>
 <script src="editor.js"></script>
 </body>

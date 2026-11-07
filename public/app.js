@@ -1,7 +1,7 @@
 (() => {
   // Emblems are original badge designs on a 64x64 grid that suggest each maker's
   // character; they are not the manufacturers' real logos.
-  // `F` = solid accent fill, `T` = group drawn in the theme's text colour.
+  // `F` = solid accent fill, `T` = group drawn in the theme's text color.
   const F = `fill="currentColor" stroke="none"`;
   const T = (body) => `<g style="color:var(--text)">${body}</g>`;
   const THEMES = [
@@ -97,13 +97,20 @@
   // Demo mode (?demo, or the website's "Try it" page): no PC at all. Layouts come from the
   // layouts/ folder next to the page, and presses only play their animations.
   const DEMO = new URLSearchParams(location.search).has("demo") || window.DECK_DEMO === true;
+  // Grid layouts fit every screen, so phones and tablets get the same files; only the
+  // 2.0 HUD kept as it was has a phone version of its own.
   const DEMO_LAYOUTS = [
-    [device === "phone" ? "layouts/hud-phone.json" : "layouts/hud.json", "SpoolUp HUD"],
+    ["layouts/hud.json", "SpoolUp HUD"],
+    ["layouts/dashboards.json", "Dashboards"],
     ...[["combat", "Combat"], ["mining-salvage", "Mining & Salvage"], ["hauling-exploration", "Hauling & Exploration"],
       ["prospector", "Prospector"], ["vulture", "Vulture"]]
-      .map(([id, name]) => [`layouts/${id}${device === "phone" ? "-phone" : ""}.json`, name]),
+      .map(([id, name]) => [`layouts/${id}.json`, name]),
+    [device === "phone" ? "layouts/hud-classic-phone.json" : "layouts/hud-classic.json", "SpoolUp HUD 2.0"],
     ["layouts/star-citizen.json", "Star Citizen (tabbed grid)"],
   ];
+  // ?viewport=small|large forces a grid layout's size class (canvas.js), e.g. to try the
+  // phone arrangement on a tablet.
+  const viewport = new URLSearchParams(location.search).get("viewport") || "";
   // ?safe=top,right,bottom,left (CSS px) stands in for the screen's safe-area insets. Pages
   // in an iframe always see zero insets, so the showcase frame passes the phone's here.
   const safe = (new URLSearchParams(location.search).get("safe") || "").split(",").map(Number);
@@ -120,6 +127,7 @@
 
   function applyTheme(id) {
     const theme = themeById[id] || THEMES[0];
+    const changed = document.documentElement.dataset.theme !== theme.id;
     document.documentElement.dataset.theme = theme.id;
     document.documentElement.dataset.maker = theme.full; // shown on the intro screen
     for (const m of document.querySelectorAll("#brandMark, .js-emblem")) m.innerHTML = emblemSvg(theme.emblem);
@@ -127,6 +135,8 @@
     if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
     store.set("theme", theme.id);
     for (const card of document.querySelectorAll(".card")) card.classList.toggle("current", card.dataset.theme === theme.id);
+    // Controls drawn from the maker's shape (the mode dial) follow the new theme.
+    if (changed && deckCanvas) deckCanvas.render();
   }
 
   function buildPicker() {
@@ -150,7 +160,7 @@
       cards.appendChild(card);
     }
   }
-  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); };
+  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); fillSwipes(); };
 
   // ---------- sounds ----------
 
@@ -255,7 +265,7 @@
       .then((data) => {
         const pick = $("layoutPick");
         pick.innerHTML = "";
-        const pcName = (data.layouts.find((l) => l.file === data.pcChoice) || {}).name || "default";
+        const pcName = (data.layouts.find((l) => l.file === data.pcChoice) || {}).name || data.pcName || "default";
         const add = (value, text) => { const o = document.createElement("option"); o.value = value; o.textContent = text; pick.appendChild(o); };
         add("", tr("PC's choice: {0}", tr(pcName)));
         for (const l of data.layouts) add(l.file, l.custom ? tr("{0} (yours)", l.name) : tr(l.name));
@@ -292,60 +302,240 @@
     else if (layout) showLayout(layout);
   };
 
-  // ---------- two-finger swipe between panels ----------
+  // ---------- swipes and gestures ----------
 
   // Swiping sideways with two fingers over one half of the HUD flips that half to its next
-  // or previous panel, like its arrows (on tabbed layouts, to the next or previous tab).
-  // The first finger usually lands on a button, so while swiping is on, a press waits
-  // SWIPE_WAIT_MS; if a second finger lands meanwhile, it's a swipe and nothing is
-  // pressed. Off unless turned on in the sliders sheet, so presses are instant by default.
-  const SWIPE_WAIT_MS = 60;
-  const swipeKey = `swipe-${device}`;
-  const swipeOn = () => store.get(swipeKey) === "on";
-  const pendingPresses = new Set(); // cancel functions of presses still waiting
-  const fingers = new Map();        // pointerId -> { x, y } for fingers now down
-  let swipe = null;                 // { startX, startY, x, y } while two fingers are down
+  // or previous panel, like its arrows (on tabbed layouts, to the next or previous tab;
+  // in a grid layout's one-panel view, the panel). Two fingers swiping up or down do what
+  // this device picked in Deck settings: one tap of the mobiGlas button, the Quick actions
+  // sheet, or a jump to a panel. On grid layouts one finger can also swipe sideways
+  // anywhere (Deck settings, off by default), except on sliders, dials and other controls
+  // that are dragged ([data-drag]).
+  //
+  // A swipe never presses anything. While swipes are on, a hold button's press waits
+  // SETTLE_MS and a tap button taps when the finger lifts: a second finger landing
+  // meanwhile, or the finger sliding off (SLIDE_PX), makes it no press at all; a plain tap,
+  // quick or slow, is still one press. A finger already holding something (hold to talk, a slider) isn't part of a
+  // swipe, so another finger can still press beside it. Two-finger swipes are on by
+  // default on grid layouts and off on 2.0 layouts, so their presses stay instant.
+  const SETTLE_MS = 120;  // how long a press waits for a second finger
+  const SLOP_PX = 14;     // sideways travel that makes one finger a swipe
+  const PAIR_MS = 250;    // two fingers landing this close together can be a swipe
+  const SLIDE_PX = 24;    // a finger that slides this far off where it landed isn't a tap
+  const gridLayout = () => Boolean(layout && window.DeckGrid && window.DeckGrid.isGrid(layout));
+  const sizeNow = () => (deckCanvas && deckCanvas.sizeClass ? deckCanvas.sizeClass() : device === "phone" ? "small" : "large");
+  // Grid layouts keep their settings per size class, 2.0 layouts per device type as before.
+  const twoKey = () => (gridLayout() ? `swipe-two-${sizeNow()}` : `swipe-${device}`);
+  const oneKey = () => `swipe-any-${sizeNow()}`;
+  const twoOn = () => (gridLayout() ? store.get(twoKey()) !== "off" : store.get(twoKey()) === "on");
+  const oneOn = () => gridLayout() && store.get(oneKey()) === "on";
+  const swipesOn = () => twoOn() || oneOn();
+  const fingers = new Map();  // pointerId -> { x0, y0, x, y, t0, target, drag, pressed }
+  const settling = new Map(); // pointerId -> cancels its press that is still waiting
+  let gesture = null;         // { kind: "two" | "one", ids, sx, sy, x, y, t0, dead }
+  let swiping = false;        // a swipe owns the fingers now: press nothing on lift
+  const isSwiping = () => swiping;
+  // Only touches on the deck itself count, not its sheets, menus or the Edit layout veil.
+  const onDeck = (t) => t instanceof Element && Boolean(t.closest("#canvas, #grid"))
+    && !t.closest(".hud-menu, .plates-veil, .plates-seam, .plates-bar, #pair");
+  const centroid = (ids) => {
+    let x = 0, y = 0, n = 0;
+    for (const id of ids) { const f = fingers.get(id); if (f) { x += f.x; y += f.y; n++; } }
+    return n ? { x: x / n, y: y / n } : null;
+  };
+  // A finger whose press went (or that holds the mic) is busy, not part of a swipe.
+  const holding = (pointerId) => { const f = fingers.get(pointerId); if (f) f.pressed = true; };
 
-  function centre() {
-    let x = 0, y = 0;
-    for (const f of fingers.values()) { x += f.x; y += f.y; }
-    return { x: x / fingers.size, y: y / fingers.size };
+  function startGesture(kind, ids, at) {
+    gesture = { kind, ids, sx: at.x, sy: at.y, x: at.x, y: at.y, t0: performance.now(), dead: false };
+    swiping = true;
+    $("canvas").classList.add("swiping");
+    for (const id of ids) {
+      const cancel = settling.get(id);
+      if (cancel) cancel(); // its press hadn't gone yet: now it never will
+    }
+    // A control the finger had started dragging (a slider, a widget) lets go, as if the
+    // touch had been canceled. After this event's own handlers have run, so a control the
+    // second finger just touched lets go too.
+    setTimeout(() => {
+      for (const id of ids) {
+        const f = fingers.get(id);
+        if (!f || !f.target || f.target.closest(".hud-btn")) continue;
+        try { f.target.dispatchEvent(new PointerEvent("pointercancel", { pointerId: id, pointerType: "touch", bubbles: true })); } catch { /* old browser */ }
+      }
+    }, 0);
   }
+
   document.addEventListener("pointerdown", (e) => {
-    if (!swipeOn() || e.pointerType === "mouse") return;
+    if (!e.isTrusted || e.pointerType === "mouse") return;
     // The first finger of a new touch: forget any finger whose lift was missed, so a stale
     // one can't turn every later tap into a "second finger" and swallow it.
-    if (e.isPrimary) { fingers.clear(); swipe = null; }
-    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (fingers.size === 2) {
-      for (const cancel of [...pendingPresses]) cancel();
-      pendingPresses.clear();
-      const c = centre();
-      swipe = { startX: c.x, startY: c.y, x: c.x, y: c.y };
+    if (e.isPrimary) { fingers.clear(); if (!gesture) swiping = false; }
+    if (!onDeck(e.target) || !swipesOn()) return;
+    const now = performance.now();
+    const f = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, t0: now, target: e.target,
+      drag: Boolean(e.target.closest("[data-drag]")), pressed: false, extra: Boolean(gesture) };
+    fingers.set(e.pointerId, f);
+    if (gesture || !twoOn() || !(deckCanvas || (layout && layout.pages))) return;
+    // Two fingers that landed together and aren't busy are a two-finger swipe.
+    const free = [...fingers].filter(([, g]) => !g.extra && !g.pressed && now - g.t0 <= PAIR_MS);
+    if (free.length >= 2) {
+      const ids = free.slice(-2).map(([id]) => id);
+      startGesture("two", ids, centroid(ids));
     }
   }, true);
+
   document.addEventListener("pointermove", (e) => {
-    if (!fingers.has(e.pointerId)) return;
-    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (swipe && fingers.size >= 2) Object.assign(swipe, centre());
-  }, true);
-  const lift = (e) => {
-    if (!fingers.delete(e.pointerId) || !swipe || fingers.size > 0) return;
-    const s = swipe;
-    swipe = null;
-    const dx = s.x - s.startX, dy = s.y - s.startY;
-    if (Math.abs(dx) < 90 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
-    const step = dx < 0 ? 1 : -1; // swipe left: next panel, as on a phone
-    if (deckCanvas) deckCanvas.pageAt(s.startX, s.startY, step);
-    else if (layout && layout.pages) {
-      pageIndex = (pageIndex + step + layout.pages.length) % layout.pages.length;
-      store.set("page", pageIndex);
-      renderTabs();
-      renderPage();
+    if (!e.isTrusted) return;
+    const f = fingers.get(e.pointerId);
+    if (!f) return;
+    f.x = e.clientX; f.y = e.clientY;
+    if (gesture) {
+      // Two fingers move the swipe while both are down; once one lifts it stays put.
+      if (gesture.ids.includes(e.pointerId) && gesture.ids.every((id) => fingers.has(id))) Object.assign(gesture, centroid(gesture.ids));
+      return;
     }
+    if (!oneOn() || fingers.size !== 1 || f.drag || f.pressed || !deckCanvas) return;
+    const dx = f.x - f.x0, dy = f.y - f.y0;
+    if (Math.abs(dx) > SLOP_PX && Math.abs(dx) > Math.abs(dy)) {
+      startGesture("one", [e.pointerId], { x: f.x0, y: f.y0 });
+      Object.assign(gesture, { x: f.x, y: f.y, t0: f.t0 });
+    }
+  }, true);
+
+  const lift = (e) => {
+    if (!e.isTrusted || !fingers.has(e.pointerId)) return;
+    fingers.delete(e.pointerId);
+    if (!gesture || !gesture.ids.includes(e.pointerId)) return;
+    // The browser took the touch over (it scrolled a panel): that's no swipe.
+    if (e.type === "pointercancel") gesture.dead = true;
+    if (gesture.ids.some((id) => fingers.has(id))) return;
+    const g = gesture;
+    gesture = null;
+    // Still a swipe for this lift's own handlers (a widget's tap on lift checks it).
+    setTimeout(() => { if (!gesture) { swiping = false; $("canvas").classList.remove("swiping"); } }, 0);
+    if (!g.dead) finishGesture(g);
   };
   document.addEventListener("pointerup", lift, true);
   document.addEventListener("pointercancel", lift, true);
+
+  // Far enough sideways, and more sideways than up or down, it pages (left: next, as on a
+  // phone); a quick flick needs less. Two fingers up or down run their gesture.
+  function finishGesture(g) {
+    const dx = g.x - g.sx, dy = g.y - g.sy;
+    if (g.kind === "two" && !hintSeen() && Math.hypot(dx, dy) >= 60) hideSwipeHint(true);
+    const far = sizeNow() === "small" ? 60 : 90;
+    const flick = Math.abs(dx) >= 30 && Math.abs(dx) / Math.max(1, performance.now() - g.t0) > 0.5;
+    if ((Math.abs(dx) >= far || flick) && Math.abs(dy) < Math.abs(dx) * 0.6) {
+      const step = dx < 0 ? 1 : -1;
+      if (deckCanvas) deckCanvas.pageAt(g.sx, g.sy, step);
+      else if (layout && layout.pages) {
+        pageIndex = (pageIndex + step + layout.pages.length) % layout.pages.length;
+        store.set("page", pageIndex);
+        renderTabs();
+        renderPage();
+      }
+      return;
+    }
+    if (g.kind === "two" && deckCanvas && Math.abs(dy) >= far && Math.abs(dx) < Math.abs(dy) * 0.6) runGesture(dy < 0 ? "up" : "down");
+  }
+
+  // When a grid layout opens on a touch screen, a card above the pager says what two
+  // fingers do (they're easy to miss), until "Got it" or the first two-finger swipe.
+  const hintSeen = () => store.get("swipe-hint") === "seen";
+  function hideSwipeHint(seen) {
+    clearTimeout(hideSwipeHint.timer);
+    $("swipeHint").hidden = true;
+    if (seen) store.set("swipe-hint", "seen");
+  }
+  function maybeSwipeHint() {
+    clearTimeout(hideSwipeHint.timer);
+    const touch = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
+    if (hintSeen() || !touch || !gridLayout() || !twoOn() || !deckCanvas) { $("swipeHint").hidden = true; return; }
+    const name = (what) => (what === "mobiglas" ? tr("Open mobiGlas") : what === "quick" ? tr("Quick actions")
+      : what === "primary" ? tr("Primary panel") : what.startsWith("panel:") ? tr("Go to {0}", tr(((deckCanvas.panelList ? deckCanvas.panelList() : []).find((p) => `panel:${p.id}` === what) || {}).title || what.slice(6))) : "");
+    const ud = [["up", "Up: {0}"], ["down", "Down: {0}"]].map(([d, f]) => (name(gestureOf(d)) ? tr(f, name(gestureOf(d))) : "")).filter(Boolean).join(" · ");
+    const el = $("swipeHint");
+    el.querySelector("b").textContent = tr("Swipe with two fingers");
+    el.querySelector(".sh-side").textContent = tr("Sideways: next or previous panel");
+    el.querySelector(".sh-ud").textContent = ud;
+    el.querySelector(".sh-ud").hidden = !ud;
+    el.querySelector(".sh-ok").textContent = tr("Got it");
+    // It steps aside by itself after a while (and comes back next time) so it never sits
+    // over a control for long.
+    hideSwipeHint.timer = setTimeout(() => { el.hidden = false; hideSwipeHint.timer = setTimeout(() => hideSwipeHint(false), 15000); }, 900);
+  }
+  $("swipeHint").querySelector(".sh-ok").onclick = () => hideSwipeHint(true);
+
+  // What a two-finger swipe up or down does, per device. Each sends at most one tap.
+  const GESTURE_DEFAULTS = { up: "mobiglas", down: "quick" };
+  const gestureOf = (dir) => store.get(`gesture-${dir}`) || GESTURE_DEFAULTS[dir];
+  function buttonInLayout(id) {
+    let found = null;
+    (function walk(n) {
+      if (found || !n || typeof n !== "object") return;
+      if (Array.isArray(n)) { n.forEach(walk); return; }
+      if (n.id === id && typeof n.keys === "string") { found = n; return; }
+      for (const v of Object.values(n)) if (v && typeof v === "object") walk(v);
+    })(layout);
+    return found;
+  }
+  function runGesture(dir) {
+    const what = gestureOf(dir);
+    if (what === "mobiglas") {
+      const btn = buttonInLayout("top-mobiglas");
+      if (!btn) { toast("This layout has no mobiGlas button"); return; }
+      if (!tapStep(btn)) return;
+      for (const el of document.querySelectorAll('[data-btn="top-mobiglas"]')) {
+        el.classList.add("pressed");
+        setTimeout(() => el.classList.remove("pressed"), 180);
+      }
+    } else if (what === "quick") {
+      if (deckCanvas.quickActions && deckCanvas.quickActions()) window.DeckSound.play("page");
+    } else if (what === "primary") {
+      deckCanvas.showPanel(deckCanvas.primaryPanel());
+    } else if (what.startsWith("panel:")) {
+      if (!deckCanvas.showPanel(what.slice(6))) toast("That panel isn't in this layout");
+    }
+  }
+
+  // Deck settings: the swipe switches and gestures follow the layout shown.
+  function fillSwipes() {
+    const grid = gridLayout();
+    $("swipeBtn").setAttribute("aria-checked", String(twoOn()));
+    $("swipe1Btn").hidden = !grid;
+    $("swipe1Btn").setAttribute("aria-checked", String(oneOn()));
+    $("densityRow").hidden = !grid;
+    if (grid) {
+      const v = store.get(`grid-density-${sizeNow()}`);
+      $("densityPick").value = ["compact", "default", "roomy"].includes(v) ? v : "default";
+    }
+    const canGesture = Boolean(deckCanvas) && twoOn();
+    $("gestures").hidden = !deckCanvas;
+    const panels = deckCanvas && deckCanvas.panelList ? deckCanvas.panelList() : [];
+    for (const dir of ["up", "down"]) {
+      const pick = $(dir === "up" ? "gestureUp" : "gestureDown");
+      pick.innerHTML = "";
+      const add = (value, label) => { const o = document.createElement("option"); o.value = value; o.textContent = label; pick.appendChild(o); };
+      add("none", tr("Nothing"));
+      add("mobiglas", tr("Open mobiGlas"));
+      add("quick", tr("Quick actions"));
+      add("primary", tr("Primary panel"));
+      for (const p of panels) add(`panel:${p.id}`, tr("Go to {0}", tr(p.title)));
+      const cur = gestureOf(dir);
+      if (![...pick.options].some((o) => o.value === cur)) add(cur, tr("Go to {0}", cur.replace(/^panel:/, "")));
+      pick.value = cur;
+      pick.disabled = !canGesture;
+    }
+  }
+  $("swipeBtn").onclick = () => { store.set(twoKey(), twoOn() ? "off" : "on"); fillSwipes(); };
+  $("swipe1Btn").onclick = () => { store.set(oneKey(), oneOn() ? "off" : "on"); fillSwipes(); };
+  $("gestureUp").onchange = (e) => store.set("gesture-up", e.target.value);
+  $("gestureDown").onchange = (e) => store.set("gesture-down", e.target.value);
+  $("densityPick").onchange = (e) => {
+    store.set(`grid-density-${sizeNow()}`, e.target.value);
+    if (deckCanvas) deckCanvas.render();
+  };
 
   // Follow Stream Deck scenes: on unless turned off on this device.
   const followScenes = () => store.get("follow-scenes") !== "off";
@@ -376,12 +566,6 @@
     for (const side of Object.keys(paging)) { clearTimeout(paging[side].timer); delete paging[side]; }
   }
 
-  function applySwipe(on) {
-    store.set(swipeKey, on ? "on" : "off");
-    $("swipeBtn").setAttribute("aria-checked", String(on));
-  }
-  $("swipeBtn").onclick = () => applySwipe(!swipeOn());
-  $("swipeBtn").setAttribute("aria-checked", String(swipeOn()));
 
   // Night mode dims the whole deck for playing in a dark room; each device remembers it.
   function applyNight(on) {
@@ -638,9 +822,12 @@
     buzz();
     window.DeckSound.play("press", btn.color);
     send({ t: "tap", id: btn.id });
+    deckCanvas?.pressed?.(btn.id); // controls following it update (a cluster's Reset)
     if (DEMO && btn.state && typeof btn.state.group === "string") demoState(btn);
     return true;
   }
+  // A state group's lit state as buttons show it: off with Button lights off.
+  const stateOf = (group) => lightsOn() && Boolean(states[group]);
   // A control showing a state group (the gear lever): app.js calls show(on, animate, lit)
   // whenever the PC's state for the group changes. `ids` are the buttons it taps, so a press
   // the PC skipped reaches deny(id).
@@ -670,9 +857,10 @@
       fx.show(lightsOn() && Boolean(states[btn.state.group]), false);
     }
     let pointer = null;
-    let waiting = null; // a press held back in case a second finger starts a swipe
+    let waiting = null; // a press held back in case the touch turns into a swipe
     const press = (e) => {
       waiting = null;
+      holding(e.pointerId);
       el.classList.add("pressed");
       // Offline, nothing reaches the PC: say so, rather than play the effect as if it had.
       if (!DEMO && !connected()) { toast("Not connected to the PC"); buzz([30, 60, 30]); window.DeckSound.play("deny"); return; }
@@ -684,25 +872,37 @@
       if (DEMO && el.dataset.stateGroup) demoState(btn);
     };
     el.addEventListener("pointerdown", (e) => {
-      if (pointer !== null || swipe) return; // fingers that are part of a swipe press nothing
+      if (pointer !== null || swiping) return; // fingers that are part of a swipe press nothing
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
       hearLift(end, true);
-      if (!swipeOn()) { press(e); return; }
-      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; hearLift(end, false); };
-      waiting = { cancel, timer: setTimeout(() => { pendingPresses.delete(cancel); press(e); }, SWIPE_WAIT_MS) };
-      pendingPresses.add(cancel);
+      // A mouse can't swipe, and with swipes off nothing needs to wait.
+      if (!swipesOn() || e.pointerType === "mouse" || !fingers.has(e.pointerId)) { press(e); return; }
+      const id = e.pointerId;
+      const cancel = () => { clearTimeout(waiting.timer); waiting = null; pointer = null; settling.delete(id); hearLift(end, false); el.classList.remove("pressed"); };
+      // A hold button has to go down while the finger is down. A tap button lights up after
+      // the wait but taps on lift, so a second finger landing late, or the finger sliding
+      // off on a swipe, still cancels it: a swipe never presses what it started on.
+      const onLift = btn.mode !== "hold";
+      waiting = { cancel, x0: e.clientX, y0: e.clientY, timer: setTimeout(() => {
+        if (onLift) { if (!swiping) el.classList.add("pressed"); return; }
+        settling.delete(id);
+        press(e);
+      }, SETTLE_MS) };
+      settling.set(id, cancel);
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!waiting || e.pointerId !== pointer) return;
+      if (Math.hypot(e.clientX - waiting.x0, e.clientY - waiting.y0) > SLIDE_PX) waiting.cancel();
     });
     const end = (e) => {
       if (e.pointerId !== pointer) return;
       hearLift(end, false);
       if (waiting) {
         // Lifted before the wait was over: still a press, just a quick one. A touch the
-        // browser cancelled presses nothing.
-        const { cancel } = waiting;
-        cancel();
-        pendingPresses.delete(cancel);
-        if (e.type === "pointercancel") return;
+        // browser canceled (it scrolled), or one a swipe took, presses nothing.
+        waiting.cancel();
+        if (e.type === "pointercancel" || swiping) return;
         pointer = e.pointerId;
         press(e);
       }
@@ -723,6 +923,7 @@
       if (pointer !== null) return;
       pointer = e.pointerId;
       el.setPointerCapture(e.pointerId);
+      holding(e.pointerId);
       hearLift(end, true);
       el.classList.add("listening");
       buzz();
@@ -892,11 +1093,12 @@
     stopPaging(); // its panels are the old layout's
     $("title").textContent = tr(layout.name);
     document.title = tr(layout.name);
-    if (layout.canvas) {
+    if (layout.canvas || gridLayout()) {
       document.body.classList.add("canvas-mode");
       deckCanvas = window.renderCanvas(layout, {
         send, bindButton, bindTalk, buzz, store, refreshStatus, openPicker, openVoiceHelp, toggleFullscreen,
-        tapStep, bindControl, toast, canPress: () => DEMO || connected(),
+        tapStep, bindControl, toast, canPress: () => DEMO || connected(), stateOf,
+        swiping: isSwiping, swipeMode: () => ({ two: twoOn(), one: oneOn() }), viewport,
         paged: panelPaged,
         deckIcon: window.deckIcon,
         emblemHtml: () => emblemSvg((themeById[document.documentElement.dataset.theme] || THEMES[0]).emblem),
@@ -907,6 +1109,8 @@
       renderTabs();
       renderPage();
     }
+    fillSwipes();
+    maybeSwipeHint();
   }
   // Takes a canvas layout off the screen, for a grid layout or the pairing form.
   function leaveCanvas() {

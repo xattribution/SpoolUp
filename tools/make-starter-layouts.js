@@ -1,156 +1,159 @@
-// Builds the starter layouts for different kinds of flying from the HUD layouts, by
-// putting the panels for that kind of flying first, and the ship layouts, which start with
-// a panel made for that ship. Run it after changing layouts/hud.json or
-// layouts/hud-phone.json (tools/make-phone-layout.js), so they keep up.
+// Builds the starter layouts for different kinds of flying from the HUD layout, by putting
+// the panels and the dashboard for that kind of flying first, the ship layouts, which
+// start with a panel made for that ship, and Dashboards, which shows the dashboards only.
+// Run it after changing layouts/hud.json, so they keep up.
 //
 //   node tools/make-starter-layouts.js
 //
-// Writes layouts/<id>.json and layouts/<id>-phone.json for each starter and ship below.
-// The buttons, keys and voice phrases are the HUD's own (ship panels copy them under new
-// ids), so the keybind profile is unchanged.
+// Writes layouts/<id>.json for each starter, ship and Dashboards. Since SpoolUp 2.1 these
+// are grid layouts that fit every screen, so each layouts/<id>-phone.json is the same
+// layout marked "hidden": players' settings that name a phone file keep working, and the
+// layout lists show it once. The buttons, keys and voice phrases are the HUD's own (ship
+// panels copy them under new ids), so the keybind profile is unchanged.
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
-const read = (file) => JSON.parse(fs.readFileSync(path.join(ROOT, "layouts", file), "utf8"));
+const hud = JSON.parse(fs.readFileSync(path.join(ROOT, "layouts", "hud.json"), "utf8"));
+const clone = (o) => JSON.parse(JSON.stringify(o));
 
-// The panels each half starts on, in order; the half's other panels follow.
+// The panels each half starts on, in order (the half's other panels follow), and the
+// dashboard the one-panel view starts on.
 const STARTERS = [
-  {
-    id: "combat", name: "Combat",
-    tablet: [["power-landing", "shields", "targets", "flight-assist"], ["combat", "qt-systems", "modes", "crew"]],
-    phone: [["landing", "power", "shields", "targets", "flight-assist"], ["combat", "systems", "emergency", "modes", "crew"]],
-  },
-  {
-    id: "mining-salvage", name: "Mining & Salvage",
-    tablet: [["mining", "salvage", "power-landing", "flight-assist"], ["modes", "qt-systems", "crew", "on-foot"]],
-    phone: [["mining", "salvage", "landing", "power"], ["modes", "systems", "emergency", "crew", "on-foot"]],
-  },
-  {
-    id: "hauling-exploration", name: "Hauling & Exploration",
-    tablet: [["power-landing", "flight-assist", "targets"], ["qt-systems", "crew", "on-foot", "emotes"]],
-    phone: [["landing", "power", "flight-assist", "targets"], ["systems", "emergency", "crew", "on-foot", "emotes-1", "emotes-2"]],
-  },
+  { id: "combat", name: "Combat", halves: [["power-landing", "shields", "targets", "flight-assist"], ["combat", "qt-systems", "modes", "crew"]], full: ["combat-dash"] },
+  { id: "mining-salvage", name: "Mining & Salvage", halves: [["mining", "salvage", "power-landing", "flight-assist"], ["modes", "qt-systems", "crew", "on-foot"]], full: ["industry"] },
+  { id: "hauling-exploration", name: "Hauling & Exploration", halves: [["power-landing", "flight-assist", "targets"], ["qt-systems", "crew", "on-foot", "emotes"]], full: ["pilot"] },
 ];
 
-// Ship layouts: a panel (two on phones) of that ship's controls, made from the HUD's own
-// buttons, comes first; the starter's panels and then everything else follow. Each group
-// is a header and a grid of button ids from layouts/hud.json.
+// Every button and element in the HUD by id.
+const byId = new Map();
+(function scan(node) {
+  if (Array.isArray(node)) { node.forEach(scan); return; }
+  if (!node || typeof node !== "object") return;
+  if (typeof node.id === "string" && !byId.has(node.id)) byId.set(node.id, node);
+  for (const v of Object.values(node)) if (v && typeof v === "object") scan(v);
+})(hud.panels);
+const need = (id) => { if (!byId.has(id)) throw new Error(`No "${id}" in layouts/hud.json`); return byId.get(id); };
+
+// A copy of an element with every id in it prefixed, since a layout can't use a button id
+// twice; with the same keys the copies share voice phrases and lit states.
+function prefixed(prefix, el) {
+  const copy = clone(el);
+  (function walk(n) {
+    if (Array.isArray(n)) { n.forEach(walk); return; }
+    if (!n || typeof n !== "object") return;
+    if (typeof n.id === "string") n.id = `${prefix}-${n.id}`;
+    for (const v of Object.values(n)) if (v && typeof v === "object") walk(v);
+  })(copy);
+  return copy;
+}
+// A button item (ids of the HUD's buttons) under the ship's prefix.
+const button = (prefix, id, span) => {
+  const { type, span: _s, size, when, at, ...rest } = clone(need(id));
+  return { type: "button", ...rest, id: `${prefix}-${id}`, span };
+};
+const group = (prefix, id, title, items) => ({ type: "group", id: `${prefix}-${id}`, title, cols: 6, span: [6, Math.ceil(items.length / 3)], elements: items });
+
+// Ship layouts: a panel of that ship's controls, made from the HUD's own cluster and
+// buttons, comes first in the left half; the starter's panels and everything else follow.
 const SHIPS = [
   {
     id: "prospector", name: "Prospector", prefix: "pr", like: "mining-salvage",
-    tablet: [{ title: "Prospector", groups: [
-      ["Laser", 2, ["mn-mode", "md-scan", "mn-fire", "mn-type", "mn-power-down", "mn-power-up"]],
-      ["Modules", 3, ["mn-module-1", "mn-module-2", "mn-module-3"]],
-      ["Ship", 2, ["qt-flight-ready", "pl-gear", "fa-lights", "md-flight", "qt-engage", "fa-exit"]],
-    ] }],
-    phone: [
-      { title: "Prospector", groups: [
-        ["Laser", 3, ["mn-mode", "mn-fire", "mn-type", "mn-power-down", "mn-power-up", "md-scan"]],
-        ["Modules", 3, ["mn-module-1", "mn-module-2", "mn-module-3"]],
-      ] },
-      { title: "Prospector Flight", groups: [
-        [null, 3, ["qt-flight-ready", "pl-gear", "fa-lights", "md-flight", "qt-engage", "fa-exit"]],
-      ] },
-    ],
+    panel: (p) => ({ title: "Prospector", cols: 6, elements: [
+      { ...prefixed(p, need("mn-cluster")), span: [6, 4] },
+      group(p, "ship", "Ship", ["qt-flight-ready", "pl-gear", "fa-lights", "op-mining", "op-scan", "op-flight", "qt-engage", "fa-exit", "qt-scm-nav"].map((id) => button(p, id, [2, 1]))),
+    ] }),
   },
   {
     id: "vulture", name: "Vulture", prefix: "vu", like: "mining-salvage",
-    tablet: [{ title: "Vulture", groups: [
-      ["Salvage", 2, ["md-salvage", "md-scan", "sv-mod-left", "sv-mod-right", "sv-spacing-down", "sv-spacing-up"]],
-      ["Ship", 2, ["qt-flight-ready", "pl-gear", "pl-vtol", "fa-lights", "qt-engage", "md-flight"]],
-      ["Doors", 3, ["cr-doors-open", "cr-doors-close", "fa-exit"]],
-    ] }],
-    phone: [
-      { title: "Vulture", groups: [
-        ["Salvage", 3, ["md-salvage", "sv-mod-left", "sv-mod-right", "md-scan", "sv-spacing-down", "sv-spacing-up"]],
-      ] },
-      { title: "Vulture Flight", groups: [
-        [null, 3, ["qt-flight-ready", "pl-gear", "pl-vtol", "fa-lights", "qt-engage", "md-flight", "cr-doors-open", "cr-doors-close", "fa-exit"]],
-      ] },
-    ],
+    panel: (p) => ({ title: "Vulture", cols: 6, elements: [
+      { ...prefixed(p, need("sv-cluster")), span: [6, 3] },
+      group(p, "ship", "Ship", ["op-salvage", "op-scan", "op-flight", "qt-flight-ready", "pl-gear", "pl-vtol", "fa-lights", "qt-engage", "qt-scm-nav"].map((id) => button(p, id, [2, 1]))),
+      group(p, "doors", "Doors", ["cr-doors-open", "cr-doors-close", "fa-exit"].map((id) => button(p, id, [2, 1]))),
+    ] }),
   },
 ];
 
 // Every panel stays: each half shows the starter's panels first, then the rest of that
 // half's panels in the HUD's order, so nothing (emotes, on foot...) is ever out of reach.
 // Panels in "extra" (ship panels) aren't the HUD's; they go first and are added.
-function starter(base, name, halves, note, extra = {}) {
-  const regions = base.regions.map((r, i) => {
-    for (const id of halves[i]) if (!r.panels.includes(id) && !extra[id]) throw new Error(`Panel "${id}" isn't in the ${r.id} half of ${base.name}`);
-    return { ...r, panels: [...halves[i], ...r.panels.filter((id) => !halves[i].includes(id))] };
-  });
-  return { name, notes: note, canvas: base.canvas, chrome: base.chrome, regions, panels: { ...extra, ...base.panels } };
+function starter(name, halves, full, note, extra = {}) {
+  const base = hud.grid.halves;
+  const order = (want, have, side) => {
+    for (const id of want) if (!have.includes(id) && !extra[id]) throw new Error(`Panel "${id}" isn't in the ${side} half of the HUD`);
+    return [...want, ...have.filter((id) => !want.includes(id))];
+  };
+  for (const id of full) if (!hud.panels[id]) throw new Error(`No dashboard "${id}" in the HUD`);
+  return {
+    name, notes: note,
+    grid: {
+      ...clone(hud.grid),
+      halves: { left: order(halves[0], base.left, "left"), right: order(halves[1], base.right, "right") },
+      full: [...full, ...(hud.grid.full || []).filter((id) => !full.includes(id))],
+    },
+    chrome: clone(hud.chrome),
+    panels: { ...extra, ...clone(hud.panels) },
+  };
 }
-
-// Every button in a layout by id (grid buttons included).
-function buttonsById(layout) {
-  const byId = new Map();
-  (function scan(node) {
-    if (Array.isArray(node)) { node.forEach(scan); return; }
-    if (!node || typeof node !== "object") return;
-    if (typeof node.id === "string" && typeof node.keys === "string") byId.set(node.id, node);
-    for (const v of Object.values(node)) if (v && typeof v === "object") scan(v);
-  })(layout.panels);
-  return byId;
-}
-
-// A ship panel: headers and grids stacked down the region's body, rows sized to fit.
-// Buttons are copies under "<prefix>-<id>", since a layout can't use an id twice; with the
-// same keys they share voice phrases and lit states with the originals.
-function shipPanel(spec, prefix, byId, width, bodyHeight, phone) {
-  const HEADER = phone ? 20 : 24, GAP = phone ? 10 : 20;
-  const groups = spec.groups.map(([header, cols, ids]) => ({ header, cols, rows: Math.ceil(ids.length / cols), ids }));
-  const rows = groups.reduce((n, g) => n + g.rows, 0);
-  const fixed = groups.reduce((n, g) => n + (g.header ? HEADER : 0), 0) + GAP * (groups.length - 1) + (phone ? 0 : 8);
-  const rowHeight = Math.min(phone ? 60 : 100, Math.floor((bodyHeight - fixed) / rows));
-  const elements = [];
-  let y = phone ? 0 : 8;
-  for (const g of groups) {
-    if (g.header) { elements.push({ type: "header", text: g.header, x: 2, y }); y += HEADER; }
-    const buttons = g.ids.map((id) => {
-      const src = byId.get(id);
-      if (!src) throw new Error(`No button "${id}" in the HUD layout`);
-      const { type, x, y: _y, w, h, ...rest } = JSON.parse(JSON.stringify(src)); // the grid places it
-      return { ...rest, id: `${prefix}-${id}` };
-    });
-    // Short rows put the icon beside the label (compact), or the label won't fit under it.
-    const compact = phone || rowHeight < 96;
-    elements.push({ type: "grid", x: 0, y, w: width, h: rowHeight * g.rows, cols: g.cols, ...(compact ? { compact: true } : {}), buttons });
-    y += rowHeight * g.rows + GAP;
-  }
-  return { title: spec.title, elements };
-}
-
-const tablet = read("hud.json"), phone = read("hud-phone.json");
-const tabletButtons = buttonsById(tablet);
-// The space a panel gets: the region minus its pager.
-const body = (layout) => ({ w: layout.regions[0].w, h: layout.regions[0].h - (layout.canvas[1] < 500 ? 44 : 52) });
 
 const note = "Generated by tools/make-starter-layouts.js from the HUD layout; edit that script, not this file.";
 const outputs = [];
-for (const s of STARTERS) {
-  outputs.push([`${s.id}.json`, starter(tablet, s.name, s.tablet, note)]);
-  outputs.push([`${s.id}-phone.json`, starter(phone, `${s.name} (iPhone)`, s.phone, note)]);
-}
+for (const s of STARTERS) outputs.push([s.id, starter(s.name, s.halves, s.full, note)]);
 for (const ship of SHIPS) {
   const like = STARTERS.find((s) => s.id === ship.like);
-  for (const [base, specs, halves, suffix, label] of [
-    [tablet, ship.tablet, like.tablet, "", ship.name],
-    [phone, ship.phone, like.phone, "-phone", `${ship.name} (iPhone)`],
-  ]) {
-    const isPhone = base.canvas[1] < 500;
-    const size = body(base);
-    const extra = {};
-    specs.forEach((spec, i) => {
-      extra[`${ship.id}${i ? `-${i + 1}` : ""}`] = shipPanel(spec, ship.prefix, tabletButtons, size.w, size.h, isPhone);
-    });
-    const left = [...Object.keys(extra), ...halves[0]];
-    outputs.push([`${ship.id}${suffix}.json`, starter(base, label, [left, halves[1]], note, extra)]);
-  }
+  const extra = { [ship.id]: ship.panel(ship.prefix) };
+  outputs.push([ship.id, starter(ship.name, [[ship.id, ...like.halves[0]], like.halves[1]], like.full, note, extra)]);
 }
-for (const [file, layout] of outputs) {
-  fs.writeFileSync(path.join(ROOT, "layouts", file), JSON.stringify(layout, null, 2) + "\n");
-  console.log(`Wrote layouts/${file}: ${layout.regions.map((r) => r.panels.length).join(" + ")} panels.`);
+
+// Dashboards: wide panels of clusters only, one at a time on every screen. The HUD's
+// panels stay in the file (the dashboards show their clusters by reference) but aren't on
+// a track, so paging goes through the dashboards alone.
+// `small` is its size on a phone, or false to leave it to its own panel there, so a phone
+// shows the dashboard's essentials without scrolling.
+const ref = (panel, id, span, small) => {
+  need(id);
+  const r = { type: "ref", id: `${panel}-${id}`, ref: id, span };
+  if (small === false) r.only = "large";
+  else if (small) r.size = { small };
+  return r;
+};
+const dashboards = {
+  ...clone(Object.fromEntries((hud.grid.full || []).map((id) => [id, hud.panels[id]]))),
+  hauling: { title: "Hauling", cols: 12, wide: true, elements: [
+    ref("hl", "pl-group", [4, 3]), ref("hl", "qt-quantum", [4, 3], [4, 2]), ref("hl", "cr-hull", [4, 3]),
+    ref("hl", "qt-modes", [4, 5], false), ref("hl", "pw-group", [4, 5], false), ref("hl", "cr-turrets", [4, 2]),
+    ref("hl", "qt-bus", [4, 1]), ref("hl", "fa-bank", [4, 1]),
+  ] },
+};
+outputs.push(["dashboards", {
+  name: "Dashboards",
+  notes: `${note} Wide dashboards of the HUD's clusters, one at a time.`,
+  grid: { ...clone(hud.grid), start: { small: "full", large: "full" }, halves: { left: [], right: [] }, full: Object.keys(dashboards) },
+  chrome: clone(hud.chrome),
+  panels: { ...dashboards, ...Object.fromEntries(Object.entries(clone(hud.panels)).filter(([id]) => !dashboards[id])) },
+}]);
+
+// Every button id must be unique within a layout.
+function checkIds(layout, file) {
+  const seen = new Set();
+  (function check(node) {
+    if (Array.isArray(node)) { node.forEach(check); return; }
+    if (!node || typeof node !== "object") return;
+    if (typeof node.id === "string" && typeof node.keys === "string") {
+      if (seen.has(node.id)) throw new Error(`${file}: duplicate id "${node.id}"`);
+      seen.add(node.id);
+    }
+    for (const v of Object.values(node)) if (v && typeof v === "object") check(v);
+  })(layout);
+}
+
+for (const [id, layout] of outputs) {
+  checkIds(layout, id);
+  const write = (file, obj) => fs.writeFileSync(path.join(ROOT, "layouts", file), JSON.stringify(obj, null, 2) + "\n");
+  write(`${id}.json`, layout);
+  // Phone copy: the same layout, hidden from the lists (Dashboards is new, so has none).
+  if (id !== "dashboards") write(`${id}-phone.json`, { name: layout.name, notes: layout.notes, hidden: true, ...Object.fromEntries(Object.entries(layout).filter(([k]) => !["name", "notes"].includes(k))) });
+  const t = layout.grid;
+  console.log(`Wrote layouts/${id}.json${id === "dashboards" ? "" : ` (and ${id}-phone.json)`}: ${t.halves.left.length} + ${t.halves.right.length} panels, ${t.full.length} dashboards.`);
 }

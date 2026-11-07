@@ -4,7 +4,7 @@
 // to hear them over the game): the tablet sends the same tone list over its connection and
 // native/sound.exe synthesizes it there. Nothing goes anywhere else.
 //
-// DeckSound.play(name, colour) plays a one-off sound; DeckSound.spool(kind, ms) plays the
+// DeckSound.play(name, color) plays a one-off sound; DeckSound.spool(kind, ms) plays the
 // rising sound of a hold (a quantum charge, self-destruct arming) and returns a function that
 // stops it early. With sounds off, both do nothing.
 (() => {
@@ -31,13 +31,13 @@
     return { type, f0, f1, len, level, at, attack: 0.005, sustain: 0, release: 0, lp0: 0, lp1: 0, ...more };
   };
 
-  // A press chirps at a pitch that follows the button's colour, so weapons sound lower than
-  // navigation, the way the colours already read.
+  // A press chirps at a pitch that follows the button's color, so weapons sound lower than
+  // navigation, the way the colors already read.
   const PITCH = { "": 784, green: 880, blue: 988, amber: 659, red: 523 };
   const MOST_TICKS = 40; // a long hold's ticks stop here, well inside what the PC accepts
   const BANK = {
-    press(colour) {
-      const f = PITCH[colour] || PITCH[""];
+    press(color) {
+      const f = PITCH[color] || PITCH[""];
       return [T("triangle", [f * 1.5, f], 0.07, 0.5), T("sine", f * 2, 0.035, 0.12)];
     },
     page: () => [T("sine", [1400, 900], 0.05, 0.22)],
@@ -154,9 +154,9 @@
   }
   const newId = () => { const id = nextId; nextId = nextId >= 2147483646 ? 1 : nextId + 1; return id; };
 
-  function play(name, colour) {
+  function play(name, color) {
     if (!isOn() || !BANK[name]) return;
-    const tones = BANK[name](colour || "");
+    const tones = BANK[name](color || "");
     if (!toThePC(name, tones, newId()) && ready()) schedule(ctx, out, tones);
   }
 

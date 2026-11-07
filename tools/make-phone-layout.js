@@ -1,204 +1,22 @@
-// Builds layouts/hud-phone.json (iPhone landscape) from layouts/hud.json.
-// Button definitions (keys, scAction, anim, colours) are copied from the tablet layout
-// by id, so only positions live here. Re-run after changing the tablet layout:
+// Writes layouts/hud-phone.json, a hidden copy of layouts/hud.json.
+//
+// Since SpoolUp 2.1, hud.json is a grid layout that fits every screen, so there's no
+// separate phone design any more. The file stays, because players' settings (config.json's
+// phoneLayout, a phone's saved choice) name it; "hidden" keeps it out of the layout lists.
+// The 2.0 phone layout is kept as it was in layouts/hud-classic-phone.json.
+//
 //   node tools/make-phone-layout.js
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
-const tablet = JSON.parse(fs.readFileSync(path.join(ROOT, "layouts/hud.json"), "utf8"));
-
-// 734x372 = iPhone 15 Pro landscape (852x393 pt) minus the Dynamic Island insets
-// (59 pt each side) and the home indicator (21 pt). Shown at 1:1 from the home screen.
-const W = 734, H = 372;
-const REGION = { y: 50, w: 359, h: 322, pager: 36 };
-const BODY_H = REGION.h - REGION.pager - 8; // 278
-
-// Index every element with an id from the tablet layout.
-const byId = new Map();
-(function scan(node) {
-  if (Array.isArray(node)) { node.forEach(scan); return; }
-  if (!node || typeof node !== "object") return;
-  if (typeof node.id === "string") byId.set(node.id, node);
-  for (const v of Object.values(node)) if (v && typeof v === "object") scan(v);
-})(tablet);
-
-// Copy a tablet element by id and place it at a new box.
-function at(id, x, y, w, h, extra = {}) {
-  const src = byId.get(id);
-  if (!src) throw new Error(`No element "${id}" in hud.json`);
-  const copy = JSON.parse(JSON.stringify(src));
-  // Grid buttons have no "type"; placed on their own they must be explicit buttons.
-  return { type: "button", ...copy, x, y, w, h, ...extra };
-}
-const el = (obj) => obj;
-
-// Re-flow a tablet grid panel into the phone body.
-function gridPanel(id, cols, title) {
-  const src = tablet.panels[id];
-  const grid = src.elements.find((e) => e.type === "grid");
-  return {
-    title: title || src.title,
-    elements: [{ type: "grid", x: 0, y: 0, w: REGION.w, h: BODY_H, cols, compact: true, buttons: grid.buttons }],
-  };
-}
-
-// ---------- chrome ----------
-const top = (id, i) => at(id, 440 + i * 50, 0, 44, 36);
-const chrome = [
-  { type: "action", action: "menu", icon: "emblem", x: 0, y: 0, w: 46, h: 36 },
-  { type: "status", x: 56, y: 12 },
-  { type: "talk", label: "Hold to talk", x: 274, y: 0, w: 120, h: 36 },
-  { type: "voicehelp", x: 398, y: 0, w: 36, h: 36 },
-  top("top-atc", 0), top("top-chat", 1), top("top-contacts", 2), top("top-starmap", 3), top("top-mobiglas", 4),
-  { type: "action", action: "theme", icon: "sliders", x: 690, y: 0, w: 44, h: 36 },
-  { type: "rule", x: 0, y: 42, w: W },
-  { type: "divider", x: 367, y: 52, h: 318 },
-];
-
-// ---------- hand-placed panels ----------
-const landing = ["approach", "landing"], docking = ["approach", "docking"];
-const stateHeader = tablet.panels["power-landing"].elements.find((e) => e.type === "state-header");
-const sw = tablet.panels["power-landing"].elements.find((e) => e.type === "switch");
-
-const panels = {
-  landing: {
-    title: "Landing",
-    elements: [
-      { ...stateHeader, x: 2, y: 2 },
-      { ...sw, x: 259, y: 0, w: 100, h: 24 },
-      at("pl-gear-lever", 0, 28, 84, 130, { when: landing }),
-      at("pl-vtol", 94, 32, 265, 58, { when: landing }),
-      at("pl-autoland", 94, 98, 265, 58, { when: landing }),
-      at("pl-request-dock", 0, 32, 175, 62, { when: docking }),
-      at("pl-dock-vtol", 184, 32, 175, 62, { when: docking }),
-      at("pl-dock-cam", 0, 102, 359, 54, { when: docking }),
-      at("fa-lights", 0, 166, 175, 52, { id: "ph-lights", style: "std" }),
-      at("fa-exit", 184, 166, 175, 52, { id: "ph-exit", style: "std" }),
-      at("fa-limiter", 0, 226, 175, 52, { id: "ph-limiter", style: "std" }),
-      at("fa-look-behind", 184, 226, 175, 52, { id: "ph-look-behind", style: "std" }),
-    ],
-  },
-
-  power: {
-    title: "Power",
-    elements: [
-      el({ type: "vlabel", text: "Max", x: 0, y: 0, w: 24, h: 40 }),
-      el({ type: "vlabel", text: "Taps sent", x: 0, y: 46, w: 24, h: 130 }),
-      el({ type: "vlabel", text: "Min", x: 0, y: 182, w: 24, h: 40 }),
-      ...["wep", "thr", "shd"].flatMap((s, i) => {
-        const x = 30 + i * 110;
-        return [
-          at(`pw-${s}-max`, x, 0, 104, 40),
-          at(`pw-${s}-level`, x, 46, 104, 130),
-          at(`pw-${s}-min`, x, 182, 104, 40),
-        ];
-      }),
-      at("pw-reset", 0, 230, 230, 44),
-      at("pw-centre", 238, 230, 121, 44),
-    ],
-  },
-
-  systems: {
-    title: "QT/Systems",
-    elements: [
-      el({ type: "header", text: "Ship_systems", x: 2, y: 2 }),
-      at("qt-pwr", 0, 20, 85, 52), at("qt-wep", 91, 20, 85, 52), at("qt-thr", 182, 20, 85, 52), at("qt-shld", 273, 20, 86, 52),
-      at("qt-flight-ready", 0, 84, 359, 62),
-      at("qt-engage", 34, 168, 291, 96),
-    ],
-  },
-
-  // The operator-mode dial needs a panel of its own on a phone.
-  "master-modes": {
-    title: "Master Modes",
-    elements: [at("qt-modes", 0, 0, REGION.w, BODY_H)],
-  },
-
-  mining: (() => {
-    const [laser, modules] = tablet.panels.mining.elements.filter((e) => e.type === "grid");
-    return {
-      title: "Mining",
-      elements: [
-        at("mn-mode", 0, 0, 359, 40),
-        el({ type: "header", text: "Laser", x: 2, y: 50 }),
-        { type: "grid", x: 0, y: 70, w: 359, h: 112, cols: 2, compact: true, buttons: laser.buttons },
-        el({ type: "header", text: "Modules", x: 2, y: 192 }),
-        { type: "grid", x: 0, y: 212, w: 359, h: 64, cols: 3, compact: true, buttons: modules.buttons },
-      ],
-    };
-  })(),
-
-  emergency: {
-    title: "Emergency",
-    elements: [
-      el({ type: "header", text: "Emergency", x: 2, y: 2 }),
-      el({ type: "danger-zone", x: 0, y: 22, w: 359, h: 92 }),
-      at("qt-eject", 12, 40, 236, 56),
-      at("qt-self-destruct", 258, 43, 90, 50),
-      at("cb-decoy", 0, 126, 175, 64, { id: "ph-decoy" }),
-      at("cb-noise", 184, 126, 175, 64, { id: "ph-noise" }),
-      at("cb-panic", 0, 198, 359, 74, { id: "ph-panic", style: "std" }),
-    ],
-  },
+const hud = JSON.parse(fs.readFileSync(path.join(ROOT, "layouts", "hud.json"), "utf8"));
+const copy = {
+  name: hud.name,
+  notes: "Generated by tools/make-phone-layout.js: a hidden copy of hud.json, kept for settings that name this file. Edit hud.json, then re-run it.",
+  hidden: true,
+  ...Object.fromEntries(Object.entries(hud).filter(([k]) => !["name", "notes", "hidden"].includes(k))),
 };
-
-// ---------- re-flowed grid panels ----------
-Object.assign(panels, {
-  "flight-assist": (() => {
-    const [top, rest] = tablet.panels["flight-assist"].elements.filter((e) => e.type === "grid");
-    return {
-      title: "Flight Assist",
-      elements: [
-        { type: "grid", x: 0, y: 0, w: REGION.w, h: 56, cols: 3, compact: true, buttons: top.buttons },
-        at("fa-throttle", 0, 64, 110, 80, { style: "std" }),
-        at("fa-range", 118, 64, 241, 80),
-        { type: "grid", x: 0, y: 152, w: REGION.w, h: 126, cols: 3, compact: true, buttons: rest.buttons },
-      ],
-    };
-  })(),
-  shields: gridPanel("shields", 3),
-  targets: gridPanel("targets", 2),
-  salvage: gridPanel("salvage", 2),
-  modes: gridPanel("modes", 3),
-  combat: gridPanel("combat", 2),
-  crew: gridPanel("crew", 2),
-  "on-foot": gridPanel("on-foot", 2),
-  comms: gridPanel("comms", 3),
-});
-// 34 emotes don't fit one phone panel; split them over two.
-const emotes = tablet.panels.emotes.elements.find((e) => e.type === "grid").buttons;
-const half = Math.ceil(emotes.length / 2);
-panels["emotes-1"] = { title: "Emotes 1", elements: [{ type: "grid", x: 0, y: 0, w: REGION.w, h: BODY_H, cols: 4, compact: true, buttons: emotes.slice(0, half) }] };
-panels["emotes-2"] = { title: "Emotes 2", elements: [{ type: "grid", x: 0, y: 0, w: REGION.w, h: BODY_H, cols: 4, compact: true, buttons: emotes.slice(half) }] };
-
-const phone = {
-  name: "SpoolUp HUD (iPhone)",
-  notes: "Generated by tools/make-phone-layout.js from hud.json; edit that script or the tablet layout, then re-run it. Canvas 734x372 = iPhone 15 Pro landscape safe area.",
-  canvas: [W, H],
-  chrome,
-  regions: [
-    { id: "left", x: 0, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
-      panels: ["landing", "power", "flight-assist", "shields", "targets", "salvage", "mining"] },
-    { id: "right", x: 375, y: REGION.y, w: REGION.w, h: REGION.h, pager: REGION.pager,
-      panels: ["systems", "master-modes", "emergency", "modes", "combat", "crew", "on-foot", "comms", "emotes-1", "emotes-2"] },
-  ],
-  panels,
-};
-
-// Every button id must be unique within a layout.
-const seen = new Set();
-(function check(node) {
-  if (Array.isArray(node)) { node.forEach(check); return; }
-  if (!node || typeof node !== "object") return;
-  if (typeof node.id === "string" && typeof node.keys === "string") {
-    if (seen.has(node.id)) throw new Error(`Duplicate id "${node.id}"`);
-    seen.add(node.id);
-  }
-  for (const v of Object.values(node)) if (v && typeof v === "object") check(v);
-})(phone);
-
-const out = path.join(ROOT, "layouts/hud-phone.json");
-fs.writeFileSync(out, JSON.stringify(phone, null, 2) + "\n");
-console.log(`Wrote ${path.relative(ROOT, out)}: ${seen.size} buttons, ${Object.keys(panels).length} panels.`);
+fs.writeFileSync(path.join(ROOT, "layouts", "hud-phone.json"), JSON.stringify(copy, null, 2) + "\n");
+console.log("Wrote layouts/hud-phone.json (a hidden copy of hud.json).");

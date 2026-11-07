@@ -23,6 +23,8 @@
 <link rel="stylesheet" href="hud.css">
 <link rel="stylesheet" href="fx.css">
 <link rel="stylesheet" href="makers.css">
+<link rel="stylesheet" href="clusters.css">
+<link rel="stylesheet" href="emotes.css">
 <link rel="stylesheet" href="intro.css">
 </head>
 <body class="offline">
@@ -59,6 +61,11 @@
 
 <div id="night" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="swipeHint" role="note" hidden>
+  <div class="sh-hands" aria-hidden="true"><i></i><i></i></div>
+  <div class="sh-text"><b></b><span class="sh-side"></span><span class="sh-ud"></span></div>
+  <button type="button" class="sh-ok"></button>
+</div>
 
 <div id="picker" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
   <div class="bar"><span id="pickerTitle">Deck settings</span>
@@ -79,11 +86,27 @@
         <button id="largeBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
           <span class="sw-text"><b>Large text</b><span>Bigger, bolder labels, easier to read at a glance.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <button id="contrastBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
-          <span class="sw-text"><b>High contrast</b><span>Black and white with strong colours, over any theme.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+          <span class="sw-text"><b>High contrast</b><span>Black and white with strong colors, over any theme.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <button id="keysBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
           <span class="sw-text"><b>Key labels</b><span>Show the key each button presses, from your game keybinds.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <button id="swipeBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
-          <span class="sw-text"><b>Two-finger swipe</b><span>Swipe sideways over a half to flip its panels. Presses then wait a moment.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+          <span class="sw-text"><b>Two-finger swipe</b><span>Swipe sideways with two fingers to flip panels. Presses wait a moment, so a swipe never presses a button.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+        <button id="swipe1Btn" class="sheet-switch" type="button" role="switch" aria-checked="false" hidden>
+          <span class="sw-text"><b>One-finger swipe</b><span>Also flip panels by swiping sideways anywhere with one finger, except on sliders and dials.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+        <div id="gestures" class="sheet-gestures" hidden>
+          <label for="gestureUp"><b>//</b> <span>Two-finger swipe up</span></label>
+          <select id="gestureUp"></select>
+          <label for="gestureDown"><b>//</b> <span>Two-finger swipe down</span></label>
+          <select id="gestureDown"></select>
+        </div>
+        <div id="densityRow" class="sheet-gestures" hidden>
+          <label for="densityPick"><b>//</b> <span>Button size</span></label>
+          <select id="densityPick">
+            <option value="compact">Compact</option>
+            <option value="default">Default</option>
+            <option value="roomy">Roomy</option>
+          </select>
+        </div>
         <button id="followBtn" class="sheet-switch" type="button" role="switch" aria-checked="true">
           <span class="sw-text"><b>Follow Stream Deck scenes</b><span>Picking a scene on a Stream Deck with the SpoolUp plugin flips this deck to its panels.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <button id="lightsBtn" class="sheet-switch" type="button" role="switch" aria-checked="true">
@@ -129,6 +152,10 @@
 <script src="i18n.js"></script>
 <script src="sound.js"></script>
 <script src="fx.js"></script>
+<script src="grid.js"></script>
+<script src="dial.js"></script>
+<script src="clusters.js"></script>
+<script src="emotes.js"></script>
 <script src="canvas.js"></script>
 <script src="app.js"></script>
 <script src="intro.js"></script>

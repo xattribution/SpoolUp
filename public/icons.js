@@ -133,6 +133,9 @@ window.DECK_ICONS = {
   mic: `<rect x="17" y="5" width="14" height="24" rx="7"/><path d="M10 22a14 14 0 0 0 28 0M24 36v7M17 43h14"/>
     <path d="M17 15h6M17 21h6" opacity=".55"/>`,
 
+  // The pager's view button: one panel, or two halves side by side.
+  "view-one": `<rect x="8" y="10" width="32" height="28" rx="3"/><path d="M14 17h20M14 23h20M14 29h12" opacity=".6"/>`,
+  "view-two": `<rect x="6" y="10" width="16" height="28" rx="3"/><rect x="26" y="10" width="16" height="28" rx="3"/>`,
   swap: `<path d="M8 16h28m-6-6 6 6-6 6M40 32H12m6-6-6 6 6 6"/>`,
 
   help: `<circle cx="24" cy="24" r="17"/><path d="M18.5 19a5.5 5.5 0 1 1 8 4.9c-1.8.9-2.5 2-2.5 3.6V29"/>

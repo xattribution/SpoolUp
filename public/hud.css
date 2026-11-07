@@ -1,4 +1,4 @@
-/* Canvas (HUD) layouts. All colour, shape and type comes from the theme variables. */
+/* Canvas (HUD) layouts. All color, shape and type comes from the theme variables. */
 
 body.canvas-mode > header, body.canvas-mode > nav, body.canvas-mode > main { display: none; }
 body.canvas-mode { overflow: hidden; }
@@ -41,11 +41,11 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 
 /* ---------- buttons ---------- */
 /* A button is drawn from variables set on the button itself, so a maker (makers.css) can
-   give each style its own face, marks and lit and pressed looks, in the button's colour
+   give each style its own face, marks and lit and pressed looks, in the button's color
    (--c):
      --face     the face's background layers (material, gradient)
      --mark     layers drawn over the face: rivets, tabs, stripes, sheen
-     --edge     border colour; --bevel the box-shadow that gives it depth
+     --edge     border color; --bevel the box-shadow that gives it depth
      --lit      layers added while lit (a state that's on); --lit-ring its box-shadow
      --press    layers added while pressed; --press-ring, --press-move its shadow and transform
      --deny     the red flash of a press the PC skipped */
@@ -108,7 +108,8 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
   font-size: 12px; padding: 0 6px; white-space: nowrap; letter-spacing: .04em;
 }
 
-.s-dial { justify-content: center; position: absolute; border-left: 2px solid var(--c); }
+.s-dial { justify-content: center; position: absolute; border-left: 2px solid var(--c); padding-right: 50px; }
+.s-dial .hud-lbl { text-align: center; }
 .s-dial .dial {
   position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   width: 38px; height: 38px; border-radius: 50%;
@@ -137,7 +138,7 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .s-hero, .s-quantum { position: absolute; }
 /* The status line ("HOLD TO ENGAGE") sits above the charge dots, not on top of them. */
 .s-quantum .fx-state { bottom: 19px; }
-/* Buttons with a status line under the label ("RETRACTED") centre label and status
+/* Buttons with a status line under the label ("RETRACTED") center label and status
    together, so they don't crowd each other. */
 .s-std:has(> .fx-state) { padding-bottom: 10px; }
 
@@ -181,6 +182,8 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-header b { color: var(--accent); margin-right: 2px; }
 .hud-header em { font-style: normal; color: var(--green); }
 .hud-header .b { color: var(--ink-dim); opacity: .8; }
+.hud-header.state > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-header.state.tight em { display: none; }
 
 .hud-vlabel {
   width: 40px; display: flex; align-items: center; justify-content: center;
@@ -278,7 +281,9 @@ body.offline #canvas .hud-panel, body.offline #canvas > .fx-host, body.offline #
 .hud-lever.lit.down .lv-lamps i { background: var(--green); box-shadow: 0 0 9px var(--green), inset 0 -1px 2px rgba(0,0,0,.3); }
 .hud-lever.lit.transit .lv-lamps i { background: var(--red); box-shadow: 0 0 9px var(--red), inset 0 -1px 2px rgba(0,0,0,.3); animation: lv-blink .9s steps(2, jump-none) infinite; }
 @keyframes lv-blink { 50% { opacity: .35; } }
-.hud-lever .lv-lbl { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+.hud-lever .lv-lbl { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; max-width: 100%; }
+/* In a box narrower than its name (a dashboard on a phone) the name wraps instead of spilling. */
+.hud-lever .lv-lbl .t { white-space: normal !important; }
 .hud-lever .lv-lbl .t {
   font: var(--label-weight) 12px/1.1 var(--font-body); color: var(--ink); white-space: nowrap;
   text-transform: var(--label-case); letter-spacing: min(var(--label-track), .08em);
@@ -291,9 +296,15 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 .compact .hud-lever { gap: 4px; --knob: 44px; }
 .compact .hud-lever .lv-lbl .t { font-size: 10.5px; }
 .compact .hud-lever .lv-lamps i { width: 9px; height: 9px; }
+.hud-lever.short { --knob: 32px; gap: 4px; padding-top: 0; }
+.hud-lever.short .lv-slot { min-height: 34px; width: 18px; }
+.hud-lever.short .lv-knob .hud-ico svg { width: 18px; height: 18px; }
+.hud-lever.short .lv-lamps { gap: 5px; }
+.hud-lever.short .lv-lamps i { width: 8px; height: 8px; }
+.hud-lever.short .lv-lbl { gap: 1px; }
 
 /* Level sliders (power) and the fader (speed range): a track with a tick per step, a
-   knob at the steps sent from the centre, a fill from the centre to it, and the count. */
+   knob at the steps sent from the center, a fill from the center to it, and the count. */
 .hud-level, .hud-fader { --pos: .5; --from: .5; --to: .5; --kh: 30px; --kw: 30px; cursor: grab; }
 .hud-level { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
 .hud-level .lvl-track, .hud-fader .lvl-track {
@@ -350,17 +361,20 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 .hud-fader .fd-row { flex: 1; display: flex; align-items: stretch; gap: 8px; }
 .hud-fader .fd-end { display: flex; align-items: center; font: 600 18px/1 var(--font-body); color: var(--ink-dim); }
 .hud-fader .lvl-track { --kw: 30px; }
-/* Centre sliders: an ordinary button whose status line says it presses nothing. */
-.s-recentre { flex-direction: row; font-size: 12px; gap: 8px; }
-.s-recentre .hud-lbl { white-space: nowrap; }
-.s-recentre .hud-ico svg { width: 20px; height: 20px; }
-.s-recentre .fx-state { position: absolute; left: 0; right: 0; bottom: 5px; text-align: center; font: 600 8.5px/1 var(--font-body); letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+/* Center sliders: an ordinary button whose status line says it presses nothing. */
+.s-recenter { flex-direction: row; font-size: 12px; gap: 8px; }
+.s-recenter .hud-lbl { white-space: nowrap; }
+#canvas[data-size="small"] .s-recenter { gap: 5px; padding: 0 6px; }
+#canvas[data-size="small"] .s-recenter .hud-lbl { white-space: normal; text-align: center; }
+#canvas[data-size="small"] .s-recenter .fx-state { display: none; }
+.s-recenter .hud-ico svg { width: 20px; height: 20px; }
+.s-recenter .fx-state { position: absolute; left: 0; right: 0; bottom: 5px; text-align: center; font: 600 8.5px/1 var(--font-body); letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
 .compact .hud-level { gap: 3px; }
 .compact .hud-level .lvl-read { font-size: 11px; }
 .compact .hud-level, .compact .hud-fader { --kh: 24px; --kw: 26px; }
 .compact .hud-level .lvl-cap .hud-ico { display: none; }
 .compact .hud-fader { gap: 4px; }
-.compact .s-recentre .fx-state { bottom: 3px; font-size: 7.5px; }
+.compact .s-recenter .fx-state { bottom: 3px; font-size: 7.5px; }
 
 /* Operator-mode dial: a round face with a tick per mode and a needle from the hub, the
    modes round it, the hub (SCM/NAV) in the middle. */
@@ -426,7 +440,7 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 
 /* ---------- regions, panels, pager ---------- */
 .hud-panel { left: 0; top: 0; right: 0; }
-/* Paging: the new panel slides in from the side you paged towards, with a short flicker. */
+/* Paging: the new panel slides in from the side you paged toward, with a short flicker. */
 .hud-panel.enter-next { animation: panel-in-next .22s ease-out; }
 .hud-panel.enter-prev { animation: panel-in-prev .22s ease-out; }
 @keyframes panel-in-next {
@@ -471,7 +485,7 @@ html[data-keys] .hud-lever > .hud-key { top: 0; right: 0; }
 /* ---------- key labels (Deck settings: Key labels) ---------- */
 /* The key a button presses, small in a free corner: top right, under a top-right status
    line in tablet grids, bottom right in phone grids (where the label fills the middle),
-   top centre on the big framed buttons (their corners are cut) and left of the dial. */
+   top center on the big framed buttons (their corners are cut) and left of the dial. */
 .hud-key { display: none; }
 html[data-keys] .hud-key {
   display: block; position: absolute; z-index: 2; top: 4px; right: 6px; pointer-events: none;
@@ -502,6 +516,8 @@ html[data-keys][data-large] .hud-key { font-size: 10px; }
 .hud-menu .hud-header { position: static; margin-bottom: 14px; font-size: 13px; }
 .hud-menu .opts { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 92px; gap: 12px; }
 .hud-menu .opts .hud-btn { position: relative; }
+/* A menu cell with an icon has its label at the bottom, so its state word goes top right. */
+.hud-menu .s-cell:has(> .hud-ico) > .fx-state { left: auto; right: 10px; top: 10px; bottom: auto; text-align: right; }
 
 /* ---------- phone-sized canvases ---------- */
 .compact .hud-pager .title { gap: 3px; }
@@ -532,3 +548,43 @@ html[data-keys][data-large] .hud-key { font-size: 10px; }
 .compact .s-hero .fx-state, .compact .s-quantum .fx-state { bottom: 3px; }
 .compact .hud-caption { gap: 2px; }
 .compact .hud-caption .hud-ico svg { width: 20px; height: 20px; }
+
+/* 2.1 engine */
+/* ---------- grid layouts (SpoolUp 2.1) ----------
+   The canvas is the screen at 1:1; the regions, cells and top bar are laid out by canvas.js
+   and grid.js, so these rules only add what the grid itself needs. */
+#canvas.grid-mode { touch-action: none; }
+.hud-group { isolation: isolate; }
+.hud-group > * { position: absolute; }
+.hud-group > .hud-group-title { left: 2px; top: 0; right: 0; height: 18px; overflow: hidden; text-overflow: ellipsis; }
+.compact .hud-group > .hud-group-title { font-size: 10px; }
+.hud-group.danger {
+  border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
+  background:
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--red) 9%, transparent) 0 8px, transparent 8px 16px),
+    color-mix(in srgb, var(--red) 10%, transparent);
+  border-radius: var(--btn-radius);
+}
+/* A panel with more rows than fit scrolls up and down; a vertical drag that starts on a
+   button scrolls it too (the press waits, and the browser's scroll cancels it). Controls
+   that are dragged keep every touch to themselves. */
+.grid-mode .hud-panel.scrolls { overflow-x: hidden; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; scrollbar-width: none; }
+.grid-mode .hud-panel.scrolls::-webkit-scrollbar { display: none; }
+.grid-mode .hud-panel.scrolls .hud-btn { touch-action: pan-y; }
+.grid-mode .hud-panel.scrolls [data-drag], .grid-mode .hud-panel.scrolls [data-drag] .hud-btn { touch-action: none; }
+.grid-mode .hud-grid { align-content: stretch; }
+/* The top bar's status line shows only its dot when the bar is crowded. */
+.hud-status.dot-only .js-status { display: none; }
+.grid-mode .hud-status { overflow: hidden; white-space: nowrap; }
+/* The pager's view button (two halves / one panel) sits after Next. */
+.hud-pager.has-mode .next { right: calc(var(--pager-h, 44px) * 1.45 + 6px); }
+.hud-pager.has-mode .mode { right: 0; }
+.hud-pager.has-mode .title { right: calc(var(--pager-h, 44px) * 2.9 + 14px); }
+.compact .hud-pager .dots { gap: 3px; max-width: 100%; }
+.grid-mode.compact .hud-pager .dots i { width: 7px; }
+/* While two fingers (or one, with one-finger swipes) page the deck, nothing looks pressed. */
+#canvas.swiping .hud-btn.pressed { --press: none; --press-ring: none; }
+/* Quick actions and menus never run off a small screen. */
+.grid-mode .hud-menu .sheet { max-width: calc(100% - 24px); max-height: calc(100% - 24px); overflow-y: auto; }
+.grid-mode.compact .hud-menu .opts { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); grid-auto-rows: minmax(66px, auto); }
+.grid-mode.compact .hud-menu .s-cell .hud-ico svg { width: 22px; height: 22px; }
