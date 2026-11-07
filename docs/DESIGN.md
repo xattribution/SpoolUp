@@ -137,15 +137,27 @@ still draws its own (no two makers share a dial shape). The drawings:
 - **Shields:** the ship from above in the middle, five segments on each face's
   arc (lit up to the steps sent), a side view for top and bottom, and an outer
   ring that is the power switch. No words.
-- **Targeting:** a reticle with a center pip (next), chevrons left and right,
-  four corner brackets with their icon, and an inner ring for sub-targets.
-- **Lights and doors:** the ship from the side with its headlight cone, the
-  ramp under it and a padlock above.
-- **Turrets:** the ship from behind with numbered pods.
-- **Countermeasures:** Panic under a hazard-striped flip cover, with Decoy and
-  Noise as tall tubes at the sides.
-- **Quantum:** a spool ring that fills while Engage is held, and Flight Ready
-  as the arc beside it.
+- **Targeting:** a reticle (corner brackets, crosshair, a ring for
+  sub-targets, the center pip for next) between the deck's own buttons: the
+  four cycles, each with its own glyph, and Previous and Next Hostile as
+  chevrons at its sides.
+- **Lights and doors:** Lights, Lock and Unlock as buttons, and the doors
+  drawn as a frame on a sill with two leaves that slide apart while open; the
+  maker sets the frame and sill (Drake's hazard sill, Origin's gold hairline,
+  Argo's yellow load frame).
+- **Turrets:** plain buttons with the turret icon and T1, T2, T3.
+- **Countermeasures:** two backing plates, defense (Decoy and Noise either
+  side of Panic under a hazard-striped flip cover) over weapons (Launch
+  Missile, then Fewer Missiles and the pips, each with its own glyph); each
+  maker draws the plates its own way.
+- **Quantum:** a spool ring that fills while Engage is held, with the drive's
+  rails out to the sides on a wide box. Flight Ready sits with the power
+  switches, a start-up control, not here.
+
+With **Icons only** (Deck settings, or a layout's `labels`) a button shows its
+icon alone: give buttons that would look alike a glyph or number of their own
+(the targeting cycles, Fewer Missiles, turret seats, mining modules), and keep
+words on a button with no icon.
 - **Mining** and **salvage heads:** the head's art in the middle (the laser's
   power gauge and Fracture/Extract switch; the salvage beams that widen and
   narrow) with their buttons around it.

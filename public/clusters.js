@@ -1,7 +1,7 @@
 // Cockpit clusters (SpoolUp 2.1): each grouping of controls drawn as one instrument you can
-// place on any panel or dashboard. Shields, targeting, the hull's lights and doors,
-// turrets, countermeasures, the quantum spool, the mining head, the salvage head and the
-// switch banks.
+// place on any panel or dashboard. Shields, targeting, the hull's lights and doors, the
+// turret seats, countermeasures, the quantum spool, the mining head, the salvage head and
+// the switch banks.
 //
 // The rule that holds for all of them: every gesture step is one tap of one existing
 // button. A tap on a part sends its button once, on lift, when the finger stayed put and
@@ -67,12 +67,11 @@
     return out;
   }
 
-  // Ship silhouettes, in a 100 x 100 box: from above (nose up), from the side (nose right),
-  // and from behind.
+  // Ship silhouettes, in a 100 x 100 box: from above (nose up) and from the side (nose
+  // right), for the shields.
   const SHIP_TOP = "M50 6L55 26L58 40L84 58L88 70L60 64L58 78L67 87L66 93L50 89L34 93L33 87L42 78L40 64L12 70L16 58L42 40L45 26Z";
   const SHIP_SIDE = "M4 56L18 50L34 47L46 36L62 36L72 45L90 50L97 54L92 58L70 62L22 63L8 61Z";
   const SHIP_SIDE_FIN = "M14 50L10 36L20 36L28 48Z";
-  const SHIP_BACK = "M50 38C58 38 62 44 62 50C62 56 58 62 50 62C42 62 38 56 38 50C38 44 42 38 50 38ZM38 50L6 54L6 58L40 56ZM62 50L94 54L94 58L60 56ZM50 38L47 22L53 22Z";
   const ship = (d, x, y, w, h, cls = "cl-ship") => `<path class="${cls}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(w / 100)} ${f1(h / 100)})" d="${d}"/>`;
 
   // ---------- shared plumbing ----------
@@ -325,18 +324,35 @@
 
   // ---------- targeting ----------
 
-  // A reticle: corner brackets cycle attackers, friendlies, anything and what's in view;
-  // the center pip (or a swipe right across it) is the next hostile, a swipe left the
-  // previous one; the inner ring cycles sub-targets.
-  const CORNERS = [
-    ["attacker", "tl", "Attacker"], ["friendly", "tr", "Friendly"], ["any", "bl", "Any"], ["view", "br", "In view"],
-  ];
-  const CORNER_GLYPH = {
-    attacker: `<path d="M12 3L21 12L12 21L3 12Z"/><path d="M12 8V13M12 16V16.5"/>`,
-    friendly: `<circle cx="12" cy="12" r="8"/><path d="M8 12.5L11 15L16 9.5"/>`,
-    any: `<rect x="4" y="4" width="16" height="16" rx="1"/><circle cx="12" cy="12" r="2"/>`,
-    view: `<path d="M2 12C5 6.5 19 6.5 22 12C19 17.5 5 17.5 2 12Z"/><circle cx="12" cy="12" r="3"/>`,
+  // A reticle between two columns of cycle buttons: attackers and anything on the left,
+  // friendlies and what's in view on the right, the previous and next hostile between
+  // them. The center pip (or a swipe right across the reticle) is the next hostile, a
+  // swipe left the previous one; the inner ring cycles sub-targets. On a box taller than
+  // wide the cycles sit in a row above and below the reticle instead.
+  const GLYPH = {
+    attacker: `<path d="M24 5 43 24 24 43 5 24Z"/><path d="M24 15v12M24 33v.5"/>`,
+    friendly: `<circle cx="24" cy="24" r="17"/><path d="m15 25 6.5 6.5L34 18"/>`,
+    any: `<rect x="8" y="8" width="32" height="32" rx="4"/><circle cx="24" cy="24" r="5"/>`,
+    view: `<path d="M4 24c7-12 33-12 40 0-7 12-33 12-40 0Z"/><circle cx="24" cy="24" r="6.5"/>`,
+    fewer: `<path d="M8 33 27 14l7-2-2 7-19 19Z"/><path d="m12 29-5-.5 3.5-3.5M19 36l.5 5 3.5-3.5" opacity=".65"/><path d="M33 37h11"/>`,
+    pips: `<circle cx="19" cy="29" r="11"/><path d="M19 22.5v-3M19 38.5v-3M12.5 29h-3M28.5 29h-3" opacity=".65"/><path d="m27 21 6-5" stroke-dasharray="2 3"/><circle cx="37.5" cy="12.5" r="4.5" fill="currentColor" stroke="none"/>`,
+    open: `<path d="M24 9v30" opacity=".5"/><path d="M19 24H6m0 0 5-5m-5 5 5 5M29 24h13m0 0-5-5m5 5-5 5"/>`,
+    close: `<path d="M24 9v30" opacity=".5"/><path d="M6 24h13m0 0-5-5m5 5-5 5M42 24H29m0 0 5-5m-5 5 5 5"/>`,
   };
+  const glyphSvg = (k) => `<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${GLYPH[k]}</svg>`;
+  // A button's visible word, and its picture where the layout kept the HUD's own icon
+  // (several parts share one, like every targeting cycle's crosshair); the button's name,
+  // title and voice phrase stay its full label.
+  function face(b, ctx, word, glyph, keepIcon) {
+    if (!b) return b;
+    const lbl = b.querySelector(".hud-lbl");
+    if (lbl && word) lbl.textContent = ctx.tr(word);
+    const ico = b.querySelector(".hud-ico");
+    if (ico && glyph && GLYPH[glyph] && !keepIcon) ico.innerHTML = glyphSvg(glyph);
+    return b;
+  }
+
+  const CORNERS = [["attacker", "Attacker", "target"], ["friendly", "Friendly", "target"], ["any", "Any", "target"], ["view", "In view", "target"]];
 
   function targeting(e, ctx) {
     const { w: W, h: H } = ctx.size;
@@ -344,59 +360,85 @@
     const look = looks();
     const corners = e.corners || {};
     const root = ctx.make("div", "cl-cluster cl-targeting");
-    const S = Math.max(60, Math.min(W, H));
-    const x0 = (W - S) / 2, y0 = (H - S) / 2, cx = W / 2, cy = H / 2;
-    const arm = S * 0.2, inset = 4;
-    const ringR = S * 0.2, pipR = clamp(S * 0.08, 18, 34);
-    const bracket = (k) => {
-      const l = x0 + inset, r = x0 + S - inset, t = y0 + inset, b = y0 + S - inset;
-      return { tl: `M${f1(l)} ${f1(t + arm)}V${f1(t)}H${f1(l + arm)}`, tr: `M${f1(r - arm)} ${f1(t)}H${f1(r)}V${f1(t + arm)}`,
-        bl: `M${f1(l)} ${f1(b - arm)}V${f1(b)}H${f1(l + arm)}`, br: `M${f1(r - arm)} ${f1(b)}H${f1(r)}V${f1(b - arm)}` }[k];
-    };
-    const chev = (x, dir) => `<path class="cl-chev" d="M${f1(x - dir * 5)} ${f1(cy - 9)}L${f1(x + dir * 5)} ${f1(cy)}L${f1(x - dir * 5)} ${f1(cy + 9)}"/>`;
-    root.innerHTML = svg(W, H, `
-      ${CORNERS.map(([k, pos]) => `<path class="cl-bracket c-${k}" d="${bracket(pos)}"/>`).join("")}
-      <path class="cl-ret-ring" d="${ringPath(cx, cy, ringR, look.facet, 12)}"/>
-      ${[0, 90, 180, 270].map((a) => { const c = Math.cos(rad(a)), s = Math.sin(rad(a)); return `<path class="cl-ret-tick" d="M${f1(cx + c * (ringR + 4))} ${f1(cy + s * (ringR + 4))}L${f1(cx + c * (ringR + S * 0.07))} ${f1(cy + s * (ringR + S * 0.07))}"/>`; }).join("")}
-      <circle class="cl-pip" cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(pipR * 0.42)}"/>
-      ${chev(x0 + S * 0.12, -1)}${chev(x0 + S * 0.88, 1)}`);
-
-    const cs = clamp(S * 0.32, 44, 150);
-    const cornerZones = CORNERS.map(([k, pos, word]) => {
+    const g = small ? 6 : 10;
+    const side = W >= H * 1.2; // columns beside the reticle; else rows above and below it
+    const tile = (k, x, y, w, h) => {
       const def = corners[k];
-      if (!def) return null;
-      const z = zone(ctx, root, `cl-corner c-${k}`, def.label, def.id, () => send(ctx, def, z));
-      const x = pos[1] === "l" ? x0 : x0 + S - cs, y = pos[0] === "t" ? y0 : y0 + S - cs;
-      put(z, x, y, cs, cs);
-      z.innerHTML = `<span class="cl-glyph"><svg viewBox="0 0 24 24">${CORNER_GLYPH[k]}</svg></span>${small ? "" : `<span class="cl-word"></span>`}`;
-      if (!small) z.querySelector(".cl-word").textContent = ctx.tr(word);
-      return z;
-    });
-    // Previous and next: the reticle's sides, out to the cluster's edges on a wide box.
-    const sideH = S * 0.3;
-    const prevZ = put(zone(ctx, root, "cl-prev", e.prev && e.prev.label, e.prev && e.prev.id, () => send(ctx, e.prev, prevZ)), 0, cy - sideH / 2, x0 + S * 0.24, sideH);
-    const nextZ = put(zone(ctx, root, "cl-next", e.next && e.next.label, e.next && e.next.id, () => send(ctx, e.next, nextZ)), x0 + S * 0.76, cy - sideH / 2, W - x0 - S * 0.76, sideH);
-    const subZ = put(zone(ctx, root, "cl-sub", e.sub && e.sub.label, e.sub && e.sub.id, () => send(ctx, e.sub, subZ)), cx - ringR - 6, cy - ringR - 6, ringR * 2 + 12, ringR * 2 + 12);
+      const meta = CORNERS.find(([n]) => n === k);
+      const b = button(ctx, root, def, `cl-cycle c-${k}`, x, y, w, h);
+      return face(b, ctx, meta[1], k, def && def.icon && def.icon !== meta[2]);
+    };
+    let rx, ry, rw, rh; // the reticle's area
+    if (side) {
+      const cw = clamp(W * 0.26, 64, 170);
+      const th = clamp((H - 2 * g) * 0.34, 44, 120);
+      const mh = H - 2 * th - 2 * g;
+      tile("attacker", 0, 0, cw, th);
+      tile("any", 0, H - th, cw, th);
+      tile("friendly", W - cw, 0, cw, th);
+      tile("view", W - cw, H - th, cw, th);
+      face(button(ctx, root, e.prev, "cl-hostile h-prev", 0, th + g, cw, mh), ctx, null, null, true);
+      face(button(ctx, root, e.next, "cl-hostile h-next", W - cw, th + g, cw, mh), ctx, null, null, true);
+      rx = cw + g; ry = 0; rw = W - 2 * (cw + g); rh = H;
+    } else {
+      // A tall box (a phone held upright) gives the spare height to the cycle buttons.
+      const th = clamp(Math.max(H * 0.16, (H - W) / 2 - g), 44, 130);
+      const hw = (W - g) / 2;
+      tile("attacker", 0, 0, hw, th);
+      tile("friendly", hw + g, 0, hw, th);
+      tile("any", 0, H - th, hw, th);
+      tile("view", hw + g, H - th, hw, th);
+      const mh = H - 2 * th - 2 * g;
+      const sw = clamp(W * 0.17, 44, 92), sh = clamp(mh * 0.62, 44, mh);
+      face(button(ctx, root, e.prev, "cl-hostile h-prev narrow", 0, th + g + (mh - sh) / 2, sw, sh), ctx, null, null, true);
+      face(button(ctx, root, e.next, "cl-hostile h-next narrow", W - sw, th + g + (mh - sh) / 2, sw, sh), ctx, null, null, true);
+      rx = sw + g; ry = th + g; rw = W - 2 * (sw + g); rh = mh;
+    }
+    for (const b of root.querySelectorAll(".cl-hostile")) {
+      const ico = b.querySelector(".hud-ico");
+      if (ico) ico.innerHTML = ctx.D.deckIcon(b.classList.contains("h-prev") ? "chev-left" : "chev-right");
+    }
+
+    // The reticle: corner brackets around it, a ring (round or faceted, by maker), four
+    // ticks and the pip.
+    const S = Math.max(40, Math.min(rw, rh));
+    const cx = rx + rw / 2, cy = ry + rh / 2, x0 = cx - S / 2, y0 = cy - S / 2;
+    const ringR = S * 0.27, pipR = clamp(S * 0.1, 18, 40), arm = S * 0.16, ins = 2;
+    const br = (l, t, dx, dy) => `<path class="cl-bracket" d="M${f1(l)} ${f1(t + dy * arm)}V${f1(t)}H${f1(l + dx * arm)}"/>`;
+    root.insertAdjacentHTML("afterbegin", svg(W, H, `
+      ${br(x0 + ins, y0 + ins, 1, 1)}${br(x0 + S - ins, y0 + ins, -1, 1)}${br(x0 + ins, y0 + S - ins, 1, -1)}${br(x0 + S - ins, y0 + S - ins, -1, -1)}
+      <path class="cl-ret-cross" d="M${f1(cx)} ${f1(y0 + S * 0.08)}V${f1(cy - ringR - 6)}M${f1(cx)} ${f1(cy + ringR + 6)}V${f1(y0 + S * 0.92)}M${f1(x0 + S * 0.08)} ${f1(cy)}H${f1(cx - ringR - 6)}M${f1(cx + ringR + 6)} ${f1(cy)}H${f1(x0 + S * 0.92)}"/>
+      <path class="cl-ret-ring" d="${ringPath(cx, cy, ringR, look.facet, 12)}"/>
+      ${[0, 90, 180, 270].map((a) => { const c = Math.cos(rad(a)), s = Math.sin(rad(a)); return `<path class="cl-ret-tick" d="M${f1(cx + c * (ringR - 5))} ${f1(cy + s * (ringR - 5))}L${f1(cx + c * (ringR + 5))} ${f1(cy + s * (ringR + 5))}"/>`; }).join("")}
+      <circle class="cl-pip" cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(pipR * 0.42)}"/>`));
+    const subZ = put(zone(ctx, root, "cl-sub", e.sub && e.sub.label, e.sub && e.sub.id, () => send(ctx, e.sub, subZ)), cx - ringR - 8, cy - ringR - 8, ringR * 2 + 16, ringR * 2 + 16);
     const pipZ = put(zone(ctx, root, "cl-pipz", e.next && e.next.label, e.next && e.next.id, () => send(ctx, e.next, pipZ)), cx - pipR, cy - pipR, pipR * 2, pipR * 2);
+    // The ring's job, said on the ring while there's room for it.
+    if (!small && S >= 150 && e.sub) {
+      const cap = ctx.make("span", "cl-word cl-ring-word");
+      cap.textContent = ctx.tr("Sub-target");
+      cap.setAttribute("aria-hidden", "true");
+      put(cap, cx - ringR, cy + ringR + 8, ringR * 2, 16);
+      root.appendChild(cap);
+    }
     if (ctx.editing) { ctx.place(root, e); return root; }
 
-    denials(ctx, root, idsOf(e.next, e.prev, e.sub, Object.values(corners)));
+    denials(ctx, root, idsOf(e.next, e.sub));
+    const nextB = root.querySelector(".h-next"), prevB = root.querySelector(".h-prev");
     // A swipe across the reticle: right is the next hostile, left the previous, once per
     // swipe, on lift.
     track(root, ctx, {
       drag(z, axis) {
         if (axis !== "x") return { end() {} };
-        root.classList.add("cl-swiping");
         return {
           move(dx) { root.classList.toggle("cl-going-next", dx >= 40); root.classList.toggle("cl-going-prev", dx <= -40); },
           end(dx, dy, ok) {
-            root.classList.remove("cl-swiping", "cl-going-next", "cl-going-prev");
-            if (ok && Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) * 1.2) send(ctx, dx > 0 ? e.next : e.prev, dx > 0 ? nextZ : prevZ);
+            root.classList.remove("cl-going-next", "cl-going-prev");
+            if (ok && Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) * 1.2) send(ctx, dx > 0 ? e.next : e.prev, dx > 0 ? nextB : prevB);
           },
         };
       },
     });
-    void cornerZones;
     root.setAttribute("role", "group");
     root.setAttribute("aria-label", ctx.tr("Targeting"));
     return root;
@@ -404,66 +446,80 @@
 
   // ---------- hull: lights and doors ----------
 
-  // The ship from the side: a headlight cone at the nose (lights), a ramp under the hull
-  // (tap to toggle the doors, pull it down to open them, push it up to close them, once
-  // per drag) and a padlock (locks, or unlocks while they're locked).
+  // The ship's outside, as a panel of three: Lights; the doors, drawn as a pair of sliding
+  // leaves that part while they're open (tap them to toggle the doors) with Open and Close
+  // under them; and Lock and Unlock. Every part is one press of its own button.
   function hull(e, ctx) {
     const { w: W, h: H } = ctx.size;
+    const small = ctx.sizeClass === "small";
     const doors = e.doors || {}, lock = e.lock || {};
     const root = ctx.make("div", "cl-cluster cl-hull");
-    // The side view is drawn at one scale (SHIP_SIDE spans y 36 to 63 of its 100 box), so
-    // the ramp and the lamp sit on the hull wherever the box puts it.
-    const sw = Math.min(W * 0.66, H * 1.55), sh = sw * 0.27;
-    const x0 = W * 0.04, yb = H * 0.5 - sw * 0.5 + (H < 200 ? 0 : sh * 0.15);
-    const y0 = yb + sw * 0.36;
-    const noseX = x0 + sw * 0.97, noseY = yb + sw * 0.54;
-    const bottom = yb + sw * 0.625;
-    const rampX = x0 + sw * 0.22, rampW = sw * 0.22;
-    const rampLen = Math.max(10, Math.min(H - bottom - 6, sh * 0.9));
-    const coneW = W - noseX - 4;
-    const lockS = clamp(Math.min(H * 0.28, sw * 0.16), 26, 60);
-    const lockX = x0 + sw * 0.5, lockY = Math.max(2, y0 - lockS - 6);
-    root.innerHTML = svg(W, H, `
-      <path class="cl-cone" d="M${f1(noseX + 2)} ${f1(noseY - 3)}L${f1(noseX + coneW)} ${f1(noseY - sh * 0.75)}Q${f1(noseX + coneW + 8)} ${f1(noseY)} ${f1(noseX + coneW)} ${f1(noseY + sh * 0.75)}L${f1(noseX + 2)} ${f1(noseY + 3)}Z"/>
-      ${[0.25, 0.5, 0.75].map((t) => `<path class="cl-beam" d="M${f1(noseX + 4)} ${f1(noseY)}L${f1(noseX + coneW * 0.92)} ${f1(noseY + (t - 0.5) * sh * 1.3)}"/>`).join("")}
-      ${ship(SHIP_SIDE, x0, yb, sw, sw)}${ship(SHIP_SIDE_FIN, x0, yb, sw, sw)}
-      <circle class="cl-lamp" cx="${f1(noseX - 2)}" cy="${f1(noseY)}" r="3"/>
-      <g class="cl-ramp" style="transform-origin:${f1(rampX + rampW)}px ${f1(bottom)}px"><path d="M${f1(rampX)} ${f1(bottom)}H${f1(rampX + rampW)}"/></g>
-      <path class="cl-ramp-open" d="M${f1(rampX + rampW)} ${f1(bottom)}L${f1(rampX + rampW * 0.08)} ${f1(bottom + rampLen * 0.9)}"/>
-      <path class="cl-hatch" d="M${f1(rampX)} ${f1(bottom - sh * 0.42)}H${f1(rampX + rampW)}V${f1(bottom)}H${f1(rampX)}Z"/>
-      <g class="cl-lock" transform="translate(${f1(lockX)} ${f1(lockY)}) scale(${f1(lockS / 24)})">
-        <path class="cl-shackle" d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11"/><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 15v2.5"/></g>`);
+    const g = small ? 6 : 10;
+    const wide = W >= H * 1.5;
+    let doorBox, oc, lights, locks;
+    if (wide) {
+      // Lights | doors over Open and Close | Lock over Unlock
+      const sw = clamp(W * 0.26, 56, 190), mw = W - 2 * (sw + g);
+      const rowH = clamp((H - g) * 0.36, 40, 72);
+      lights = [0, 0, sw, H];
+      doorBox = [sw + g, 0, mw, H - rowH - g];
+      oc = [sw + g, H - rowH, mw, rowH];
+      locks = [W - sw, 0, sw, H];
+    } else {
+      // Lights | Lock | Unlock, the doors, Open | Close
+      const rowH = clamp(H * 0.2, 44, 84);
+      lights = [0, 0, (W - g) * 0.4, rowH];
+      locks = [(W - g) * 0.4 + g, 0, (W - g) * 0.6, rowH, "row"];
+      oc = [0, H - rowH, W, rowH];
+      doorBox = [0, rowH + g, W, H - 2 * (rowH + g)];
+    }
+    button(ctx, root, e.lights, "cl-lights", ...lights.slice(0, 4));
+    // Lock and Unlock: stacked in a column, side by side in a row.
+    {
+      const [x, y, w, h, row] = locks;
+      const bw = row ? (w - g) / 2 : w, bh = row ? h : (h - g) / 2;
+      const tight = bw < 120; // "Lock" and "Unlock" where "Unlock Doors" won't fit
+      face(button(ctx, root, lock.lock, "cl-lockb", x, y, bw, bh), ctx, tight ? "Lock" : null, null, true);
+      face(button(ctx, root, lock.unlock, "cl-lockb", row ? x + bw + g : x, row ? y : y + bh + g, bw, bh), ctx, tight ? "Unlock" : null, null, true);
+    }
+    {
+      const [x, y, w, h] = oc;
+      const hw = (w - g) / 2;
+      const tight = hw < 140;
+      face(button(ctx, root, doors.open, "cl-doorb", x, y, hw, h), ctx, tight ? "Open" : null, "open", doors.open && doors.open.icon !== "doors");
+      face(button(ctx, root, doors.close, "cl-doorb", x + hw + g, y, hw, h), ctx, tight ? "Close" : null, "close", doors.close && doors.close.icon !== "doors");
+    }
 
-    const cone = put(zone(ctx, root, "cl-lights", e.lights && e.lights.label, e.lights && e.lights.id, () => send(ctx, e.lights, cone)), noseX - 10, Math.max(0, noseY - sh * 0.9), W - noseX + 10, Math.min(H, sh * 1.8));
-    const hatch = put(zone(ctx, root, "cl-doors", doors.toggle && doors.toggle.label, idsOf(doors.toggle, doors.open, doors.close), () => send(ctx, doors.toggle, hatch)), rampX - 8, bottom - sh * 0.38, rampW + 16, Math.max(44, sh * 0.38 + rampLen));
-    let locked = false;
-    const lockZ = put(zone(ctx, root, "cl-padlock", "Lock or unlock the doors", idsOf(lock.lock, lock.unlock), () => send(ctx, locked ? lock.unlock : lock.lock, lockZ)), lockX - 6, lockY - 6, Math.max(44, lockS + 12), Math.max(44, lockS + 12));
-
-    lit(ctx, cone, e.lights && e.lights.state && e.lights.state.group, (on, lights) => root.classList.toggle("lights-on", on && lights));
+    // The doors: a frame, two leaves and a sill; the leaves slide apart while the doors are
+    // open (by the doors' lit state), and the word under them says which.
+    const [dx, dy, dw, dh] = doorBox;
+    const dz = put(zone(ctx, root, "cl-doors", doors.toggle && doors.toggle.label, idsOf(doors.toggle), () => send(ctx, doors.toggle, dz)), dx, dy, dw, dh);
+    const capH = dh >= 96 ? (small ? 16 : 20) : 0;
+    const fh = Math.max(24, Math.min(dh - capH - 12, dw * 0.46)), fw = Math.min(dw - 16, fh * 1.3);
+    const fx = (dw - fw) / 2, fy = Math.max(6, (dh - capH - fh) / 2);
+    const lw = fw / 2 - 4;
+    dz.innerHTML = `<svg class="cl-art" viewBox="0 0 ${f1(dw)} ${f1(dh)}" aria-hidden="true">
+      <rect class="cl-door-gap" x="${f1(fx + 4)}" y="${f1(fy + 4)}" width="${f1(fw - 8)}" height="${f1(fh - 8)}"/>
+      <g class="cl-leaf l-left"><rect x="${f1(fx + 4)}" y="${f1(fy + 4)}" width="${f1(lw)}" height="${f1(fh - 8)}"/><rect class="cl-slit" x="${f1(fx + 4 + lw * 0.2)}" y="${f1(fy + fh * 0.16)}" width="${f1(lw * 0.6)}" height="${f1(Math.max(3, fh * 0.07))}" rx="2"/><path d="M${f1(fx + 4 + lw - 7)} ${f1(fy + fh * 0.42)}v${f1(fh * 0.16)}"/></g>
+      <g class="cl-leaf l-right"><rect x="${f1(fx + fw / 2)}" y="${f1(fy + 4)}" width="${f1(lw)}" height="${f1(fh - 8)}"/><rect class="cl-slit" x="${f1(fx + fw / 2 + lw * 0.2)}" y="${f1(fy + fh * 0.16)}" width="${f1(lw * 0.6)}" height="${f1(Math.max(3, fh * 0.07))}" rx="2"/><path d="M${f1(fx + fw / 2 + 7)} ${f1(fy + fh * 0.42)}v${f1(fh * 0.16)}"/></g>
+      <path class="cl-door-frame" d="M${f1(fx)} ${f1(fy + fh)}V${f1(fy + 6)}Q${f1(fx)} ${f1(fy)} ${f1(fx + 6)} ${f1(fy)}H${f1(fx + fw - 6)}Q${f1(fx + fw)} ${f1(fy)} ${f1(fx + fw)} ${f1(fy + 6)}V${f1(fy + fh)}"/>
+      <path class="cl-door-sill" d="M${f1(fx - 6)} ${f1(fy + fh)}H${f1(fx + fw + 6)}"/></svg>`;
+    dz.style.setProperty("--leaf", `${f1(lw - 6)}px`);
+    if (capH) {
+      const cap = ctx.make("span", "cl-word cl-door-word");
+      cap.setAttribute("aria-hidden", "true");
+      put(cap, 0, dh - capH, dw, capH);
+      dz.appendChild(cap);
+    }
+    const word = dz.querySelector(".cl-door-word");
+    const say = (open) => { if (word) word.textContent = `${ctx.tr("Doors")} · ${ctx.tr(open ? "OPEN" : "CLOSED")}`; };
+    say(false);
     const dg = (doors.toggle || doors.open || {}).state;
-    lit(ctx, hatch, dg && dg.group, (on, lights) => { root.classList.toggle("doors-open", on); root.classList.toggle("doors-lit", on && lights); });
-    const lg = (lock.lock || lock.unlock || {}).state;
-    lit(ctx, lockZ, lg && lg.group, (on, lights) => {
-      locked = on;
-      root.classList.toggle("locked", on);
-      root.classList.toggle("lock-lit", on && lights);
-      lockZ.setAttribute("aria-label", ctx.tr(on ? (lock.unlock || {}).label || "Unlock Doors" : (lock.lock || {}).label || "Lock Doors"));
-    });
+    lit(ctx, dz, dg && dg.group, (on, lights) => { root.classList.toggle("doors-open", on); root.classList.toggle("doors-lit", on && lights); say(on); });
     if (ctx.editing) { ctx.place(root, e); return root; }
 
-    denials(ctx, root, idsOf(e.lights, doors.toggle, doors.open, doors.close, lock.lock, lock.unlock));
-    track(root, ctx, {
-      drag(z, axis) {
-        if (z !== hatch || axis !== "y") return null;
-        return {
-          move(dx, dy) { root.classList.toggle("cl-pull-open", dy >= 24); root.classList.toggle("cl-pull-close", dy <= -24); },
-          end(dx, dy, ok) {
-            root.classList.remove("cl-pull-open", "cl-pull-close");
-            if (ok && Math.abs(dy) >= 24) send(ctx, dy > 0 ? doors.open : doors.close, hatch);
-          },
-        };
-      },
-    });
+    denials(ctx, root, idsOf(doors.toggle));
+    track(root, ctx, {});
     root.setAttribute("role", "group");
     root.setAttribute("aria-label", ctx.tr(e.label || "Lights and doors"));
     return root;
@@ -471,27 +527,23 @@
 
   // ---------- turrets ----------
 
-  // The ship from behind with a pod per remote turret (dorsal, ventral, port, starboard);
-  // each pod is the seat's own button.
+  // One plain button per remote turret seat, with the turret icon and its number: in a row,
+  // or two rows when one row would be too tight.
   function turrets(e, ctx) {
     const { w: W, h: H } = ctx.size;
-    const seats = (e.seats || []).slice(0, 4);
+    const seats = (e.seats || []).filter(Boolean);
     const root = ctx.make("div", "cl-cluster cl-turrets");
-    const cx = W / 2, cy = H / 2;
-    const d = clamp(Math.min(H * 0.36, W * 0.17), 44, 76);
-    const cross = H >= d * 2.4 + 24;
-    const span = Math.min(W / 2 - d / 2 - 4, d * 3.2);
-    const fus = Math.min(cross ? H * 0.5 : H * 0.9, W * 0.24);
-    const spots = cross
-      ? [[cx, d / 2 + 2], [cx, H - d / 2 - 2], [cx - span, cy], [cx + span, cy]]
-      : [[cx - span * 0.42, cy - (H / 2 - d / 2 - 2)], [cx + span * 0.42, cy + (H / 2 - d / 2 - 2)], [cx - span, cy], [cx + span, cy]];
-    root.innerHTML = svg(W, H, `
-      ${seats.map((_, i) => `<path class="cl-mount" d="M${f1(cx)} ${f1(cy)}L${f1(spots[i][0])} ${f1(spots[i][1])}"/>`).join("")}
-      ${ship(SHIP_BACK, cx - fus * 1.5, cy - fus * 0.75, fus * 3, fus * 1.5)}`);
+    const g = ctx.sizeClass === "small" ? 6 : 10;
+    const n = Math.max(1, seats.length);
+    const cols = W / n < 64 && n > 2 ? Math.ceil(n / 2) : n; // two rows only when one is too tight
+    const rows = Math.ceil(n / cols);
+    const bw = (W - g * (cols - 1)) / cols, bh = (H - g * (rows - 1)) / rows;
     seats.forEach((s, i) => {
-      const b = button(ctx, root, s, "cl-pod", spots[i][0] - d / 2, spots[i][1] - d / 2, d, d);
-      const lbl = b.querySelector(".hud-lbl");
-      if (lbl) lbl.textContent = String(i + 1);
+      const b = button(ctx, root, s, "cl-turret", (i % cols) * (bw + g), Math.floor(i / cols) * (bh + g), bw, bh);
+      if (!b) return;
+      face(b, ctx, `T${i + 1}`, null, true);
+      // With labels hidden the number stays, on the icon.
+      b.insertAdjacentHTML("beforeend", `<span class="cl-num" aria-hidden="true">${i + 1}</span>`);
     });
     if (ctx.editing) ctx.place(root, e);
     root.setAttribute("role", "group");
@@ -501,42 +553,61 @@
 
   // ---------- countermeasures ----------
 
-  // Two launcher tubes (decoy, noise), Panic under a flip cover in the middle, the missile
-  // trigger, and Fewer Missiles and the pips below. The cover's first tap only lifts it;
-  // it drops again after 4 s or a touch anywhere else (the picture only).
+  // Defense on top: Decoy and Noise flank Panic, which sits under a flip cover. Weapons
+  // under it: the missile trigger, then Fewer Missiles and the lead / lag pips. On a wide,
+  // low box it's one row. The cover's first tap only lifts it; it drops again after 4 s or
+  // a touch anywhere else (the picture only).
   function countermeasures(e, ctx) {
     const { w: W, h: H } = ctx.size;
-    const small = ctx.sizeClass === "small" || H < 220;
+    const small = ctx.sizeClass === "small";
     const root = ctx.make("div", "cl-cluster cl-cm");
     const g = small ? 6 : 10;
-    const tw = clamp(W * 0.2, 52, 120);
-    const mx = tw + g, mw = W - 2 * (tw + g);
-    button(ctx, root, e.decoy, "cl-tube t-decoy", 0, 0, tw, H);
-    button(ctx, root, e.noise, "cl-tube t-noise", W - tw, 0, tw, H);
-    let panicBox, missileBox, rowY, rowH;
-    root.classList.toggle("stacked", small); // Panic and Launch side by side: icons over labels
-    if (small) {
-      const h1 = (H - g) * 0.58;
-      panicBox = [mx, 0, (mw - g) / 2, h1];
-      missileBox = [mx + (mw + g) / 2, 0, (mw - g) / 2, h1];
-      rowY = h1 + g; rowH = H - rowY;
+    const boxes = {};
+    if (W >= H * 2.2) {
+      // [Decoy][Panic][Noise] | [Missile][Fewer / Pips]
+      const u = (W - 4 * g) / 6.4;
+      let x = 0;
+      for (const [k, w] of [["decoy", u], ["panic", u * 1.2], ["noise", u], ["missile", u * 1.6]]) { boxes[k] = [x, 0, w, H]; x += w + g; }
+      const hh = (H - g) / 2;
+      boxes.fewer = [x, 0, W - x, hh];
+      boxes.pips = [x, hh + g, W - x, hh];
+      root.classList.add("cm-row");
     } else {
-      const h1 = (H - 2 * g) * 0.4, h2 = (H - 2 * g) * 0.33;
-      panicBox = [mx, 0, mw, h1];
-      missileBox = [mx, h1 + g, mw, h2];
-      rowY = h1 + h2 + 2 * g; rowH = H - rowY;
+      const h1 = (H - 2 * g) * 0.42, h2 = (H - 2 * g) * 0.32, h3 = H - h1 - h2 - 2 * g;
+      const tw = (W - 2 * g) * 0.3, pw = W - 2 * (tw + g);
+      boxes.decoy = [0, 0, tw, h1];
+      boxes.panic = [tw + g, 0, pw, h1];
+      boxes.noise = [W - tw, 0, tw, h1];
+      boxes.missile = [0, h1 + g, W, h2];
+      const hw = (W - g) / 2;
+      boxes.fewer = [0, H - h3, hw, h3];
+      boxes.pips = [hw + g, H - h3, hw, h3];
     }
-    const panic = button(ctx, root, e.panic, "cl-panic", ...panicBox);
-    button(ctx, root, e.missile, "cl-missile", ...missileBox);
-    button(ctx, root, e.fewer, "cl-small", mx, rowY, (mw - g) / 2, rowH);
-    button(ctx, root, e.pips, "cl-small", mx + (mw + g) / 2, rowY, (mw - g) / 2, rowH);
+    // The two groups, drawn as a backing plate each.
+    const plate = (cls, ks) => {
+      const bs = ks.map((k) => boxes[k]).filter(Boolean);
+      if (!bs.length) return;
+      const x = Math.min(...bs.map((b) => b[0])), y = Math.min(...bs.map((b) => b[1]));
+      const r = Math.max(...bs.map((b) => b[0] + b[2])), b = Math.max(...bs.map((b) => b[1] + b[3]));
+      root.appendChild(put(ctx.make("i", `cl-plate ${cls}`), x - 3, y - 3, r - x + 6, b - y + 6));
+    };
+    plate("p-defense", ["decoy", "panic", "noise"]);
+    plate("p-weapons", ["missile", "fewer", "pips"]);
+    button(ctx, root, e.decoy, "cl-tube t-decoy", ...boxes.decoy);
+    button(ctx, root, e.noise, "cl-tube t-noise", ...boxes.noise);
+    const panic = button(ctx, root, e.panic, "cl-panic", ...boxes.panic);
+    button(ctx, root, e.missile, "cl-missile", ...boxes.missile);
+    // Short words where the buttons are narrow; their names stay the full labels.
+    const roomy = boxes.fewer[2] >= 150;
+    face(button(ctx, root, e.fewer, "cl-small", ...boxes.fewer), ctx, roomy ? null : "Fewer", "fewer", e.fewer && e.fewer.icon !== "missile");
+    face(button(ctx, root, e.pips, "cl-small", ...boxes.pips), ctx, roomy ? null : "Pips", "pips", e.pips && e.pips.icon !== "power-weapons");
     if (panic) {
       const cover = ctx.make("div", "cl-cover", `<i class="cl-cover-hinge"></i><span class="cl-cover-word"></span>`);
-      cover.querySelector(".cl-cover-word").textContent = ctx.tr("Panic Decoys");
+      cover.querySelector(".cl-cover-word").textContent = ctx.tr(boxes.panic[2] >= 120 ? "Panic Decoys" : "Panic");
       cover.setAttribute("role", "button");
       cover.setAttribute("aria-label", ctx.tr("Lift the cover"));
       cover.tabIndex = 0;
-      put(cover, ...panicBox);
+      put(cover, ...boxes.panic);
       root.appendChild(cover);
       if (ctx.editing) { ctx.place(root, e); return root; }
       let timer = 0;
@@ -568,29 +639,33 @@
   // ---------- quantum ----------
 
   // The spool ring: its hub is Engage Quantum (held while the finger is down, as always),
-  // and the ring fills while it's held (CSS only). Flight Ready is the arc beside it.
+  // and the ring fills while it's held (CSS only). The HUD keeps Flight Ready with the
+  // power switches, since it's pressed once at start-up; a layout that puts it here
+  // (`ready`) gets a plain button beside the ring.
   function quantum(e, ctx) {
     const { w: W, h: H } = ctx.size;
     const root = ctx.make("div", "cl-cluster cl-quantum");
     const g = ctx.sizeClass === "small" ? 6 : 10;
-    const rd = Math.max(48, Math.min(H, W * 0.5));
-    const rcx = rd / 2, rcy = H / 2, rr = rd / 2 - 4;
+    const readyW = e.ready ? clamp(W * 0.32, 72, 170) : 0;
+    const area = W - (readyW ? readyW + g : 0);
+    const rd = Math.max(48, Math.min(H, area));
+    const rcx = area / 2, rcy = H / 2, rr = rd / 2 - 4;
     const circ = 2 * Math.PI * (rr - 4);
     root.style.setProperty("--circ", f1(circ));
-    root.innerHTML = svg(W, H, `
+    // Wide boxes get the drive's two rails out to the sides, so the ring sits in a frame.
+    const rails = area - rd > 80 ? `<path class="cl-spool-rail" d="M${f1(8)} ${f1(rcy)}H${f1(rcx - rr - 10)}M${f1(rcx + rr + 10)} ${f1(rcy)}H${f1(area - 8)}"/>
+      ${[-1, 1].map((s) => [0.25, 0.5, 0.75].map((t) => { const x = s < 0 ? 8 + (rcx - rr - 18) * t : rcx + rr + 10 + (area - rcx - rr - 18) * t; return `<path class="cl-spool-rail-tick" d="M${f1(x)} ${f1(rcy - 6)}V${f1(rcy + 6)}"/>`; }).join("")).join("")}` : "";
+    root.innerHTML = svg(W, H, `${rails}
       <circle class="cl-spool-track" cx="${f1(rcx)}" cy="${f1(rcy)}" r="${f1(rr - 4)}"/>
       <circle class="cl-spool-fill" cx="${f1(rcx)}" cy="${f1(rcy)}" r="${f1(rr - 4)}" transform="rotate(-90 ${f1(rcx)} ${f1(rcy)})" style="stroke-dasharray:${f1(circ)};stroke-dashoffset:${f1(circ)}"/>
       ${Array.from({ length: 24 }, (_, k) => { const a = rad(k * 15), c = Math.cos(a), s = Math.sin(a); return `<path class="cl-spool-tick" d="M${f1(rcx + c * (rr + 1))} ${f1(rcy + s * (rr + 1))}L${f1(rcx + c * (rr - (k % 6 ? 2 : 5)))} ${f1(rcy + s * (rr - (k % 6 ? 2 : 5)))}"/>`; }).join("")}`);
-    const hd = Math.max(44, rd * 0.6);
+    const hd = Math.max(44, rd * 0.62);
     // Under about 110 px the hub has no room for "Hold to engage" below its label.
     root.classList.toggle("tight", hd < 110);
     button(ctx, root, e.engage, "cl-qhub", rcx - hd / 2, rcy - hd / 2, hd, hd);
     if (e.ready) {
-      // It starts inside the ring's box, and its left edge is hollowed to follow the ring.
-      const x = rcx + rd * 0.36, rh = Math.min(H, Math.max(44, H * 0.72));
-      const b = button(ctx, root, e.ready, "cl-arc", x, (H - rh) / 2, Math.max(44, W - x), rh, "std");
-      if (b) b.style.setProperty("--hollow", `radial-gradient(circle at ${f1(rcx - x)}px 50%, transparent ${f1(rr + g)}px, #000 ${f1(rr + g + 1)}px)`);
-      if (b) b.style.paddingLeft = `${f1(rr + g - rd * 0.36 + 14)}px`;
+      const rh = clamp(H * 0.5, 44, 72);
+      button(ctx, root, e.ready, "cl-ready", W - readyW, (H - rh) / 2, readyW, rh, "std");
     }
     if (ctx.editing) ctx.place(root, e);
     root.setAttribute("role", "group");
@@ -631,7 +706,11 @@
       sw.title = `${ctx.tr(e.laserType.label)} (${ctx.tr("as last sent")}) — ${e.laserType.keys}`;
     }
     const cw = (W - g * (mods.length - 1)) / Math.max(1, mods.length);
-    mods.forEach((m, i) => button(ctx, root, m, "cl-cart", i * (cw + g), H - botH, cw, botH));
+    mods.forEach((m, i) => {
+      const b = button(ctx, root, m, "cl-cart", i * (cw + g), H - botH, cw, botH);
+      // The modules share an icon: with labels hidden their number stays.
+      if (b) b.insertAdjacentHTML("beforeend", `<span class="cl-num" aria-hidden="true">${i + 1}</span>`);
+    });
     if (sw && !ctx.editing && e.laserType) {
       const mem = ctx.mem(e);
       const paint = () => { sw.classList.toggle("side-b", mem.side === "extract"); };
@@ -716,6 +795,7 @@
     const root = ctx.make("div", "cl-cluster cl-bank");
     const g = ctx.sizeClass === "small" ? 4 : 8;
     const w = (W - g * (list.length - 1)) / Math.max(1, list.length);
+    root.classList.toggle("narrow", w < 72); // toggle over word, in smaller type
     list.forEach((b, i) => {
       const el = button(ctx, root, b, "cl-rocker", i * (w + g), 0, w, H);
       if (el) el.insertAdjacentHTML("afterbegin", `<i class="cl-toggle" aria-hidden="true"></i>`);
@@ -728,18 +808,18 @@
 
   // ---------- registration ----------
 
-  const reg = (type, label, category, icon, small, large, min, drag, buttons, render) =>
-    DW.register(type, { label, category, icon, spans: { small, large }, min, max: [12, 8], drag, buttons, render });
+  const reg = (type, label, category, icon, small, large, min, drag, buttons, render, more) =>
+    DW.register(type, { label, category, icon, spans: { small, large }, min, max: [12, 8], drag, buttons, render, ...more });
   const parts = (pairs) => pairs.filter(([, d]) => d && typeof d.id === "string");
 
   reg("shields", "Shields", "shields", "power-shields", [6, 5], [6, 6], [3, 3], "xy",
     (e) => parts([...Object.entries(e.faces || {}).map(([k, d]) => [k[0].toUpperCase() + k.slice(1), d]), ["Reset", e.reset], ["Power", e.power]]), shields);
-  reg("targeting", "Targeting", "targeting", "target", [6, 5], [6, 6], [3, 3], "x",
+  reg("targeting", "Targeting", "targeting", "target", [6, 4], [6, 5], [3, 3], "x",
     (e) => parts([["Next", e.next], ["Previous", e.prev], ...Object.entries(e.corners || {}).map(([k, d]) => [k[0].toUpperCase() + k.slice(1), d]), ["Sub-target", e.sub]]), targeting);
-  reg("hull", "Lights and doors", "crew", "doors", [6, 3], [6, 4], [3, 2], "xy",
+  reg("hull", "Lights and doors", "crew", "doors", [6, 3], [6, 4], [3, 2], "",
     (e) => parts([["Lights", e.lights], ["Toggle doors", (e.doors || {}).toggle], ["Open", (e.doors || {}).open], ["Close", (e.doors || {}).close], ["Lock", (e.lock || {}).lock], ["Unlock", (e.lock || {}).unlock]]), hull);
-  reg("turrets", "Turrets", "crew", "turret", [6, 2], [6, 3], [3, 2], "",
-    (e) => parts((e.seats || []).map((d, i) => [`Seat ${i + 1}`, d])), turrets);
+  reg("turrets", "Turrets", "crew", "turret", [6, 1], [6, 1], [2, 1], "",
+    (e) => parts((e.seats || []).map((d, i) => [`Seat ${i + 1}`, d])), turrets, { grows: false });
   reg("countermeasures", "Countermeasures", "combat", "decoy", [6, 4], [6, 5], [3, 3], "",
     (e) => parts([["Decoy", e.decoy], ["Noise", e.noise], ["Panic", e.panic], ["Missile", e.missile], ["Fewer missiles", e.fewer], ["Pips", e.pips]]), countermeasures);
   reg("quantum", "Quantum spool", "quantum", "quantum-jump", [6, 2], [6, 3], [3, 2], "",
@@ -749,7 +829,7 @@
   reg("salvage", "Salvage head", "salvage", "salvage", [6, 4], [6, 5], [3, 3], "xy",
     (e) => parts([["Modifier left", e.left], ["Modifier right", e.right], ["Wider", e.wider], ["Narrower", e.narrower]]), salvage);
   DW.register("switchbank", {
-    label: "Switch bank", category: "systems", icon: "power", spans: { small: [6, 1], large: [6, 1] }, min: [2, 1], max: [12, 2], drag: "",
+    label: "Switch bank", category: "systems", icon: "power", spans: { small: [6, 1], large: [6, 1] }, min: [2, 1], max: [12, 2], drag: "", grows: false,
     buttons: (e) => parts((e.buttons || []).map((d) => [d.label, d])), render: switchbank,
   });
 })();

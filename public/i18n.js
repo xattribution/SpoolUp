@@ -273,6 +273,12 @@
     "Icons and labels": ["Iconos y etiquetas", "Icônes et libellés", "Symbole und Beschriftungen"],
     "Icons only": ["Solo iconos", "Icônes seules", "Nur Symbole"],
     "Buttons without an icon keep their label. The layout editor can set a panel, cluster or button its own way.": ["Los botones sin icono conservan su etiqueta. El editor de diseños puede ajustar cada panel, grupo o botón por separado.", "Les boutons sans icône gardent leur libellé. L'éditeur de disposition peut régler un panneau, un groupe ou un bouton à part.", "Buttons ohne Symbol behalten ihre Beschriftung. Im Layout-Editor lässt sich ein Panel, eine Gruppe oder ein Button eigens einstellen."],
+    "Sub-target": ["Subobjetivo", "Sous-cible", "Unterziel"],
+    "Fewer": ["Menos", "Moins", "Weniger"],
+    "Pips": ["Marcas", "Repères", "Marken"],
+    "Panic": ["Pánico", "Panique", "Panik"],
+    "Open": ["Abrir", "Ouvrir", "Öffnen"],
+    "Unlock": ["Desbloquear", "Déverrouiller", "Entsperren"],
 
     // ---------- button labels ----------
     "3rd Person": ["3.ª persona", "3e personne", "3. Person"],

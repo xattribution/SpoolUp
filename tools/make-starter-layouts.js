@@ -48,9 +48,10 @@ function prefixed(prefix, el) {
   })(copy);
   return copy;
 }
-// A button item (ids of the HUD's buttons) under the ship's prefix.
+// A button item (ids of the HUD's buttons) under the ship's prefix, as a plain button: the
+// HUD's big framed styles (Engage Quantum's) don't fit a cell of a group.
 const button = (prefix, id, span) => {
-  const { type, span: _s, size, when, at, ...rest } = clone(need(id));
+  const { type, span: _s, size, when, at, style, ...rest } = clone(need(id));
   return { type: "button", ...rest, id: `${prefix}-${id}`, span };
 };
 const group = (prefix, id, title, items) => ({ type: "group", id: `${prefix}-${id}`, title, cols: 6, span: [6, Math.ceil(items.length / 3)], elements: items });
@@ -62,14 +63,16 @@ const SHIPS = [
     id: "prospector", name: "Prospector", prefix: "pr", like: "mining-salvage",
     panel: (p) => ({ title: "Prospector", cols: 6, elements: [
       { ...prefixed(p, need("mn-cluster")), span: [6, 4] },
-      group(p, "ship", "Ship", ["qt-flight-ready", "pl-gear", "fa-lights", "op-mining", "op-scan", "op-flight", "qt-engage", "fa-exit", "qt-scm-nav"].map((id) => button(p, id, [2, 1]))),
+      // In the order they're used: start-up and leaving the pad, the operator modes, then
+      // travel and getting out.
+      group(p, "ship", "Ship", ["qt-flight-ready", "fa-lights", "pl-gear", "op-flight", "op-scan", "op-mining", "qt-scm-nav", "qt-engage", "fa-exit"].map((id) => button(p, id, [2, 1]))),
     ] }),
   },
   {
     id: "vulture", name: "Vulture", prefix: "vu", like: "mining-salvage",
     panel: (p) => ({ title: "Vulture", cols: 6, elements: [
       { ...prefixed(p, need("sv-cluster")), span: [6, 3] },
-      group(p, "ship", "Ship", ["op-salvage", "op-scan", "op-flight", "qt-flight-ready", "pl-gear", "pl-vtol", "fa-lights", "qt-engage", "qt-scm-nav"].map((id) => button(p, id, [2, 1]))),
+      group(p, "ship", "Ship", ["qt-flight-ready", "fa-lights", "pl-gear", "op-flight", "op-scan", "op-salvage", "qt-scm-nav", "qt-engage", "pl-vtol"].map((id) => button(p, id, [2, 1]))),
       group(p, "doors", "Doors", ["cr-doors-open", "cr-doors-close", "fa-exit"].map((id) => button(p, id, [2, 1]))),
     ] }),
   },
@@ -120,10 +123,11 @@ const ref = (panel, id, span, small) => {
 };
 const dashboards = {
   ...clone(Object.fromEntries((hud.grid.full || []).map((id) => [id, hud.panels[id]]))),
+  // Start-up and landing, the spool, the cargo doors; then flying it there.
   hauling: { title: "Hauling", cols: 12, wide: true, elements: [
-    ref("hl", "pl-group", [4, 3]), ref("hl", "qt-quantum", [4, 3], [4, 2]), ref("hl", "cr-hull", [4, 3]),
-    ref("hl", "qt-modes", [4, 5], false), ref("hl", "pw-group", [4, 5], false), ref("hl", "cr-turrets", [4, 2]),
-    ref("hl", "qt-bus", [4, 1]), ref("hl", "fa-bank", [4, 1]),
+    ref("hl", "pl-group", [4, 3]), ref("hl", "qt-quantum", [4, 3], [4, 2]), ref("hl", "cr-hull", [4, 4], [4, 3]),
+    ref("hl", "qt-modes", [4, 5], false), ref("hl", "pw-group", [4, 5], false),
+    ref("hl", "qt-boot", [4, 1]), ref("hl", "cr-turrets", [4, 1], false), ref("hl", "fa-bank", [4, 1], false), ref("hl", "fa-range", [4, 1], false),
   ] },
 };
 outputs.push(["dashboards", {

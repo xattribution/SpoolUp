@@ -57,6 +57,11 @@
 [data-theme="rsi"] .hud-dial .dl-cap.on, [data-theme="rsi"] .cl-word { color: #f0c069; }
 [data-theme="rsi"] .cl-shields .cl-ring-track { stroke: #22344b; opacity: .8; }
 [data-theme="rsi"] .cl-targeting .cl-ret-ring { stroke-dasharray: 2 6; }
+[data-theme="rsi"] .cl-hull .cl-door-frame { stroke: #f0c069; stroke-width: 1.5px; }
+[data-theme="rsi"] .cl-hull .cl-leaf rect { fill: rgba(150,200,255,.08); stroke: rgba(150,200,255,.45); stroke-width: 1; }
+[data-theme="rsi"] .cl-hull .cl-door-sill { stroke: #f0c069; stroke-width: 2; }
+[data-theme="rsi"] .cl-cm .cl-plate, [data-theme="rsi"] .cl-hull .cl-doors { border-color: rgba(150,200,255,.22); background: linear-gradient(180deg, rgba(150,200,255,.07), rgba(150,200,255,.02)); }
+[data-theme="rsi"] .cl-targeting .cl-ret-cross { stroke-dasharray: 1 5; }
 
 /* ====================================================================================
    Drake: scratched gunmetal slabs, rivets, hazard stripes, stencil type
@@ -175,6 +180,10 @@
 [data-theme="drake"] .cl-targeting .cl-bracket { stroke-width: 6px; stroke-linecap: butt; }
 [data-theme="drake"] .cl-cm .cl-tube { border-radius: 0; background: repeating-linear-gradient(-45deg, var(--c) 0 8px, #14130f 8px 16px) 0 0 / 100% 12px no-repeat, var(--mark), var(--face); }
 [data-theme="drake"] .cl-cm .cl-cover { background: repeating-linear-gradient(-45deg, #f2c230 0 12px, #14130f 12px 24px); border-color: #f2c230; }
+[data-theme="drake"] .cl-hull .cl-door-sill { stroke: #f2c230; stroke-width: 7; stroke-dasharray: 10 8; stroke-linecap: butt; }
+[data-theme="drake"] .cl-hull .cl-door-frame { stroke: #f2c230; stroke-width: 5px; stroke-linejoin: miter; }
+[data-theme="drake"] .cl-hull .cl-leaf rect { fill: #2a2822; stroke: #57513f; stroke-width: 2; }
+[data-theme="drake"] .cl-hull .cl-doors, [data-theme="drake"] .cl-cm .cl-plate { border-radius: 0; border-color: #3a362a; background: repeating-linear-gradient(-45deg, rgba(242,194,48,.5) 0 6px, transparent 6px 12px) 0 0 / 100% 5px no-repeat, #16150f; }
 
 /* ====================================================================================
    Aegis: carbon weave, graphite with cut corners, red tactical marks
@@ -262,7 +271,10 @@
 [data-theme="aegis"] .hud-dial .dl-hub { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); border-radius: 0; }
 [data-theme="aegis"] .cl-shields .cl-ring { stroke-dasharray: 18 4; }
 [data-theme="aegis"] .cl-targeting .cl-pip { fill: none; stroke: #ff3b3b; stroke-width: 2; }
-[data-theme="aegis"] .cl-turrets .cl-mount { stroke-dasharray: none; stroke: #ff3b3b; opacity: .5; }
+[data-theme="aegis"] .cl-hull .cl-door-frame { stroke: #ff3b3b; stroke-width: 2px; stroke-linejoin: miter; }
+[data-theme="aegis"] .cl-hull .cl-door-sill { stroke: #ff3b3b; stroke-dasharray: 2 4; }
+[data-theme="aegis"] .cl-hull .cl-leaf rect { fill: #1d1f24; stroke: #3c3f46; }
+[data-theme="aegis"] .cl-hull .cl-doors, [data-theme="aegis"] .cl-cm .cl-plate { border-radius: 0; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); border-color: rgba(255,59,59,.35); }
 
 /* ====================================================================================
    Anvil: olive drab armor, screwed plates, indicator lamps, stencil type
@@ -356,6 +368,10 @@
 [data-theme="anvil"] .cl-targeting .cl-bracket { stroke-width: 5px; stroke-linecap: square; }
 [data-theme="anvil"] .cl-bank .cl-toggle { border-radius: 2px; }
 [data-theme="anvil"] .cl-bank .cl-toggle::after { border-radius: 1px; }
+[data-theme="anvil"] .cl-hull .cl-door-frame { stroke-width: 6px; stroke-linecap: square; stroke-linejoin: miter; }
+[data-theme="anvil"] .cl-hull .cl-leaf rect { stroke-width: 3; }
+[data-theme="anvil"] .cl-hull .cl-door-sill { stroke-width: 6; stroke-linecap: square; }
+[data-theme="anvil"] .cl-hull .cl-doors, [data-theme="anvil"] .cl-cm .cl-plate { border-radius: 2px; border-width: 2px; box-shadow: inset 0 0 0 3px rgba(0,0,0,.25); }
 
 /* ====================================================================================
    Origin: cream luxury, black gloss controls, gold hairlines, a cream dial
@@ -460,6 +476,10 @@
 [data-theme="origin"] .cl-shields .cl-seg { stroke: rgba(201,166,107,.25); }
 [data-theme="origin"] .cl-targeting .cl-bracket { stroke-width: 1px; }
 [data-theme="origin"] .cl-quantum .cl-spool-track, [data-theme="origin"] .cl-quantum .cl-spool-fill { stroke-width: 3; }
+[data-theme="origin"] .cl-hull .cl-door-frame, [data-theme="origin"] .cl-hull .cl-door-sill { stroke: #b08d57; stroke-width: 1px; }
+[data-theme="origin"] .cl-hull .cl-leaf rect { fill: #f4ede1; stroke: #b08d57; stroke-width: 1; }
+[data-theme="origin"] .cl-hull .cl-leaf path { stroke: #b08d57; }
+[data-theme="origin"] .cl-hull .cl-doors, [data-theme="origin"] .cl-cm .cl-plate { border-radius: 22px; border-color: rgba(176,141,87,.45); background: rgba(176,141,87,.08); }
 
 /* ====================================================================================
    MISC: teal-slate enamel, gray bezel, orange tabs, gauge dials
@@ -531,7 +551,10 @@
 [data-theme="misc"] .cl-shields .cl-ring-track { stroke: #b4baba; stroke-dasharray: 2 6; opacity: .8; }
 [data-theme="misc"] .cl-shields .cl-seg.on { stroke: #52dcab; }
 [data-theme="misc"] .cl-targeting .cl-ret-ring { stroke-dasharray: 2 6; stroke-width: 3; }
-[data-theme="misc"] .cl-turrets .cl-pod, [data-theme="misc"] .cl-mining .cl-cart { border-top: 5px solid var(--accent); }
+[data-theme="misc"] .cl-turrets .cl-turret, [data-theme="misc"] .cl-mining .cl-cart { border-top: 5px solid var(--accent); }
+[data-theme="misc"] .cl-hull .cl-door-frame { stroke-width: 4px; }
+[data-theme="misc"] .cl-hull .cl-door-sill { stroke: var(--accent); stroke-width: 6; stroke-dasharray: 2 6; }
+[data-theme="misc"] .cl-hull .cl-doors, [data-theme="misc"] .cl-cm .cl-plate { border-radius: 12px; border-top: 5px solid var(--accent); }
 
 /* ====================================================================================
    Crusader: open sky, frosted plates, pearl-white capsules
@@ -607,8 +630,11 @@
 [data-theme="crusader"] .hud-dial .dl-chip { --face: linear-gradient(180deg, #ffffff, #dfe9f3); box-shadow: 0 2px 6px rgba(21,48,77,.18), inset 0 1px 0 #fff; }
 [data-theme="crusader"] .hud-dial .dl-needle { background: linear-gradient(90deg, transparent 0 38%, #2a78c8 38%); box-shadow: none; height: 3px; }
 [data-theme="crusader"] .cl-shields .cl-ring-track { stroke: #b4c9dd; opacity: .9; }
-[data-theme="crusader"] .cl-hull.lights-on .cl-cone { fill: rgba(255,214,90,.35); stroke: #bd7a12; }
 [data-theme="crusader"] .cl-cm .cl-cover-word { background: rgba(21,48,77,.8); }
+[data-theme="crusader"] .cl-hull .cl-door-frame { stroke: #2a78c8; stroke-width: 3px; }
+[data-theme="crusader"] .cl-hull .cl-leaf rect { fill: #ffffff; stroke: #b4c9dd; }
+[data-theme="crusader"] .cl-hull .cl-door-sill { stroke: #2a78c8; stroke-width: 3; }
+[data-theme="crusader"] .cl-hull .cl-doors, [data-theme="crusader"] .cl-cm .cl-plate { border-radius: 18px; border-color: #c9d9e8; background: linear-gradient(180deg, #f3f8fd, #e4eef8); box-shadow: inset 0 1px 0 #fff; }
 
 /* ====================================================================================
    Banu: plum lacquer on carved wood, soft seed shapes, warm glow
@@ -674,7 +700,10 @@
 [data-theme="banu"] .cl-shields .cl-seg { stroke-dasharray: .1 7; }
 [data-theme="banu"] .cl-shields .cl-ring-track { stroke-dasharray: .1 10; stroke: #a06a9a; opacity: .9; }
 [data-theme="banu"] .cl-targeting .cl-bracket { stroke-dasharray: .1 7; stroke-width: 4px; }
-[data-theme="banu"] .cl-turrets .cl-pod { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+[data-theme="banu"] .cl-turrets .cl-turret { border-radius: 26px 26px 18px 18px / 30px 30px 14px 14px; }
+[data-theme="banu"] .cl-hull .cl-door-frame { stroke-dasharray: .1 8; stroke-width: 5px; }
+[data-theme="banu"] .cl-hull .cl-door-sill { stroke-dasharray: .1 8; stroke-width: 5; }
+[data-theme="banu"] .cl-hull .cl-doors, [data-theme="banu"] .cl-cm .cl-plate { border-radius: 30px 30px 18px 18px / 36px 36px 14px 14px; }
 
 /* ====================================================================================
    Aopoa: jade light, flowing plates, deep green forms with a living rim
@@ -743,6 +772,9 @@
 [data-theme="aopoa"] .hud-dial .dl-hub { border-radius: 52% 48% 45% 55% / 50% 55% 45% 50%; }
 [data-theme="aopoa"] .cl-shields .cl-ring { stroke-linecap: round; }
 [data-theme="aopoa"] .cl-targeting .cl-bracket { stroke-width: 5px; }
+[data-theme="aopoa"] .cl-hull .cl-door-frame { stroke-width: 4px; filter: drop-shadow(0 0 5px var(--accent)); }
+[data-theme="aopoa"] .cl-hull .cl-leaf rect { stroke: var(--accent); stroke-opacity: .5; }
+[data-theme="aopoa"] .cl-hull .cl-doors, [data-theme="aopoa"] .cl-cm .cl-plate { border-radius: 28px 10px 28px 10px; }
 
 /* ====================================================================================
    Argo: safety-yellow work panels, black utility keys, hazard bands, big codes
@@ -829,8 +861,11 @@
 [data-theme="argo"] .hud-dial .dl-spoke.on { stroke: #ffc21f; filter: none; stroke-width: 5; }
 [data-theme="argo"] .hud-dial .dl-hub { border-radius: 4px; clip-path: polygon(50% 0, 100% 100%, 0 100%); padding-top: 22%; }
 [data-theme="argo"] .cl-shields .cl-ring-track { stroke: #ffc21f; stroke-dasharray: 10 10; opacity: .8; }
-[data-theme="argo"] .cl-turrets .cl-pod { font-size: 30px; }
+[data-theme="argo"] .cl-turrets .cl-turret { font-size: 22px; }
 [data-theme="argo"] .cl-targeting .cl-bracket { stroke-width: 7px; stroke-linecap: square; }
+[data-theme="argo"] .cl-hull .cl-door-frame { stroke: #ffc21f; stroke-width: 7px; stroke-linecap: square; stroke-linejoin: miter; }
+[data-theme="argo"] .cl-hull .cl-door-sill { stroke: #ffc21f; stroke-width: 8; stroke-dasharray: 12 8; stroke-linecap: butt; }
+[data-theme="argo"] .cl-hull .cl-doors, [data-theme="argo"] .cl-cm .cl-plate { border-radius: 3px; border: 2px solid #3d3a2c; background: repeating-linear-gradient(90deg, #ffc21f 0 10px, #1a1813 10px 20px) 0 100% / 100% 4px no-repeat, rgba(0,0,0,.25); }
 
 /* ====================================================================================
    Consolidated Outland: desert sand, sunset stripes, warm brown kit
@@ -908,6 +943,9 @@
 [data-theme="cnou"] .hud-dial .dl-hub { border-radius: 999px 999px 12px 12px; }
 [data-theme="cnou"] .cl-shields .cl-seg { stroke-dasharray: 6 3; }
 [data-theme="cnou"] .cl-salvage .cl-beam { stroke-dasharray: 8 4; }
+[data-theme="cnou"] .cl-hull .cl-door-frame { stroke-width: 3px; }
+[data-theme="cnou"] .cl-hull .cl-door-sill { stroke-width: 3; stroke-dasharray: 14 4; }
+[data-theme="cnou"] .cl-hull .cl-doors, [data-theme="cnou"] .cl-cm .cl-plate { border-radius: 16px; border-bottom: 3px solid var(--accent); }
 
 /* ====================================================================================
    Esperia: Tevarin plum night, swept blade shapes, coral light with a prism edge
@@ -978,8 +1016,11 @@
 [data-theme="esperia"] .hud-dial .dl-chip .hud-ico svg { width: calc(var(--chip) * .34); height: calc(var(--chip) * .34); }
 [data-theme="esperia"] .hud-dial .dl-hub { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); border-radius: 0; font-size: 10px; }
 [data-theme="esperia"] .hud-dial .dl-cap { text-transform: none; letter-spacing: .08em; }
-[data-theme="esperia"] .cl-turrets .cl-pod { padding-top: 2px; }
+[data-theme="esperia"] .cl-turrets .cl-turret { letter-spacing: .14em; font-weight: 400; }
 [data-theme="esperia"] .cl-targeting .cl-bracket { stroke-width: 1.5px; }
+[data-theme="esperia"] .cl-hull .cl-door-frame, [data-theme="esperia"] .cl-hull .cl-door-sill { stroke-width: 1.5px; }
+[data-theme="esperia"] .cl-hull .cl-leaf rect { fill: color-mix(in srgb, var(--accent) 10%, var(--face-lo)); }
+[data-theme="esperia"] .cl-hull .cl-doors, [data-theme="esperia"] .cl-cm .cl-plate { border-radius: 2px; clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
 
 /* ====================================================================================
    High contrast (Deck settings) gives every maker the same plain black, white and strong

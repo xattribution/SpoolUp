@@ -1005,15 +1005,32 @@
       // cluster scales its drawing, while a button stretched tall would only look odd. So
       // Shields on a phone held upright fills the screen instead of its top half.
       const typeOf = (it) => (it.type === "ref" ? (index.get(it.ref) || {}).type : it.type);
-      const clustersOnly = placed.cells.length > 0 && placed.cells.every((c) => { const t = typeOf(c.item); return t === "rotary" || Boolean(DW && DW.get(t)); });
+      // Widgets that are rows of plain buttons (switch banks, turret seats) say grows: false.
+      const isCluster = (c) => { const t = typeOf(c.item), d = DW && DW.get(t); return t === "rotary" || Boolean(d && d.grows !== false); };
+      const clustersOnly = placed.cells.length > 0 && placed.cells.every(isCluster);
       const cs = DG.cellSize({ bodyW, bodyH, cols: m.cols, rows: placed.rows, gap: m.gap, minH: m.minH, maxH: clustersOnly ? Infinity : m.maxH });
       const used = placed.cells.reduce((n, c) => Math.max(n, c.col + c.w), 0);
       const shift = Math.max(0, Math.floor((m.cols - used) / 2));
-      const pitchX = cs.cellW + m.gap, pitchY = cs.cellH + m.gap;
+      const pitchX = cs.cellW + m.gap;
       body.classList.toggle("scrolls", cs.scrolls);
+      // Height left under a panel that mixes clusters with buttons (a phone held upright)
+      // goes to the rows that hold clusters alone, so a cluster grows and buttons keep
+      // their height. Not in the layout editor, whose grid stays even.
+      const rowH = Array.from({ length: placed.rows }, () => cs.cellH);
+      const spare = bodyH - (placed.rows * cs.cellH + Math.max(0, placed.rows - 1) * m.gap);
+      if (!cs.scrolls && !clustersOnly && !D.preview && spare > 24) {
+        const grow = rowH.map((_, r) => {
+          const here = placed.cells.filter((c) => r >= c.row && r < c.row + c.h);
+          return here.length > 0 && here.every(isCluster);
+        });
+        const n = grow.filter(Boolean).length;
+        if (n) rowH.forEach((h, r) => { if (grow[r]) rowH[r] = h + spare / n; });
+      }
+      const rowY = rowH.map((_, r) => rowH.slice(0, r).reduce((a, h) => a + h + m.gap, 0));
+      const spanH = (row, h) => rowH.slice(row, row + h).reduce((a, v) => a + v, 0) + (h - 1) * m.gap;
       withLabels(pickLabels(panel.labels, deckLabels()), () => {
         for (const c of placed.cells) {
-          const node = renderItem(c.item, { x: (c.col + shift) * pitchX, y: c.row * pitchY, w: c.w * cs.cellW + (c.w - 1) * m.gap, h: c.h * cs.cellH + (c.h - 1) * m.gap });
+          const node = renderItem(c.item, { x: (c.col + shift) * pitchX, y: rowY[c.row] || 0, w: c.w * cs.cellW + (c.w - 1) * m.gap, h: spanH(c.row, c.h) });
           if (node) body.appendChild(node);
         }
       });

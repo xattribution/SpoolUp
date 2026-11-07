@@ -1303,13 +1303,13 @@
   // Wide dashboards to start from. Each wants clusters by id (also matching ship layouts'
   // prefixed ids, like "pr-mn-cluster") or else by type; what the layout lacks is left out.
   const PANEL_PRESETS = [
-    { title: "Pilot", hint: "Landing, modes, quantum, power, shields and the flight assists", items: [
-      { ids: ["pl-group"], span: [4, 3] }, { ids: ["qt-modes"], type: "rotary", span: [4, 4] }, { ids: ["qt-quantum"], type: "quantum", span: [4, 3] },
-      { ids: ["pw-group"], span: [4, 5] }, { ids: ["sh-cluster"], type: "shields", span: [4, 4] }, { ids: ["fa-bank"], span: [4, 1] }, { ids: ["qt-bus"], span: [8, 1] },
+    { title: "Pilot", hint: "Start-up, landing, modes, quantum, power and the flight assists", items: [
+      { ids: ["pl-group"], span: [4, 3] }, { ids: ["qt-modes"], type: "rotary", span: [4, 5] }, { ids: ["qt-boot", "qt-bus"], span: [4, 1] },
+      { ids: ["pw-group"], span: [4, 5] }, { ids: ["qt-quantum"], type: "quantum", span: [4, 3] }, { ids: ["fa-bank"], span: [4, 1] }, { ids: ["fa-range"], span: [12, 1] },
     ] },
-    { title: "Gunner", hint: "Shields, targeting, countermeasures, turrets and power", items: [
+    { title: "Gunner", hint: "Targeting and countermeasures side by side, shields, power and the turret seats", items: [
       { ids: ["sh-cluster"], type: "shields", span: [4, 5] }, { ids: ["tg-cluster"], type: "targeting", span: [4, 5] }, { ids: ["cb-cluster"], type: "countermeasures", span: [4, 5] },
-      { ids: ["cr-turrets"], type: "turrets", span: [6, 3] }, { ids: ["pw-group"], span: [6, 5] },
+      { ids: ["pw-group"], span: [6, 4] }, { ids: ["qt-modes"], type: "rotary", span: [6, 3] }, { ids: ["cr-turrets"], type: "turrets", span: [6, 1] },
     ] },
     { title: "Miner", hint: "The mining head, operator modes, power and shields", items: [
       { ids: ["mn-cluster"], type: "mining", span: [6, 6] }, { ids: ["qt-modes"], type: "rotary", span: [6, 4] },
@@ -1319,9 +1319,9 @@
       { ids: ["sv-cluster"], type: "salvage", span: [6, 5] }, { ids: ["qt-modes"], type: "rotary", span: [6, 4] },
       { ids: ["pw-group"], span: [6, 5] }, { ids: ["cr-hull"], type: "hull", span: [6, 4] },
     ] },
-    { title: "Hauler", hint: "Landing, quantum, lights and doors, the power bus and comms", items: [
-      { ids: ["pl-group"], span: [4, 3] }, { ids: ["qt-quantum"], type: "quantum", span: [4, 3] }, { ids: ["cr-hull"], type: "hull", span: [4, 4] },
-      { ids: ["qt-modes"], type: "rotary", span: [4, 4] }, { ids: ["qt-bus"], span: [8, 1] }, { ids: ["cm-ptt"], span: [2, 2] }, { ids: ["cm-ptt-prox"], span: [2, 2] },
+    { title: "Hauler", hint: "Start-up and landing, quantum, lights and doors, modes and comms", items: [
+      { ids: ["qt-boot", "qt-bus"], span: [4, 1] }, { ids: ["qt-quantum"], type: "quantum", span: [4, 3] }, { ids: ["cr-hull"], type: "hull", span: [4, 4] },
+      { ids: ["pl-group"], span: [4, 3] }, { ids: ["qt-modes"], type: "rotary", span: [4, 4] }, { ids: ["cm-ptt"], span: [2, 2] }, { ids: ["cm-ptt-prox"], span: [2, 2] },
     ] },
   ];
 

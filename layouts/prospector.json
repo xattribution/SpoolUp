@@ -271,10 +271,10 @@
           "elements": [
             {
               "type": "button",
-              "style": "hero",
               "id": "pr-qt-flight-ready",
               "anim": "ripple",
               "label": "Toggle Flight Ready",
+              "short": "Flight Ready",
               "state": {
                 "group": "flight-ready"
               },
@@ -286,6 +286,29 @@
               "scAction": "v_flightready",
               "mode": "tap",
               "color": "green",
+              "icon": "flight-ready",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "pr-fa-lights",
+              "anim": "glow",
+              "icon": "lights",
+              "label": "Lights",
+              "state": {
+                "group": "lights"
+              },
+              "voice": [
+                "lights on",
+                "lights off",
+                "toggle lights"
+              ],
+              "keys": "l",
+              "scAction": "v_lights",
+              "mode": "tap",
               "span": [
                 2,
                 1
@@ -316,35 +339,16 @@
             },
             {
               "type": "button",
-              "id": "pr-fa-lights",
-              "anim": "glow",
-              "icon": "lights",
-              "label": "Lights",
-              "state": {
-                "group": "lights"
-              },
+              "id": "pr-op-flight",
+              "icon": "ship",
+              "label": "Flight",
               "voice": [
-                "lights on",
-                "lights off",
-                "toggle lights"
+                "flight mode"
               ],
-              "keys": "l",
-              "scAction": "v_lights",
+              "keys": "ralt+f",
+              "scAction": "v_set_flight_mode",
               "mode": "tap",
-              "span": [
-                2,
-                1
-              ]
-            },
-            {
-              "type": "button",
-              "id": "pr-op-mining",
-              "icon": "mining",
-              "label": "Mining",
-              "keys": "ralt+m",
-              "scAction": "v_set_mining_mode",
-              "mode": "tap",
-              "color": "amber",
+              "color": "green",
               "span": [
                 2,
                 1
@@ -371,16 +375,13 @@
             },
             {
               "type": "button",
-              "id": "pr-op-flight",
-              "icon": "ship",
-              "label": "Flight",
-              "voice": [
-                "flight mode"
-              ],
-              "keys": "ralt+f",
-              "scAction": "v_set_flight_mode",
+              "id": "pr-op-mining",
+              "icon": "mining",
+              "label": "Mining",
+              "keys": "ralt+m",
+              "scAction": "v_set_mining_mode",
               "mode": "tap",
-              "color": "green",
+              "color": "amber",
               "span": [
                 2,
                 1
@@ -388,7 +389,25 @@
             },
             {
               "type": "button",
-              "style": "quantum",
+              "id": "pr-qt-scm-nav",
+              "anim": "streak",
+              "label": "SCM/NAV",
+              "voice": [
+                "switch master mode",
+                "toggle master mode",
+                "master mode"
+              ],
+              "keys": "b",
+              "scAction": "v_master_mode_cycle_long",
+              "mode": "timed",
+              "ms": 400,
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
               "id": "pr-qt-engage",
               "anim": "charge",
               "label": "Engage Quantum",
@@ -422,25 +441,6 @@
               "mode": "timed",
               "ms": 1200,
               "color": "red",
-              "span": [
-                2,
-                1
-              ]
-            },
-            {
-              "type": "button",
-              "id": "pr-qt-scm-nav",
-              "anim": "streak",
-              "label": "SCM/NAV",
-              "voice": [
-                "switch master mode",
-                "toggle master mode",
-                "master mode"
-              ],
-              "keys": "b",
-              "scAction": "v_master_mode_cycle_long",
-              "mode": "timed",
-              "ms": 400,
               "span": [
                 2,
                 1
@@ -1026,7 +1026,8 @@
           "span": [
             3,
             1
-          ]
+          ],
+          "labels": "show"
         },
         {
           "type": "button",
@@ -1045,7 +1046,8 @@
           "span": [
             3,
             1
-          ]
+          ],
+          "labels": "show"
         },
         {
           "type": "fader",
@@ -1100,7 +1102,8 @@
           "span": [
             2,
             1
-          ]
+          ],
+          "labels": "show"
         },
         {
           "type": "button",
@@ -1273,12 +1276,12 @@
           "label": "Targeting",
           "span": [
             6,
-            6
+            5
           ],
           "size": {
             "small": [
               6,
-              5
+              4
             ]
           },
           "next": {
@@ -1551,99 +1554,134 @@
       "cols": 6,
       "elements": [
         {
-          "type": "switchbank",
-          "id": "qt-bus",
-          "label": "Power",
+          "type": "group",
+          "id": "qt-boot",
+          "label": "Start-up",
+          "cols": 6,
           "span": [
             6,
             1
           ],
-          "buttons": [
+          "elements": [
             {
-              "style": "tile",
-              "icon": "power",
-              "id": "qt-pwr",
+              "type": "button",
+              "id": "qt-flight-ready",
               "anim": "ripple",
-              "label": "PWR",
+              "label": "Toggle Flight Ready",
+              "short": "Flight Ready",
               "state": {
-                "group": "power"
+                "group": "flight-ready"
               },
               "voice": [
-                "power",
-                "power on",
-                "power off",
-                "toggle power"
+                "flight ready",
+                "ready for flight"
               ],
-              "keys": "u",
-              "scAction": "v_power_toggle",
+              "keys": "ralt+r",
+              "scAction": "v_flightready",
               "mode": "tap",
-              "color": "green"
+              "color": "green",
+              "icon": "flight-ready",
+              "span": [
+                2,
+                1
+              ]
             },
             {
-              "style": "tile",
-              "icon": "power-weapons",
-              "id": "qt-wep",
-              "anim": "ripple",
-              "label": "WEP",
-              "state": {
-                "group": "weapons-power"
-              },
-              "voice": [
-                "weapons on",
-                "weapons off",
-                "enable weapons",
-                "disable weapons",
-                "toggle weapons"
+              "type": "switchbank",
+              "id": "qt-bus",
+              "label": "Power",
+              "span": [
+                4,
+                1
               ],
-              "keys": "p",
-              "scAction": "v_power_toggle_weapons",
-              "mode": "tap",
-              "color": "red"
-            },
-            {
-              "style": "tile",
-              "icon": "power-engines",
-              "id": "qt-thr",
-              "anim": "ripple",
-              "label": "THR",
-              "state": {
-                "group": "thruster-power"
-              },
-              "voice": [
-                "engines",
-                "engines on",
-                "engines off",
-                "turn on engines",
-                "turn off engines",
-                "toggle engines",
-                "thrusters on",
-                "thrusters off"
-              ],
-              "keys": "i",
-              "scAction": "v_power_toggle_thrusters",
-              "mode": "tap",
-              "color": "blue"
-            },
-            {
-              "style": "tile",
-              "icon": "power-shields",
-              "id": "qt-shld",
-              "anim": "ripple",
-              "label": "SHLD",
-              "state": {
-                "group": "shield-power"
-              },
-              "voice": [
-                "shields on",
-                "shields off",
-                "enable shields",
-                "disable shields",
-                "toggle shields"
-              ],
-              "keys": "o",
-              "scAction": "v_power_toggle_shields",
-              "mode": "tap",
-              "color": "green"
+              "buttons": [
+                {
+                  "style": "tile",
+                  "icon": "power",
+                  "id": "qt-pwr",
+                  "anim": "ripple",
+                  "label": "PWR",
+                  "state": {
+                    "group": "power"
+                  },
+                  "voice": [
+                    "power",
+                    "power on",
+                    "power off",
+                    "toggle power"
+                  ],
+                  "keys": "u",
+                  "scAction": "v_power_toggle",
+                  "mode": "tap",
+                  "color": "green"
+                },
+                {
+                  "style": "tile",
+                  "icon": "power-weapons",
+                  "id": "qt-wep",
+                  "anim": "ripple",
+                  "label": "WEP",
+                  "state": {
+                    "group": "weapons-power"
+                  },
+                  "voice": [
+                    "weapons on",
+                    "weapons off",
+                    "enable weapons",
+                    "disable weapons",
+                    "toggle weapons"
+                  ],
+                  "keys": "p",
+                  "scAction": "v_power_toggle_weapons",
+                  "mode": "tap",
+                  "color": "red"
+                },
+                {
+                  "style": "tile",
+                  "icon": "power-engines",
+                  "id": "qt-thr",
+                  "anim": "ripple",
+                  "label": "THR",
+                  "state": {
+                    "group": "thruster-power"
+                  },
+                  "voice": [
+                    "engines",
+                    "engines on",
+                    "engines off",
+                    "turn on engines",
+                    "turn off engines",
+                    "toggle engines",
+                    "thrusters on",
+                    "thrusters off"
+                  ],
+                  "keys": "i",
+                  "scAction": "v_power_toggle_thrusters",
+                  "mode": "tap",
+                  "color": "blue"
+                },
+                {
+                  "style": "tile",
+                  "icon": "power-shields",
+                  "id": "qt-shld",
+                  "anim": "ripple",
+                  "label": "SHLD",
+                  "state": {
+                    "group": "shield-power"
+                  },
+                  "voice": [
+                    "shields on",
+                    "shields off",
+                    "enable shields",
+                    "disable shields",
+                    "toggle shields"
+                  ],
+                  "keys": "o",
+                  "scAction": "v_power_toggle_shields",
+                  "mode": "tap",
+                  "color": "green"
+                }
+              ]
             }
           ]
         },
@@ -1653,7 +1691,7 @@
           "label": "Quantum",
           "span": [
             6,
-            3
+            4
           ],
           "size": {
             "small": [
@@ -1677,23 +1715,6 @@
             "verify": true,
             "mode": "hold",
             "color": "blue"
-          },
-          "ready": {
-            "style": "hero",
-            "id": "qt-flight-ready",
-            "anim": "ripple",
-            "label": "Toggle Flight Ready",
-            "state": {
-              "group": "flight-ready"
-            },
-            "voice": [
-              "flight ready",
-              "ready for flight"
-            ],
-            "keys": "ralt+r",
-            "scAction": "v_flightready",
-            "mode": "tap",
-            "color": "green"
           }
         },
         {
@@ -2085,14 +2106,8 @@
           "label": "Turrets",
           "span": [
             6,
-            3
+            1
           ],
-          "size": {
-            "small": [
-              6,
-              2
-            ]
-          },
           "seats": [
             {
               "id": "cr-turret-1",
@@ -2317,7 +2332,8 @@
           "span": [
             2,
             1
-          ]
+          ],
+          "labels": "show"
         },
         {
           "type": "button",
@@ -2334,7 +2350,8 @@
           "span": [
             2,
             1
-          ]
+          ],
+          "labels": "show"
         },
         {
           "type": "button",
@@ -2686,12 +2703,27 @@
         },
         {
           "type": "ref",
+          "id": "pilot-qt-boot",
+          "ref": "qt-boot",
+          "span": [
+            4,
+            1
+          ]
+        },
+        {
+          "type": "ref",
           "id": "pilot-pw-group",
           "ref": "pw-group",
           "span": [
             4,
             5
-          ]
+          ],
+          "size": {
+            "small": [
+              4,
+              4
+            ]
+          }
         },
         {
           "type": "ref",
@@ -2699,35 +2731,21 @@
           "ref": "qt-quantum",
           "span": [
             4,
-            2
-          ]
-        },
-        {
-          "type": "ref",
-          "id": "pilot-sh-cluster",
-          "ref": "sh-cluster",
-          "span": [
-            4,
             3
           ],
-          "only": "large"
-        },
-        {
-          "type": "ref",
-          "id": "pilot-qt-bus",
-          "ref": "qt-bus",
-          "span": [
-            8,
-            1
-          ],
-          "only": "large"
+          "size": {
+            "small": [
+              4,
+              2
+            ]
+          }
         },
         {
           "type": "ref",
           "id": "pilot-fa-bank",
           "ref": "fa-bank",
           "span": [
-            8,
+            4,
             1
           ],
           "only": "large"
@@ -2737,7 +2755,7 @@
           "id": "pilot-fa-range",
           "ref": "fa-range",
           "span": [
-            8,
+            12,
             1
           ],
           "only": "large"
@@ -2878,8 +2896,8 @@
         },
         {
           "type": "ref",
-          "id": "in-qt-bus",
-          "ref": "qt-bus",
+          "id": "in-qt-boot",
+          "ref": "qt-boot",
           "span": [
             6,
             1
@@ -2898,8 +2916,8 @@
         },
         {
           "type": "ref",
-          "id": "in-qt-emergency",
-          "ref": "qt-emergency",
+          "id": "in-qt-quantum",
+          "ref": "qt-quantum",
           "span": [
             6,
             2
