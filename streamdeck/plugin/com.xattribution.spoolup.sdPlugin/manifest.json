@@ -5,7 +5,7 @@
   "Version": "2.0.0.0",
   "Author": "xattribution",
   "Description": "Star Citizen controls through SpoolUp: live key lights, press animations, dials and scenes, with SpoolUp's focus check. Fan project, not affiliated with Cloud Imperium Games.",
-  "URL": "https://github.com/xattribution/tablet-deck-spooned",
+  "URL": "https://github.com/xattribution/SpoolUp",
   "Icon": "imgs/plugin/icon",
   "Category": "SpoolUp",
   "CategoryIcon": "imgs/plugin/category",

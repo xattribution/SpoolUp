@@ -5,13 +5,13 @@ PackageVersion: 1.8.0
 PackageLocale: en-US
 Publisher: xattribution
 PublisherUrl: https://github.com/xattribution
-PublisherSupportUrl: https://github.com/xattribution/tablet-deck-spooned/issues
-PrivacyUrl: https://github.com/xattribution/tablet-deck-spooned#safety-and-privacy
+PublisherSupportUrl: https://github.com/xattribution/SpoolUp/issues
+PrivacyUrl: https://github.com/xattribution/SpoolUp#safety-and-privacy
 Author: nodieCode and xattribution
 PackageName: SpoolUp
-PackageUrl: https://github.com/xattribution/tablet-deck-spooned
+PackageUrl: https://github.com/xattribution/SpoolUp
 License: MIT
-LicenseUrl: https://github.com/xattribution/tablet-deck-spooned/blob/v1.8.0/LICENSE
+LicenseUrl: https://github.com/xattribution/SpoolUp/blob/v1.8.0/LICENSE
 Copyright: Copyright (c) 2026 nodieCode
 ShortDescription: Turns a tablet or phone on your home network into a touch control panel for Star Citizen.
 Description: |-
@@ -33,12 +33,12 @@ Tags:
 - tablet-deck
 - touchscreen
 - voice-commands
-ReleaseNotesUrl: https://github.com/xattribution/tablet-deck-spooned/releases/tag/v1.8.0
+ReleaseNotesUrl: https://github.com/xattribution/SpoolUp/releases/tag/v1.8.0
 InstallationNotes: |-
   Open SpoolUp from the Start menu: its window shows the QR code, address and pairing code for your tablet.
   WinGet doesn't copy the Star Citizen keybind profile into the game; add it with Settings > Install keybind profile... in the SpoolUp window, then load "SpoolUp Keyboard" in the game.
 Documentations:
 - DocumentLabel: Get started
-  DocumentUrl: https://github.com/xattribution/tablet-deck-spooned#get-started
+  DocumentUrl: https://github.com/xattribution/SpoolUp#get-started
 ManifestType: defaultLocale
 ManifestVersion: 1.28.0

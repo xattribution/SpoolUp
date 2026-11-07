@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/xattribution/tablet-deck-spooned/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/xattribution/tablet-deck-spooned?style=for-the-badge&label=download&color=4fb3ff&labelColor=0b1726"></a>
+  <a href="https://github.com/xattribution/SpoolUp/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/xattribution/SpoolUp?style=for-the-badge&label=download&color=4fb3ff&labelColor=0b1726"></a>
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-4fb3ff?style=for-the-badge&labelColor=0b1726">
-  <a href="https://github.com/xattribution/tablet-deck-spooned/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/xattribution/tablet-deck-spooned/total?style=for-the-badge&color=4fb3ff&labelColor=0b1726"></a>
-  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/xattribution/tablet-deck-spooned?style=for-the-badge&color=4fb3ff&labelColor=0b1726"></a>
+  <a href="https://github.com/xattribution/SpoolUp/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/xattribution/SpoolUp/total?style=for-the-badge&color=4fb3ff&labelColor=0b1726"></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/xattribution/SpoolUp?style=for-the-badge&color=4fb3ff&labelColor=0b1726"></a>
 </p>
 
 <h3 align="center">Turn any tablet or phone into a touch control panel for Star Citizen.</h3>
@@ -17,11 +17,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/xattribution/tablet-deck-spooned/releases/latest"><b>⬇&nbsp;Download for Windows</b></a>
+  <a href="https://github.com/xattribution/SpoolUp/releases/latest"><b>⬇&nbsp;Download for Windows</b></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://xattribution.github.io/tablet-deck-spooned/try/"><b>▶&nbsp;Try it in your browser</b></a>
+  <a href="https://xattribution.github.io/SpoolUp/try/"><b>▶&nbsp;Try it in your browser</b></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://xattribution.github.io/tablet-deck-spooned/"><b>Website</b></a>
+  <a href="https://xattribution.github.io/SpoolUp/"><b>Website</b></a>
 </p>
 
 <p align="center">
@@ -125,7 +125,7 @@ You need **Windows 10 or 11** on the gaming PC and a **tablet or phone on the
 same Wi-Fi**. Nothing else.
 
 1. **Download** `SpoolUp-Setup-<version>.exe` from the
-   [latest release](https://github.com/xattribution/tablet-deck-spooned/releases/latest)
+   [latest release](https://github.com/xattribution/SpoolUp/releases/latest)
    and run it. (Windows may warn about an unknown publisher; see
    [Troubleshooting](#troubleshooting).)
 2. **Install.** Setup adds SpoolUp to the Start menu and lets it through
@@ -212,9 +212,9 @@ Another program (or another copy of SpoolUp) uses that port. Open
 
 The details are saved in `crash.log` in the Settings folder
 (`%APPDATA%\TabletDeck`). Please
-[open an issue](https://github.com/xattribution/tablet-deck-spooned/issues) and attach
+[open an issue](https://github.com/xattribution/SpoolUp/issues) and attach
 that file. Meanwhile, the previous version's installer on the
-[releases page](https://github.com/xattribution/tablet-deck-spooned/releases) gets you
+[releases page](https://github.com/xattribution/SpoolUp/releases) gets you
 going again; your settings are kept.
 </details>
 
@@ -395,7 +395,7 @@ you can check its buttons and keys first; **Save** then adds it to your layouts
 with the same checks as your own edits. A layout presses whatever keys its
 buttons say, so only import files from people you trust. Made one others might
 like? Share it with a
-[layout idea](https://github.com/xattribution/tablet-deck-spooned/issues/new?template=layout_idea.yml).
+[layout idea](https://github.com/xattribution/SpoolUp/issues/new?template=layout_idea.yml).
 
 ### Voice commands
 
@@ -502,7 +502,7 @@ translated. Some things stay as they are: Star Citizen's own terms (Quantum,
 SCM, NAV, VTOL, mobiGlas), voice commands (Windows' speech recognition listens
 for English), the labels of layouts you made yourself, and the log in the
 window. The translations were made with AI; if something reads wrong in your
-language, please say so on [GitHub](https://github.com/xattribution/tablet-deck-spooned/issues/new/choose).
+language, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issues/new/choose).
 
 ### Stream Deck
 
@@ -609,7 +609,7 @@ sliding doors, decoy sparks, the quantum charge...) also come animated.
 
 The pack is built from Elgato's documented formats and checked file by file,
 but hasn't been imported into the Stream Deck app yet. If something doesn't
-work, please say so on [GitHub](https://github.com/xattribution/tablet-deck-spooned/issues/new/choose),
+work, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issues/new/choose),
 with your model and Stream Deck version. In particular:
 
 - Importing the profiles, and how the keys, dials and touch strips look.
@@ -717,7 +717,7 @@ the game's files or memory.
   Fonts. See [CODE_SIGNING.md](CODE_SIGNING.md#privacy).
 - Ideas, problems or a layout to share? **Feedback & ideas** in the window's
   System panel, at the bottom of Deck settings on the tablet, or the
-  [issue forms](https://github.com/xattribution/tablet-deck-spooned/issues/new/choose).
+  [issue forms](https://github.com/xattribution/SpoolUp/issues/new/choose).
 - Found a security problem? Please report it privately; see
   [SECURITY.md](SECURITY.md).
 - [Code signing policy](CODE_SIGNING.md): who builds and signs releases, and how.
@@ -732,7 +732,7 @@ installer, releasing and code signing are in
 SpoolUp is [MIT licensed](LICENSE); the third-party software it ships is
 listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Contributions and
 layout ideas are welcome; please
-[open an issue](https://github.com/xattribution/tablet-deck-spooned/issues/new/choose) first
+[open an issue](https://github.com/xattribution/SpoolUp/issues/new/choose) first
 for bigger changes.
 
 <p align="center"><sub>Fan project. Not affiliated with or endorsed by Cloud Imperium Games.</sub></p>

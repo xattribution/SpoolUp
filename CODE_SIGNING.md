@@ -47,7 +47,7 @@ ads or tracking. Its network use is:
 - **Your home network:** it serves the deck to tablets and phones on your
   network. Only devices with the pairing code can press keys.
 - **Update checks:** the app window asks GitHub
-  (`api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest`) whether
+  (`api.github.com/repos/xattribution/SpoolUp/releases/latest`) whether
   there's a newer version, when it starts and once a day. Untick **Check for
   updates automatically** to turn this off. Updates download only when you
   click **Update now**.

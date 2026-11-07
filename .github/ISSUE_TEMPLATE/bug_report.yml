@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! Please check [Troubleshooting](https://github.com/xattribution/tablet-deck-spooned#troubleshooting) first; it covers connecting, buttons that do nothing, voice and Windows warnings.
+        Thanks for reporting! Please check [Troubleshooting](https://github.com/xattribution/SpoolUp#troubleshooting) first; it covers connecting, buttons that do nothing, voice and Windows warnings.
   - type: input
     id: version
     attributes:

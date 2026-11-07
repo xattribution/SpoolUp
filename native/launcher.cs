@@ -94,7 +94,7 @@ static class Program
         {
             MessageBox.Show("SpoolUp ran into a problem and has to close:\n\n" + (ex == null ? text : ex.Message) +
                 "\n\nThe details are saved in " + CrashLog + ". Please attach that file to an issue on GitHub " +
-                "(github.com/xattribution/tablet-deck-spooned/issues).", "SpoolUp", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                "(github.com/xattribution/SpoolUp/issues).", "SpoolUp", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception) { }
         Environment.Exit(1);
@@ -1276,7 +1276,7 @@ class DeckWindow : Form
     // The adapter Windows treats as a Public network (tablets can't connect), or "".
     string publicNetwork = "";
     bool publicNetworkNoticed;
-    const string FeedbackPage = "https://github.com/xattribution/tablet-deck-spooned/issues/new/choose";
+    const string FeedbackPage = "https://github.com/xattribution/SpoolUp/issues/new/choose";
     readonly HudView.Item bannerWhatsNew, bannerUpdate, bannerLater;
     string editorUrl = ""; // the layout editor on this PC, set when the server is ready
     bool serverReady; // the server has said "ready" and takes settings on stdin
@@ -1291,9 +1291,9 @@ class DeckWindow : Form
     VoiceCommandsWindow commandsWindow;
 
     // ---- updates ----
-    const string LatestReleaseApi = "https://api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest";
-    const string ReleasesPage = "https://github.com/xattribution/tablet-deck-spooned/releases";
-    const string DownloadPrefix = "https://github.com/xattribution/tablet-deck-spooned/releases/download/";
+    const string LatestReleaseApi = "https://api.github.com/repos/xattribution/SpoolUp/releases/latest";
+    const string ReleasesPage = "https://github.com/xattribution/SpoolUp/releases";
+    const string DownloadPrefix = "https://github.com/xattribution/SpoolUp/releases/download/";
     const string AppKey = @"Software\Tablet Deck"; // the old name, like Lang's key
     // This window's version, e.g. "1.1.0" (AssemblyInformationalVersion, set by scripts/build.js).
     static readonly string CurrentVersion = Application.ProductVersion;

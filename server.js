@@ -600,7 +600,7 @@ function startVoice() {
         for (const c of tablets) c.send({ t: "listening", on: line === "ptt 1", chime: config.pttSound !== false });
         emit({ t: "voice", result: line === "ptt 1" ? "listen" : "stop", running: true });
       } else if (line.startsWith("err")) {
-        console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/xattribution/tablet-deck-spooned#voice-commands`);
+        console.error(`Voice commands unavailable: ${line.slice(4)}. See "Voice commands" at https://github.com/xattribution/SpoolUp#voice-commands`);
         ui({ t: "voice", state: "error", text: line.slice(4) });
         setTabletVoice("unavailable", line.slice(4));
       } else if (line.startsWith("heard ")) {

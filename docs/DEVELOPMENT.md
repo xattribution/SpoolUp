@@ -352,7 +352,7 @@ and its uninstaller, in one of three ways:
 
 ## The website
 
-`site/` is the website at <https://xattribution.github.io/tablet-deck-spooned/>. The
+`site/` is the website at <https://xattribution.github.io/SpoolUp/>. The
 **Website** workflow (`.github/workflows/pages.yml`) publishes it to GitHub Pages
 on every push to `main` that touches the site, the deck, the layouts or the
 images. `scripts/build-site.js` puts it together in `_site/`: the page, the
