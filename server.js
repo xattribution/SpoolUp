@@ -14,6 +14,7 @@ const os = require("os");
 const crypto = require("crypto");
 const { spawn, spawnSync, execFile, execFileSync } = require("child_process");
 const qr = require("./qr");
+const gameLog = require("./gamelog");
 
 // node:sea is missing before Node 20; that's never the installed app.
 const sea = (() => { try { return require("node:sea"); } catch { return null; } })();
@@ -1485,6 +1486,7 @@ server.on("upgrade", (req, socket) => {
   };
   tablets.add(client);
   client.send({ t: "hello", voice: Boolean(config.voice), voiceStatus: tabletVoice, states: Object.fromEntries(buttonStates), soundStatus: soundState, tapMs: config.tapMs });
+  sendBattle(client);
 
   const held = new Map(); // button id -> { sc } currently pressed by this tablet
   // Its button sounds playing on the PC: its id -> { id: the player's id, ends }, and when
@@ -1663,6 +1665,28 @@ server.on("upgrade", (req, socket) => {
     ui({ t: "clients", count: --connectedTablets });
   });
 });
+
+// ---------- battle state from Game.log ----------
+
+// gamelog.js follows the game's own log (read only) for hits on your ship, its damage, your
+// death and your kills, and the paired decks show it. Stream Decks don't get it (it isn't
+// in docs/STREAMDECK-API.md). "gameLog": false in config.json turns the reading off.
+// --game-log <file> follows that file instead of the found install's, to try it with a
+// sample log next to a dry run.
+const gameLogArg = process.argv.indexOf("--game-log");
+const battle = gameLog.create({
+  files: () => (gameLogArg > -1 ? [{ path: path.resolve(String(process.argv[gameLogArg + 1] || "")), running: true }]
+    : findInstalls().map((i) => ({ path: path.join(i.dir, "Game.log"), running: i.running }))),
+  onChange: (event, state) => {
+    if (DRY_RUN && event !== "sync") console.log(`Game.log: ${event}${event === "hit" ? ` from ${state.from} (${state.hits})` : ""}`);
+    for (const c of tablets) if (c.device !== "streamdeck") c.send({ t: "battle", event, state });
+  },
+  log: (text) => console.log(text),
+});
+function sendBattle(client) {
+  if (client.device !== "streamdeck" && config.gameLog !== false) client.send({ t: "battle", event: "sync", state: battle.state() });
+}
+if (config.gameLog !== false) battle.start();
 
 // ---------- start ----------
 

@@ -661,6 +661,7 @@
     if (on !== online.on && !DEMO) window.DeckSound.play(on ? "online" : "offline");
     online = { on, text };
     if (!on) rtt = null;
+    if (!on && window.DeckBattle) window.DeckBattle.offline(); // battle alerts may be out of date
     refreshStatus();
   }
   function refreshStatus() {
@@ -758,6 +759,8 @@
       }
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));
+      // Battle alerts from Star Citizen's Game.log (battle.js); they press nothing.
+      else if (msg.t === "battle") { if (window.DeckBattle) window.DeckBattle.update(msg); }
     };
   }
 
