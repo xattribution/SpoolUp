@@ -74,15 +74,78 @@ const VERSION = (() => { try { return JSON.parse(readBundled("package.json")).ve
 
 // ---------- config ----------
 
-// Finds the player's actionmaps.xml in the usual Star Citizen install folders.
-function findActionmaps() {
-  const sub = "StarCitizen/LIVE/user/client/0/Profiles/default/actionmaps.xml";
-  const roots = [];
-  for (const drive of "CDEFGH") {
-    roots.push(`${drive}:/Program Files/Roberts Space Industries`, `${drive}:/Roberts Space Industries`, `${drive}:/RSI`, `${drive}:/Games/Roberts Space Industries`);
-  }
-  return roots.map((r) => `${r}/${sub}`).find((p) => fs.existsSync(p)) || null;
+// ---------- Star Citizen installs ----------
+
+// The game's release channels, each its own folder under StarCitizen\ with its own binds.
+const SC_CHANNELS = ["LIVE", "PTU", "EPTU", "TECH-PREVIEW", "HOTFIX"];
+// Full path of the running StarCitizen.exe, "" while the game is closed (refreshGameExe).
+let gameExe = "";
+
+const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+const isFile = (p) => { try { return fs.statSync(p).isFile(); } catch { return false; } };
+
+// ...\StarCitizen\PTU\Bin64\StarCitizen.exe -> ...\StarCitizen\PTU
+function channelDirFromExe(exe) {
+  if (!exe) return "";
+  const bin = path.dirname(exe);
+  return path.basename(bin).toLowerCase() === "bin64" ? path.dirname(bin) : "";
 }
+
+// The usual StarCitizen folders on drives C to Z that exist. Looked up once: a mapped
+// network drive that's offline can stall each look, and a new install while SpoolUp runs
+// is found anyway through the running game or gameFolders.
+let driveRoots = null;
+function scDriveRoots() {
+  if (driveRoots) return driveRoots;
+  driveRoots = [];
+  if (process.platform !== "win32") return driveRoots;
+  for (let d = 67; d <= 90; d++) {
+    const drive = `${String.fromCharCode(d)}:\\`;
+    if (!isDir(drive)) continue;
+    for (const sub of ["Program Files\\Roberts Space Industries\\StarCitizen", "Roberts Space Industries\\StarCitizen",
+      "RSI\\StarCitizen", "Games\\Roberts Space Industries\\StarCitizen", "Games\\StarCitizen", "StarCitizen"]) {
+      if (isDir(drive + sub)) driveRoots.push(drive + sub);
+    }
+  }
+  return driveRoots;
+}
+
+// Every channel folder found: the running game's first (it can be anywhere), then the
+// folders in config.gameFolders (a StarCitizen folder, the folder holding it, or one
+// channel's folder), then the usual folders on every drive. Running first, then LIVE,
+// then the order of SC_CHANNELS.
+function findInstalls(extra = config.gameFolders) {
+  const seen = new Map();
+  const add = (dir, running) => {
+    const key = path.resolve(dir).toLowerCase();
+    if (seen.has(key)) { if (running) seen.get(key).running = true; return; }
+    if (!isDir(dir)) return;
+    const actionmaps = path.join(dir, "user", "client", "0", "Profiles", "default", "actionmaps.xml");
+    seen.set(key, { channel: path.basename(path.resolve(dir)).toUpperCase(), dir: path.resolve(dir), actionmaps: isFile(actionmaps) ? actionmaps : "", running });
+  };
+  const addRoot = (root) => { for (const ch of SC_CHANNELS) add(path.join(root, ch), false); };
+  const running = channelDirFromExe(gameExe);
+  if (running) { add(running, true); addRoot(path.dirname(running)); }
+  for (const e of [].concat(extra || [])) {
+    if (typeof e !== "string" || !e.trim()) continue;
+    if (SC_CHANNELS.includes(path.basename(e.trim()).toUpperCase())) add(e.trim(), false);
+    else { addRoot(e.trim()); addRoot(path.join(e.trim(), "StarCitizen")); }
+  }
+  for (const root of scDriveRoots()) addRoot(root);
+  const rank = (i) => (i.running ? -1 : SC_CHANNELS.includes(i.channel) ? SC_CHANNELS.indexOf(i.channel) : SC_CHANNELS.length);
+  return [...seen.values()].sort((a, b) => rank(a) - rank(b));
+}
+
+// The player's actionmaps.xml: the running game's channel when it has one, else LIVE's,
+// else the first other channel that has one. null when there's none.
+function findActionmaps() {
+  return findInstalls().find((i) => i.actionmaps)?.actionmaps || null;
+}
+
+// "auto" in config.actionmaps stands for findActionmaps(), looked up each time the
+// keybinds are read, so the deck follows the channel the player is running.
+const AUTO_ACTIONMAPS = "auto";
+const expandActionmaps = (files) => [].concat(files || []).flatMap((f) => (f === AUTO_ACTIONMAPS ? [findActionmaps()].filter(Boolean) : [f]));
 
 function loadConfig() {
   let config = {};
@@ -92,12 +155,16 @@ function loadConfig() {
   if (!config.token) { config.token = crypto.randomBytes(4).toString("hex"); changed = true; }
   if (!config.layout) { config.layout = "layouts/hud.json"; changed = true; }
   if (!config.phoneLayout) { config.phoneLayout = "layouts/hud-phone.json"; changed = true; }
-  if (config.actionmaps === undefined) {
-    // Later files win; missing files are skipped. The player's actionmaps.xml goes last:
-    // loading a profile in-game copies it there, and later rebinds land there too.
-    config.actionmaps = ["keybinds/TabletDeck-StarCitizen.xml", findActionmaps()].filter(Boolean);
-    changed = true;
-  }
+  // Later files win; missing files are skipped. The player's actionmaps.xml goes last:
+  // loading a profile in-game copies it there, and later rebinds land there too. Before
+  // 2.2 the server wrote the LIVE file it found on first start (or none) here; that list,
+  // left as written, becomes "auto" so other channels and drives are found as well.
+  const PROFILE = "keybinds/TabletDeck-StarCitizen.xml";
+  const oldAuto = Array.isArray(config.actionmaps) && config.actionmaps[0] === PROFILE && (config.actionmaps.length === 1
+    || (config.actionmaps.length === 2 && /StarCitizen[\\/]LIVE[\\/]user[\\/]client[\\/]0[\\/]Profiles[\\/]default[\\/]actionmaps\.xml$/i.test(String(config.actionmaps[1]))));
+  if (config.actionmaps === undefined || oldAuto) { config.actionmaps = [PROFILE, AUTO_ACTIONMAPS]; changed = true; }
+  // Star Citizen folders to look in besides the running game's and the usual ones.
+  if (config.gameFolders === undefined) { config.gameFolders = []; changed = true; }
   if (!config.tapMs) { config.tapMs = 60; changed = true; }
   // Star Citizen counts a press held past 0.25 s as a hold, so a tap stays well short of it.
   if (!(config.tapMs >= 20 && config.tapMs <= 200)) { config.tapMs = Math.min(200, Math.max(20, Math.round(+config.tapMs) || 60)); changed = true; }
@@ -203,10 +270,17 @@ const SCANCODES = {
 // Some Star Citizen profiles write numpad keys as num1 instead of np_1.
 for (let d = 0; d <= 9; d++) SCANCODES[`num${d}`] = SCANCODES[`np_${d}`];
 
-// "lalt+n" -> [[0x38,0],[0x31,0]]; modifiers first, main key last.
-function parseCombo(combo) {
+// A combo's keys with its modifiers first, in the order written: Star Citizen writes some
+// binds modifier last ("f6+lalt"), and pressed in that order the game would see F6 alone.
+const COMBO_MODIFIERS = ["lalt", "ralt", "lctrl", "rctrl", "lshift", "rshift"];
+function comboKeys(combo) {
   const keys = String(combo).toLowerCase().split("+").map((k) => k.trim()).filter(Boolean);
-  return keys.map((k) => {
+  return [...keys.filter((k) => COMBO_MODIFIERS.includes(k)), ...keys.filter((k) => !COMBO_MODIFIERS.includes(k))];
+}
+
+// "lalt+n" or "n+lalt" -> [[0x38,0],[0x31,0]]; modifiers first, main key last.
+function parseCombo(combo) {
+  return comboKeys(combo).map((k) => {
     const sc = SCANCODES[k];
     if (!sc) throw new Error(`Unknown key "${k}" in "${combo}"`);
     return sc;
@@ -216,22 +290,28 @@ function parseCombo(combo) {
 // ---------- Star Citizen actionmaps overrides ----------
 
 // Returns { actionName: "lalt+n" } for keyboard rebinds in Star Citizen actionmaps or
-// Mappings profile files. `files` is one path or a list; later files win, matching a
-// profile loaded in-game on top of earlier customizations.
+// Mappings profile files. `files` is one path or a list ("auto" is the player's
+// actionmaps.xml); later files win, matching a profile loaded in-game on top of earlier
+// customizations. A bind the player cleared in the game is written "kb1_ " and kept as "":
+// that action has no key now, and its default key may do something else.
 function readActionmapOverrides(files) {
   const overrides = {};
-  for (const file of [].concat(files || [])) {
+  for (const file of expandActionmaps(files)) {
     const xml = readConfigFile(file)?.toString("utf8");
     if (!xml) continue;
-    const actionRe = /<action name="([^"]+)"[^>]*>([\s\S]*?)<\/action>/g;
+    // Not a self-closing <action/>, which would take the next action's binds as its own.
+    const actionRe = /<action name="([^"]+)"[^>]*?(?<!\/)>([\s\S]*?)<\/action>/g;
     let m;
     while ((m = actionRe.exec(xml))) {
       const rebind = /<rebind input="kb1_([^"]*)"/.exec(m[2]);
-      if (rebind && rebind[1].trim()) overrides[m[1]] = rebind[1].trim();
+      if (rebind) overrides[m[1]] = rebind[1].trim();
     }
   }
   return overrides;
 }
+
+// Only the binds that press something, for the layout editor's "Follow game keybind".
+const pressableOverrides = (files) => Object.fromEntries(Object.entries(readActionmapOverrides(files)).filter(([, keys]) => keys));
 
 // ---------- layout ----------
 
@@ -264,10 +344,13 @@ function prepareLayout(layout) {
     if (!node || typeof node !== "object") return;
     if (typeof node.id === "string" && typeof node.keys === "string") {
       const rebind = node.scAction && overrides[node.scAction];
+      // Cleared in the game: the button keeps its keys for the checks below but presses
+      // nothing (notBound), and the deck dims it.
+      if (rebind === "") node.unbound = true;
       if (rebind) {
         try {
           parseCombo(rebind);
-          node.keys = rebind;
+          node.keys = comboKeys(rebind).join("+");
         } catch (err) {
           const note = `${node.scAction}: ${rebind}`;
           if (!unpressableRebinds.has(note)) {
@@ -314,10 +397,12 @@ function buildNative(name, what, refs = []) {
   return exe;
 }
 
-// Starts native/keysender.exe. `proc.focusWaiters` holds pending "focus" queries, answered in order.
+// Starts native/keysender.exe. `proc.focusWaiters` and `proc.exeWaiters` hold pending
+// "focus" and "exe" queries, each answered in order.
 function spawnKeySender(onExit) {
   const proc = spawn(buildNative("keysender", "key sender"), [], { stdio: ["pipe", "pipe", "inherit"] });
   proc.focusWaiters = [];
+  proc.exeWaiters = [];
   let pending = "";
   proc.stdout.on("data", (d) => {
     const lines = (pending + d.toString()).split(/\r?\n/);
@@ -325,10 +410,12 @@ function spawnKeySender(onExit) {
     for (const line of lines) {
       if (line.startsWith("err")) console.error("key sender:", line);
       else if (line.startsWith("focus ")) proc.focusWaiters.shift()?.(line === "focus 1");
+      else if (line === "exe" || line.startsWith("exe ")) proc.exeWaiters.shift()?.(line.slice(4).trim());
     }
   });
   proc.on("exit", (code) => {
     for (const answer of proc.focusWaiters.splice(0)) answer(false);
+    for (const answer of proc.exeWaiters.splice(0)) answer(null);
     onExit(code);
   });
   return proc;
@@ -345,6 +432,41 @@ function askFocus(proc) {
     setTimeout(() => answer(false), 1000);
   });
 }
+
+// Resolves the full path of the running game's exe, "" when it isn't running, or null when
+// the key sender didn't answer (one built before it knew "exe").
+function askExe(proc) {
+  return new Promise((resolve) => {
+    let done = false;
+    const answer = (exe) => { if (!done) { done = true; resolve(exe); } };
+    proc.exeWaiters.push(answer);
+    proc.stdin.write(`exe ${GAME_PROCESS}\n`);
+    setTimeout(() => answer(null), 1000);
+  });
+}
+
+// Keeps gameExe current, so findActionmaps reads the running channel's binds wherever the
+// game is installed. When that changes the keybind file, tablets reload their layout.
+let lastActionmaps;
+async function refreshGameExe() {
+  const proc = sender || focusProbe;
+  if (!proc) return;
+  const exe = await askExe(proc);
+  // A key sender that never answers is one built before it knew "exe"; give up on it after
+  // a few tries, but not on one slow answer (the PC is busy while the game starts).
+  if (exe === null) { if (++exeMisses >= 3) clearInterval(exeWatch); return; }
+  exeMisses = 0;
+  if (exe === gameExe) return;
+  gameExe = exe;
+  const file = findActionmaps();
+  if (file !== lastActionmaps && [].concat(config.actionmaps || []).includes(AUTO_ACTIONMAPS)) {
+    console.log(file ? `Keybinds: reading ${file}` : "Keybinds: no actionmaps.xml found for the running game.");
+    reloadTablets();
+  }
+  lastActionmaps = file;
+}
+let exeWatch = null;
+let exeMisses = 0;
 
 let sender = null;
 function startSender() {
@@ -382,6 +504,37 @@ async function wouldBlock() {
   return !(await askFocus(focusProbe));
 }
 
+// ---------- stuck-key safety ----------
+
+// A key that stays down after the player has moved on (alt-tabbed, put the tablet down
+// with a finger on a hold button) would keep acting in the game or land in another app.
+// So while any key is down the focus check runs every half second, and when Star Citizen
+// loses focus every hold is released and every tap's wait ends early. A hold is also
+// released after HOLD_LIMIT_MS; either way its tablet is told. Releases always go through.
+const HOLD_LIMIT_MS = 120000;
+const openHolds = new Set(); // holds with keys down, from every tablet: { drop(reason) }
+const tapCuts = new Set(); // ends a pressing tap's wait
+let focusWatch = null;
+let focusChecking = false;
+// Not in a dry run: it presses no keys, and the showcase runs in a browser in front of the
+// game, so every hold would be cut after half a second. The 2-minute limit still applies.
+const focusLost = async () => (DRY_RUN ? false : !(await gameFocused()));
+function watchFocus() {
+  if (focusWatch) return;
+  focusWatch = setInterval(async () => {
+    if (!keyHolds.size) { clearInterval(focusWatch); focusWatch = null; return; }
+    if (focusChecking) return;
+    focusChecking = true;
+    try {
+      if ((openHolds.size || tapCuts.size) && (await focusLost())) {
+        console.log("Star Citizen lost focus: releasing held keys.");
+        for (const hold of [...openHolds]) hold.drop("focus");
+        for (const cut of [...tapCuts]) cut();
+      }
+    } finally { focusChecking = false; }
+  }, 500);
+}
+
 function sendKey(direction, [code, ext]) {
   const cmd = `${direction} ${code.toString(16)} ${ext}`;
   if (DRY_RUN || !sender) console.log("  key", cmd);
@@ -396,7 +549,7 @@ function keyDown(sc) {
   const k = sc.join(":");
   const n = keyHolds.get(k) || 0;
   keyHolds.set(k, n + 1);
-  if (n === 0) sendKey("d", sc);
+  if (n === 0) { sendKey("d", sc); watchFocus(); }
 }
 function keyUp(sc) {
   const k = sc.join(":");
@@ -417,6 +570,15 @@ function skipped(btn, client, why = "Star Citizen not focused") {
   console.log(`${btn.label}: skipped, ${why}`);
   ui({ t: "press", label: btn.label, blocked: true });
   client?.send({ t: "blocked", id: btn.id });
+}
+
+// Tells a tablet a press did nothing because the player cleared that bind in Star Citizen:
+// its default key might do something else in the game now.
+function notBound(btn, client, kind, extra = {}) {
+  console.log(`${btn.label}: skipped, not bound in Star Citizen (${btn.scAction})`);
+  ui({ t: "press", label: btn.label, blocked: true });
+  report(btn, kind, { unbound: true, ...extra });
+  client?.send({ t: "unbound", id: btn.id });
 }
 
 // ---------- sandbox event stream (dry run only) ----------
@@ -459,13 +621,19 @@ function applyState(btn) {
 // Presses a button's keys for `ms`, then releases them, unless the game isn't in front.
 // `kind` (tap, timed, voice) only labels the press in the sandbox log.
 async function tapButton(btn, client, ms = btn.ms || config.tapMs, kind = btn.mode === "timed" ? "timed" : "tap") {
+  if (btn.unbound) { notBound(btn, client, kind, { ms }); return; }
   if (!(await gameFocused())) { skipped(btn, client); return; }
   console.log(`${btn.label} (${btn.keys}) tap`);
   ui({ t: "press", label: btn.label });
   report(btn, kind, { ms });
   applyState(btn);
   await pressCombo(btn.scancodes);
-  await sleep(ms);
+  // Ends early if Star Citizen loses focus meanwhile (a long press is up to a few seconds).
+  await new Promise((resolve) => {
+    const cut = () => { clearTimeout(timer); tapCuts.delete(cut); resolve(); };
+    const timer = setTimeout(cut, ms);
+    tapCuts.add(cut);
+  });
   await releaseCombo(btn.scancodes);
 }
 
@@ -917,7 +1085,7 @@ function handleEditor(req, res, url) {
       layouts,
       keys: Object.keys(SCANCODES).filter((k) => !/^num\d$/.test(k)),
       // scAction -> keys from the player's Star Citizen keybinds, for "Follow game keybind".
-      overrides: readActionmapOverrides(config.actionmaps),
+      overrides: pressableOverrides(config.actionmaps),
     });
   }
 
@@ -1123,6 +1291,8 @@ server.on("upgrade", (req, socket) => {
   // combo's keys go down one by one, so a quick release could otherwise land in between
   // and leave the last key stuck, or let go of a key another button is holding.
   const releaseHold = async (hold) => {
+    clearTimeout(hold.limit);
+    openHolds.delete(hold);
     if (!hold.pressing) return;
     await hold.pressing;
     await releaseCombo(hold.sc);
@@ -1196,6 +1366,7 @@ server.on("upgrade", (req, socket) => {
     const btn = buttons.get(msg.id);
     if (!btn) return;
     if (msg.t === "down" && !held.has(btn.id)) {
+      if (btn.unbound) { notBound(btn, client, "down"); return; }
       // Claim the hold before the focus check so a quick "up" during it cancels the press.
       const hold = { sc: btn.scancodes };
       held.set(btn.id, hold);
@@ -1217,6 +1388,18 @@ server.on("upgrade", (req, socket) => {
       hold.mods = keyIds(btn);
       holdModifiers(hold.mods, 1);
       hold.pressing = pressCombo(btn.scancodes);
+      // Let go when Star Citizen loses focus (watchFocus) or after HOLD_LIMIT_MS, and tell
+      // the tablet; its finger's own "up" later finds nothing held.
+      hold.drop = (reason) => {
+        if (held.get(btn.id) !== hold) return;
+        held.delete(btn.id);
+        console.log(`${btn.label} released: ${reason === "focus" ? "Star Citizen lost focus" : `held for ${HOLD_LIMIT_MS / 1000} s`}`);
+        report(btn, "up", { released: reason });
+        client.send({ t: "released", id: btn.id, reason });
+        void releaseHold(hold);
+      };
+      openHolds.add(hold);
+      hold.limit = setTimeout(() => hold.drop("limit"), HOLD_LIMIT_MS);
       await hold.pressing;
     } else if (msg.t === "up" && held.has(btn.id)) {
       // Releases always go through, even after the game loses focus, so no key stays stuck.
@@ -1245,6 +1428,9 @@ server.on("upgrade", (req, socket) => {
 
 try { loadLayout(); loadLayout("phone"); } catch (err) { fatal(`Layout error: ${err.message}`); }
 startSender();
+// The running game's folder: at once, then every 10 s.
+lastActionmaps = findActionmaps();
+if (sender || focusProbe) { exeWatch = setInterval(refreshGameExe, 10000); exeWatch.unref(); void refreshGameExe(); }
 startVoice();
 buildSoundPlayer();
 server.on("error", (err) => {

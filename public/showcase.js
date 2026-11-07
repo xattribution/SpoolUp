@@ -107,6 +107,9 @@
   };
 
   function verdict(e) {
+    if (e.unbound) return ["warn-text", "not bound in Star Citizen: nothing sent"];
+    if (e.kind === "up" && e.released === "focus") return ["ok", "released: Star Citizen lost focus"];
+    if (e.kind === "up" && e.released === "limit") return ["ok", "released: held for 2 minutes"];
     if (e.kind === "up") return ["ok", "released (always sent)"];
     if (!focusCheck) return ["ok", "would send (focus check off)"];
     if (e.blocked === true) return ["warn-text", "would be blocked: Star Citizen not in front"];

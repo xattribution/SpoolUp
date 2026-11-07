@@ -734,6 +734,10 @@
         refreshStatus();
       }
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
+      // The player cleared this bind in Star Citizen, so the PC pressed nothing.
+      else if (msg.t === "unbound") { toast("Not bound in Star Citizen", 2600); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
+      // The PC let go of a hold: Star Citizen lost focus, or it was held for 2 minutes.
+      else if (msg.t === "released") toast(msg.reason === "focus" ? "Keys released: Star Citizen lost focus" : "Keys released after 2 minutes", 2600);
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
       else if (msg.t === "sound-status") S.status(msg);
       // A scene picked on a Stream Deck (its SpoolUp plugin): flip to its panels. It's
@@ -894,6 +898,14 @@
     const fx = window.DeckFX.attach(el, btn);
     el.dataset.btn = btn.id;
     el._deny = fx.deny;
+    // Cleared in the player's Star Citizen keybinds: dimmed, with a badge, until it's bound.
+    if (btn.unbound) {
+      el.classList.add("unbound");
+      const badge = document.createElement("span");
+      badge.className = "bind-badge";
+      badge.textContent = tr("BIND");
+      el.appendChild(badge);
+    }
     if (btn.state && typeof btn.state.group === "string") {
       el.dataset.stateGroup = btn.state.group;
       el._showState = fx.show;

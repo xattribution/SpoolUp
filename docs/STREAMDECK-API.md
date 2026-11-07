@@ -50,7 +50,11 @@ Plugin to server:
 Server to plugin: `{t:"hello", voice, voiceStatus, states, soundStatus, tapMs}`
 on connecting, `{t:"state", group, on}` and `{t:"states", states}` for lit
 buttons, `{t:"blocked", id}` when a press was skipped because Star Citizen
-wasn't in front, `{t:"listening", on}`, `{t:"heard", id, label, text}`,
+wasn't in front, `{t:"unbound", id}` when it did nothing because the player
+cleared that bind in Star Citizen (the button's `unbound: true` in `/layout.json`),
+`{t:"released", id, reason}` when the server let go of a hold by itself
+(`reason` is `"focus"`: Star Citizen lost focus, or `"limit"`: held 2 minutes; a
+later `up` for it is ignored), `{t:"listening", on}`, `{t:"heard", id, label, text}`,
 `{t:"unheard"}`, `{t:"voice-off", reason}` and `{t:"voice-status", ...}` for
 voice, `{t:"reload"}` when the layouts changed, and `{t:"panel", side, panel}`
 (below).

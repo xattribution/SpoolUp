@@ -420,3 +420,12 @@ html[data-no-lights] [data-state-group] > .fx-state { display: none; }
 #picker .awake-state[data-state="lock"]::before, #picker .awake-state[data-state="video"]::before { background: #3ddc84; }
 #picker .awake-state[data-state="none"]::before { background: #ffb020; }
 #picker .awake-state[data-state="off"] { color: #8aa0b8; }
+
+/* A button whose Star Citizen bind the player cleared: dimmed, with a BIND badge. Pressing
+   it presses nothing; the PC says so. */
+.unbound > :not(.bind-badge):not(.fx-layer) { opacity: .4; }
+.bind-badge {
+  position: absolute; z-index: 3; top: 5px; left: 7px; padding: 2px 4px 1px; border-radius: 3px;
+  font: 700 9px/1 var(--font-body); letter-spacing: .12em; color: #111; background: var(--amber);
+  pointer-events: none;
+}
