@@ -37,7 +37,7 @@ const animate = require("./streamdeck/animate");
 
 const VERSION = require("../package.json").version;
 const AUTHOR = "SpoolUp";
-const SITE = "https://xattribution.github.io/tablet-deck-spooned/";
+const SITE = "https://xattribution.github.io/SpoolUp/";
 const PLUGIN_UUID = "com.xattribution.spoolup";
 const PLUGIN_SRC = path.join(ROOT, "streamdeck", "plugin", `${PLUGIN_UUID}.sdPlugin`);
 const ICONPACK_ID = (theme) => `com.xattribution.spoolup.icons.${theme}`;
@@ -720,7 +720,7 @@ they need the SpoolUp plugin (com.xattribution.spoolup.streamDeckPlugin) and Spo
 running on this PC. Discord and OBS keys need Elgato's Discord and OBS Studio plugins;
 Stream Deck offers to install them.
 
-More: https://github.com/xattribution/tablet-deck-spooned#stream-deck
+More: https://github.com/xattribution/SpoolUp#stream-deck
 `;
 function writeRelease(out, models) {
   const dir = path.join(out, "release");

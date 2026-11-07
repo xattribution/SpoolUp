@@ -5,7 +5,7 @@ milestone; the newest status is at the top of each section. Read the repo's
 [AGENTS.md](../AGENTS.md) first: its ground rules apply here too.
 
 Last updated: 2026-11-06, session https://claude.ai/code/session_01SQ9wwRmoeXnyjC52PRNx5s
-Branch: `gen/sweet-einstein-7mguuf`, PR: xattribution/tablet-deck-spooned#1 (open).
+Branch: `gen/sweet-einstein-7mguuf`, PR: xattribution/SpoolUp#1 (open).
 
 ## What the owner asked for
 

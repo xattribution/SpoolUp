@@ -259,7 +259,7 @@ jobs:
           $streamdeck = @(Get-ChildItem dist/streamdeck/release -File -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
           $streamdeckNote = ""
           if ($streamdeck.Count) {
-            $streamdeckNote = "**Stream Deck:** **SpoolUp-StreamDeck-Profiles-&lt;model&gt;.zip** has your model's profile in all 12 themes, **SpoolUp-StreamDeck-IconPacks.zip** the icon packs, and **com.xattribution.spoolup.streamDeckPlugin** the SpoolUp plugin. The pack is new and hasn't been tried on every model yet; please report anything that doesn't work. See [Stream Deck](https://github.com/xattribution/tablet-deck-spooned#stream-deck) in the README."
+            $streamdeckNote = "**Stream Deck:** **SpoolUp-StreamDeck-Profiles-&lt;model&gt;.zip** has your model's profile in all 12 themes, **SpoolUp-StreamDeck-IconPacks.zip** the icon packs, and **com.xattribution.spoolup.streamDeckPlugin** the SpoolUp plugin. The pack is new and hasn't been tried on every model yet; please report anything that doesn't work. See [Stream Deck](https://github.com/xattribution/SpoolUp#stream-deck) in the README."
           }
           $notes = @"
           ## What's new
@@ -272,7 +272,7 @@ jobs:
 
           $streamdeckNote
 
-          The installer and everything in it are code-signed: its Properties → Digital Signatures shows the publisher. You can also check it against the SHA-256 below. See the [code signing policy](https://github.com/xattribution/tablet-deck-spooned/blob/main/CODE_SIGNING.md).
+          The installer and everything in it are code-signed: its Properties → Digital Signatures shows the publisher. You can also check it against the SHA-256 below. See the [code signing policy](https://github.com/xattribution/SpoolUp/blob/main/CODE_SIGNING.md).
 
           SHA-256: ``$hash``
 

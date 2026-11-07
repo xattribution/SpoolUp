@@ -32,10 +32,10 @@ Apply on [signpath.org](https://signpath.org). Answers for the form:
 | question | answer |
 |---|---|
 | Project name | SpoolUp |
-| Repository | https://github.com/xattribution/tablet-deck-spooned |
-| Home page / download page | https://xattribution.github.io/tablet-deck-spooned/ and https://github.com/xattribution/tablet-deck-spooned/releases |
+| Repository | https://github.com/xattribution/SpoolUp |
+| Home page / download page | https://xattribution.github.io/SpoolUp/ and https://github.com/xattribution/SpoolUp/releases |
 | Licence | MIT, for all of the project's own code |
-| Code signing policy | https://github.com/xattribution/tablet-deck-spooned/blob/main/CODE_SIGNING.md |
+| Code signing policy | https://github.com/xattribution/SpoolUp/blob/main/CODE_SIGNING.md |
 | Build system | GitHub Actions on GitHub-hosted Windows runners (`.github/workflows/release.yml`) |
 | What gets signed | Windows executables: the installer `SpoolUp-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe`, `native/voice.exe` and `native/sound.exe` |
 

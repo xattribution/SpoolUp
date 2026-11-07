@@ -6,7 +6,7 @@
   }
 
   // Without this (offline, or GitHub's rate limit) the buttons still open the releases page.
-  fetch("https://api.github.com/repos/xattribution/tablet-deck-spooned/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+  fetch("https://api.github.com/repos/xattribution/SpoolUp/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((release) => {
       const setup = (release.assets || []).find((a) => /^SpoolUp-Setup-.*\.exe$/.test(a.name));

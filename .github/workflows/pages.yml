@@ -1,5 +1,5 @@
 # Publishes the website (site/, plus the deck as the "Try it" demo) to GitHub Pages:
-# https://xattribution.github.io/tablet-deck-spooned/
+# https://xattribution.github.io/SpoolUp/
 #
 # Runs on pushes to main that change the site, the deck, the layouts or the images,
 # and by hand from the Actions tab. scripts/build-site.js puts the site together.

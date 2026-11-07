@@ -8,7 +8,7 @@ network, so security problems matter. Thanks for helping keep it safe.
 Please **don't open a public issue** for a security problem. Report it
 privately instead:
 
-- **[Report a vulnerability](https://github.com/xattribution/tablet-deck-spooned/security/advisories/new)**
+- **[Report a vulnerability](https://github.com/xattribution/SpoolUp/security/advisories/new)**
   on GitHub (the Security tab → "Report a vulnerability").
 
 Include the SpoolUp version (shown in the window's title bar), what someone

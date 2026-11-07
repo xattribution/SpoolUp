@@ -26,7 +26,7 @@ Checked against the vendors' own pages on 2026-11-06. Legal, trademark and Cloud
    - Sign in at https://maker.elgato.com with an Elgato account.
    - Create the organization. It gets a public `@handle`, and an alias is fine.
    - Sign the Maker Agreement. You can only read its text inside Maker Console, so read it before signing.
-   - Set the support method to a link, for example https://github.com/xattribution/tablet-deck-spooned/issues.
+   - Set the support method to a link, for example https://github.com/xattribution/SpoolUp/issues.
    - Skip Stripe. It's only needed for paid products.
 3. **Test on real hardware.**
    - The rules: don't list an OS you haven't **tested** on, and don't list a device the profile wasn't **built for**.
@@ -127,8 +127,8 @@ Do the Store later, and only once Partner Center support has answered both of th
    - Both 1.7.0 installers are unsigned.
    - Two *different* files are named `TabletDeck-Setup-1.7.0.exe`:
      - nodieCode/tablet-deck, SHA-256 `C6419E21…8940`;
-     - xattribution/tablet-deck-spooned, SHA-256 `80081EEB…7891`.
-   - The 1.7.0 build's update check points at `nodieCode/tablet-deck`. Today's tree (launcher.cs, the .iss `RepoUrl`, the site) points at `xattribution/tablet-deck-spooned`.
+     - xattribution/SpoolUp, SHA-256 `80081EEB…7891`.
+   - The 1.7.0 build's update check points at `nodieCode/tablet-deck`. Today's tree (launcher.cs, the .iss `RepoUrl`, the site) points at `xattribution/SpoolUp`.
    - Listing 1.7.0 from nodieCode while 1.8.0 lives in xattribution would mix two publishers and two repos under one package.
 2. **Pick the final PackageIdentifier now.** For example `xattribution.SpoolUp`, matching `AppName` "SpoolUp" and `AppPublisher` "xattribution". Changing it after the first merge means the two-identifier migration described in the winget-pkgs FAQ.
 3. **Silent install copies the keybind profile.**
@@ -274,8 +274,8 @@ ManifestVersion: 1.28.0
 **For 1.8.0 (recommended), change these fields.** Everything else stays the same.
 - `PackageIdentifier: xattribution.SpoolUp`, in the folder `manifests/x/xattribution/SpoolUp/1.8.0/`.
 - `Publisher: xattribution` and `PackageName: SpoolUp`.
-- Every `nodieCode/tablet-deck` URL becomes `xattribution/tablet-deck-spooned`, and `v1.7.0` becomes `v1.8.0`.
-- `InstallerUrl: https://github.com/xattribution/tablet-deck-spooned/releases/download/v1.8.0/SpoolUp-Setup-1.8.0.exe`
+- Every `nodieCode/tablet-deck` URL becomes `xattribution/SpoolUp`, and `v1.7.0` becomes `v1.8.0`.
+- `InstallerUrl: https://github.com/xattribution/SpoolUp/releases/download/v1.8.0/SpoolUp-Setup-1.8.0.exe`
 - `InstallerSha256: <SHA256 of SpoolUp-Setup-1.8.0.exe, upper case>` and `ReleaseDate: <YYYY-MM-DD>`. Neither can be known until the release exists.
 - `Moniker: spoolup`. The InstallationNotes name the "SpoolUp Keyboard" profile.
 

@@ -2,7 +2,7 @@
 
 What changed in each version of SpoolUp, newest first. Each version's
 section becomes the notes of its
-[GitHub release](https://github.com/xattribution/tablet-deck-spooned/releases), so add one
+[GitHub release](https://github.com/xattribution/SpoolUp/releases), so add one
 before tagging a release.
 
 ## 2.0.0 (2026-11-06)

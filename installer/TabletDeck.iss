@@ -9,7 +9,7 @@
 ; The app window (native/launcher.cs), and the server it runs hidden (server.js).
 #define AppExe "TabletDeck.exe"
 #define ServerExe "TabletDeckServer.exe"
-#define RepoUrl "https://github.com/xattribution/tablet-deck-spooned"
+#define RepoUrl "https://github.com/xattribution/SpoolUp"
 ; The app's old name, so upgrades replace the rule older versions added.
 #define FirewallRule "Tablet Deck"
 

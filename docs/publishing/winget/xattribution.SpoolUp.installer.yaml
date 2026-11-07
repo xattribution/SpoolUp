@@ -22,7 +22,7 @@ InstallationMetadata:
   DefaultInstallLocation: '%ProgramFiles%\Tablet Deck'
 Installers:
 - Architecture: x64
-  InstallerUrl: https://github.com/xattribution/tablet-deck-spooned/releases/download/v1.8.0/SpoolUp-Setup-1.8.0.exe
+  InstallerUrl: https://github.com/xattribution/SpoolUp/releases/download/v1.8.0/SpoolUp-Setup-1.8.0.exe
   InstallerSha256: <SHA256_OF_SpoolUp-Setup-1.8.0.exe_UPPERCASE>
 ManifestType: installer
 ManifestVersion: 1.28.0
