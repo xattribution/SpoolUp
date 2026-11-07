@@ -5,7 +5,7 @@
 // - every ref shows an element that exists (and isn't itself a ref);
 // - placed cells never overlap and never run off the grid;
 // - every element type is drawn by something: a 2.0 renderer or a registered widget
-//   (public/grid.js, clusters.js, dial.js and emotes.js are loaded with no DOM, so a
+//   (public/grid.js, clusters.js, dial.js, emotes.js and battle.js are loaded with no DOM, so a
 //   widget that touches the page while registering fails here).
 //
 // Panels that need to scroll at a size are listed as notes, not failures (hidden copies,
@@ -31,7 +31,7 @@ const fail = (msg) => problems.push(msg);
 // ---------- widgets ----------
 // Each widget script runs in a context with window = itself and no document, the way a
 // tool would load it; it registers with the same DeckWidgets.
-for (const file of ["dial.js", "clusters.js", "emotes.js"]) {
+for (const file of ["dial.js", "clusters.js", "emotes.js", "battle.js"]) {
   const p = path.join(ROOT, "public", file);
   if (!fs.existsSync(p)) { notes.push(`public/${file} isn't there yet: its widgets fall back to plain buttons.`); continue; }
   const sandbox = { DeckGrid, DeckWidgets, console, setTimeout, clearTimeout, Math, JSON };

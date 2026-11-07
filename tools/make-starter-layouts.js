@@ -66,12 +66,15 @@ const SHIPS = [
       // In the order they're used: start-up and leaving the pad, the operator modes, then
       // travel and getting out.
       group(p, "ship", "Ship", ["qt-flight-ready", "fa-lights", "pl-gear", "op-flight", "op-scan", "op-mining", "qt-scm-nav", "qt-engage", "fa-exit"].map((id) => button(p, id, [2, 1]))),
+      // Quantanium turns unstable in the hold: its jettison in a danger frame.
+      { ...group(p, "cargo", undefined, [button(p, "mn-jettison", [6, 1])]), style: "danger" },
     ] }),
   },
   {
     id: "vulture", name: "Vulture", prefix: "vu", like: "mining-salvage",
     panel: (p) => ({ title: "Vulture", cols: 6, elements: [
       { ...prefixed(p, need("sv-cluster")), span: [6, 3] },
+      group(p, "heads", "Salvage heads", ["sv-focus-left", "sv-focus-all", "sv-focus-right", "sv-fire-left", "sv-fire-right"].map((id, i) => button(p, id, [i < 3 ? 2 : 3, 1]))),
       group(p, "ship", "Ship", ["qt-flight-ready", "fa-lights", "pl-gear", "op-flight", "op-scan", "op-salvage", "qt-scm-nav", "qt-engage", "pl-vtol"].map((id) => button(p, id, [2, 1]))),
       group(p, "doors", "Doors", ["cr-doors-open", "cr-doors-close", "fa-exit"].map((id) => button(p, id, [2, 1]))),
     ] }),
@@ -128,6 +131,7 @@ const dashboards = {
     ref("hl", "pl-group", [4, 3]), ref("hl", "qt-quantum", [4, 3], [4, 2]), ref("hl", "cr-hull", [4, 4], [4, 3]),
     ref("hl", "qt-modes", [4, 5], false), ref("hl", "pw-group", [4, 5], false),
     ref("hl", "qt-boot", [4, 1]), ref("hl", "cr-turrets", [4, 1], false), ref("hl", "fa-bank", [4, 1], false), ref("hl", "fa-range", [4, 1], false),
+    ref("hl", "cr-ship", [4, 1], false),
   ] },
 };
 outputs.push(["dashboards", {

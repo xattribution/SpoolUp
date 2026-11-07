@@ -1,0 +1,10 @@
+# Generated on a Mac by xcodegen; project.yml is the source.
+*.xcodeproj/
+*.xcworkspace/
+# Copied from public/ and layouts/ by bundle-deck.js.
+/Deck/
+DerivedData/
+build/
+xcuserdata/
+*.ipa
+*.dSYM.zip

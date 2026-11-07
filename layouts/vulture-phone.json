@@ -186,6 +186,106 @@
         },
         {
           "type": "group",
+          "id": "vu-heads",
+          "title": "Salvage heads",
+          "cols": 6,
+          "span": [
+            6,
+            2
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "vu-sv-focus-left",
+              "icon": "salvage-focus-left",
+              "label": "Focus Left Head",
+              "short": "Focus Left",
+              "voice": [
+                "focus left"
+              ],
+              "keys": "lalt+a",
+              "scAction": "v_salvage_focus_left",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "vu-sv-focus-all",
+              "icon": "salvage-focus-all",
+              "label": "Focus All Heads",
+              "short": "Focus All",
+              "voice": [
+                "focus all",
+                "focus both"
+              ],
+              "keys": "lalt+s",
+              "scAction": "v_salvage_focus_all_heads",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "vu-sv-focus-right",
+              "icon": "salvage-focus-right",
+              "label": "Focus Right Head",
+              "short": "Focus Right",
+              "voice": [
+                "focus right"
+              ],
+              "keys": "lalt+d",
+              "scAction": "v_salvage_focus_right",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "vu-sv-fire-left",
+              "icon": "salvage-fire-left",
+              "label": "Fire Left Head",
+              "short": "Fire Left",
+              "voice": [
+                "fire left"
+              ],
+              "color": "red",
+              "keys": "ralt+a",
+              "scAction": "v_salvage_toggle_fire_left",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "vu-sv-fire-right",
+              "icon": "salvage-fire-right",
+              "label": "Fire Right Head",
+              "short": "Fire Right",
+              "voice": [
+                "fire right"
+              ],
+              "color": "red",
+              "keys": "ralt+d",
+              "scAction": "v_salvage_toggle_fire_right",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "type": "group",
           "id": "vu-ship",
           "title": "Ship",
           "cols": 6,
@@ -928,6 +1028,54 @@
               4
             ]
           }
+        },
+        {
+          "type": "group",
+          "id": "pw-throttle",
+          "title": "Power throttle",
+          "cols": 6,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "pw-throttle-down",
+              "icon": "power-down",
+              "label": "Power Throttle −",
+              "short": "Power −",
+              "voice": [
+                "less power",
+                "decrease power throttle"
+              ],
+              "keys": "f9",
+              "scAction": "v_power_throttle_down",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "pw-throttle-up",
+              "icon": "power-up",
+              "label": "Power Throttle +",
+              "short": "Power +",
+              "voice": [
+                "more power",
+                "increase power throttle"
+              ],
+              "keys": "f10",
+              "scAction": "v_power_throttle_up",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1371,6 +1519,181 @@
             "scAction": "v_target_cycle_subitem_back",
             "mode": "tap"
           }
+        },
+        {
+          "type": "group",
+          "id": "tg-forward",
+          "title": "Cycle forward",
+          "cols": 6,
+          "span": [
+            6,
+            2
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "tg-next-attacker",
+              "icon": "next-attacker",
+              "label": "Next Attacker",
+              "short": "Attacker",
+              "color": "red",
+              "keys": "4",
+              "scAction": "v_target_cycle_attacker_fwd",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-next-friendly",
+              "icon": "next-friendly",
+              "label": "Next Friendly",
+              "short": "Friendly",
+              "color": "green",
+              "keys": "6",
+              "scAction": "v_target_cycle_friendly_fwd",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-next-all",
+              "icon": "next-any",
+              "label": "Next Any",
+              "short": "Any",
+              "voice": [
+                "next target"
+              ],
+              "keys": "7",
+              "scAction": "v_target_cycle_all_fwd",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-next-view",
+              "icon": "next-view",
+              "label": "Next In View",
+              "short": "In view",
+              "keys": "t",
+              "scAction": "v_target_cycle_in_view_fwd",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-next-sub",
+              "icon": "next-sub",
+              "label": "Next Subtarget",
+              "short": "Subtarget",
+              "voice": [
+                "next sub target"
+              ],
+              "keys": "r",
+              "scAction": "v_target_cycle_subitem_fwd",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "tg-pins",
+          "title": "Pins",
+          "cols": 8,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "tg-pin-1",
+              "icon": "pin-1",
+              "label": "Pin Target 1",
+              "short": "Pin 1",
+              "voice": [
+                "pin target one",
+                "pin one"
+              ],
+              "keys": "lalt+1",
+              "scAction": "v_target_toggle_pin_index_1",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-pin-2",
+              "icon": "pin-2",
+              "label": "Pin Target 2",
+              "short": "Pin 2",
+              "voice": [
+                "pin target two",
+                "pin two"
+              ],
+              "keys": "lalt+2",
+              "scAction": "v_target_toggle_pin_index_2",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-pin-3",
+              "icon": "pin-3",
+              "label": "Pin Target 3",
+              "short": "Pin 3",
+              "voice": [
+                "pin target three",
+                "pin three"
+              ],
+              "keys": "lalt+3",
+              "scAction": "v_target_toggle_pin_index_3",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "tg-unlock",
+              "icon": "target-unlock",
+              "label": "Unlock Target",
+              "short": "Unlock",
+              "voice": [
+                "drop target",
+                "clear target"
+              ],
+              "color": "amber",
+              "keys": "lalt+t",
+              "scAction": "v_target_unlock",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1420,6 +1743,106 @@
             "scAction": "v_salvage_decrease_beam_spacing",
             "mode": "tap"
           }
+        },
+        {
+          "type": "group",
+          "id": "sv-heads",
+          "title": "Salvage heads",
+          "cols": 6,
+          "span": [
+            6,
+            2
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "sv-focus-left",
+              "icon": "salvage-focus-left",
+              "label": "Focus Left Head",
+              "short": "Focus Left",
+              "voice": [
+                "focus left"
+              ],
+              "keys": "lalt+a",
+              "scAction": "v_salvage_focus_left",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "sv-focus-all",
+              "icon": "salvage-focus-all",
+              "label": "Focus All Heads",
+              "short": "Focus All",
+              "voice": [
+                "focus all",
+                "focus both"
+              ],
+              "keys": "lalt+s",
+              "scAction": "v_salvage_focus_all_heads",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "sv-focus-right",
+              "icon": "salvage-focus-right",
+              "label": "Focus Right Head",
+              "short": "Focus Right",
+              "voice": [
+                "focus right"
+              ],
+              "keys": "lalt+d",
+              "scAction": "v_salvage_focus_right",
+              "mode": "tap",
+              "span": [
+                2,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "sv-fire-left",
+              "icon": "salvage-fire-left",
+              "label": "Fire Left Head",
+              "short": "Fire Left",
+              "voice": [
+                "fire left"
+              ],
+              "color": "red",
+              "keys": "ralt+a",
+              "scAction": "v_salvage_toggle_fire_left",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "sv-fire-right",
+              "icon": "salvage-fire-right",
+              "label": "Fire Right Head",
+              "short": "Fire Right",
+              "voice": [
+                "fire right"
+              ],
+              "color": "red",
+              "keys": "ralt+d",
+              "scAction": "v_salvage_toggle_fire_right",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1543,6 +1966,35 @@
               "scAction": "v_mining_use_consumable3",
               "mode": "tap",
               "color": "blue"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "mn-cargo",
+          "style": "danger",
+          "cols": 6,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "mn-jettison",
+              "icon": "jettison",
+              "label": "Jettison Cargo",
+              "voice": [
+                "dump cargo"
+              ],
+              "color": "red",
+              "keys": "lalt+j",
+              "scAction": "v_jettison_volatile_cargo",
+              "mode": "tap",
+              "span": [
+                6,
+                1
+              ]
             }
           ]
         }
@@ -1723,12 +2175,12 @@
           "cols": 6,
           "span": [
             6,
-            2
+            3
           ],
           "size": {
             "small": [
               6,
-              2
+              3
             ]
           },
           "elements": [
@@ -1761,6 +2213,20 @@
               "span": [
                 2,
                 2
+              ]
+            },
+            {
+              "type": "button",
+              "id": "qt-emergency-exit",
+              "icon": "emergency-exit",
+              "label": "Emergency Exit",
+              "color": "red",
+              "keys": "lshift+u",
+              "scAction": "v_emergency_exit",
+              "mode": "tap",
+              "span": [
+                6,
+                1
               ]
             }
           ]
@@ -1887,6 +2353,36 @@
               "color": "amber"
             }
           ]
+        },
+        {
+          "type": "group",
+          "id": "md-scan",
+          "title": "Scanning",
+          "cols": 6,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "md-ping",
+              "icon": "scan-ping",
+              "label": "Radar Ping",
+              "voice": [
+                "ping",
+                "send ping"
+              ],
+              "color": "blue",
+              "keys": "tab",
+              "scAction": "v_invoke_ping",
+              "mode": "hold",
+              "span": [
+                6,
+                1
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1971,6 +2467,28 @@
             "scAction": "v_weapon_decrease_max_missiles",
             "mode": "tap"
           },
+          "more": {
+            "id": "cb-more",
+            "icon": "missile-more",
+            "label": "More Missiles",
+            "voice": [
+              "add missile"
+            ],
+            "keys": "g",
+            "scAction": "v_weapon_increase_max_missiles",
+            "mode": "tap"
+          },
+          "reset": {
+            "id": "cb-missiles-reset",
+            "icon": "missile-reset",
+            "label": "Reset Missiles",
+            "voice": [
+              "reset missile count"
+            ],
+            "keys": "lalt+g",
+            "scAction": "v_weapon_reset_max_missiles",
+            "mode": "tap"
+          },
           "pips": {
             "id": "cb-pips",
             "icon": "power-weapons",
@@ -1983,6 +2501,61 @@
             "scAction": "v_weapon_pip_toggle_lead_lag",
             "mode": "tap"
           }
+        },
+        {
+          "type": "group",
+          "id": "cb-burst",
+          "title": "Decoy burst",
+          "cols": 6,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "cb-burst-down",
+              "icon": "burst-down",
+              "label": "Decoy Burst −",
+              "short": "Burst −",
+              "voice": [
+                "smaller burst",
+                "fewer decoys"
+              ],
+              "color": "amber",
+              "keys": "lalt+h",
+              "scAction": "v_weapon_countermeasure_decoy_burst_decrease",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "cb-burst-up",
+              "icon": "burst-up",
+              "label": "Decoy Burst +",
+              "short": "Burst +",
+              "voice": [
+                "bigger burst",
+                "more decoys"
+              ],
+              "color": "amber",
+              "keys": "ralt+h",
+              "scAction": "v_weapon_countermeasure_decoy_burst_increase",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "type": "lasthits",
+          "id": "cb-hits",
+          "label": "Last hits"
         }
       ]
     },
@@ -2098,6 +2671,60 @@
               "color": "green"
             }
           }
+        },
+        {
+          "type": "group",
+          "id": "cr-ship",
+          "title": "Ship",
+          "cols": 6,
+          "span": [
+            6,
+            1
+          ],
+          "elements": [
+            {
+              "type": "button",
+              "id": "cr-light-amp",
+              "icon": "light-amp",
+              "label": "Light Amplification",
+              "short": "Light Amp",
+              "anim": "glow",
+              "state": {
+                "group": "light-amp"
+              },
+              "voice": [
+                "light amp",
+                "night vision",
+                "toggle light amp"
+              ],
+              "keys": "ralt+l",
+              "scAction": "v_light_amplification_toggle",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            },
+            {
+              "type": "button",
+              "id": "cr-port-locks",
+              "icon": "port-lock",
+              "label": "Toggle Port Locks",
+              "short": "Port Locks",
+              "voice": [
+                "port locks",
+                "lock ports",
+                "unlock ports"
+              ],
+              "keys": "ralt+k",
+              "scAction": "v_toggle_all_portlocks",
+              "mode": "tap",
+              "span": [
+                3,
+                1
+              ]
+            }
+          ]
         },
         {
           "type": "turrets",
@@ -2813,6 +3440,36 @@
         },
         {
           "type": "ref",
+          "id": "cd-md-scan",
+          "ref": "md-scan",
+          "span": [
+            2,
+            1
+          ],
+          "only": "large"
+        },
+        {
+          "type": "ref",
+          "id": "cd-tg-pins",
+          "ref": "tg-pins",
+          "span": [
+            6,
+            1
+          ],
+          "only": "large"
+        },
+        {
+          "type": "ref",
+          "id": "cd-cb-burst",
+          "ref": "cb-burst",
+          "span": [
+            4,
+            1
+          ],
+          "only": "large"
+        },
+        {
+          "type": "ref",
           "id": "cd-pw-group",
           "ref": "pw-group",
           "span": [
@@ -2920,6 +3577,26 @@
           "span": [
             6,
             2
+          ],
+          "only": "large"
+        },
+        {
+          "type": "ref",
+          "id": "in-pw-throttle",
+          "ref": "pw-throttle",
+          "span": [
+            6,
+            1
+          ],
+          "only": "large"
+        },
+        {
+          "type": "ref",
+          "id": "in-mn-cargo",
+          "ref": "mn-cargo",
+          "span": [
+            6,
+            1
           ],
           "only": "large"
         }

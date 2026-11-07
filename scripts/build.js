@@ -8,7 +8,7 @@
 // 2. Makes the app icon from public/icon-512.png.
 // 3. Compiles the app window (native/launcher.cs -> TabletDeck.exe), the key sender, the
 //    voice listener and the sound player, with version info.
-// 4. Packs server.js, qr.js, public/, layouts/ and keybinds/ into TabletDeckServer.exe, a
+// 4. Packs server.js, qr.js, gamelog.js, discovery.js, public/, layouts/, keybinds/ and data/ into TabletDeckServer.exe, a
 //    Node single executable application made from the node.exe running this script, and
 //    writes THIRD-PARTY-NOTICES.txt with that Node.js's license.
 // 5. Signs the .exe files, if SIGN_CMD is set (see below).
@@ -146,12 +146,24 @@ async function buildApp() {
   const server = fs.readFileSync(path.join(ROOT, "server.js"), "utf8");
   if (!server.includes(qrRequire)) throw new Error(`server.js no longer contains ${qrRequire}; update scripts/build.js.`);
   const qrSource = fs.readFileSync(path.join(ROOT, "qr.js"), "utf8");
-  const bundle = server.replace(qrRequire, () =>
+  let bundle = server.replace(qrRequire, () =>
     `const qr = (() => { const module = { exports: {} };\n${qrSource}\nreturn module.exports; })();`);
+  // gamelog.js (Game.log battle state) the same way.
+  const gameLogRequire = 'const gameLog = require("./gamelog");';
+  if (!bundle.includes(gameLogRequire)) throw new Error(`server.js no longer contains ${gameLogRequire}; update scripts/build.js.`);
+  const gameLogSource = fs.readFileSync(path.join(ROOT, "gamelog.js"), "utf8");
+  bundle = bundle.replace(gameLogRequire, () =>
+    `const gameLog = (() => { const module = { exports: {} };\n${gameLogSource}\nreturn module.exports; })();`);
+  // discovery.js (the mDNS answers the SpoolUp apps find the PC by) the same way.
+  const discoveryRequire = 'const discovery = require("./discovery");';
+  if (!bundle.includes(discoveryRequire)) throw new Error(`server.js no longer contains ${discoveryRequire}; update scripts/build.js.`);
+  const discoverySource = fs.readFileSync(path.join(ROOT, "discovery.js"), "utf8");
+  bundle = bundle.replace(discoveryRequire, () =>
+    `const discovery = (() => { const module = { exports: {} };\n${discoverySource}\nreturn module.exports; })();`);
   fs.writeFileSync(path.join(BUILD, "bundle.js"), bundle);
 
   // Files server.js reads with readBundled(), under their repo paths.
-  const assets = ["package.json", ...filesUnder("public"), ...filesUnder("layouts"), ...filesUnder("keybinds")];
+  const assets = ["package.json", ...filesUnder("public"), ...filesUnder("layouts"), ...filesUnder("keybinds"), ...filesUnder("data")];
   // A packed app can't list its files, so the list goes in too (for the layout editor).
   fs.writeFileSync(path.join(BUILD, "bundled-files.json"), JSON.stringify(assets));
   const blob = path.join(BUILD, "sea.blob");

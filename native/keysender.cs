@@ -3,12 +3,16 @@
 //   u <scancode-hex> <extended 0|1>   key up
 //   focus <process-name>              replies "focus 1" if that process owns the
 //                                     foreground window, else "focus 0"
+//   exe <process-name>                replies "exe <full path>" of that process's program
+//                                     while it runs (which channel folder the game is in),
+//                                     else "exe"
 //   ping                              replies "pong"
 // Scancodes (not virtual keys) are used because DirectInput/raw-input games such as
 // Star Citizen ignore virtual-key-only events.
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 static class KeySender
 {
@@ -62,6 +66,44 @@ static class KeySender
     [DllImport("user32.dll")]
     static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+    const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr OpenProcess(uint access, bool inheritHandle, int processId);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    static extern bool QueryFullProcessImageName(IntPtr process, uint flags, StringBuilder name, ref uint size);
+
+    [DllImport("kernel32.dll")]
+    static extern bool CloseHandle(IntPtr handle);
+
+    // Full path of the first running process with that name (without ".exe"); "" if none.
+    // Only the program's path is asked for (the least access Windows has, as Task Manager
+    // uses); nothing in the process is read.
+    static string ProcessPath(string name)
+    {
+        Process[] found;
+        try { found = Process.GetProcessesByName(name); }
+        catch { return ""; }
+        string path = "";
+        foreach (var p in found)
+        {
+            if (path == "")
+            {
+                IntPtr h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, p.Id);
+                if (h != IntPtr.Zero)
+                {
+                    var sb = new StringBuilder(1024);
+                    uint size = (uint)sb.Capacity;
+                    if (QueryFullProcessImageName(h, 0, sb, ref size)) path = sb.ToString(0, (int)size);
+                    CloseHandle(h);
+                }
+            }
+            p.Dispose();
+        }
+        return path;
+    }
+
     // Name of the process that owns the window in front, without ".exe"; "" if unknown.
     static string ForegroundProcess()
     {
@@ -88,6 +130,13 @@ static class KeySender
             {
                 bool focused = string.Equals(ForegroundProcess(), parts[1], StringComparison.OrdinalIgnoreCase);
                 Console.WriteLine(focused ? "focus 1" : "focus 0");
+                Console.Out.Flush();
+                continue;
+            }
+            if (parts.Length == 2 && parts[0] == "exe")
+            {
+                string exe = ProcessPath(parts[1]);
+                Console.WriteLine(exe == "" ? "exe" : "exe " + exe);
                 Console.Out.Flush();
                 continue;
             }

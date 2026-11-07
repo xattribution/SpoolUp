@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>SpoolUp</title>
+<!--
+  The Android app's first screen: the SpoolUp PCs found on this network (live), the ones
+  opened before, the QR code scanner and an address field. Picking one opens that PC's deck;
+  the deck asks for the pairing code itself the first time (a QR code carries it).
+  House colors (docs/DESIGN.md, "The other surfaces"); system fonts only, nothing is loaded.
+  Talks to the app through window.SpoolUpLaunch; the app calls window.spoolUp.*.
+-->
+<style>
+  :root {
+    --bg: #05090f;
+    --panel: #0b1726;
+    --raised: #12253b;
+    --line: #1f3a58;
+    --accent: #4fb3ff;
+    --on-accent: #05090f;
+    --text: #e8eef5;
+    --dim: #8aa0b8;
+    --bad: #ff5a5f;
+    --display: "sans-serif-condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+    --body: system-ui, Roboto, sans-serif;
+    --mono: "Roboto Mono", "Droid Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+  body {
+    display: flex; flex-direction: column; min-height: 100vh;
+    font: 400 17px/1.45 var(--body);
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+    -webkit-user-select: none; user-select: none; overscroll-behavior: none;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .bar { display: flex; align-items: center; justify-content: space-between; flex: none; height: 56px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .mark { font: 700 20px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; }
+  .ver { font: 400 14px/1 var(--mono); color: var(--dim); }
+
+  main { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: clamp(16px, 5vh, 48px) 24px 32px; }
+  h1 { margin: 0 0 16px; font: 600 32px/1.1 var(--display); letter-spacing: .04em; text-transform: uppercase; overflow-wrap: anywhere; }
+  h2 { margin: 28px 0 8px; font: 600 15px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+
+  .pcs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .pc { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 16px; border-bottom: 1px solid var(--line); }
+  .pick { display: block; width: 100%; min-height: 76px; padding: 12px 16px; background: none; border: 0; text-align: left; }
+  .pick:active { background: var(--raised); box-shadow: inset 4px 0 0 var(--accent); }
+  .p-name { display: block; font: 600 24px/1.15 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-addr { display: block; margin-top: 2px; font: 400 15px/1.3 var(--mono); color: var(--dim); }
+  .p-side { padding-right: 8px; display: flex; align-items: center; gap: 8px; font: 600 14px/1.2 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .forget { width: 48px; height: 48px; padding: 0; background: none; border: 0; border-radius: 4px; color: var(--dim); }
+  .forget:active { background: var(--raised); color: var(--text); }
+  .forget svg { width: 20px; height: 20px; }
+
+  .empty { padding: 20px 16px 4px; }
+  .empty p { margin: 0; max-width: 48ch; }
+  .e-title { font: 600 20px/1.2 var(--display); letter-spacing: .04em; text-transform: uppercase; }
+  .e-note { margin-top: 6px !important; color: var(--dim); }
+  .scan-bar { position: relative; height: 3px; margin-bottom: 16px; background: var(--line); overflow: hidden; }
+  .scan-bar i { position: absolute; inset: 0 auto 0 0; width: 28%; background: var(--accent); animation: sweep 1.6s ease-in-out infinite; }
+  @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(360%); } }
+
+  .err { margin: 0 0 16px; padding: 12px 16px; background: var(--bad); color: #fff; }
+  .err b { font-weight: 700; }
+  .mono { font-family: var(--mono); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .primary, .secondary {
+    min-height: 56px; padding: 0 24px; border-radius: 4px;
+    font: 700 18px/1 var(--display); letter-spacing: .1em; text-transform: uppercase;
+  }
+  .primary { background: var(--accent); color: var(--on-accent); border: 0; }
+  .primary:active { background: #3a95d8; }
+  .secondary { background: none; border: 1px solid var(--line); }
+  .secondary:active { background: var(--raised); }
+
+  .back { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; margin: -8px 0 8px -12px; padding: 0 12px; background: none; border: 0; border-radius: 4px; color: var(--dim); font: 600 17px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; }
+  .back:active { background: var(--raised); color: var(--text); }
+  .back svg { width: 18px; height: 18px; }
+  label { display: block; margin-bottom: 8px; font: 600 15px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .field {
+    width: 100%; max-width: 560px; height: 64px; padding: 0 16px; border: 0; border-bottom: 3px solid var(--line); border-radius: 0;
+    background: var(--panel); color: var(--text); outline: 0; font: 500 26px/1 var(--mono); -webkit-user-select: text; user-select: text;
+  }
+  .field:focus { border-bottom-color: var(--accent); }
+  .field::placeholder { color: var(--dim); opacity: .6; }
+  .hint { min-height: 24px; margin: 8px 0 0; color: var(--dim); max-width: 560px; }
+  .hint.bad { color: var(--bad); }
+  .sub { margin: -8px 0 20px; font: 400 15px/1.3 var(--mono); color: var(--dim); }
+  #v-conn .scan-bar { max-width: 560px; margin: 8px 0 24px; }
+  #cancel.wait { visibility: hidden; }
+
+  @media (max-height: 540px) {
+    .bar { height: 44px; }
+    main { padding-top: 8px; }
+    h1 { font-size: 26px; margin-bottom: 10px; }
+    .field { height: 56px; }
+    .actions { margin-top: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .scan-bar i { animation: none; width: 100%; opacity: .5; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="mark">SpoolUp</span>
+  <span class="ver" id="ver"></span>
+</header>
+
+<main>
+  <section class="view" id="v-list">
+    <h1 data-t>Choose a PC</h1>
+    <p class="err" id="err" role="alert" hidden></p>
+    <ul class="pcs" id="found"></ul>
+    <div class="empty" id="empty">
+      <div class="scan-bar"><i></i></div>
+      <p class="e-title" data-t>Searching this network</p>
+      <p class="e-note" data-t>Start SpoolUp on your PC. This device and the PC need to be on the same network.</p>
+    </div>
+    <h2 id="saved-title" data-t hidden>Opened before</h2>
+    <ul class="pcs" id="saved" hidden></ul>
+    <div class="actions">
+      <button class="primary" id="scan" type="button" data-t>Scan QR code</button>
+      <button class="secondary" id="manual" type="button" data-t>Enter address</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-addr" hidden>
+    <button class="back" type="button" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span data-t>PCs</span></button>
+    <h1 data-t>Enter address</h1>
+    <label for="addr" data-t>PC address</label>
+    <input class="field" id="addr" type="text" inputmode="url" placeholder="192.168.1.20:8765" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+    <p class="hint" id="addr-hint" role="alert" data-t>Shown in the SpoolUp window on your PC.</p>
+    <div class="actions">
+      <button class="primary" id="addr-go" type="button" data-t>Open</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-conn" hidden>
+    <h1 id="conn-title"></h1>
+    <p class="sub" id="conn-addr"></p>
+    <div class="scan-bar"><i></i></div>
+    <button class="secondary wait" id="cancel" type="button" data-t>Cancel</button>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  // es / fr / de, by the device's language; English otherwise.
+  const T = {
+    "Choose a PC": ["Elige un PC", "Choisissez un PC", "PC auswählen"],
+    "Searching this network": ["Buscando en esta red", "Recherche sur ce réseau", "Suche in diesem Netzwerk"],
+    "Start SpoolUp on your PC. This device and the PC need to be on the same network.": ["Inicia SpoolUp en tu PC. Este dispositivo y el PC tienen que estar en la misma red.", "Lancez SpoolUp sur votre PC. Cet appareil et le PC doivent être sur le même réseau.", "Starte SpoolUp auf deinem PC. Dieses Gerät und der PC müssen im selben Netzwerk sein."],
+    "Opened before": ["Abiertos antes", "Déjà ouverts", "Schon geöffnet"],
+    "Scan QR code": ["Escanear código QR", "Scanner le code QR", "QR-Code scannen"],
+    "Enter address": ["Escribir dirección", "Saisir l'adresse", "Adresse eingeben"],
+    "PCs": ["PCs", "PC", "PCs"],
+    "PC address": ["Dirección del PC", "Adresse du PC", "Adresse des PCs"],
+    "Shown in the SpoolUp window on your PC.": ["Aparece en la ventana de SpoolUp en tu PC.", "Affichée dans la fenêtre SpoolUp sur votre PC.", "Steht im SpoolUp-Fenster auf deinem PC."],
+    "Open": ["Abrir", "Ouvrir", "Öffnen"],
+    "Cancel": ["Cancelar", "Annuler", "Abbrechen"],
+    "Last used": ["Último usado", "Dernier utilisé", "Zuletzt benutzt"],
+    "Not found": ["No encontrado", "Introuvable", "Nicht gefunden"],
+    "Forget {0}": ["Olvidar {0}", "Oublier {0}", "{0} vergessen"],
+    "Connecting to {0}…": ["Conectando con {0}…", "Connexion à {0}…", "Verbinde mit {0} …"],
+    "Couldn't reach {0}": ["No se pudo conectar con {0}", "Impossible de joindre {0}", "{0} nicht erreichbar"],
+    " at ": [" en ", " à ", " unter "],
+    ". Check that SpoolUp is running on the PC and that both are on the same network.": [". Comprueba que SpoolUp está abierto en el PC y que ambos están en la misma red.", ". Vérifiez que SpoolUp est lancé sur le PC et que les deux sont sur le même réseau.", ". Prüfe, ob SpoolUp auf dem PC läuft und beide im selben Netzwerk sind."],
+    "Type the address shown in the SpoolUp window, like 192.168.1.20:8765.": ["Escribe la dirección que muestra la ventana de SpoolUp, como 192.168.1.20:8765.", "Tapez l'adresse affichée dans la fenêtre SpoolUp, par exemple 192.168.1.20:8765.", "Gib die Adresse aus dem SpoolUp-Fenster ein, etwa 192.168.1.20:8765."],
+    "That's not an address on your home network. Use the one the SpoolUp window shows.": ["Esa no es una dirección de tu red doméstica. Usa la que muestra la ventana de SpoolUp.", "Ce n'est pas une adresse de votre réseau domestique. Utilisez celle de la fenêtre SpoolUp.", "Das ist keine Adresse in deinem Heimnetzwerk. Nimm die aus dem SpoolUp-Fenster."],
+    "The port is a number from 1024 to 65535.": ["El puerto es un número de 1024 a 65535.", "Le port est un nombre de 1024 à 65535.", "Der Port ist eine Zahl von 1024 bis 65535."],
+  };
+  const col = ["es", "fr", "de"].indexOf((navigator.language || "en").slice(0, 2).toLowerCase());
+  const tr = (s, ...a) => { const row = T[s]; let out = col >= 0 && row ? row[col] : s; a.forEach((v, i) => { out = out.replace("{" + i + "}", v); }); return out; };
+  for (const el of document.querySelectorAll("[data-t]")) el.textContent = tr(el.textContent.trim());
+  if (col >= 0) document.documentElement.lang = ["es", "fr", "de"][col];
+
+  const N = window.SpoolUpLaunch || null;
+  const $ = (id) => document.getElementById(id);
+  const json = (s, d) => { try { const v = JSON.parse(s); return v == null ? d : v; } catch (e) { return d; } };
+  const call = (fn, ...a) => { try { return N && N[fn] ? N[fn](...a) : undefined; } catch (e) { return undefined; } };
+  const haptic = (k) => call("haptic", k);
+
+  let view = "list";
+  let state = json(call("state"), {});
+  let cancelTimer = 0;
+  $("ver").textContent = state.version ? "v" + state.version : "";
+
+  function show(v) {
+    view = v;
+    for (const s of document.querySelectorAll(".view")) s.hidden = s.id !== "v-" + v;
+    if (v !== "conn") clearTimeout(cancelTimer);
+    window.scrollTo(0, 0);
+  }
+
+  const addrOf = (p) => p.host + ":" + p.port;
+  const same = (a, b) => (a.host === b.host && a.port === b.port) || (!!a.service && a.service === b.service);
+
+  // ---------- the lists ----------
+  function row(p, opts) {
+    const li = document.createElement("li");
+    li.className = "pc";
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pick";
+    const name = document.createElement("span");
+    name.className = "p-name";
+    name.textContent = p.name || p.host;
+    const addr = document.createElement("span");
+    addr.className = "p-addr";
+    addr.textContent = addrOf(p) + (p.version ? "  ·  v" + p.version : "");
+    b.append(name, addr);
+    b.addEventListener("click", () => { haptic("tap"); open(p, ""); });
+    const side = document.createElement("span");
+    side.className = "p-side";
+    if (opts.tag) side.append(opts.tag);
+    if (opts.forget) {
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "forget";
+      x.setAttribute("aria-label", tr("Forget {0}", p.name || p.host));
+      x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      x.addEventListener("click", () => { haptic("tap"); call("forget", p.host, Number(p.port)); });
+      side.append(x);
+    }
+    li.append(b, side);
+    return li;
+  }
+
+  function render() {
+    const found = Array.isArray(state.found) ? state.found : [];
+    const saved = Array.isArray(state.saved) ? state.saved : [];
+    const last = saved[0];
+    $("found").replaceChildren(...found.map((p) => row(p, { tag: last && same(p, last) ? tr("Last used") : "" })));
+    $("found").hidden = found.length === 0;
+    $("empty").hidden = found.length > 0;
+    const others = saved.filter((s) => !found.some((f) => same(f, s)));
+    $("saved").replaceChildren(...others.map((p) => row(p, { tag: tr("Not found"), forget: true })));
+    $("saved").hidden = $("saved-title").hidden = others.length === 0;
+  }
+
+  function setError(name, addr) {
+    const e = $("err");
+    if (!name) { e.hidden = true; e.replaceChildren(); return; }
+    const b = document.createElement("b");
+    b.textContent = tr("Couldn't reach {0}", name);
+    const a = document.createElement("span");
+    a.className = "mono";
+    a.textContent = addr || "";
+    e.replaceChildren(b, addr ? tr(" at ") : "", a, tr(". Check that SpoolUp is running on the PC and that both are on the same network."));
+    e.hidden = false;
+  }
+
+  // ---------- opening a PC ----------
+  function showConnecting(name, addr) {
+    $("conn-title").textContent = tr("Connecting to {0}…", name);
+    $("conn-addr").textContent = addr || "";
+    $("cancel").classList.add("wait");
+    show("conn");
+    if (document.activeElement) document.activeElement.blur();
+    clearTimeout(cancelTimer);
+    cancelTimer = setTimeout(() => $("cancel").classList.remove("wait"), 3000);
+  }
+
+  function open(p, code) {
+    setError(null);
+    showConnecting(p.name || p.host, addrOf(p));
+    call("open", String(p.host), Number(p.port), code || "", p.name || "", p.service || "");
+  }
+
+  // A typed address or a scanned link, read by the app (PcAddress.parse).
+  const PROBLEMS = {
+    empty: "Type the address shown in the SpoolUp window, like 192.168.1.20:8765.",
+    notHttp: "That's not an address on your home network. Use the one the SpoolUp window shows.",
+    notLocal: "That's not an address on your home network. Use the one the SpoolUp window shows.",
+    ipv6: "Type the address shown in the SpoolUp window, like 192.168.1.20:8765.",
+    badPort: "The port is a number from 1024 to 65535.",
+  };
+  function openParsed(r) {
+    if (!r || r.problem) return r ? r.problem : "empty";
+    const known = (state.saved || []).concat(state.found || []).find((s) => s.host === r.host && s.port === r.port);
+    open(known || { host: r.host, port: r.port, name: r.host }, r.code || "");
+    return null;
+  }
+
+  function submitAddr() {
+    const problem = openParsed(json(call("parse", $("addr").value), null));
+    if (!problem) return;
+    haptic("error");
+    $("addr-hint").textContent = tr(PROBLEMS[problem] || PROBLEMS.empty);
+    $("addr-hint").classList.add("bad");
+  }
+  $("manual").addEventListener("click", () => {
+    haptic("tap");
+    setError(null);
+    $("addr-hint").textContent = tr("Shown in the SpoolUp window on your PC.");
+    $("addr-hint").classList.remove("bad");
+    show("addr");
+    $("addr").focus();
+  });
+  $("addr-go").addEventListener("click", () => { haptic("press"); submitAddr(); });
+  $("addr").addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddr(); });
+  $("scan").addEventListener("click", () => { haptic("tap"); setError(null); call("scan"); });
+  $("cancel").addEventListener("click", () => { haptic("tap"); call("cancel"); show("list"); });
+  for (const b of document.querySelectorAll("[data-back]")) b.addEventListener("click", () => { haptic("tap"); show("list"); });
+
+  // ---------- from the app ----------
+  window.spoolUp = {
+    update(s) { state = typeof s === "string" ? json(s, state) : s || state; render(); },
+    failed(r) {
+      haptic("error");
+      state = json(call("state"), state);
+      render();
+      setError((r && r.name) || "PC", r && r.addr);
+      show("list");
+    },
+    scanned(r) { if (openParsed(r)) { haptic("error"); setError(null); } },
+    // Back: a step back inside this page first.
+    back() {
+      if (view === "addr") { show("list"); return true; }
+      if (view === "conn") { call("cancel"); show("list"); return true; }
+      return false;
+    },
+  };
+
+  render();
+  const p = new URLSearchParams(location.hash.slice(1));
+  if (p.has("connecting")) showConnecting(p.get("connecting"), p.get("addr"));
+  else if (p.has("error")) setError(p.get("error"), p.get("addr"));
+})();
+</script>
+</body>
+</html>

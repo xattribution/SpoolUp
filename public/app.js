@@ -570,6 +570,7 @@
   function fillAwake() {
     const A = window.DeckAwake;
     $("awakeBtn").hidden = !A;
+    document.querySelector(".sheet-awake").hidden = !A; // inside the apps, which keep the screen on
     if (!A) return;
     if (!awakeHooked) { awakeHooked = true; A.onChange(fillAwake); }
     $("awakeBtn").setAttribute("aria-checked", String(A.on()));
@@ -661,6 +662,7 @@
     if (on !== online.on && !DEMO) window.DeckSound.play(on ? "online" : "offline");
     online = { on, text };
     if (!on) rtt = null;
+    if (!on && window.DeckBattle) window.DeckBattle.offline(); // battle alerts may be out of date
     refreshStatus();
   }
   function refreshStatus() {
@@ -734,6 +736,10 @@
         refreshStatus();
       }
       else if (msg.t === "blocked") { toast("Star Citizen not focused"); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
+      // The player cleared this bind in Star Citizen, so the PC pressed nothing.
+      else if (msg.t === "unbound") { toast("Not bound in Star Citizen", 2600); buzz([30, 60, 30]); window.DeckSound.play("deny"); denied(msg.id); }
+      // The PC let go of a hold: Star Citizen lost focus, or it was held for 2 minutes.
+      else if (msg.t === "released") toast(msg.reason === "focus" ? "Keys released: Star Citizen lost focus" : "Keys released after 2 minutes", 2600);
       else if (msg.t === "hello") { applyVoiceStatus(msg.voiceStatus || { state: msg.voice ? "ready" : "off" }); states = msg.states || {}; showStates(); S.status(msg.soundStatus); }
       else if (msg.t === "sound-status") S.status(msg);
       // A scene picked on a Stream Deck (its SpoolUp plugin): flip to its panels. It's
@@ -754,6 +760,8 @@
       }
       else if (msg.t === "reload") load().then(reconnect); // the layout was changed in the editor
       else if (msg.t === "opened") toast(tr(msg.dryRun ? "{0}: test mode, not opened" : "Opened {0} on the PC", msg.name));
+      // Battle alerts from Star Citizen's Game.log (battle.js); they press nothing.
+      else if (msg.t === "battle") { if (window.DeckBattle) window.DeckBattle.update(msg); }
     };
   }
 
@@ -819,7 +827,14 @@
     }
   }
 
-  const buzz = (ms = 12) => { if (navigator.vibrate) navigator.vibrate(ms); };
+  // Inside the SpoolUp iPhone/iPad and Android apps, window.SpoolUpApp plays the device's own
+  // haptics (iOS Safari has no navigator.vibrate). The browser deck never has it.
+  const appHaptic = (ms) => (Array.isArray(ms) ? (ms[0] >= 30 ? "error" : "press") : ms >= 30 ? "press" : "tap");
+  const buzz = (ms = 12) => {
+    const app = window.SpoolUpApp;
+    if (app && typeof app.haptic === "function") { try { app.haptic(appHaptic(ms)); } catch {} return; }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  };
 
   // ---------- lit buttons ----------
 
@@ -894,6 +909,14 @@
     const fx = window.DeckFX.attach(el, btn);
     el.dataset.btn = btn.id;
     el._deny = fx.deny;
+    // Cleared in the player's Star Citizen keybinds: dimmed, with a badge, until it's bound.
+    if (btn.unbound) {
+      el.classList.add("unbound");
+      const badge = document.createElement("span");
+      badge.className = "bind-badge";
+      badge.textContent = tr("BIND");
+      el.appendChild(badge);
+    }
     if (btn.state && typeof btn.state.group === "string") {
       el.dataset.stateGroup = btn.state.group;
       el._showState = fx.show;
@@ -1214,6 +1237,16 @@
     else (d.requestFullscreen || d.webkitRequestFullscreen)?.call(d);
   }
   $("fs").onclick = toggleFullscreen;
+  // Inside the SpoolUp apps, Deck settings gets the way back to the app's list of PCs.
+  if (window.SpoolUpApp && typeof window.SpoolUpApp.switchPC === "function") {
+    const back = document.createElement("button");
+    back.id = "switchPcBtn";
+    back.type = "button";
+    back.className = "sheet-action";
+    back.innerHTML = `<span class="sw-text"><b>Switch PC</b><span>Leaves the deck for the app's list of PCs.</span></span>`;
+    back.onclick = () => window.SpoolUpApp.switchPC();
+    $("langPick").after(back);
+  }
 
   window.DeckI18n.apply();
   buildPicker();

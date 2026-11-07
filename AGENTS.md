@@ -15,12 +15,17 @@ Imperium Games.
 | path | what it is |
 |---|---|
 | `server.js` | the server: serves the deck, pairs tablets, sends keys, runs voice, the layout editor's API |
+| `gamelog.js` | follows the game's `Game.log` (read only) for the deck's battle alerts |
+| `discovery.js` | answers mDNS for `_spoolup._tcp` so the apps find the PC (name, port, version; never the pairing code) |
 | `public/` | the deck, the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud.json` is the source, most others are generated |
 | `keybinds/` | the SpoolUp Keyboard profile (generated) |
+| `data/` | Star Citizen 4.10's actions, default keys and action-map contexts, for the profile check and the merged profile |
 | `native/` | C# sources: the app window, the key sender, the voice listener, the sound player |
 | `tools/`, `scripts/` | generators, the installer build, release notes |
 | `site/` | the website on GitHub Pages |
+| `android/` | the Android app (Kotlin, Gradle): [docs/ANDROID.md](docs/ANDROID.md) |
+| `ios/` | the iPhone and iPad app (SwiftUI, XcodeGen on a Mac): [docs/IOS.md](docs/IOS.md) |
 | `docs/STREAMDECK-API.md` | the server's side of the Stream Deck plugin, a separate paid product built in a private repository |
 
 ## Ground rules
@@ -82,8 +87,8 @@ Never edit these by hand; change the source and rerun the tool:
 | starter and ship layouts and Dashboards (`combat*.json`, `mining-salvage*.json`, `hauling-exploration*.json`, `prospector*.json`, `vulture*.json`, `dashboards.json`) | `hud.json`, `tools/make-starter-layouts.js` | `node tools/make-starter-layouts.js` (after the phone layout) |
 | `keybinds/TabletDeck-StarCitizen.xml` | every button's `scAction` and keys | `node tools/make-profile.js` |
 
-A new `scAction` must be added to `ACTIONMAPS` in `tools/make-profile.js`, or
-the profile build stops. `layouts/hud.json` is a grid layout (2.1) and the
+A new `scAction` must be added to `ACTIONMAPS` in `tools/make-profile.js`, and
+exist in that map in `data/sc-actions-4.10.json`, or the profile build stops. `layouts/hud.json` is a grid layout (2.1) and the
 source of every button; `layouts/hud-classic.json` and
 `layouts/hud-classic-phone.json` keep the 2.0 HUD as it was and are edited by
 hand (see [Grid layouts](docs/DEVELOPMENT.md#grid-layouts)).
@@ -108,7 +113,9 @@ done:
 
 Say what you couldn't check. Windows-only parts (the key sender, voice, the sound player, the app
 window, the installer) can't be run on other systems; never report them as
-tested if they weren't.
+tested if they weren't. The same goes for the apps: the Android app needs a
+phone or tablet for discovery, the camera and haptics, and the iOS app needs a
+Mac to build at all.
 
 ## Docs and releases
 

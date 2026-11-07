@@ -46,6 +46,8 @@ Options (they work with `start.bat`, `node server.js` and the installed
 | `--port <n>` | use another port than the one in `config.json` |
 | `--ui` | status lines for the app window (used by `TabletDeck.exe`) |
 | `--set name=value ...` | save settings to `config.json` and exit |
+| `--merge-profile <out.xml> [actionmaps.xml]` | write the merged keybind profile and exit (see [Your binds kept](#your-binds-kept)) |
+| `--game-log <file>` | follow that file for battle alerts instead of the game's `Game.log` (see [Battle alerts](#battle-alerts)) |
 
 ## Test without the game
 
@@ -73,6 +75,42 @@ dry run plays them too, so you can try an output without the game. The log comes
 from `/events`, which only exists in `--dry-run` and needs the pairing code.
 Against a normal server the page warns that taps send real keys.
 
+### Battle alerts
+
+`gamelog.js` follows the game's `Game.log` (read only: it opens the file, reads
+the new whole lines and closes it again every 250 ms) next to the running
+game's install, else LIVE's, and the server sends paired tablets
+`{ t: "battle", event, state }`. `event` is `sync` (on connect and after the log
+is first read), `ship`, `hit`, `clear`, `ship-1` (disabled), `ship-2`
+(destroyed), `dead`, `kill` or `reset` (a new game session); `state` is
+`{ ship, fire, from, hits, level, dead, by, kills, killed, recent: [{ from, n, at }], now, reading }`.
+Stream Decks (`device=streamdeck`) never get it, and the player's own name is
+never sent. A log that's already there when the server starts is read silently,
+so old hits never show as current. The deck shows it in `public/battle.js`
+(the strip at the top and the `lasthits` widget). `"gameLog": false` in
+`config.json` turns it off.
+
+To try it without the game, follow a sample file and append lines to it (the
+line formats are in `gamelog.js`); the dry run logs each event:
+
+```
+node server.js --dry-run --port 8790 --game-log sample-Game.log
+```
+
+### The apps' discovery
+
+`discovery.js` answers DNS-SD over multicast DNS (224.0.0.251, UDP 5353) for
+`_spoolup._tcp`, so the Android and iOS apps can list the PC: PTR (the PC's
+name), SRV (the deck's port, target `spoolup-<pc name>.local`), TXT (`v=<version>`,
+`name=<pc name>`, never the pairing code) and A (the PC's address on the adapter
+the question came in on). VPN and virtual adapters (`VIRTUAL_ADAPTER` in
+`server.js`) don't answer, questions from outside the PC's own networks are
+ignored, and answers are rate limited. It announces at start and says goodbye
+(TTL 0) on quit. If UDP 5353 is taken it logs "Discovery is off" and nothing
+else changes. `"discovery": false` (Settings → Network in the window) turns it
+off. To see it from another machine: `avahi-browse -r _spoolup._tcp` or
+python-zeroconf.
+
 ### Demo mode
 
 `public/index.html?demo` runs the deck with no server at all: it loads the
@@ -85,14 +123,19 @@ layout from `layouts/`, and presses only play their animations. The website's
 |---|---|
 | `server.js` | the server: serves the deck, pairs tablets, sends keys, runs voice, the layout editor's API |
 | `qr.js` | QR code generator for the console and the app window |
-| `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `grid.js`, the widgets in `dial.js`, `clusters.js` and `emotes.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
+| `gamelog.js` | follows Star Citizen's `Game.log` (read only) for battle alerts |
+| `discovery.js` | the mDNS answers the SpoolUp apps find the PC by |
+| `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `grid.js`, the widgets in `dial.js`, `clusters.js`, `emotes.js` and `battle.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
 | `layouts/` | built-in layouts; `hud.json` is the source, `hud-phone.json` and the starter layouts are generated, `hud-classic*.json` keep the 2.0 HUD as it was |
 | `keybinds/` | the SpoolUp Keyboard profile for Star Citizen (generated) |
+| `data/` | Star Citizen 4.10's actions and default keys (`sc-actions-4.10.json`) and which action maps are active together (`sc-contexts.json`), for the profile check and the merged profile |
 | `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
 | `tools/` | generators for the phone layout, starter layouts and keybind profile, the grid layout check (`check-grid.js`) and the demo recorder |
 | `scripts/` | the installer build and release notes |
 | `installer/` | the Inno Setup script |
 | `site/` | the website (GitHub Pages) |
+| `android/` | the Android app (Kotlin): [ANDROID.md](ANDROID.md) |
+| `ios/` | the iPhone and iPad app (SwiftUI, XcodeGen): [IOS.md](IOS.md) |
 
 ## Editing layouts by hand
 
@@ -237,7 +280,7 @@ button object, with its own unique `id`, `keys` and `scAction`):
 | `targeting` | `next`, `prev`, `corners: { attacker, friendly, any, view }`, `sub` | the four cycles and Prev / Next Hostile are buttons around the reticle; tap its center or swipe right across it for `next`, swipe left for `prev` (once per swipe), tap the inner ring for `sub` |
 | `hull` | `lights`, `doors: { toggle, open, close }`, `lock: { lock, unlock }` | tap Lights, Lock or Unlock, tap the drawn doors to toggle them, or tap Open or Close |
 | `turrets` | `seats` (a list) | tap a seat's button (T1, T2, ...) |
-| `countermeasures` | `decoy`, `noise`, `panic`, `missile`, `fewer`, `pips` | `panic` sits under a cover between Decoy and Noise: the first tap lifts it and presses nothing |
+| `countermeasures` | `decoy`, `noise`, `panic`, `missile`, `fewer`, `pips`, optional `more` and `reset` (beside Fewer) | `panic` sits under a cover between Decoy and Noise: the first tap lifts it and presses nothing |
 | `quantum` | `engage` (a hold button), optional `ready` | hold Engage; the HUD keeps Flight Ready with the power switches (`qt-boot`) |
 | `mining` | `mode`, `fire`, `laserType`, `up`, `down`, `modules` (a list) | taps; `up` and `down` press as their buttons say |
 | `salvage` | `left`, `right`, `wider`, `narrower` | swipe sideways for modifier left or right; drag up or down for spacing (one tap per 32 px, at most 5); tap a chevron |
@@ -288,7 +331,7 @@ Button fields:
 | `icon` | icon name from `public/icons.js`; defaults to the button `id` |
 | `anim` | press animation: `flash`, `ripple`, `gear`, `charge`, `burst`, `glow`, `recoil`, `streak`, `doors`, `lock`, `hazard`, `timed` |
 | `voice` | extra voice phrases, or `false` to leave the button out of voice commands |
-| `scAction` | Star Citizen action name; if a keybind file in `actionmaps` binds it, that key wins |
+| `scAction` | Star Citizen action name; if a keybind file in `actionmaps` binds it, that key wins (modifiers are pressed first, whatever order the file writes them in); if the player cleared it there, the button presses nothing and shows a BIND badge |
 | `state` | makes the button light up while something is on: `{ "group": "doors" }` flips the group on each press, `"set": true` / `false` turns it on or off (Open/Close Doors), and `"on"` replaces the word shown while lit (default `ON`). Buttons in the same group share the state; the server keeps it (see "Lit buttons" in the README) |
 
 Key names: `a`-`z`, `0`-`9`, `f1`-`f24`, `np_0`-`np_9`, `np_period`, `np_add`,
@@ -359,9 +402,33 @@ node tools/make-profile.js
 Every `scAction` must be listed with its Star Citizen actionmap in `ACTIONMAPS`
 at the top of `tools/make-profile.js`. The script stops if an action is missing
 there, if two buttons give the same action different keys, or if two actions
-that are active at the same time share a key. `node tools/make-profile.js --check`
-only reports whether the committed file is up to date (the installer build runs
-it).
+that are active at the same time share a key. It also checks every action
+against the game's own list, `data/sc-actions-4.10.json` (every action in Star
+Citizen 4.10 with its map and default key, from the game's
+`defaultProfile.xml`; it leaves out the menu map `default`): an action or map the
+game doesn't have stops it, and a `DEFAULTS` key that isn't the game's default,
+or a written key that is another action's default in the same context, is
+printed as a warning. Which maps are active together is in
+`data/sc-contexts.json`. `node tools/make-profile.js --check` runs the same
+checks and reports whether the committed file is up to date (the installer
+build runs it).
+
+### Your binds kept
+
+For a copy of the game with an `actionmaps.xml`, **Install keybind profile...**
+writes `SpoolUp-YourBinds.xml` (in-game: **SpoolUp Keyboard (your binds)**)
+instead of the plain profile. The window runs
+`TabletDeckServer.exe --merge-profile <profile.xml> [actionmaps.xml]`
+(`node server.js --merge-profile ...` from source), which copies the player's
+whole default profile (keyboard, mouse, joystick and gamepad binds, device
+options, binds they cleared) and adds a keyboard bind for each action in the
+plain profile that the player has no keyboard bind for in that map. It keeps
+the plain profile's key when nothing in the same context uses it (the player's
+binds and the game's defaults), else it takes the first free right-hand combo
+(RCtrl, RAlt, then with RShift). It never changes or removes a bind, and it
+only reads `actionmaps.xml`. The first line of its output is
+`added <n> moved <m>`, where moved counts binds that aren't the plain
+profile's key.
 
 A button that sends its action's own default key (Star Citizen 4.10's
 `Data/Libs/Config/defaultProfile.xml`) also gets that key in `DEFAULTS`. The
@@ -386,6 +453,24 @@ pairing and the scene relay, and what the plugin's build reads from this
 repository. Renaming a button or panel id in `layouts/hud.json` breaks the
 Stream Deck keys and scenes that use it.
 
+## The phone and tablet apps
+
+`android/` and `ios/` are thin native apps around the same deck: they find the
+PC (`discovery.js`), take its QR code or address (home network addresses only),
+keep the screen on and add haptics. The deck talks to them through
+`window.SpoolUpApp`, which only exists inside an app:
+
+| call | does |
+|---|---|
+| `SpoolUpApp.haptic(kind)` | `tick`, `tap`, `press`, `heavy` or `error`; `buzz()` in `app.js` maps its vibration lengths onto these |
+| `SpoolUpApp.switchPC()` | leaves the deck for the app's list of PCs (Deck settings → Switch PC) |
+
+Inside an app, `awake.js` does nothing and Deck settings hides Keep screen on.
+The pairing code goes into the deck's address (`?t=`) once and is never kept by
+the app. Building, signing and the store steps: [ANDROID.md](ANDROID.md) and
+[IOS.md](IOS.md). The Release workflow builds the signed APK when the
+`ANDROID_*` secrets are set.
+
 ## Building the installer
 
 ```
@@ -401,7 +486,7 @@ and Node.js 20 or newer. `scripts/build.js`:
 2. makes the icon from `public/icon-512.png`;
 3. compiles the app window (`native/launcher.cs` → `TabletDeck.exe`), the key
    sender, the voice listener and the sound player, with version info;
-4. packs `server.js`, `qr.js`, `public/`, `layouts/` and `keybinds/` into
+4. packs `server.js`, `qr.js`, `gamelog.js`, `discovery.js`, `public/`, `layouts/`, `keybinds/` and `data/` into
    `TabletDeckServer.exe` with Node's
    [single executable application](https://nodejs.org/api/single-executable-applications.html)
    feature, and writes `THIRD-PARTY-NOTICES.txt` with that Node.js's license (see

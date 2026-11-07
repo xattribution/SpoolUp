@@ -153,6 +153,34 @@ const ACTIONMAPS = {
   v_mining_use_consumable3: ["spaceship_mining"],
   v_toggle_mining_laser_fire: ["spaceship_mining"],
   v_toggle_mining_laser_type: ["spaceship_mining"],
+
+  // 2.2 buttons: missile count, decoy burst, forward cycles, pins, ping, salvage heads,
+  // jettison, light amplification, port locks, emergency exit and the power throttle.
+  v_emergency_exit: ["seat_general"],
+  v_invoke_ping: ["spaceship_radar"],
+  v_jettison_volatile_cargo: ["spaceship_mining"],
+  v_light_amplification_toggle: ["seat_general"],
+  v_power_throttle_down: ["spaceship_power"],
+  v_power_throttle_up: ["spaceship_power"],
+  v_salvage_focus_all_heads: ["spaceship_salvage"],
+  v_salvage_focus_left: ["spaceship_salvage"],
+  v_salvage_focus_right: ["spaceship_salvage"],
+  v_salvage_toggle_fire_left: ["spaceship_salvage"],
+  v_salvage_toggle_fire_right: ["spaceship_salvage"],
+  v_target_cycle_all_fwd: ["spaceship_targeting_advanced"],
+  v_target_cycle_attacker_fwd: ["spaceship_targeting_advanced"],
+  v_target_cycle_friendly_fwd: ["spaceship_targeting_advanced"],
+  v_target_cycle_in_view_fwd: ["spaceship_targeting_advanced"],
+  v_target_cycle_subitem_fwd: ["spaceship_targeting_advanced"],
+  v_target_toggle_pin_index_1: ["spaceship_targeting"],
+  v_target_toggle_pin_index_2: ["spaceship_targeting"],
+  v_target_toggle_pin_index_3: ["spaceship_targeting"],
+  v_target_unlock: ["spaceship_targeting"],
+  v_toggle_all_portlocks: ["spaceship_general", "vehicle_general"],
+  v_weapon_countermeasure_decoy_burst_decrease: ["spaceship_defensive"],
+  v_weapon_countermeasure_decoy_burst_increase: ["spaceship_defensive"],
+  v_weapon_increase_max_missiles: ["spaceship_missiles"],
+  v_weapon_reset_max_missiles: ["spaceship_missiles"],
 };
 
 // Buttons that send Star Citizen 4.10's own default keys (Data/Libs/Config/defaultProfile.xml).
@@ -212,35 +240,47 @@ const DEFAULTS = {
   v_target_cycle_hostile_fwd: "5",
   v_target_hail: "9",
   visor_wipe: "lalt+x",
+  // 2.2 buttons, all on their 4.10 defaults. The game pairs some by press length or mode:
+  // T tap cycles what's in view (held, auto targeting); 4, 6 and 7 tap cycle forward (held,
+  // back to the closest); G is More Missiles in missile mode and the gimbal toggle in guns;
+  // LAlt+1-3 pin targets and use mining consumables in mining mode.
+  v_emergency_exit: "lshift+u",
+  v_invoke_ping: "tab",
+  v_jettison_volatile_cargo: "lalt+j",
+  v_light_amplification_toggle: "ralt+l",
+  v_power_throttle_down: "f9",
+  v_power_throttle_up: "f10",
+  v_salvage_focus_all_heads: "lalt+s",
+  v_salvage_focus_left: "lalt+a",
+  v_salvage_focus_right: "lalt+d",
+  v_salvage_toggle_fire_left: "ralt+a",
+  v_salvage_toggle_fire_right: "ralt+d",
+  v_target_cycle_all_fwd: "7",
+  v_target_cycle_attacker_fwd: "4",
+  v_target_cycle_friendly_fwd: "6",
+  v_target_cycle_in_view_fwd: "t",
+  v_target_cycle_subitem_fwd: "r",
+  v_target_toggle_pin_index_1: "lalt+1",
+  v_target_toggle_pin_index_2: "lalt+2",
+  v_target_toggle_pin_index_3: "lalt+3",
+  v_target_unlock: "lalt+t",
+  v_toggle_all_portlocks: "ralt+k",
+  v_weapon_countermeasure_decoy_burst_decrease: "lalt+h",
+  v_weapon_countermeasure_decoy_burst_increase: "ralt+h",
+  v_weapon_increase_max_missiles: "g",
+  v_weapon_reset_max_missiles: "lalt+g",
 };
 
-// Maps that are active together. A key combo bound to two actions in the same context
-// would fire both in-game, so that fails the build; across contexts it is only reported.
-const CONTEXTS = {
-  player: "on foot",
-  player_choice: "on foot",
-  player_emotes: "on foot",
-  seat_general: "vehicle",
-  lights_controller: "vehicle",
-  spaceship_defensive: "vehicle",
-  spaceship_docking: "vehicle",
-  spaceship_general: "vehicle",
-  spaceship_hud: "vehicle",
-  spaceship_mining: "vehicle",
-  spaceship_missiles: "vehicle",
-  spaceship_movement: "vehicle",
-  spaceship_power: "vehicle",
-  spaceship_quantum: "vehicle",
-  spaceship_salvage: "vehicle",
-  spaceship_targeting_advanced: "vehicle",
-  spaceship_weapons: "vehicle",
-  vehicle_general: "vehicle",
-  spaceship_target_hailing: "vehicle",
-  // UI, social and voice maps work in a seat and on foot alike.
-  default: "global",
-  player_input_optical_tracking: "global",
-  ui_notification: "global",
-};
+// Maps that are active together (data/sc-contexts.json, shared with the merged profile in
+// server.js). A key combo bound to two actions in the same context would fire both in-game,
+// so that fails the build; across contexts it is only reported.
+const CONTEXTS = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "sc-contexts.json"), "utf8")).contexts;
+const contextOf = (map) => CONTEXTS[map] || "global";
+
+// Every action in Star Citizen 4.10 with its map and default key (data/sc-actions-4.10.json).
+// The list leaves out the menu map "default", so actions only there are taken on trust.
+const GAME = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "sc-actions-4.10.json"), "utf8"));
+const NOT_IN_GAME_LIST = new Set(["default"]);
 
 // Star Citizen keyboard key names (the same names server.js sends).
 const KEY_NAMES = new Set([
@@ -306,7 +346,7 @@ function findConflicts(binds) {
   for (const [combo, actions] of Object.entries(byCombo)) {
     if (actions.length < 2) continue;
     if (actions.every((a) => atDefault(a, binds[a].keys))) continue; // the game's own pairing
-    const contexts = actions.map((a) => new Set(ACTIONMAPS[a].map((m) => CONTEXTS[m] || m)));
+    const contexts = actions.map((a) => new Set(ACTIONMAPS[a].map(contextOf)));
     const meet = (c, d) => c.has("global") || d.has("global") || [...c].some((x) => d.has(x));
     const shared = contexts.some((c, i) => contexts.slice(i + 1).some((d) => meet(c, d)));
     const keys = binds[actions[0]].keys;
@@ -314,6 +354,49 @@ function findConflicts(binds) {
     else console.warn(`Note: ${keys} is used by ${actions.join(", ")} (different contexts, so no clash).`);
   }
   return clashes;
+}
+
+// Checks the actions against the game's own list. Returns errors (an action or map the game
+// doesn't have, which would bind nothing) and warnings (a DEFAULTS key that isn't the game's
+// default, a written key that replaces a default, or one that shares a context with another
+// action's default key, so both would fire).
+function checkAgainstGame(binds) {
+  const errors = [];
+  const warnings = [];
+  const byName = {};
+  for (const a of GAME.actions) (byName[a.name] = byName[a.name] || []).push(a);
+  const keyboard = (k) => Boolean(k) && !/(^|\+)(mouse|mwheel|maxis|hmd)/.test(k);
+  const gameKeys = (action) => [...new Set((byName[action] || []).map((a) => a.kb).filter(keyboard).map(comboKey))];
+  for (const action of Object.keys(ACTIONMAPS).sort()) {
+    const maps = ACTIONMAPS[action];
+    if (!byName[action]) {
+      if (!maps.every((m) => NOT_IN_GAME_LIST.has(m))) errors.push(`${action}: not a Star Citizen ${GAME.game} action (data/sc-actions-${GAME.game}.json)`);
+      continue;
+    }
+    const gameMaps = byName[action].map((a) => a.map);
+    for (const m of maps) {
+      if (!gameMaps.includes(m)) errors.push(`${action}: the game has it in ${gameMaps.join(", ")}, not ${m}`);
+    }
+    const defaults = gameKeys(action);
+    if (DEFAULTS[action] && !defaults.includes(comboKey(DEFAULTS[action]))) {
+      warnings.push(`${action}: DEFAULTS says "${DEFAULTS[action]}" but the game's default is ${defaults.join(" or ") || "no key"}`);
+    } else if (!DEFAULTS[action] && defaults.length && binds[action]) {
+      warnings.push(`${action}: the game's default is ${defaults.join(" or ")}; the profile replaces it with "${binds[action].keys}"`);
+    }
+  }
+  // A key the profile writes, against other actions' game defaults in the same context. An
+  // action the profile rebinds no longer has its default, so it can't clash.
+  const written = Object.entries(binds).filter(([a, b]) => !atDefault(a, b.keys));
+  const rebound = new Set(written.map(([a]) => a));
+  for (const [action, { keys }] of written) {
+    const mine = new Set(ACTIONMAPS[action].map(contextOf));
+    const meets = (map) => { const c = contextOf(map); return c === "global" || mine.has("global") || mine.has(c); };
+    const hits = GAME.actions.filter((g) => g.name !== action && !rebound.has(g.name) && keyboard(g.kb)
+      && comboKey(g.kb) === comboKey(keys) && meets(g.map));
+    const names = [...new Set(hits.map((g) => `${g.name} (${g.label})`))];
+    if (names.length) warnings.push(`${action}: "${keys}" is also the game's default for ${names.join(", ")}`);
+  }
+  return { errors, warnings };
 }
 
 function buildXml(binds) {
@@ -346,6 +429,9 @@ function buildXml(binds) {
 const binds = collectBinds();
 const clashes = findConflicts(binds);
 if (clashes.length) fail(["Key conflicts (these would fire together in-game):", ...clashes]);
+const game = checkAgainstGame(binds);
+for (const w of game.warnings) console.warn(`Warning: ${w}`);
+if (game.errors.length) fail([`Actions that don't match Star Citizen ${GAME.game}:`, ...game.errors.map((e) => `  ${e}`)]);
 const xml = buildXml(binds);
 const rel = path.relative(ROOT, OUT).replace(/\\/g, "/");
 const count = Object.entries(binds).filter(([a, b]) => !atDefault(a, b.keys)).length;

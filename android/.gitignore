@@ -1,0 +1,14 @@
+# Gradle and Android Studio
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.cxx/
+.kotlin/
+captures/
+
+# The upload key and its passwords stay off git; back them up yourself (docs/ANDROID.md).
+keystore/*.jks
+keystore/*.keystore
+keystore/keystore.properties

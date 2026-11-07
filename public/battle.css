@@ -1,0 +1,71 @@
+/* Battle alerts (battle.js): the strip at the top and the Last hits readout. Quiet by
+   design: no flashing, no sound. Colors, type, corners and the face come from the theme's
+   tokens and the maker's cluster look (.cl-cluster's face, --cl-chip-r and .cl-word in makers.css), so
+   each maker draws it its own way. */
+
+/* ---------- the strip ---------- */
+#battleStrip {
+  position: fixed; left: 50%; top: calc(var(--safe-top, env(safe-area-inset-top)) + 6px); z-index: 19;
+  display: flex; align-items: center; gap: 8px; max-width: calc(100% - 32px);
+  padding: 5px 14px 5px 10px; pointer-events: none;
+  transform: translate(-50%, -8px); opacity: 0; transition: opacity .2s ease, transform .2s ease;
+  --bt: var(--accent);
+  background: color-mix(in srgb, var(--panel) 90%, transparent); color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--bt) 70%, transparent);
+  border-radius: min(var(--btn-radius, 6px), 8px); clip-path: var(--btn-clip, none);
+  box-shadow: 0 0 14px -4px color-mix(in srgb, var(--bt) 60%, transparent);
+  font: var(--label-weight) 12px/1.2 var(--font-body); letter-spacing: var(--label-track); text-transform: var(--label-case);
+  white-space: nowrap;
+}
+#battleStrip span { overflow: hidden; text-overflow: ellipsis; }
+#battleStrip i { flex: none; width: 8px; height: 8px; border-radius: var(--cl-chip-r, 50%); background: var(--bt); box-shadow: 0 0 8px var(--bt); }
+#battleStrip.show { opacity: 1; transform: translate(-50%, 0); }
+#battleStrip[data-kind="fire"], #battleStrip[data-kind="destroyed"], #battleStrip[data-kind="dead"] { --bt: var(--red); }
+#battleStrip[data-kind="disabled"] { --bt: var(--amber); }
+#battleStrip[data-kind="kill"] { --bt: var(--green); }
+/* Under fire: the dot breathes slowly while the fight lasts. */
+#battleStrip[data-kind="fire"] i { animation: bt-breathe 1.6s ease-in-out infinite; }
+@keyframes bt-breathe { 50% { opacity: .35; } }
+html[data-night] #battleStrip { opacity: 0; }
+html[data-night] #battleStrip.show { opacity: .7; }
+html[data-contrast] #battleStrip { background: #000; color: #fff; border-color: var(--bt); }
+html[data-large] #battleStrip { font-size: 14px; font-weight: 700; }
+
+/* ---------- Last hits ---------- */
+/* It sits on a key's face, so it takes the keys' text colors (--ink is for the plate,
+   which is light on some makers). */
+.bt-hits { --ink: var(--text); --ink-dim: var(--dim); color: var(--text); background-color: color-mix(in srgb, var(--face-lo) 90%, transparent); border: 1px solid color-mix(in srgb, var(--hud-line) 70%, transparent); clip-path: var(--btn-clip, none); overflow: hidden; }
+.bt-hits.fire { border-color: color-mix(in srgb, var(--red) 65%, transparent); }
+.bt-head { display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid color-mix(in srgb, var(--hud-line) 70%, transparent); }
+.bt-title { flex: none; }
+.bt-ship { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-dim); font: 600 11px/1 var(--font-body); letter-spacing: .04em; text-align: right; }
+.bt-stat, .bt-kills {
+  flex: none; padding: 2px 6px; border-radius: min(var(--btn-radius, 6px), 4px);
+  font: 700 10px/1.2 var(--font-body); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+  color: var(--ink-dim); border: 1px solid var(--line);
+}
+.bt-stat { color: var(--green); border-color: color-mix(in srgb, var(--green) 50%, transparent); }
+.bt-hits[data-level="1"] .bt-stat { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 60%, transparent); }
+.bt-hits[data-level="2"] .bt-stat { color: var(--red); border-color: color-mix(in srgb, var(--red) 60%, transparent); }
+.bt-list { margin: 0; padding: 2px 10px; list-style: none; overflow: hidden; }
+.bt-list li { display: flex; align-items: baseline; gap: 8px; height: 26px; line-height: 26px; color: var(--ink); font: 600 13px/26px var(--font-body); border-bottom: 1px dashed color-mix(in srgb, var(--line) 60%, transparent); }
+.bt-list li:last-child { border-bottom: 0; }
+.bt-list li.now .bt-who { color: var(--red); }
+.bt-who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bt-list b { flex: none; color: var(--amber); font-weight: 700; }
+.bt-list time { flex: none; min-width: 2.6em; text-align: right; color: var(--ink-dim); font-size: 11px; font-variant-numeric: tabular-nums; }
+.bt-list li.bt-note { color: var(--ink-dim); font-weight: 500; font-size: 12px; border: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.bt-hits.small .bt-head { gap: 6px; padding: 0 6px; }
+.bt-hits.small .bt-list { padding: 1px 6px; }
+.bt-hits.small .bt-list li { height: 22px; line-height: 22px; font-size: 12px; }
+.bt-hits.small .bt-stat, .bt-hits.small .bt-kills { font-size: 9px; padding: 1px 4px; }
+.bt-hits.compact .bt-head { border-bottom: 0; }
+.bt-ship.hit { color: var(--red); }
+.bt-hits.off .bt-list, .bt-hits.off .bt-head > :not(.bt-title) { opacity: .5; }
+html[data-large] .bt-list li { font-size: 15px; font-weight: 700; }
+html[data-contrast] .bt-hits .bt-list li, html[data-contrast] .bt-hits .bt-ship { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  #battleStrip { transition: none; }
+  #battleStrip[data-kind="fire"] i { animation: none; }
+}

@@ -413,6 +413,7 @@ html[data-no-lights] [data-state-group] > .fx-state { display: none; }
 /* Keep screen on: how the screen is kept on right now, and the device tip, under the
    switch. A dot shows the state: green while kept on, amber when it can't be. */
 .sheet-awake { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 2px; padding: 0 12px; }
+.sheet-awake[hidden] { display: none; }
 #picker .awake-state { display: flex; align-items: baseline; gap: 8px; color: #c4d2e0; }
 #picker .awake-state::before {
   content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #8aa0b8; transform: translateY(-1px);
@@ -420,3 +421,12 @@ html[data-no-lights] [data-state-group] > .fx-state { display: none; }
 #picker .awake-state[data-state="lock"]::before, #picker .awake-state[data-state="video"]::before { background: #3ddc84; }
 #picker .awake-state[data-state="none"]::before { background: #ffb020; }
 #picker .awake-state[data-state="off"] { color: #8aa0b8; }
+
+/* A button whose Star Citizen bind the player cleared: dimmed, with a BIND badge. Pressing
+   it presses nothing; the PC says so. */
+.unbound > :not(.bind-badge):not(.fx-layer) { opacity: .4; }
+.bind-badge {
+  position: absolute; z-index: 3; top: 5px; left: 7px; padding: 2px 4px 1px; border-radius: 3px;
+  font: 700 9px/1 var(--font-body); letter-spacing: .12em; color: #111; background: var(--amber);
+  pointer-events: none;
+}
