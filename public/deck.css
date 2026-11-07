@@ -409,3 +409,14 @@ html[data-no-lights] [data-state-group] > .fx-state { display: none; }
 .sheet-gestures label b { color: #4fb3ff; margin-right: 2px; }
 .sheet-gestures select:disabled { opacity: .45; }
 .sheet-switch[hidden] { display: none; }
+
+/* Keep screen on: how the screen is kept on right now, and the device tip, under the
+   switch. A dot shows the state: green while kept on, amber when it can't be. */
+.sheet-awake { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 2px; padding: 0 12px; }
+#picker .awake-state { display: flex; align-items: baseline; gap: 8px; color: #c4d2e0; }
+#picker .awake-state::before {
+  content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #8aa0b8; transform: translateY(-1px);
+}
+#picker .awake-state[data-state="lock"]::before, #picker .awake-state[data-state="video"]::before { background: #3ddc84; }
+#picker .awake-state[data-state="none"]::before { background: #ffb020; }
+#picker .awake-state[data-state="off"] { color: #8aa0b8; }

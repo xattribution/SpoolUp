@@ -83,6 +83,12 @@
         <h3><b>//</b> Display</h3>
         <button id="nightBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
           <span class="sw-text"><b>Night mode</b><span>Dims the deck for a dark room.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+        <button id="awakeBtn" class="sheet-switch" type="button" role="switch" aria-checked="true" aria-describedby="awakeNote">
+          <span class="sw-text"><b>Keep screen on</b><span>Stops the screen dimming or locking while the deck is open.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
+        <div class="sheet-awake">
+          <p id="awakeNote" class="sheet-note awake-state" aria-live="polite"></p>
+          <p id="awakeTip" class="sheet-note"></p>
+        </div>
         <button id="largeBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">
           <span class="sw-text"><b>Large text</b><span>Bigger, bolder labels, easier to read at a glance.</span></span><span class="sw-knob" aria-hidden="true"></span></button>
         <button id="contrastBtn" class="sheet-switch" type="button" role="switch" aria-checked="false">

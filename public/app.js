@@ -160,7 +160,7 @@
       cards.appendChild(card);
     }
   }
-  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); fillSwipes(); };
+  const openPicker = () => { $("picker").classList.add("open"); applyTheme(document.documentElement.dataset.theme); fillLayoutPick(); fillLinks(); fillSounds(); fillSwipes(); fillAwake(); };
 
   // ---------- sounds ----------
 
@@ -298,6 +298,7 @@
     fillLayoutPick();
     refreshStatus();
     fillSounds();
+    fillAwake();
     if (document.body.classList.contains("pairing")) showPairing(false);
     else if (layout) showLayout(layout);
   };
@@ -546,6 +547,38 @@
     if (deckCanvas) deckCanvas.render();
   };
 
+  // Keep screen on (awake.js): the switch, how the screen is kept on right now, and what
+  // to set on this kind of device when a browser can't keep it on by itself.
+  const AWAKE_STATE = {
+    idle: "Starts with your first tap on the deck.",
+    lock: "Kept on with the browser's wake lock.",
+    video: "Kept on with a silent, hidden video.",
+    none: "This browser can't keep the screen on. Try the tip below.",
+    off: "Off: the screen dims and locks as the device is set.",
+  };
+  const platform = (() => {
+    const ua = navigator.userAgent || "";
+    if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return "ios";
+    if (/Android/.test(ua)) return "android";
+    return "";
+  })();
+  const AWAKE_TIPS = {
+    ios: ["iPad and iPhone: Settings > Display & Brightness > Auto-Lock > Never, or Guided Access (Settings > Accessibility) to keep the deck on screen."],
+    android: ["Android: set a longer Screen timeout in Settings > Display, or turn on Stay awake (while charging) in Developer options."],
+  };
+  let awakeHooked = false;
+  function fillAwake() {
+    const A = window.DeckAwake;
+    $("awakeBtn").hidden = !A;
+    if (!A) return;
+    if (!awakeHooked) { awakeHooked = true; A.onChange(fillAwake); }
+    $("awakeBtn").setAttribute("aria-checked", String(A.on()));
+    $("awakeNote").textContent = tr(AWAKE_STATE[A.status()] || AWAKE_STATE.idle);
+    $("awakeNote").dataset.state = A.status();
+    const tips = AWAKE_TIPS[platform] || [...AWAKE_TIPS.ios, ...AWAKE_TIPS.android];
+    $("awakeTip").textContent = tips.map((t) => tr(t)).join(" ");
+  }
+  $("awakeBtn").onclick = () => { const A = window.DeckAwake; if (A) { A.setOn(!A.on()); fillAwake(); } };
 
   // Follow Stream Deck scenes: on unless turned off on this device.
   const followScenes = () => store.get("follow-scenes") !== "off";
