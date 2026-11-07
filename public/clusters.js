@@ -563,6 +563,7 @@
     const root = ctx.make("div", "cl-cluster cl-cm");
     const g = small ? 6 : 10;
     const boxes = {};
+    const extra = Boolean(e.more || e.reset); // the missile count's More and Reset (2.2)
     if (W >= H * 2.2) {
       // [Decoy][Panic][Noise] | [Missile][Fewer / Pips]
       const u = (W - 4 * g) / 6.4;
@@ -571,6 +572,13 @@
       const hh = (H - g) / 2;
       boxes.fewer = [x, 0, W - x, hh];
       boxes.pips = [x, hh + g, W - x, hh];
+      // More and Reset share Fewer's row: [Fewer][More][Reset] over Pips.
+      if (extra) {
+        const cw = (W - x - 2 * g) / 3;
+        boxes.fewer = [x, 0, cw, hh];
+        boxes.more = [x + cw + g, 0, cw, hh];
+        boxes.reset = [x + 2 * (cw + g), 0, cw, hh];
+      }
       root.classList.add("cm-row");
     } else {
       const h1 = (H - 2 * g) * 0.42, h2 = (H - 2 * g) * 0.32, h3 = H - h1 - h2 - 2 * g;
@@ -582,6 +590,11 @@
       const hw = (W - g) / 2;
       boxes.fewer = [0, H - h3, hw, h3];
       boxes.pips = [hw + g, H - h3, hw, h3];
+      // More and Reset share the bottom row: [Fewer][More][Reset][Pips].
+      if (extra) {
+        const qw = (W - 3 * g) / 4;
+        ["fewer", "more", "reset", "pips"].forEach((k, i) => { boxes[k] = [i * (qw + g), H - h3, qw, h3]; });
+      }
     }
     // The two groups, drawn as a backing plate each.
     const plate = (cls, ks) => {
@@ -592,7 +605,7 @@
       root.appendChild(put(ctx.make("i", `cl-plate ${cls}`), x - 3, y - 3, r - x + 6, b - y + 6));
     };
     plate("p-defense", ["decoy", "panic", "noise"]);
-    plate("p-weapons", ["missile", "fewer", "pips"]);
+    plate("p-weapons", ["missile", "fewer", "more", "reset", "pips"]);
     button(ctx, root, e.decoy, "cl-tube t-decoy", ...boxes.decoy);
     button(ctx, root, e.noise, "cl-tube t-noise", ...boxes.noise);
     const panic = button(ctx, root, e.panic, "cl-panic", ...boxes.panic);
@@ -601,6 +614,12 @@
     const roomy = boxes.fewer[2] >= 150;
     face(button(ctx, root, e.fewer, "cl-small", ...boxes.fewer), ctx, roomy ? null : "Fewer", "fewer", e.fewer && e.fewer.icon !== "missile");
     face(button(ctx, root, e.pips, "cl-small", ...boxes.pips), ctx, roomy ? null : "Pips", "pips", e.pips && e.pips.icon !== "power-weapons");
+    if (extra) {
+      face(button(ctx, root, e.more, "cl-small", ...boxes.more), ctx, roomy ? null : "More", null, true);
+      face(button(ctx, root, e.reset, "cl-small", ...boxes.reset), ctx, roomy ? null : "Reset", null, true);
+      // Four in a row on a narrow cluster: icons only (each keeps its name and title).
+      if (boxes.fewer[2] < 76) for (const b of root.querySelectorAll(".cl-small")) b.classList.add("lbl-off");
+    }
     if (panic) {
       const cover = ctx.make("div", "cl-cover", `<i class="cl-cover-hinge"></i><span class="cl-cover-word"></span>`);
       cover.querySelector(".cl-cover-word").textContent = ctx.tr(boxes.panic[2] >= 120 ? "Panic Decoys" : "Panic");
@@ -821,7 +840,7 @@
   reg("turrets", "Turrets", "crew", "turret", [6, 1], [6, 1], [2, 1], "",
     (e) => parts((e.seats || []).map((d, i) => [`Seat ${i + 1}`, d])), turrets, { grows: false });
   reg("countermeasures", "Countermeasures", "combat", "decoy", [6, 4], [6, 5], [3, 3], "",
-    (e) => parts([["Decoy", e.decoy], ["Noise", e.noise], ["Panic", e.panic], ["Missile", e.missile], ["Fewer missiles", e.fewer], ["Pips", e.pips]]), countermeasures);
+    (e) => parts([["Decoy", e.decoy], ["Noise", e.noise], ["Panic", e.panic], ["Missile", e.missile], ["Fewer missiles", e.fewer], ["More missiles", e.more], ["Reset missiles", e.reset], ["Pips", e.pips]]), countermeasures);
   reg("quantum", "Quantum spool", "quantum", "quantum-jump", [6, 2], [6, 3], [3, 2], "",
     (e) => parts([["Engage", e.engage], ["Flight ready", e.ready]]), quantum);
   reg("mining", "Mining head", "mining", "mining", [6, 5], [6, 6], [4, 4], "",

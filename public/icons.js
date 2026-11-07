@@ -323,6 +323,56 @@ window.DECK_ICONS = {
 
   "volume-up": `<path d="M6 18h7l10-8v28l-10-8H6Z"/><path d="M13 18v12" opacity=".55"/><path d="M30 24h12M36 18v12"/>`,
 
+  // ---------- 2.2 buttons ----------
+  // Missile count: the missile with a plus, or a turn-back arrow.
+  "missile-more": `<path d="M30 10c4 0 7 3 7 7L20 34l-6-6Z"/><path d="m14 28-5 1.5 1.5-6 6-1.5M20 34l-1.5 5 6-1.5 1.5-6" opacity=".7"/>
+    <path d="M37 33h9M41.5 28.5v9"/>`,
+  "missile-reset": `<path d="M30 10c4 0 7 3 7 7L20 34l-6-6Z"/><path d="m14 28-5 1.5 1.5-6 6-1.5M20 34l-1.5 5 6-1.5 1.5-6" opacity=".7"/>
+    <path d="M45 37a6 6 0 1 1-2-6"/><path d="M44 27v4h-4"/>`,
+  // Decoy burst size: a smaller or bigger spray of decoys.
+  "burst-down": `<circle cx="18" cy="24" r="3" fill="currentColor" stroke="none"/>
+    <path d="M18 13v4M18 31v4M7 24h4M25 24h4M10.5 16.5l3 3M22.5 28.5l3 3M10.5 31.5l3-3M22.5 19.5l3-3"/><path d="M35 24h9"/>`,
+  "burst-up": `<circle cx="18" cy="24" r="3" fill="currentColor" stroke="none"/>
+    <path d="M18 7v8M18 33v8M2 24h8M26 24h8M6.7 12.7l5.6 5.6M23.7 29.7l5.6 5.6M6.7 35.3l5.6-5.6M23.7 18.3l5.6-5.6"/><path d="M35 24h9M39.5 19.5v9"/>`,
+  // Forward target cycles: each kind's mark from the targeting cluster, then a chevron.
+  "next-attacker": `<path d="M18 7 33 22 18 37 3 22Z"/><path d="M18 15v9M18 29v.5"/><path d="m36 14 8 8-8 8"/>`,
+  "next-friendly": `<circle cx="17" cy="22" r="13"/><path d="m10.5 23 4.5 4.5 9-9"/><path d="m36 14 8 8-8 8"/>`,
+  "next-any": `<rect x="5" y="9" width="25" height="25" rx="3.5"/><circle cx="17.5" cy="21.5" r="4"/><path d="m36 14 8 8-8 8"/>`,
+  "next-view": `<path d="M3 22c5.5-9.5 23.5-9.5 29 0-5.5 9.5-23.5 9.5-29 0Z"/><circle cx="17.5" cy="22" r="5"/><path d="m36 14 8 8-8 8"/>`,
+  "next-sub": `<circle cx="17" cy="22" r="13" stroke-dasharray="4 3"/><circle cx="17" cy="22" r="5"/><circle cx="17" cy="22" r="1.6" fill="currentColor" stroke="none"/><path d="m36 14 8 8-8 8"/>`,
+  // Target pins: a pin with its slot's number, and a reticle with its lock broken.
+  "pin-1": `<path d="M14 6h14M17 6v12l-5 6h18l-5-6V6"/><path d="M21 24v14"/><path d="M33 31l4-3v15M33 43h8"/>`,
+  "pin-2": `<path d="M14 6h14M17 6v12l-5 6h18l-5-6V6"/><path d="M21 24v14"/><path d="M32 31.5a4.5 4.5 0 0 1 9 0c0 4-9 7-9 11.5h9.5"/>`,
+  "pin-3": `<path d="M14 6h14M17 6v12l-5 6h18l-5-6V6"/><path d="M21 24v14"/><path d="M32 28h9l-5 6a4.5 4.5 0 1 1-4 6.5"/>`,
+  "target-unlock": `<path d="M6 16V6h10M32 6h10v10M42 32v10H32M16 42H6V32"/><circle cx="24" cy="24" r="7" stroke-dasharray="5 4"/>
+    <path d="m35 13-22 22" opacity=".7"/>`,
+  // Salvage heads: two heads with a beam (fire) or a frame around the one in focus.
+  "salvage-fire-left": `<rect x="5" y="8" width="12" height="9" rx="2" fill="currentColor" stroke="none"/><rect x="31" y="8" width="12" height="9" rx="2"/>
+    <path d="M11 17v10M8 27l3 14 3-14Z"/><path d="M37 17v6" opacity=".55"/>`,
+  "salvage-fire-right": `<rect x="5" y="8" width="12" height="9" rx="2"/><rect x="31" y="8" width="12" height="9" rx="2" fill="currentColor" stroke="none"/>
+    <path d="M37 17v10M34 27l3 14 3-14Z"/><path d="M11 17v6" opacity=".55"/>`,
+  "salvage-focus-left": `<rect x="7" y="18" width="12" height="9" rx="2"/><rect x="29" y="18" width="12" height="9" rx="2" opacity=".55"/>
+    <path d="M3 14v-4h4M23 14v-4h-4M3 31v4h4M23 31v4h-4"/><path d="M13 27v8M35 27v4" opacity=".55"/>`,
+  "salvage-focus-right": `<rect x="7" y="18" width="12" height="9" rx="2" opacity=".55"/><rect x="29" y="18" width="12" height="9" rx="2"/>
+    <path d="M25 14v-4h4M45 14v-4h-4M25 31v4h4M45 31v4h-4"/><path d="M35 27v8M13 27v4" opacity=".55"/>`,
+  "salvage-focus-all": `<rect x="7" y="18" width="12" height="9" rx="2"/><rect x="29" y="18" width="12" height="9" rx="2"/>
+    <path d="M3 14v-4h5M45 14v-4h-5M3 31v4h5M45 31v4h-5"/><path d="M13 27v8M35 27v8" opacity=".55"/>`,
+  // Light amplification: a visor seeing in the dark.
+  "light-amp": `<path d="M5 20c0-6 8-10 19-10s19 4 19 10v4c0 6-6 10-12 10-4 0-5-4-7-4s-3 4-7 4C11 34 5 30 5 24Z"/>
+    <path d="M15 22h4M29 22h4"/><path d="M33 4l1.5 3.5L38 9l-3.5 1.5L33 14l-1.5-3.5L28 9l3.5-1.5Z" fill="currentColor" stroke="none" opacity=".6"/>`,
+  // Port locks: a port's ring with a padlock.
+  "port-lock": `<circle cx="20" cy="22" r="14"/><circle cx="20" cy="22" r="7" opacity=".55"/>
+    <rect x="30" y="31" width="14" height="11" rx="2"/><path d="M33 31v-3a4 4 0 0 1 8 0v3"/>`,
+  // Emergency exit: out of the seat fast.
+  "emergency-exit": `<path d="M10 8v19a5 5 0 0 0 5 5h9"/><path d="M10 15h4v11h8"/><path d="M15 32v10M23 32v10M12 42h14"/>
+    <path d="M28 14h15m-6-6 6 6-6 6M30 24h11m-5-5 5 5-5 5" opacity=".75"/>`,
+  // Jettison: a crate falling out of the hold.
+  jettison: `<path d="M6 8h36M10 8v8M38 8v8" opacity=".6"/><rect x="15" y="20" width="18" height="16" rx="1.5" transform="rotate(12 24 28)"/>
+    <path d="M18 41l-2 4M30 41l2 4M24 41v4" opacity=".55"/>`,
+  // Power throttle: the power mark with an up or down arrow.
+  "power-up": `<path d="M20 8v13"/><path d="M12.5 13.5a12 12 0 1 0 15 0"/><path d="M40 30V12m-5 5 5-5 5 5"/>`,
+  "power-down": `<path d="M20 8v13"/><path d="M12.5 13.5a12 12 0 1 0 15 0"/><path d="M40 12v18m-5-5 5 5 5-5"/>`,
+
   // A control deck with keys and a dial (the Stream Deck pack; not a product's look).
   keypad: `<rect x="5" y="11" width="38" height="27" rx="4"/><rect x="10" y="16" width="6" height="6" rx="1.2"/><rect x="19" y="16" width="6" height="6" rx="1.2"/><rect x="10" y="26" width="6" height="6" rx="1.2"/><rect x="19" y="26" width="6" height="6" rx="1.2" fill="currentColor" stroke="none" opacity=".55"/><circle cx="34.5" cy="24.5" r="5"/><path d="M34.5 19.5v3"/>`,
   default: `<path d="M24 5 40 14v20L24 43 8 34V14Z"/><circle cx="24" cy="24" r="5" fill="currentColor" stroke="none" opacity=".6"/>`,
