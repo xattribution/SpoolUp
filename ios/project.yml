@@ -1,0 +1,85 @@
+# XcodeGen spec for the SpoolUp iPhone and iPad app. The .xcodeproj is generated from this
+# file on a Mac and never committed:
+#
+#   node ios/bundle-deck.js        # copies the deck into ios/Deck/ for the offline demo
+#   cd ios && xcodegen generate    # writes SpoolUp.xcodeproj
+#
+# See docs/IOS.md for the whole path from a new Apple developer account to the App Store.
+name: SpoolUp
+options:
+  bundleIdPrefix: dev.xattribution
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+settings:
+  base:
+    # SpoolUp's version (package.json); the build number counts up with it like the Android
+    # version code (2.2.0 -> 20200). Raise it again for a second upload of the same version.
+    MARKETING_VERSION: "2.2.0"
+    CURRENT_PROJECT_VERSION: "20200"
+    SWIFT_VERSION: "5.0"
+    # The Team ID from developer.apple.com > Membership (not a secret). Empty until the
+    # account is approved; Xcode's Signing & Capabilities tab can set it too.
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+targets:
+  SpoolUp:
+    type: application
+    platform: iOS
+    sources:
+      - path: SpoolUp
+      # The deck and layouts, copied by bundle-deck.js, kept as one folder so its paths
+      # (index.html, layouts/hud.json …) stay as they are for the demo's scheme handler.
+      - path: Deck
+        type: folder
+        buildPhase: resources
+        optional: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.xattribution.spoolup
+        PRODUCT_NAME: SpoolUp
+        INFOPLIST_FILE: SpoolUp/Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    preBuildScripts:
+      - name: Check the bundled deck
+        basedOnDependencyAnalysis: false
+        script: |
+          # The offline demo needs the deck copied into ios/Deck. Xcode's PATH leaves out
+          # Homebrew, so look there for node too.
+          export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
+          if command -v node >/dev/null 2>&1; then node "$SRCROOT/bundle-deck.js"; fi
+          if [ ! -f "$SRCROOT/Deck/index.html" ]; then
+            echo "error: ios/Deck is missing. Run: node ios/bundle-deck.js"
+            exit 1
+          fi
+  SpoolUpTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SpoolUpTests
+    dependencies:
+      - target: SpoolUp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.xattribution.spoolup.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SpoolUp:
+    build:
+      targets:
+        SpoolUp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SpoolUpTests
+    archive:
+      config: Release
