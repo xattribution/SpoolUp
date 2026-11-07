@@ -5,6 +5,93 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/SpoolUp/releases), so add one
 before tagging a release.
 
+## 2.1.0 (2026-11-07)
+
+- **One HUD for every screen.** The SpoolUp HUD is now laid out on a grid that
+  follows your screen, so phones and tablets use the same layout and
+  everything stays lined up when you turn the screen, switch between landing
+  and docking, or add buttons. A phone opens on one panel at a time, a tablet
+  on two halves. Deck settings → Button size picks Compact, Default or Roomy
+  for each screen size.
+- **One panel or two halves.** The new view button next to the page arrows
+  shows one panel across the whole screen or two halves side by side; a phone
+  held upright always shows one. Wide **dashboards** (Pilot, Combat,
+  Industry) put the controls for one kind of flying on one screen, and the
+  new **Dashboards** layout has those plus Hauling. On a phone each dashboard
+  keeps its three or four main clusters, so it fits without scrolling, and a
+  panel of clusters alone fills a phone held upright.
+- **Swipes never press buttons.** Swipe sideways with two fingers to flip
+  panels, as before. A press now waits a moment, and a second finger landing
+  cancels it, so a swipe that starts on a button presses nothing. Holding a
+  button (hold to talk) and dragging a slider still work. A tap now goes when
+  your finger lifts, so a finger that slides off a button, or a second finger
+  that lands late, presses nothing either. A card on the first start shows
+  what two fingers do. If you'd rather use
+  one finger, turn on **One-finger swipe** in Deck settings (off by default;
+  never on sliders, the gear lever or dials). The page arrows still work.
+- **Swipe up and down.** Two fingers swiping up or down do what you pick in
+  Deck settings, on each device: open mobiGlas (one tap of its button), show
+  **Quick actions** (the top bar's buttons, the ones that matter in a hurry
+  and your starred emotes), jump to your primary panel or to any panel.
+- **Cockpit clusters.** Shields, targeting, lights and doors, turrets,
+  countermeasures, the quantum spool, the mining head, the salvage head and
+  the switch banks are each one instrument you can place on any panel or
+  dashboard. Every gesture is one tap of a button you already have.
+  - **Shields** have no words: the ship from above with an arc on each face
+    and an outer ring for power. Slide a finger toward a face to shift
+    strength there (one tap per step, at most 5 per slide), tap a face for one
+    step, tap the ship to reset and tap the ring for Shields On/Off.
+  - **Targeting** is a reticle: tap the center (or swipe right across it) for
+    the next hostile, swipe left for the previous one, tap a corner for
+    attackers, friendlies, anything or what's in view, and the inner ring for
+    sub-targets.
+  - **Lights and doors** are the ship from the side: tap the headlight cone
+    for Lights, tap the ramp to toggle the doors, pull it down to open or push
+    it up to close, and tap the padlock to lock or unlock. Lights now sits
+    with the doors, on the Stream Deck too.
+  - **Countermeasures** keeps Panic Decoys under a flip cover: the first tap
+    only lifts it, and it drops again after 4 seconds.
+  - The arcs, gauges and lamps show the taps SpoolUp sent, never a reading
+    from the game.
+- **A new mode dial.** The operator-mode dial has round mode chips on a clean,
+  symmetric face that keeps its shape in any space, and each maker draws it
+  its own way: RSI's instrument ring, Drake's hex nut, Aegis's V, Anvil's
+  octagon, Origin's slim oval, MISC's cargo rail, Crusader's open ring,
+  Banu's flower, Aopoa's crescent, Argo's load-frame triangle, Consolidated
+  Outland's sunrise and Esperia's star. The classic 2.0 layouts use it too.
+- **Emote favorites.** The Emotes panel is one board with tabs: ★ Favorites,
+  All and groups you make. Hold an emote to star it (it presses nothing); the
+  board opens on Favorites once you have some. **Arrange** lets you reorder
+  Favorites or a group, drag an emote onto a tab to add it there and take one
+  out with ×; + makes a group. Each tablet and phone keeps its own.
+- **The layout editor snaps to a grid.** Drag a button or cluster to reorder
+  it and the rest moves out of the way, or hold Shift (or pick **Pin**) to pin
+  it to a cell; drag its corner to resize it by whole cells. Preview a small
+  or large screen, two halves or one panel, and each button size.
+- **Add from a list, build dashboards.** The editor's Add side lists new
+  buttons, groups and headers and every cluster and button already in the
+  layout, by category. Something added again is a copy: the same buttons, so
+  a press on either is the same press. The Panels side adds, moves and
+  deletes panels, sets the **primary panel** a swipe can jump to, and builds a
+  Pilot, Gunner, Miner, Salvager or Hauler dashboard from a preset.
+- **Your 2.0 layouts are kept.** The 2.0 HUD stays as "SpoolUp HUD 2.0", your
+  own 2.0 layouts draw and edit exactly as before, and **Convert to grid** in
+  the editor makes a grid copy of one under a new name.
+- **A clearer app window.** The SpoolUp window and its Settings and keybind
+  profile windows have a solid graphite look: near-white text on solid
+  panels, larger type, one blue accent and color only where it means
+  something (a status dot, the status pill, a banner). The stars only drift in
+  the thin title strip.
+- **Public network, fixed in one click.** When Windows treats your network as
+  Public (which blocks tablets), an amber banner across the top of the window
+  says so, with an **Open network settings** button that opens the page for
+  that network, where you pick Private. Settings has a Network section with
+  the same button.
+- "Centre sliders" is now "Center sliders", and SpoolUp uses American
+  spelling throughout.
+- What each button presses hasn't changed, and every press still goes
+  through the PC's usual checks.
+
 ## 2.0.0 (2026-11-06)
 
 - **A landing-gear lever.** The Landing Gear button is now a lever: pull the
@@ -17,7 +104,7 @@ before tagging a release.
   system's up or down key once, at most five per drag, spaced out. Tapping the
   track beside the knob steps once. Max and Min stay above and below. The
   sliders count the taps SpoolUp sent (SpoolUp can't read the game), so
-  Centre sliders puts them back in the middle without pressing anything, and
+  Center sliders puts them back in the middle without pressing anything, and
   Max, Min and Reset All move them too.
 - **A speed-range fader.** Speed Range + and − are now one fader on the
   Flight Assist panel: each step left or right taps Speed Range − or + once,
@@ -44,11 +131,11 @@ before tagging a release.
   (winget, the Microsoft Store) no longer copies the keybind profile into the
   game unless you chose it in an earlier install.
 - **Every manufacturer theme is its own design**, not the same deck in other
-  colours. Each maker has its own surfaces, plates, button shapes, section
+  colors. Each maker has its own surfaces, plates, button shapes, section
   titles, dials, switches, eject slider and framed buttons, and its own lit,
   pressed, blocked and offline looks: RSI's navy glass and corner brackets,
   Drake's riveted, scratched metal and hazard stripes, Aegis's carbon weave and
-  red tactical marks, Anvil's olive armour with screws and indicator lamps,
+  red tactical marks, Anvil's olive armor with screws and indicator lamps,
   Origin's cream and black gloss with a cream dial, MISC's teal enamel and
   orange tabs, Crusader's sky and pearl-white capsules, Banu's lacquer on
   carved wood, Aopoa's jade and flowing forms, Argo's safety-yellow work
@@ -58,7 +145,7 @@ before tagging a release.
 - **The Stream Deck pack matches.** Keys, icon packs, profiles and the plugin's
   touch strips are drawn in each maker's material, with its own lit look
   (Drake's hazard band, Anvil's lamp, Origin's gold bar...), on that theme's
-  page colour.
+  page color.
 - What each button presses hasn't changed.
 
 ## 1.8.0 (2026-11-06)
@@ -136,7 +223,7 @@ before tagging a release.
   shows the key it presses in a corner, taken from your keybinds, so in-game
   rebinds show up too.
 - **Button sounds**: soft HUD sounds, made from a few tones rather than sound
-  files. Presses chirp at a pitch that follows the button's colour, the quantum
+  files. Presses chirp at a pitch that follows the button's color, the quantum
   drive spools up and engages, self-destruct arming beeps faster as it fills,
   panels flip, voice commands answer, and a press that didn't go through buzzes.
   They're on by default; a new **Sounds** section in Deck settings turns them
@@ -253,14 +340,14 @@ before tagging a release.
 - **A new pairing screen:** a clear card with a big code field, a red error
   when the code doesn't match, and a hint to scan the QR code instead. The
   deck's buttons stay hidden until the device is paired. It also no longer
-  looks greyed out.
+  looks grayed out.
 - **Lit buttons:** buttons that switch something on stay lit until it's
   switched off. Open Doors stays lit until Close Doors, Landing Gear shows
   Deployed, and the power toggles, lights, VTOL, flight ready, speed limiter,
   ESP, G-safety and door locks light up while on. The state is kept on the PC,
   so it survives paging and reloads, matches on every tablet and follows voice
   commands. **Reset button lights** in Deck settings turns them all off.
-- **Deck settings:** the sliders sheet is now organised in sections (Layout,
+- **Deck settings:** the sliders sheet is now organized in sections (Layout,
   Display, Open on PC, Theme), with real on/off switches for night mode and
   two-finger swipe.
 - The mic and **?** buttons only show when voice commands can actually run on
@@ -268,7 +355,7 @@ before tagging a release.
 - Messages on the tablet appear above the page names instead of covering them.
 - "Hold to engage" no longer runs into the quantum charge marks, and status
   lines like "Retracted" have room under their label.
-- The installer now includes `THIRD-PARTY-NOTICES.txt` with the licence of the
+- The installer now includes `THIRD-PARTY-NOTICES.txt` with the license of the
   Node.js runtime inside `TabletDeckServer.exe`.
 
 ## 1.0.0 (2026-10-22)
@@ -285,7 +372,7 @@ The first public release.
   device picks its own under **Layout** in the sliders sheet. You can turn on
   a two-finger swipe there to flip panels.
 - **Layout editor** (**Edit layout** in the window): drag and resize buttons,
-  and change their label, keys, press mode, colour, icon, animation and voice
+  and change their label, keys, press mode, color, icon, animation and voice
   phrases, with undo.
 - **Voice commands:** hold the mic on the tablet, or set a push-to-talk key or
   mouse button on the PC. Over 300 phrases like "gear up", "guns mode", "full

@@ -4,35 +4,35 @@ How SpoolUp looks, and the rules that keep the deck, the layout editor, the
 website and the Windows app looking like one product. For running and building
 the code, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-- [Themes are different, not recoloured](#themes-are-different-not-recoloured)
+- [Themes are different, not recolored](#themes-are-different-not-recolored)
 - [Theme tokens](#theme-tokens)
 - [Maker drawings](#maker-drawings)
 - [Adding a theme](#adding-a-theme)
-- [Button colours](#button-colours)
+- [Button colors](#button-colors)
 - [HUD style](#hud-style)
 - [The other surfaces](#the-other-surfaces)
 - [Motion, night mode and layering](#motion-night-mode-and-layering)
 - [Accessibility](#accessibility)
 
-## Themes are different, not recoloured
+## Themes are different, not recolored
 
 The owner's rule, and the first test for any theme: **if it's different, be
 different.** A manufacturer theme that is the same theme with another stripe of
-colour or another background shade is not a theme. Each one needs its own
+color or another background shade is not a theme. Each one needs its own
 character, the way the "Tablet Deck 2" design did it:
 
-- **Solid, committed colours**, not one shared dark panel tinted per theme.
+- **Solid, committed colors**, not one shared dark panel tinted per theme.
 - **Its own shapes:** buttons, frames, corners, dividers and headers that only
   that manufacturer would draw (Drake's industrial plates, Origin's light
   luxury, Aegis's military hard edges, Banu's and Esperia's alien forms...).
 - **Its own widgets:** how a dial, a gauge, a switch, a lit state or a state
-  header looks, not only what colour it is.
+  header looks, not only what color it is.
 - **Its own type and motion**, where the manufacturer calls for it.
 
-The tokens below carry the colours, type and material; `public/makers.css`
+The tokens below carry the colors, type and material; `public/makers.css`
 carries each maker's drawing (see [Maker drawings](#maker-drawings)). When a
 theme needs something neither can say yet, add it (and its drawing in the deck
-and in the Stream Deck key art) rather than settling for a recolour.
+and in the Stream Deck key art) rather than settling for a recolor.
 
 ## Theme tokens
 
@@ -43,7 +43,7 @@ tokens below, except the two marked optional.
 
 | token | controls | example (RSI) |
 |---|---|---|
-| `--bg` | page background colour | `#05090f` |
+| `--bg` | page background color | `#05090f` |
 | `--bg-art` | backdrop drawn over `--bg`: glows, stripes, `var(--stars)` | radial glow + stars |
 | `--panel` | button and panel fill | `#0b1420` |
 | `--panel-hi` | raised or pressed fill | `#122236` |
@@ -52,11 +52,11 @@ tokens below, except the two marked optional.
 | `--text` | text on buttons and panels | `#e8f2fc` |
 | `--dim` | secondary text on buttons: states ("OFF", "RETRACTED") | `#8ea4bc` |
 | `--ink`, `--ink-dim` | text straight on the page and the HUD's plates: section titles, captions, the status line, the intro | `#e8f2fc`, `#8197b0` |
-| `--face-hi`, `--face-lo` | a button face's top and bottom colour (HUD buttons, Stream Deck keys) | `#1e2d42`, `#111b29` |
-| `--material` | the maker's surface, one word that the Stream Deck key art draws (`glass`, `plate`, `carbon`, `armour`, `gloss`, `enamel`, `pearl`, `lacquer`, `shell`, `hazard`, `clay`, `silk`) | `glass` |
+| `--face-hi`, `--face-lo` | a button face's top and bottom color (HUD buttons, Stream Deck keys) | `#1e2d42`, `#111b29` |
+| `--material` | the maker's surface, one word that the Stream Deck key art draws (`glass`, `plate`, `carbon`, `armor`, `gloss`, `enamel`, `pearl`, `lacquer`, `shell`, `hazard`, `clay`, `silk`) | `glass` |
 | `--plate`, `--plate-line` | the plate each half of the HUD sits on, and its border | translucent navy |
-| `--accent` | the theme's signature colour; buttons without a `color` | `#4fb3ff` |
-| `--green`, `--amber`, `--red`, `--blue` | the four button colours (see [Button colours](#button-colours)) | `#46d79a` … |
+| `--accent` | the theme's signature color; buttons without a `color` | `#4fb3ff` |
+| `--green`, `--amber`, `--red`, `--blue` | the four button colors (see [Button colors](#button-colors)) | `#46d79a` … |
 | `--font-display` | headings, big labels | `"Exo 2", system-ui, sans-serif` |
 | `--font-body` | button labels and everything else | same |
 | `--label-case` | `text-transform` of labels | `uppercase` |
@@ -65,7 +65,7 @@ tokens below, except the two marked optional.
 | `--key-radius` | grid-layout button and Stream Deck key corner radius | `6px` |
 | `--key-clip` | `clip-path` for cut corners on those, or `none` | `none` |
 | `--btn-radius`, `--btn-clip` | the same for the HUD's (smaller) buttons | `5px`, `none` |
-| `--key-edge` | width of the coloured bar on a button's left edge (`0` for none) | `3px` |
+| `--key-edge` | width of the colored bar on a button's left edge (`0` for none) | `3px` |
 | `--key-bg` | grid-layout button fill (usually a gradient) | `linear-gradient(...)` |
 | `--key-top`, `--key-top-h` | highlight strip along a grid button's top, and its height | gradient, `2px` |
 | `--key-shadow` | button shadow; optional | `0 8px 22px …` |
@@ -94,14 +94,14 @@ cream ball, Anvil's knurled knob, MISC's gauge), the framed buttons' shape, the
 mode switch, the eject slider's knob, the danger zone, the pager.
 
 Buttons are drawn from variables set on the button itself, which `.hud-btn` in
-`hud.css` reads, so a maker's look keeps the button's colour (`--c`) in every
+`hud.css` reads, so a maker's look keeps the button's color (`--c`) in every
 state:
 
 | variable | what it is |
 |---|---|
 | `--face` | the face's layers (gradient, texture) |
 | `--mark` | layers drawn over it: rivets, tabs, sheen, a slot bar |
-| `--edge`, `--bevel` | border colour, and the box-shadow that gives it depth |
+| `--edge`, `--bevel` | border color, and the box-shadow that gives it depth |
 | `--lit`, `--lit-ring` | layers and shadow while lit: Drake's hazard band, Anvil's lamp, Origin's gold bar |
 | `--press`, `--press-ring`, `--press-move` | the same while pressed, and how it moves (Drake's slab sinks, Banu's squashes) |
 | `--deny` | the flash of a press the PC skipped (Drake's red hazard, Aegis's red scanlines) |
@@ -116,11 +116,50 @@ new maker draws all four, so each looks like that maker's own hardware
 Whatever a finger grabs stays at least 44 points, and the high-contrast block at
 the end resets them like the buttons.
 
+The cockpit clusters and the mode dial (2.1, `public/clusters.js`,
+`public/dial.js`, `public/clusters.css`) are SVG drawn from a few tokens each
+maker sets on `#canvas`, plus a `/* 2.1 clusters */` block per maker in
+`makers.css` for their lines, fills and lit looks:
+
+| token | what it picks | e.g. |
+|---|---|---|
+| `--dial-shape` | the mode dial's face and where its chips sit: `circle`, `hex`, `chevron`, `octagon`, `oval`, `rect`, `arc`, `bloom`, `crescent`, `triangle`, `sunrise`, `diamond` | RSI's instrument ring, Drake's hex nut, Aegis's V, Esperia's star |
+| `--dial-chip-w` | a chip's width over its height: 1 is round, more is a pill or a module | Origin 1.45, MISC 1.25 |
+| `--arc-style` | shield arcs, rings and reticles as smooth curves (`curve`) or straight facets (`facet`) | Anvil and Argo facet, Banu and Aopoa curve |
+| `--arc-gap` | degrees between an arc's segments | 2 (Esperia) to 9 (Aegis) |
+| `--cl-line`, `--cl-seg`, `--cl-cap` | line width, segment thickness and line ends | Origin's hairline, Anvil's heavy butt-capped plates |
+
+Each cluster keeps one drawing everywhere and lets the maker change only these
+and its colors, so a cluster reads the same in every theme while each maker
+still draws its own (no two makers share a dial shape). The drawings:
+
+- **Shields:** the ship from above in the middle, five segments on each face's
+  arc (lit up to the steps sent), a side view for top and bottom, and an outer
+  ring that is the power switch. No words.
+- **Targeting:** a reticle with a center pip (next), chevrons left and right,
+  four corner brackets with their icon, and an inner ring for sub-targets.
+- **Lights and doors:** the ship from the side with its headlight cone, the
+  ramp under it and a padlock above.
+- **Turrets:** the ship from behind with numbered pods.
+- **Countermeasures:** Panic under a hazard-striped flip cover, with Decoy and
+  Noise as tall tubes at the sides.
+- **Quantum:** a spool ring that fills while Engage is held, and Flight Ready
+  as the arc beside it.
+- **Mining** and **salvage heads:** the head's art in the middle (the laser's
+  power gauge and Fracture/Extract switch; the salvage beams that widen and
+  narrow) with their buttons around it.
+- **Switch banks:** rocker switches lit by their state.
+
+Like the buttons, the art shows the steps SpoolUp sent, never a reading from
+the game, and timers only ever change the picture. The emote board's tiles are
+the deck's own `s-tile` buttons, so each maker draws them; its tabs, sheet and
+Arrange look use theme tokens only.
+
 Keep it to gradients and borders: no filters or animations per frame, so the
 deck stays smooth on an iPad. Marks go where the state text and key labels
 aren't (a slot bar sits on the very bottom edge, under "RETRACTED"). High
 contrast resets every maker at the end of the file; a new drawing with its own
-colours needs a line there.
+colors needs a line there.
 
 ## Adding a theme
 
@@ -139,25 +178,25 @@ colours needs a line there.
 4. **The emblem** is an original badge design on a 64×64 SVG grid that suggests
    the maker's character. Never copy or trace a real company logo. Strokes use
    `currentColor`; `${F}` marks solid accent fills and `T(...)` wraps parts drawn
-   in the theme's text colour. Keep a one-line comment describing the idea, as
+   in the theme's text color. Keep a one-line comment describing the idea, as
    the existing emblems do.
 5. **Check it:**
    - the theme picker card;
    - the deck on a tablet and a phone (the showcase in `docs/DEVELOPMENT.md` has
      both frames);
-   - pressed buttons and every button colour;
+   - pressed buttons and every button color;
    - night mode, and the intro screen (it draws the emblem);
    - the text contrast rules under [Accessibility](#accessibility).
 6. **Update the counts:** "12 manufacturer themes" appears in the README,
    `CHANGELOG.md`, the website (`site/index.html`) and the theme gallery image
    `docs/themes.jpg`.
 
-## Button colours
+## Button colors
 
-Layouts give a button one of four colours, or none for the theme's accent. Use
-them by meaning, so a colour tells you what a button does in every theme:
+Layouts give a button one of four colors, or none for the theme's accent. Use
+them by meaning, so a color tells you what a button does in every theme:
 
-| colour | meaning | examples |
+| color | meaning | examples |
 |---|---|---|
 | `green` | power, systems on, flight | Flight mode, Master: SCM, shield power |
 | `amber` | work modes and caution | Mining, Salvage, Fracture/Extract, G-Safety |
@@ -165,7 +204,7 @@ them by meaning, so a colour tells you what a button does in every theme:
 | `blue` | navigation, scanning and info | Quantum, Scanning, mining modules |
 | none | everything else | most buttons |
 
-Use colours sparingly. A panel where every button is coloured has no colours.
+Use colors sparingly. A panel where every button is colored has no colors.
 
 ## HUD style
 
@@ -180,15 +219,15 @@ The deck should feel like a ship's display, not a web page:
   `// POWER_MANAGEMENT`, `// SHIP_SYSTEMS`.
 - **Lines are thin** (1px), corners are bracketed (the intro screen, the
   banner, the website), and glow comes from a `drop-shadow` of the element's own
-  colour, not from a separate colour.
+  color, not from a separate color.
 - **Lit buttons** (a `state` that's on) use the "on" look from `fx.css`: the
-  border and glow in the button's colour, and a one-word status (ON, OPEN,
+  border and glow in the button's color, and a one-word status (ON, OPEN,
   DEPLOYED, LOCKED). In button grids the status sits top right, elsewhere under
   the label. Buttons that only switch something off never stay lit.
 - **Key labels** (Deck settings, `data-keys` on `<html>`, styles in `hud.css`) put
   a button's key in a free corner in small capitals, in `--dim`: top right, under
   a top-right status line in tablet grids, bottom right in phone grids, top
-  centre on the framed hero and quantum buttons. A new button style needs a
+  center on the framed hero and quantum buttons. A new button style needs a
   corner that's free in every theme, including the cut corners of `--key-clip`.
 - **Icons** are line icons on a 48×48 grid in `public/icons.js`, drawn with
   `currentColor`, using the theme's `--icon-stroke`. Add new ones in the same
@@ -196,12 +235,12 @@ The deck should feel like a ship's display, not a web page:
 
 ## The other surfaces
 
-The layout editor, the showcase, the website and the Windows app window don't
-switch themes. They use the RSI look as the house style:
+The layout editor, the showcase and the website don't switch themes. They use
+the RSI look as the house style:
 
-| role | colour | used for |
+| role | color | used for |
 |---|---|---|
-| background | `#05090f` | page and window background |
+| background | `#05090f` | page background |
 | panel | `#0b1726` | cards, panels |
 | panel, raised | `#12253b` | hover, selected |
 | line | `#1f3a58` | borders |
@@ -214,24 +253,44 @@ Fonts: **Oxanium** for display text, **Exo 2** for everything else, with
 
 The website keeps these as tokens in `site/style.css` (`--bg`, `--panel`,
 `--accent`, `--display`, `--body` …); reuse them there instead of new hex
-values. The Windows app (`native/launcher.cs`) sets the same colours in code
-(`Hud`), with its own status colours for good, warning and error states. When
-you change the house colours, change them in both.
+values.
 
-The app's main window is drawn in the deck's HUD style (`HudView`): panels with
-a thin border, accent corner brackets, a `// HEADING` and a ruler, over a slowly
-drifting starfield. The stars pass behind the panels, which keep the text on a
-solid layer so it can use ClearType; text drawn over a see-through layer can't,
-and looks soft. Windows doesn't ship Oxanium or Exo 2, so its display font
-is **Bahnschrift** (Windows 10 and later), falling back to Segoe UI, with
-Consolas for the address and pairing code. Its readouts show only real data,
-never decoration made to look like data.
+The Windows app window (`native/launcher.cs`, the colors in `Hud`) shares the
+accent but has its own solid graphite palette, picked for reading at a glance
+next to a game:
+
+| role | color | used for |
+|---|---|---|
+| back | `#0e1116` | window background, fields inside panels |
+| panel | `#161b22` | panels |
+| panel, raised | `#1f2630` | buttons, hover |
+| line | `#2d3643` | borders |
+| ink | `#f2f5f8` | main text, headings |
+| dim | `#aab4c0` | secondary text (7:1 on panel) |
+| accent | `#4fb3ff` | primary buttons, links, switches, focus |
+| good / warn / bad | `#3ddc84` / `#ffb020` / `#ff5a5f` | status only |
+
+Text is Ink or Dim on a solid fill, never a status color and never over a
+gradient. Status colors mark a dot, a pill or a banner fill, nothing else; the
+Public-network banner is solid warn with dark text (`#1a1300`) and one dark
+button, **Open network settings**, which opens Windows' page for that Wi-Fi or
+Ethernet network. Spacing is 16 px inside and around panels and 12 px between
+them; buttons are at least 32 px tall, one primary (solid accent, dark text)
+per panel; keyboard focus is a solid 2 px accent ring.
+
+Windows doesn't ship Oxanium or Exo 2, so the window's labels and headings use
+**Bahnschrift** (SemiBold and Bold, never the light weights; Windows 10 and
+later), falling back to Segoe UI; body text is Segoe UI at 13 px or more, and
+the address and pairing code are Consolas Bold. The main window is drawn by
+hand (`HudView`) onto a solid layer, so text gets ClearType. A thin band of
+stars drifts in the title strip only, never behind text, and only while the
+window is in front and Windows' "Show animations" is on. Its readouts show only
+real data, never decoration made to look like data.
 
 The app's other windows (Settings, Voice commands, Install keybind profile) use
-the same panels, buttons and switches (`HudDialog`) over the same stars, standing
-still. Fields you type into or pick from stay real Windows controls, in the
-house colours inside a drawn frame that lights up in the accent colour while it
-has focus.
+the same panels, buttons and switches (`HudDialog`), without the stars. Fields
+you type into or pick from stay real Windows controls, in the window's colors
+inside a drawn frame that gets the accent focus ring while it has focus.
 
 ## Stream Deck keys
 
@@ -240,7 +299,7 @@ redrawn as 144×144 pictures, in the theme's own tokens, so a key looks like the
 same button on the tablet:
 
 - **Built from `public/themes.css`**: the key's face (`--face-hi`, `--face-lo`)
-  on the page colour, frame, corner radius or cut, top strip (Drake's hazard
+  on the page color, frame, corner radius or cut, top strip (Drake's hazard
   stripes, CO's segment), backdrop glow, icon stroke and fonts all come from the
   theme's tokens, and `--material` picks the maker's surface and lit mark in
   `material()` and `litMark()` (the same ideas as makers.css draws on the deck:
@@ -250,15 +309,15 @@ same button on the tablet:
   Labels wrap to two lines and shrink to fit 110 px, clear of the frame and the
   accent bars; status words stay short (the plugin's translations have their
   own short forms).
-- **Colours mean the same as on the deck**: red danger and combat, green power and
-  on, amber mining and salvage, blue the rest. A lit key takes its colour's tint
+- **Colors mean the same as on the deck**: red danger and combat, green power and
+  on, amber mining and salvage, blue the rest. A lit key takes its color's tint
   and ring and its maker's lit mark; a skipped press flashes red; offline keys
   go dim with a red cross.
 - **Badges sit top right**: a folder for keys that open a folder, an arrow for Back.
-- **Empty slots are blank keys** in the page colour with a small cross, so a page
+- **Empty slots are blank keys** in the page color with a small cross, so a page
   reads as one panel, light themes too (never a white face).
 - **Touch strips** (Stream Deck + and + XL) are one HUD panel across all the
-  dials: each dial's 200×100 part has its label, icon and colour, and says what
+  dials: each dial's 200×100 part has its label, icon and color, and says what
   turning each way and pushing do.
 - **Simple SVG only**: paths, strokes and gradients, no filters or arcs (Stream
   Deck's SVG renderer is SVG Tiny), with glows drawn as layered strokes.
@@ -283,7 +342,7 @@ same button on the tablet:
   `native/sound.cs` synthesizes the same tones on the output the player picked.
   Keep the two renderers in step: a tone field means the same in both. Sounds
   are short and quiet, follow the same moments as the press animations, and use
-  the button colours' meaning: a press's pitch drops from blue to green, the
+  the button colors' meaning: a press's pitch drops from blue to green, the
   accent, amber and red. `fx.js` and `canvas.js` reach it through
   `window.DeckSound?.`, since the layout editor doesn't load it.
 - **Night mode** is a black overlay (`#night`) over the deck. Anything that must
@@ -301,8 +360,8 @@ same button on the tablet:
   today (text 6.2:1 or more, dim 4.0:1, ink 8.6:1, ink-dim 4.5:1; MISC's
   lighter face and Origin's cream page are the lowest). Check a new theme with
   any contrast checker.
-- **Colour is never the only signal:** a button's label says what it does,
-  and its state text says whether it's on. Colour adds to that.
+- **Color is never the only signal:** a button's label says what it does,
+  and its state text says whether it's on. Color adds to that.
 - **Touch targets:** the smallest buttons are the phone's top bar, 44×36
   points. Don't make anything tappable smaller than that, and give new buttons
   at least 44 points in both directions where there's room.
@@ -312,7 +371,7 @@ same button on the tablet:
   settings, `data-large`, `data-contrast` and `data-no-lights` on `<html>`,
   styles at the end of `deck.css`) must keep working: check new button styles with both on, at tablet and phone size.
   High contrast overrides the theme tokens, so a new style that only uses the
-  tokens follows it by itself; one with its own colours or glows needs an
+  tokens follows it by itself; one with its own colors or glows needs an
   override there.
 - Buttons without a text label, like the icon-only top bar, need an
   `aria-label`.

@@ -28,7 +28,9 @@ These keep SpoolUp safe to run next to an online game. Don't change them
 without the owner's explicit agreement:
 
 - **One press per tap.** A button presses its key or key combo once. No macros,
-  sequences, repeats, timers that press keys, or any other automation.
+  sequences, repeats, timers that press keys, or any other automation. A control
+  that is dragged or swiped sends one tap per step through the server's tap path,
+  and a swipe that pages the deck presses nothing.
 - **The game is never touched.** No reading or writing game memory, no
   injection, no hooks into the game. The only game files used are the player's
   keybinds (`actionmaps.xml`, read only) and the optional profile copied into
@@ -62,8 +64,12 @@ without the owner's explicit agreement:
   French and German entries in `public/i18n.js` or `Lang` in
   `native/launcher.cs` (see [Translations](docs/DEVELOPMENT.md#translations)).
 - **Design:** anything visual follows [docs/DESIGN.md](docs/DESIGN.md): theme
-  tokens, button colours, the HUD style and the house colours for the editor,
+  tokens, button colors, the HUD style and the house colors for the editor,
   website and app window.
+- **American spelling only**, in every English string, comment, doc and identifier:
+  center, color, gray, favorite, behavior, organize, license (noun), canceled,
+  labeled, toward, traveling. Data keys renamed for spelling keep reading the
+  old one (`recentre`, `follows.centre`).
 
 ## Generated files
 
@@ -71,12 +77,15 @@ Never edit these by hand; change the source and rerun the tool:
 
 | generated | from | rerun |
 |---|---|---|
-| `layouts/hud-phone.json` | `layouts/hud.json`, `tools/make-phone-layout.js` | `node tools/make-phone-layout.js` |
-| starter and ship layouts (`combat*.json`, `mining-salvage*.json`, `hauling-exploration*.json`, `prospector*.json`, `vulture*.json`) | `hud.json`, `hud-phone.json`, `tools/make-starter-layouts.js` | `node tools/make-starter-layouts.js` (after the phone layout) |
+| `layouts/hud-phone.json` (a hidden copy of the grid layout) | `layouts/hud.json`, `tools/make-phone-layout.js` | `node tools/make-phone-layout.js` |
+| starter and ship layouts and Dashboards (`combat*.json`, `mining-salvage*.json`, `hauling-exploration*.json`, `prospector*.json`, `vulture*.json`, `dashboards.json`) | `hud.json`, `tools/make-starter-layouts.js` | `node tools/make-starter-layouts.js` (after the phone layout) |
 | `keybinds/TabletDeck-StarCitizen.xml` | every button's `scAction` and keys | `node tools/make-profile.js` |
 
 A new `scAction` must be added to `ACTIONMAPS` in `tools/make-profile.js`, or
-the profile build stops.
+the profile build stops. `layouts/hud.json` is a grid layout (2.1) and the
+source of every button; `layouts/hud-classic.json` and
+`layouts/hud-classic-phone.json` keep the 2.0 HUD as it was and are edited by
+hand (see [Grid layouts](docs/DEVELOPMENT.md#grid-layouts)).
 
 ## Checking your work
 
@@ -85,10 +94,12 @@ done:
 
 1. `node --check` every JavaScript file you changed.
 2. `node tools/make-profile.js --check` (the installer build runs it too).
-3. Rerun the generators if you touched a layout, and make sure their output is
-   committed.
+3. Rerun the generators if you touched a layout, make sure their output is
+   committed, and run `node tools/check-grid.js`.
 4. Run a dry-run server, which presses no keys:
-   `node server.js --dry-run --port 8790`. Open the deck, or the showcase at
+   `node server.js --dry-run --port 8790`. Open the deck (at a phone and a
+   tablet size; `&viewport=small|large` forces a grid layout's size class), or
+   the showcase at
    `http://localhost:8790/showcase.html?t=<pairing code>`, which shows each
    press, its keys and whether the focus check would have blocked it.
 5. For the website or the "Try it" page: `node scripts/build-site.js` and serve
