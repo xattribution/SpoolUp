@@ -113,7 +113,7 @@ Verification scripts (independent of the draft's Python, Node only):
     Without it, RAlt reads as LAlt and Numpad / as `/`, which matters because many 4.x defaults are
     RAlt combos.
     - On layouts with AltGr (German, French…), Windows reports AltGr as LCtrl+RAlt (general Windows
-      behaviour; how Star Citizen treats it is unverified).
+      behavior; how Star Citizen treats it is unverified).
 18. **No per-app mobiGlas binds.** The only ones are F1 mobiGlas, F2 map, F11 CommLink and the PIT
     category `pc_pit_mobiglas_actions` (no default). High, from absence in the 4.10 file.
 19. **Party invites and party launches confirmed on `[` / `]`.** Game strings
@@ -224,7 +224,7 @@ complete list from my scan, UI-only rows omitted):
 | `r` | ship: next sub-target; on foot: reload | on foot ≥ 0.5 s holster | — |
 | `t` | ship: next target in view (`_fwd` and `_reset`, both tap) | ≥ 0.25 s auto-targeting | on foot: flashlight |
 | `i` | ship: power thrusters; on foot: inventory | on foot ≥ 0.25 s loot | — |
-| `backspace` | `cam_toggle_cinematic` (unlabelled) | ≥ 0.5 s `v_self_destruct` / `force_respawn`; ≥ 1.5 s `incapacitatedRespawn` | — |
+| `backspace` | `cam_toggle_cinematic` (unlabeled) | ≥ 0.5 s `v_self_destruct` / `force_respawn`; ≥ 1.5 s `incapacitatedRespawn` | — |
 | `f1` | mobiGlas | on foot ≥ 0.5 s scoreboard (`holdTriggerDelay`) | ship: `v_hud_open_scoreboard` (`all`) |
 | `f9` / `f10` | power throttle − / + | — | **double tap** = min / max (off-limits) |
 | `m` | mining / salvage / refuel operator mode (one per ship type) | on foot ≥ 1.5 s rescue request | — |
@@ -248,7 +248,7 @@ complete list from my scan, UI-only rows omitted):
 | Recenter head tracking | `headtrack_recenter_device` | same | `np_5` | press | High. Shares with `hmd_recenter` and on-foot `emote_cs_forward` |
 | 3rd-person head tracking | `headtrack_camera_enabled` | same | — | press | High |
 | VR toggle / recenter / theater / visor | `hmd_toggle` / `hmd_recenter` / `hmd_theater_mode_toggle` / `hmd_lens_display_toggle` | same | `np_divide` / `np_5` / `lalt+np_5` / — | press | High ("[Experimental]") |
-| CommLink app | `toggle_contact` | `default` | `f11` | press | High. "CommLink App (Toggle)"; F11 also fires unlabelled `toggle_cursor_input` / `v_toggle_cursor_input` |
+| CommLink app | `toggle_contact` | `default` | `f11` | press | High. "CommLink App (Toggle)"; F11 also fires unlabeled `toggle_cursor_input` / `v_toggle_cursor_input` |
 | Chat window | `toggle_chat` | `default` | `f12` | press | High |
 | Focus chat | `focus_on_chat_textinput` | `default` | `enter`, `np_enter` | press | High |
 | Cycle chat lobby | `cycle_chat_lobby` | `default` | `tab` | press | High for the bind; **Medium** that it only acts while chat is open |
@@ -262,7 +262,7 @@ complete list from my scan, UI-only rows omitted):
 | Hand signals Forward / Left / Right / Stop / Yes / No | `emote_cs_forward` / `_left` / `_right` / `_stop` / `_yes` / `_no` | `player_emotes` | `np_5` / `np_1` / `np_3` / `np_2` / `np_4` / `np_6` | press | High. On foot; Forward also recenters head tracking |
 | 34 emotes | `emote_*` | `player_emotes` | — | press | High |
 | Wipe visor | `visor_wipe` | `player`, `spaceship_hud`, `vehicle_general` | `lalt+x` | press | High |
-| Precanned ship comms | `v_comm_*` | `spaceship_hud` | `empty` | onPress/onRelease | High that they're unlabelled; skip |
+| Precanned ship comms | `v_comm_*` | `spaceship_hud` | `empty` | onPress/onRelease | High that they're unlabeled; skip |
 
 Not bindable (High, from absence in the 4.10 file; strings from S5): VoIP off (`pause_OptionsDisableVOIP`
 "Disable VOIP"), mic mute (`pause_OptionsMuteMicrophone` "Mute Microphone"), voice activation
@@ -287,12 +287,12 @@ Party create/invite and on-foot ping have no bind.
 | Padlock / auto zoom | `v_look_ahead_start_target_tracking` / `v_target_tracking_auto_zoom` | `spaceship_targeting` | — | smart_toggle | High |
 | Cinematic camera | `cam_toggle_cinematic` | `default` | `backspace` | tap | **Low** (no UI label). Don't map Backspace |
 | Missile cinematic cam | `v_weapon_launch_missile_cinematic` / `_hold` | `spaceship_missiles` | — | tap / onPress+onHold+onRelease | High. "Enable Cinematic Camera (Toggle / Hold)" |
-| Advanced camera modifier | `view_enable_camview_mode` | `view_director_mode` | `f4` | onPress/onRelease | High for the bind ("Advanced Camera Controls Modifier (Hold)"); Medium on exact behaviour |
+| Advanced camera modifier | `view_enable_camview_mode` | `view_director_mode` | `f4` | onPress/onRelease | High for the bind ("Advanced Camera Controls Modifier (Hold)"); Medium on exact behavior |
 | Load / save view 1–9 | `view_load_view_N` / `view_save_view_N` | `view_director_mode` | `np_1`…`np_9` | tap / delayed_press | High |
 | Clear saved view; reset view | `view_reset_saved` / `view_restore_defaults` | same | `np_0` / `np_multiply` | delayed_press / onPress+onRelease | High |
 | FOV ±, DoF ±, offsets | `view_fov_in/out`, `view_fstop_in/out`, `view_move_target_*` | same | `np_add`/`np_subtract`, `home`/`end`, arrows, `pgup`/`pgdn` | onPress(/onHold) | High |
 | **Screenshot** | *(none)* | — | — | — | No action (High). `r_GetScreenShot` cvar exists (S6). PrtScn → `LIVE\screenshots` per W2 (Medium-Low). Windows 11 may intercept PrtScn (Medium) |
-| AR mode / trackview | `toggle_ar_mode` / `toggle_trackview` | `spaceship_hud`, `player` / `default` | `empty` / literal `]` | press | Unlabelled; skip. `]` isn't Star Citizen's usual `rbracket` name |
+| AR mode / trackview | `toggle_ar_mode` / `toggle_trackview` | `spaceship_hud`, `player` / `default` | `empty` / literal `]` | press | Unlabeled; skip. `]` isn't Star Citizen's usual `rbracket` name |
 
 ## 5. Ship actions worth a key
 
@@ -303,7 +303,7 @@ Every row below was re-checked against S1; only rows that changed or gained a no
 | What | action | map | default | mode |
 |---|---|---|---|---|
 | Flight / Systems Ready | `v_flightready` | `spaceship_general`, `vehicle_general` | `ralt+r` | press |
-| Toggle power all / thrusters / shields / weapons | `v_power_toggle` / `_thrusters` / `_shields` / `_weapons` | `spaceship_power` | `u` / `i` / `o` / `p` | press (`o` also fires unlabelled global `objectives`) |
+| Toggle power all / thrusters / shields / weapons | `v_power_toggle` / `_thrusters` / `_shields` / `_weapons` | `spaceship_power` | `u` / `i` / `o` / `p` | press (`o` also fires unlabeled global `objectives`) |
 | Set power on/off | `v_power_set_on/off`, `…_thrusters_on/off`, `…_shields_on/off`, `…_weapons_on/off` | `spaceship_power` | — | press |
 | Power assignment +1 / max | `v_engineering_assignment_{engine,shields,weapons}_increase` / `_max` | `spaceship_power` | `f6` / `f7` / `f5` | tap / onHold, `holdTriggerDelay` 0.25 |
 | Power assignment −1 / min | `…_decrease` / `_min` | `spaceship_power` | `lalt+f6/f7/f5` (written `f6+lalt`) | tap / onHold 0.25 |
@@ -522,8 +522,8 @@ From `starcitizen-actions.verified.json` (190 curated actions):
 1. **Does Elgato's built-in Hotkey hold the key while the Stream Deck key is held?** Sources conflict
    (change 2). Test on a Stream Deck with a key-event viewer. Critical for push to talk and every
    hold action.
-2. Does Star Citizen 4.10 honour `activationMode` on a user `<rebind>` (e.g. `press` on
-   `v_master_mode_cycle_long`)? The format exists; 4.x behaviour is untested.
+2. Does Star Citizen 4.10 honor `activationMode` on a user `<rebind>` (e.g. `press` on
+   `v_master_mode_cycle_long`)? The format exists; 4.x behavior is untested.
 3. Is the screenshot key Print Screen, and is the folder `StarCitizen\LIVE\screenshots`? Does Windows
    11's "Print screen opens screen capture" setting stop the game from seeing PrtScn?
 4. Are CommLink **calls** answered with `[` / `]`? Party invites and launches are confirmed; calls

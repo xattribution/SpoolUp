@@ -56,7 +56,7 @@ Corrections:
 5. **Neo Infobar actions do get `willAppear`, `willDisappear` and `sendToPlugin`.** The draft
    listed only settings, resources, Property Inspector and `titleParametersDidChange`. They get no
    key, dial or touch input events [C].
-6. **Virtual Stream Deck isn't labelled beta on the hardware page.** Only the URL slug of the
+6. **Virtual Stream Deck isn't labeled beta on the hardware page.** Only the URL slug of the
    linked overview (`virtual-stream-deck-beta-overview`) says beta; no text on either page does [C].
    VSD needs Stream Deck 7.0+ and **Windows 11 (64-bit) or later** [C].
 7. **Stream Deck Mobile "two keypads on iPad, up to 128 keys" isn't confirmed.** Elgato says you
@@ -316,7 +316,7 @@ plus `Profiles/<27-char id>/manifest.json`. Each has 2 page folders: the listed 
 | `20GBD9901` | `DKlaper/ga-msfs2024-stream-deck-plus` (2.0 export); `Nagaimo355/StreamDeckPlusController_for_DerailValley` (on-disk copy, device UUID `@(1)[4057/132/…]`, PID 0x0084) | 2.0; 3.0 | Stream Deck + [R] |
 | `20GAA9902` | `Centralize/StreamdeckProfiles` (old 1.0 format, device UUID `@(1)[4057/109/…]`, PID 0x006D) | 1.0 | 2019 15-key [R] |
 | `20GBX9901` | `verygoodplugins/streamdeck-mcp` test fixture (PID 198 = 0x00C6); Aputure Sidus Link Pro pack (tool-generated) | 3.0 | **weak**; no genuine export found [R-weak] |
-| `20GBC9901` | Aputure pack only, labelled "Stream Deck Plus" | 3.0 | contradicts `20GBD9901`; treat as an error [?] |
+| `20GBC9901` | Aputure pack only, labeled "Stream Deck Plus" | 3.0 | contradicts `20GBD9901`; treat as an error [?] |
 | `VSD/WiFi` | ScriptDeck, `streamdeck_prof` (v1 tooling) | 1.0 | legacy Mobile [R] |
 
 `streamdeck-mcp`'s label table is still wrong in places (it calls `20GBA9901` "Original" and
@@ -387,7 +387,7 @@ Trigger description keys are `Push`, `Rotate`, `Touch`, `LongTouch` in the manif
 **Stream Deck + XL (13).** 9×4 keys at 112 px, 6 dials, 1200×100 strip (161×14 mm) giving six
 200×100 canvases, so encoder layouts carry over from the + unchanged [C]. Elgato's profile docs say
 "38 / 4 x 9"; every other Elgato source says 36 [C], so 38 is a typo. USB 3.0 Type-C port
-recommended; Windows 11+ / macOS 13+ [C]. Dial centres don't line up with key columns [R, estimated
+recommended; Windows 11+ / macOS 13+ [C]. Dial centers don't line up with key columns [R, estimated
 geometry in `@elgato-stream-deck/core`].
 
 **Stream Deck Neo (9).** 4×2 keys at 96 px. The Infobar (248×58 window, not touch) showed a clock

@@ -420,7 +420,7 @@ function folderPages(modelId, id, folder) {
     });
   }
   if (folder.grid) {
-    // A block goes whole, centred beside Back (under the top row on the XLs, whose top row
+    // A block goes whole, centered beside Back (under the top row on the XLs, whose top row
     // is their navigation, else right of the first column). When it only fits turned on
     // its side, each of its columns becomes a row read from its bottom up, so Power's
     // weapons, thrusters and shields each run min to max. Else it's a list.

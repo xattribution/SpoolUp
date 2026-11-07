@@ -60,7 +60,7 @@ packaging, localization.
    - The CLI only validates the folder, then zips it, removing `Nodejs.Debug` from the manifest.
    - A hand-made ZIP with the same layout should install: a third-party tool does exactly this.
 
-   **[primary for the CLI behaviour; real files for the hand-made ZIP]**
+   **[primary for the CLI behavior; real files for the hand-made ZIP]**
 
 ---
 
@@ -90,7 +90,7 @@ schema allows it.
 The schema is an `allOf` of `if Software.MinimumVersion == X then {…}` branches, with
 **`additionalProperties: false`**. That means:
 
-- A misspelt key is a validation error.
+- A misspelled key is a validation error.
 - Which features are allowed depends on `MinimumVersion`.
 
 I diffed the branches. This is what changes **[primary, from the schema]**:
@@ -170,7 +170,7 @@ Required: `UUID, Name, Icon, States`.
   layout on the touch strip.
 - `Icon`: PNG/SVG, extension omitted, 72/144. Shown "in the circular canvas that represents the
   dial" in the app.
-- `StackColor`: hex. The background colour in the app when the action is the current one in a
+- `StackColor`: hex. The background color in the app when the action is the current one in a
   dial stack.
 - `TriggerDescription`: `{ Rotate, Push, Touch, LongTouch }` (strings, localizable).
 
@@ -693,7 +693,7 @@ All items (`type` ∈ `text`, `pixmap`, `bar`, `gbar`) share:
 - `zOrder`: 0–700, default 0.
 - `enabled`: bool.
 - `opacity`: 0, 0.1 … 1 (one decimal).
-- `background`: named colour, hex, or gradient `"0:#ff0000,0.5:yellow,1:#00ff00"`.
+- `background`: named color, hex, or gradient `"0:#ff0000,0.5:yellow,1:#00ff00"`.
 
 Per type:
 

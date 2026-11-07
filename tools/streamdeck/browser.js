@@ -153,7 +153,7 @@ class Renderer {
   }
 
   // jobs: [{ svg, w, h }] -> PNG buffers in the same order. Jobs are packed onto sheets of at
-  // most `sheet` px square, with a gap so nothing bleeds between neighbours. With `encoder`
+  // most `sheet` px square, with a gap so nothing bleeds between neighbors. With `encoder`
   // (an EncoderPool) the images are encoded on worker threads while the next sheet is drawn.
   async renderSvgs(jobs, { sheet = 2048, gap = 4, onProgress, encoder } = {}) {
     const out = new Array(jobs.length);

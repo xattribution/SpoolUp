@@ -247,7 +247,7 @@ v3 observations [R]:
   (`5D9352EC47593FD285FA58E493Z.png`, 26 hex + `Z`), the script's `Plugin.Name` values (`"Down"`,
   `"sonarr"`) and the script's settings for their own plugin actions. So a script-written v3 zip was
   imported into 7.4 and re-exported, and the app kept arbitrary image names and `Plugin.Name`s. (The
-  backtoparent `Plugin.Name` was normalised to "Open Parent Folder" in one place.)
+  backtoparent `Plugin.Name` was normalized to "Open Parent Folder" in one place.)
 - The same export shows `"Name":"Default Profile copy 1"`. The app appends " copy N" when a profile of
   the same name already exists [R].
 - **When v3 started:** not documented. BarRaider tested 6.8.1 with `ProfilesV2`; a 2026 forum post notes
@@ -380,7 +380,7 @@ and `StreamDeckNeo`, used for the `custom_default_profiles` mechanism [C].
 - `Plugin` and `Resources` appear only in v3 (and not even always). v2 has neither [R]. For third-party
   actions, `Plugin` is `{Name, UUID: <plugin UUID>, Version: <plugin version>}`, e.g.
   `{"Name":"Volume Controller","UUID":"com.elgato.volume-controller","Version":"2.0.2.166"}` [R].
-- `Name` is only a label (localised exports have `"Raccourci"` and `"Créer un dossier"`) [R].
+- `Name` is only a label (localized exports have `"Raccourci"` and `"Créer un dossier"`) [R].
 - `State` is the current state index; `States` has one entry per state (1 or 2 seen). For our own plugin
   actions, match the state count in our manifest [R].
 - `LinkedTitle`: true (4781×) or false (1001×); sometimes absent [R].
@@ -398,7 +398,7 @@ and `StreamDeckNeo`, used for the `custom_default_profiles` mechanism [C].
 | `TitleColor` | `"#rrggbb"`, lower case | |
 | `FontFamily` | `""` (default font), `"Tahoma"`, `"Arial"`, … | |
 | `FontSize` | integers 6–18 (9 and 12 most common) | |
-| `FontStyle` | `""`, `"Regular"`, `"Bold"`, `"Italic"`, `"Bold Italic"` (schema) | localised and garbage values exist in user files |
+| `FontStyle` | `""`, `"Regular"`, `"Bold"`, `"Italic"`, `"Bold Italic"` (schema) | localized and garbage values exist in user files |
 | `FontUnderline` | bool | |
 | `OutlineThickness` | always `2` | |
 | `Image` | `"Images/<file>"` relative to the **page** folder | |
@@ -766,7 +766,7 @@ Privacy (AGENTS.md): never copy fields from a real export into generated files. 
 6. That an animated GIF referenced from `States[].Image` animates after import.
 7. The touch-strip `Background` size on + XL (1200×100 expected) and the Model strings for Virtual
    Stream Deck / Galleon 100 SD.
-8. Bundled-profile behaviour with many entries and `AutoInstall:false`: what the prompt looks like, and
+8. Bundled-profile behavior with many entries and `AutoInstall:false`: what the prompt looks like, and
    whether the same `Name` can appear for several `DeviceType`s.
 9. Whether `PageIndex` in Switch Profile is 1-based (Go to Page is, as verified above).
 10. The meaning of `Coalesce`, and of `KeyModifiers` bits `0x20000` and `0x40000000`.

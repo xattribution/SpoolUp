@@ -3,8 +3,8 @@
 // tablet doesn't export them and the plugin can't load the deck's scripts. They're original
 // badge designs on a 64x64 grid, not the manufacturers' logos.
 //
-// There, `F` is a solid accent fill and T(...) a group in the theme's text colour through
-// CSS; Stream Deck's SVG renderer has no CSS variables, so here both get real colours.
+// There, `F` is a solid accent fill and T(...) a group in the theme's text color through
+// CSS; Stream Deck's SVG renderer has no CSS variables, so here both get real colors.
 "use strict";
 
 const THEMES = [
@@ -57,7 +57,7 @@ const THEMES = [
 ];
 const byId = new Map(THEMES.map((t) => [t.id, t]));
 
-// A theme's emblem as SVG, `size` px wide and centred on (cx, cy), drawn in `accent` with
+// A theme's emblem as SVG, `size` px wide and centered on (cx, cy), drawn in `accent` with
 // the T parts in `text`. `tiny` turns arcs into curves for Stream Deck's renderer.
 function emblem(id, { cx, cy, size, accent, text, tiny = (d) => d }) {
   const t = byId.get(id);

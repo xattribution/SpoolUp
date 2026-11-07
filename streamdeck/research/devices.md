@@ -353,7 +353,7 @@ or `push`, `rotate`, `touch` and `longTouch` at runtime [C].
 
 **Stream Deck + XL (type 13).** 36 keys (9×4) at 112×112 and 6 encoders. The 1200×100 touch strip
 (161×14 mm) gives six 200×100 canvases, the same as the Stream Deck +, so encoder layouts carry over
-unchanged [C]. The 6 dials can't line up under 9 key columns: they sit 216 px apart about the centre [R].
+unchanged [C]. The 6 dials can't line up under 9 key columns: they sit 216 px apart about the center [R].
 Elgato's profile docs say "38 keys, 4 x 9", but every other Elgato source says 36 (9×4), so 38 is a
 typo [C]. Supported from Stream Deck 7.3.0. USB 3.0 Type-C; Windows 11+ / macOS 13+ [C product page].
 
@@ -362,7 +362,7 @@ showed a clock and the page indicator until 7.6. From **Stream Deck 7.6 (22 Sept
 actions onto it. Plugin actions declare `"Controllers": ["Neo"]`, draw a 232×50 layout, must set the
 layout on every `willAppear`, and receive no key, dial or touch events (only settings, resources, PI
 and `titleParametersDidChange` events) [C]. The 2 capacitive touch points are page-left and page-right.
-At HID level they're extra buttons 8 and 9 with 96×16 RGB-colourable sensor images [C/R], but the SDK
+At HID level they're extra buttons 8 and 9 with 96×16 RGB-colorable sensor images [C/R], but the SDK
 has nothing for them [I].
 
 **Stream Deck Studio (type 10).** 1U 19" rack unit. 32 keys in a 16×2 grid at 144×112 [R], 2 encoders
@@ -383,7 +383,7 @@ Stream Deck 6.3+ are needed to change the layout [R help-center snippet]. Elgato
 **Virtual Stream Deck (type 11).** Stream Deck 7.0+. On-screen panels, each up to 8×8 (64 keys), with
 several panels and per-panel hotkeys. Fixed or Dynamic (opens at the cursor). Unlocking it needs a
 supported Stream Deck or Corsair device connected within the last 30 days, or Mobile Pro [R Elgato
-VSD page]. Still labelled beta on Elgato's compatible-hardware page (updated 7 July 2026) [C].
+VSD page]. Still labeled beta on Elgato's compatible-hardware page (updated 7 July 2026) [C].
 
 **Corsair GALLEON 100 SD (type 12).** Full-size keyboard; the Stream Deck replaces the numpad.
 12 LCD keys (3×4), 2 dials with push, and a 5" LCD. Corsair: two dials "support four dial actions";

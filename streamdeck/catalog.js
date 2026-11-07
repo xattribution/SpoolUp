@@ -54,7 +54,7 @@ const ICON_FOR = {
 };
 // The pack's own look for a few buttons, over hud.json's (the tablet keeps its own): a
 // key's words rather than a slider's ("Slide to eject" on a key that taps), Eject red like
-// the rest of its folder, and icons told apart from their neighbours'. keyLabel is drawn
+// the rest of its folder, and icons told apart from their neighbors'. keyLabel is drawn
 // only on the pack's keys, so the plugin keeps hud.json's label and its translations in
 // public/i18n.js.
 const PACK = {

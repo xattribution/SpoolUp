@@ -192,7 +192,7 @@ That's why some UUIDs below are Medium or Unconfirmed.
 
 All High (Elgato help center / release notes) unless marked.
 
-| Version | Behaviour | Source |
+| Version | Behavior | Source |
 |---|---|---|
 | any | "When Stream Deck keys are configured with an action and the plugin from which those actions came from is uninstalled or otherwise not found, those keys will display a **question mark icon**." Common after moving a profile to another PC. | [Question mark icon on keys](https://help.elgato.com/hc/en-us/articles/360056747291-Elgato-Stream-Deck-Question-mark-icon-on-keys) (updated 2026-10-19) |
 | any (current text) | Fixes: install from Marketplace; **press the "?" key** to install that plugin; click a "?" key then **"Check Now"**; **click the "?" at the top of the software** for a mass install of the missing plugins. | same article |
@@ -722,7 +722,7 @@ Caveats:
   - Elgato Spotify (except `multimedia`), Control Center, Camera Hub.
   - Wave Link 3, Elgato Clocks, the new Philips Hue (plugin UUID as well), Voicemod PTT.
 - Whether a "?" (missing-plugin) key shows the profile's custom image and title.
-- The exact import behaviour for a plugin that isn't on Marketplace (our own plugin if
+- The exact import behavior for a plugin that isn't on Marketplace (our own plugin if
   sideloaded), and how `Plugin.Version` older or newer than Marketplace's is treated.
 - Whether Discord Mute/Deafen keep custom per-state images or get redrawn by the plugin.
 - Built-in Timer `actionIdx` and `duration` semantics; Multimedia `actionIdx` mapping.

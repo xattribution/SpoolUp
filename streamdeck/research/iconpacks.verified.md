@@ -103,7 +103,7 @@ Labels:
 - **In the plugin manifest schema, `Encoder.Icon` accepts PNG or SVG only, no GIF.** It is shown in
   the app's dial canvas **[primary]**.
 - **`@elgato/icons` glyphs use `fill="currentColor"`.** Used as a standalone pack SVG, that resolves
-  to black, which disappears on a black key. Write an explicit colour **[inferred]**.
+  to black, which disappears on a black key. Write an explicit color **[inferred]**.
 - From the legacy docs **[snippet only]**: "icon.gif is the animated icon shown on Stream Deck, and
   icon.png is what appears in the Image Library".
 
@@ -178,7 +178,7 @@ Labels:
 | S1 | https://docs.elgato.com/stream-deck/icons/getting-started | primary | formats, 144 px, ≤ 80 chars, 10–20 fps, ≤ 5 s, ≤ 1 MB, "keys and dials", double-click install |
 | S2 | https://docs.elgato.com/stream-deck/icons/api ("API Glossary") | primary | file tree, manifest and `icons.json` fields, "reference only — use Icon Pack Man" |
 | S3 | https://docs.elgato.com/guidelines/stream-deck/icons | primary | 144 px, formats, ≤ 80 chars, reverse-DNS, content rules, description advice |
-| S4 | https://iconpackman.elgato.com/js/app.3dd256bc.js (version constant `{major:1,minor:2,patch:4,build:120}`), with JSZip 3.10.1 in `chunk-vendors.25e4c9f5.js` | primary (Elgato tool code) | validator, export layout, ZIP reader, tag normalisation, previews, accepted types |
+| S4 | https://iconpackman.elgato.com/js/app.3dd256bc.js (version constant `{major:1,minor:2,patch:4,build:120}`), with JSZip 3.10.1 in `chunk-vendors.25e4c9f5.js` | primary (Elgato tool code) | validator, export layout, ZIP reader, tag normalization, previews, accepted types |
 | S5a | DistributionTool.exe in `L1cardo/WebIcons-StreamDeckIconPack` (2023), disassembled with `objdump` | primary (Elgato binary) | `CheckFilesFromFolderExistInIconsJson` logic, error strings |
 | S5b | DistributionTool.exe in `mackenly/simple-icons-stream-deck/script/` (repo commit 2026-10-26; `release.yml` runs it on `windows-latest` every week) | primary binary, real use | same companion-check code; extra strings |
 | S6 | `sdk-template.sdIconPack` in https://github.com/AdamJ/stream-deck-icon-packs (README: "example template (downloaded from Elgato)"; license "Copyright 2020 Corsair/Elgato") | primary via a third party | reference files |
@@ -426,7 +426,7 @@ The listing rule **[primary: S5 disassembly]**:
 
 Other notes:
 
-- **Icon Pack Man normalises tags** when it builds a pack **[primary]**:
+- **Icon Pack Man normalizes tags** when it builds a pack **[primary]**:
   - array tags: lowercased, trimmed, all whitespace removed (`"Road Sign"` → `"roadsign"`);
   - a comma string: also stripped to `[a-z0-9]`.
 - DistributionTool accepts capitals and spaces: Simple Icons ships
@@ -644,12 +644,12 @@ already exists in the export folder: %s" **[primary]**.
   - Name: ideally 30 characters or fewer, in English, no emojis, "&" rather than "+".
   - Description: at least 250 and at most 1,500 characters; the first 250 must be unformatted;
     list any requirements.
-  - Tags (devices, OS, theme, colour) are set in Maker Console.
+  - Tags (devices, OS, theme, color) are set in Maker Console.
   - Name and monetization "cannot be changed in Maker Console"; changes go to maker@elgato.com.
   - Revenue split: 70/30 **[primary: S7]**.
 - **Icon-pack description advice** **[primary: S3]**:
   - list the types of icons;
-  - give the total and the colour variants;
+  - give the total and the color variants;
   - say whether icons are static, animated or blank.
 - **Trademarks**: "use language such as 'inspired by' or 'from the world of'". The profile
   guidelines use "Star Citizen Profile, macOS.streamDeckProfile" as a naming example
@@ -705,7 +705,7 @@ already exists in the export folder: %s" **[primary]**.
 - **Layout proposal** **[inferred]**:
   - A one-line bottom title covers roughly the bottom 30–36 px at 144.
   - For icons meant to carry a title, keep the glyph in the top ~100 px.
-  - For "no-title" icons, centre the glyph. dcramer's 2026 pack does this: an 84-px glyph,
+  - For "no-title" icons, center the glyph. dcramer's 2026 pack does this: an 84-px glyph,
     titles off.
 
 ### 12.3 Safe area
@@ -728,7 +728,7 @@ already exists in the export folder: %s" **[primary]**.
   - Present: `rocket`, `shield`, `shield-off`, `crosshair`, `compass`, `power`, `power-off`,
     `warning`, `lock`, `lock-open`, `flash`, `microphone`, `microphone-off`, `heat-sink`,
     `starbursts`.
-  - **They use `fill="currentColor"`. Replace it with an explicit colour** in pack SVGs
+  - **They use `fill="currentColor"`. Replace it with an explicit color** in pack SVGs
     **[inferred]**.
   - Credit with the MIT notice in `license.txt` **[inferred from the license]**.
 - **Action-list icons** (plugins only) are a different thing: 20/40 px (category 28/56),
@@ -763,7 +763,7 @@ already exists in the export folder: %s" **[primary]**.
 
 GIF generation with Node built-ins **[inferred]**:
 
-- **Format limits**: 256 colours per frame and 1-bit transparency. Render animated icons on an
+- **Format limits**: 256 colors per frame and 1-bit transparency. Render animated icons on an
   opaque dark background.
 - **Timing**: delays are in centiseconds, so 10–20 fps means 5–10. Set the NETSCAPE loop count to
   0.

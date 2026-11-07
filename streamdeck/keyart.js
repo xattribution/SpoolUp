@@ -1,5 +1,5 @@
 // Draws Stream Deck keys in SpoolUp's HUD style: a key face in a manufacturer theme, a
-// line icon from public/icons.js in the button's colour, its label, and the deck's lit,
+// line icon from public/icons.js in the button's color, its label, and the deck's lit,
 // pressed, blocked and offline looks plus frames of its press animations. Everything is SVG
 // built from simple shapes (no filters, masks, CSS or patterns), because Stream Deck draws
 // SVG with a small renderer; glows are layered strokes instead.
@@ -75,7 +75,7 @@ function glyphWidths(family, weight) {
 }
 
 const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
-// Relative luminance of a #rrggbb colour (0 black, 1 white).
+// Relative luminance of a #rrggbb color (0 black, 1 white).
 function luminance(c) {
   const h = String(c || "#000").replace("#", "");
   const f = h.length === 3 ? h.split("").map((x) => x + x).join("") : h;
@@ -94,7 +94,7 @@ function theme(tokens, id = "") {
   const upper = (t["label-case"] || "uppercase") === "uppercase", weight = t["label-weight"] || "600";
   const widths = glyphWidths(display, weight);
   const letters = widths ? [...(upper ? GLYPHS.slice(0, 26) : LOWER)].map((ch) => widths[ch]).filter((w) => w !== undefined) : [];
-  // The backdrop's first glow: its colour and where it sits.
+  // The backdrop's first glow: its color and where it sits.
   // Light pages are lit from above, not glowing: only dark ones get it on their keys.
   const light = /light/.test(t["color-scheme"] || "");
   const glow = light ? null : /radial-gradient\(ellipse [^,]*at ([\d.-]+)% ([\d.-]+)%, (rgba?\([^)]+\))/.exec(t["bg-art"] || "");
@@ -113,7 +113,7 @@ function theme(tokens, id = "") {
     edge: Math.min(num(t["key-edge"]), 8),
     top: {
       kind: top === "none" ? "none" : /repeating-linear-gradient\(-45deg/.test(top) ? "hazard"
-        : /currentColor 0 (\d+)px/.test(top) ? "segment" : /transparent[^,]*, (currentColor|var\(--accent\))/.test(top) ? "centre" : "fade",
+        : /currentColor 0 (\d+)px/.test(top) ? "segment" : /transparent[^,]*, (currentColor|var\(--accent\))/.test(top) ? "center" : "fade",
       length: num((/currentColor 0 (\d+)px/.exec(top) || [])[1], 0) || num((/currentColor 0 (\d+)%/.exec(top) || [])[1], 0) * 1.3,
       height: Math.min(num(t["key-top-h"]), 8),
     },
@@ -221,7 +221,7 @@ function paint(c) {
   const p = m[1].split(",").map((x) => x.trim());
   return [`rgb(${p[0]},${p[1]},${p[2]})`, p[3] !== undefined ? num(p[3], 1) : 1];
 }
-// Mixes two #rrggbb colours, a share of `a`.
+// Mixes two #rrggbb colors, a share of `a`.
 function mix(a, b, share) {
   const hex = (c) => { const h = String(c).replace("#", ""); const f = h.length === 3 ? h.split("").map((x) => x + x).join("") : h; return [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16)); };
   try {
@@ -383,7 +383,8 @@ function material(th, box, c, { id = "" } = {}) {
     case "glass": return `<path d="M${x} ${y}H${x + w * 0.55}L${x} ${y + h * 0.6}Z" fill="#fff" opacity=".045"/>`;
     case "plate": return scratches(box) + rivet(x + 8, y + 8, 2, "#7c7461") + rivet(r - 8, y + 8, 2, "#7c7461") + rivet(x + 8, b - 8, 2, "#7c7461");
     case "carbon": return weave(box, 7, 10, "#fff", 0.04, 1) + weave(box, 7, 10, "#000", 0.28, -1);
-    case "armour": return scratches(box, 0.8) + `<circle cx="${x + 14}" cy="${y + 14}" r="4" fill="#1c2016"/><circle cx="${x + 14}" cy="${y + 14}" r="4.6" fill="none" stroke="#fff" stroke-opacity=".12"/>` + screw(r - 12, b - 12);
+    case "armour": // the old spelling, still in older theme files
+    case "armor": return scratches(box, 0.8) + `<circle cx="${x + 14}" cy="${y + 14}" r="4" fill="#1c2016"/><circle cx="${x + 14}" cy="${y + 14}" r="4.6" fill="none" stroke="#fff" stroke-opacity=".12"/>` + screw(r - 12, b - 12);
     case "gloss": return sheen(box, id, [[0, 0.16], [0.47, 0.03], [0.5, 0]]);
     case "enamel": return `<rect x="${r - 50}" y="${y}" width="36" height="3.5" fill="${th.accent}"/><rect x="${x + w * 0.27}" y="${b - 3}" width="${w * 0.46}" height="2" fill="#000" opacity=".32"/>`;
     case "pearl": return sheen(box, id, [[0, 0.95], [0.45, 0]]) + `<rect x="${x + w * 0.28}" y="${b - 3}" width="${w * 0.44}" height="2" fill="#c3d1de"/>`;
@@ -404,7 +405,8 @@ function litMark(th, box, c, { id = "" } = {}) {
     case "glass": return bar(w * 0.4, 2.5);
     case "plate": return hazard(x + 1, y + 1, w - 2, 7, c);
     case "carbon": return [[r, y, -1, 1], [x, b, 1, -1]].map(([cx, cy, sx, sy]) => `<path d="M${cx + sx * 18} ${cy}H${cx}V${cy + sy * 18}" fill="none" stroke="${c}" stroke-width="3"/>`).join("");
-    case "armour": return glowDot(`l${id}`, x + 14, y + 14, 11, c, 0.7) + `<circle cx="${x + 14}" cy="${y + 14}" r="3.4" fill="${c}"/><circle cx="${x + 13}" cy="${y + 13}" r="1.2" fill="#fff"/>`;
+    case "armour":
+    case "armor": return glowDot(`l${id}`, x + 14, y + 14, 11, c, 0.7) + `<circle cx="${x + 14}" cy="${y + 14}" r="3.4" fill="${c}"/><circle cx="${x + 13}" cy="${y + 13}" r="1.2" fill="#fff"/>`;
     case "gloss": return bar(w * 0.4, 2.5, b - 3);
     case "enamel": return bar(w * 0.46, 2.5, b - 3) + `<rect x="${x + 10}" y="${y}" width="28" height="3.5" fill="${c}"/>`;
     case "pearl": return bar(w * 0.44, 2.5, b - 3);
@@ -418,7 +420,7 @@ function litMark(th, box, c, { id = "" } = {}) {
   }
 }
 
-// Background, frame, theme decoration; `c` is the button's colour. A tab's frame is quiet
+// Background, frame, theme decoration; `c` is the button's color. A tab's frame is quiet
 // until it's lit.
 function face(th, c, { lit = false, pressed = false, blocked = false, dim = false, tab = false } = {}) {
   const id = hash(`${th.id}|${c}|${lit}|${pressed}|${blocked}|${dim}`);
@@ -434,7 +436,7 @@ function face(th, c, { lit = false, pressed = false, blocked = false, dim = fals
     <radialGradient id="g${id}" cx="${th.backdrop ? th.backdrop.x : 0.7}" cy="${th.backdrop ? Math.max(th.backdrop.y, -0.2) : 0}" r="0.95"><stop offset="0" stop-color="${th.backdrop ? paint(th.backdrop.color)[0] : th.accent}" stop-opacity="${th.backdrop ? Math.min(paint(th.backdrop.color)[1] * 1.4, 0.4) : 0.15}"/><stop offset="1" stop-color="${th.accent}" stop-opacity="0"/></radialGradient>
     <radialGradient id="t${id}" cx="0.5" cy="0.42" r="0.7"><stop offset="0" stop-color="${tintColor}" stop-opacity="${tint}"/><stop offset="1" stop-color="${tintColor}" stop-opacity="${tint * 0.25}"/></radialGradient>
   </defs>`);
-  // The space around the face (the key's corners) in the page colour.
+  // The space around the face (the key's corners) in the page color.
   parts.push(`<rect width="${SIZE}" height="${SIZE}" fill="${th.bg}"/>`);
   parts.push(`<path d="${shape}" fill="url(#k${id})"/>`);
   if (th.backdrop) parts.push(`<path d="${shape}" fill="url(#g${id})"/>`);
@@ -446,7 +448,7 @@ function face(th, c, { lit = false, pressed = false, blocked = false, dim = fals
   parts.push(material(th, box, c, { id }));
   if (tint) parts.push(`<path d="${shape}" fill="url(#t${id})"/>`);
   if (lit) parts.push(litMark(th, box, c, { id }));
-  // Top strip (--key-top): hazard stripes, a segment, a fading line, or one centred.
+  // Top strip (--key-top): hazard stripes, a segment, a fading line, or one centered.
   const tk = th.top;
   if (tk.kind !== "none" && tk.height) {
     const ty = f + 1, th2 = Math.max(tk.height * 0.9, 1.5);
@@ -455,13 +457,13 @@ function face(th, c, { lit = false, pressed = false, blocked = false, dim = fals
       for (let x = f - 14; x < SIZE - f; x += 16) parts.push(`<path d="M${x} ${ty + th2}l${th2} ${-th2}h8l${-th2} ${th2}Z" fill="${c}" opacity=".9"/>`);
     } else if (tk.kind === "segment") {
       parts.push(`<rect x="${f + 10}" y="${ty}" width="${Math.min(tk.length || 50, w - 20)}" height="${th2}" fill="${c}"/>`);
-    } else if (tk.kind === "centre") {
+    } else if (tk.kind === "center") {
       parts.push(`<rect x="${f + w * 0.2}" y="${ty}" width="${w * 0.6}" height="${th2}" fill="${c}" opacity=".85"/>`);
     } else {
       parts.push(`<rect x="${f + 8}" y="${ty}" width="${w * 0.6}" height="${th2}" fill="${c}" opacity=".9"/><rect x="${f + 8 + w * 0.6}" y="${ty}" width="${w * 0.2}" height="${th2}" fill="${c}" opacity=".35"/>`);
     }
   }
-  // Left edge bar (--key-edge) in the button's colour.
+  // Left edge bar (--key-edge) in the button's color.
   if (th.edge) parts.push(`<rect x="${f}" y="${f + 8}" width="${th.edge}" height="${h - 16}" fill="${c}" opacity="${dim ? 0.4 : 1}"/>`);
   // The frame, with a soft outer glow when lit.
   if (lit || blocked) parts.push(`<path d="${shape}" fill="none" stroke="${ring}" stroke-width="7" opacity=".22"/>`);
@@ -547,7 +549,7 @@ function key(opts) {
   const quiet = opts.tab && !opts.lit && !opts.pressed && !opts.blocked;
   const box = showLabel ? { cx: 72, cy: opts.status ? 52 : 56, size: opts.status ? 52 : 58 } : { cx: 72, cy: 72, size: 78 };
   const parts = [face(th, c, opts)];
-  // On a light face thin strokes in pale colours fade: heavier and darker there.
+  // On a light face thin strokes in pale colors fade: heavier and darker there.
   const ink = opts.offline ? th.dim : quiet ? mix(c, th.dim, 0.4) : th.faceLight ? mix(c, th.text, 0.65) : c;
   const ith = th.faceLight ? { ...th, stroke: Math.max(th.stroke, 2.4) } : th;
   parts.push(icon(opts.icon, ith, box.cx, box.cy, box.size, ink, { glow: quiet ? false : th.glow, strength: opts.lit || opts.pressed ? 1.8 : 1 }));
@@ -564,7 +566,7 @@ function key(opts) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${parts.join("")}</svg>`;
 }
 
-// A plain backdrop key for empty slots, in the page colour, so a page reads as one panel
+// A plain backdrop key for empty slots, in the page color, so a page reads as one panel
 // (light themes too: a white key face would glare on a lit device).
 function blank(th) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><rect width="${SIZE}" height="${SIZE}" fill="${th.bg}"/><path d="M66 72h12M72 66v12" stroke="${mix(th.inkDim, th.bg, 0.45)}" stroke-width="2" stroke-linecap="round"/></svg>`;

@@ -103,7 +103,7 @@ function encode({ width, height, rgba }) {
 // Chromium dithers gradients, so a key's dark backdrop comes out as fine noise that PNG
 // can't squeeze (15-20 KB a key), and a profile repeats its keys on every page. So an opaque
 // image first has that noise smoothed away where the picture is flat (never across an edge),
-// then is stored with a palette of at most 256 colours (median cut, no dithering): keys
+// then is stored with a palette of at most 256 colors (median cut, no dithering): keys
 // shrink about 2.5x and look the same. Images with transparency (list icons) stay RGBA.
 function smoothFlat({ width: w, height: h, rgba }, threshold = 3) {
   const out = Buffer.from(rgba);

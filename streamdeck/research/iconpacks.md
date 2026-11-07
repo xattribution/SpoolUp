@@ -232,7 +232,7 @@ What the validators (S4/S5) add to that:
 
 - **`UUID`/ID:** the pack's identity is the folder name. Icon Pack Man's manifest class keeps a `UUID` internally, but `compile()` writes only Name, Version, Description, Author, URL, Icon and License. **[primary: S4]**
 - **`Tags`:** the docs never mention it, and Icon Pack Man does not write it. One sideloaded pack has `"Tags": "system uicons"`, and the app seems to ignore it. **[real files]**
-- Marketplace tags (devices, OS, theme, colour) are set in Maker Console. **[primary: S10]**
+- Marketplace tags (devices, OS, theme, color) are set in Maker Console. **[primary: S10]**
 
 ### 4.2 Exact examples
 
@@ -309,7 +309,7 @@ More rules:
 - The legacy docs exempt the animated icon's companion PNG: "The PNG file does NOT need an entry in the icons.json file." **[snippet only]**
   - Elgato's own template has `4.png` next to `4.gif` with no `4.png` entry. **[primary: S6]**
   - So the companion is exempt, but I could not run DistributionTool to prove it. **[inferred]**
-- **Icon Pack Man normalises tags.** It lowercases and trims them and removes whitespace. Tags typed as a comma string are also stripped of non-alphanumerics. **[primary: S4]**
+- **Icon Pack Man normalizes tags.** It lowercases and trims them and removes whitespace. Tags typed as a comma string are also stripped of non-alphanumerics. **[primary: S4]**
   - Real Marketplace packs ship tags with capitals and spaces ("Simple Icons"), and DistributionTool accepts them. **[real files: R6]**
   - Lowercase single words are the safe form.
 - **Sub-folders in `path`:** the validator only forbids `/./` and `/../`. No real pack uses sub-folders. Keep `icons/` flat. **[inferred]**
@@ -485,14 +485,14 @@ What the tools print on success: "Validating and exporting the %s %s" and "The %
 - **Details** (S10) **[primary]**:
   - **Name**: ≤ 30 characters ideally; English; no emojis; no "+" for "and".
   - **Description**: 250–1,500 characters. The first 250 characters must be unformatted text, and the description must list requirements.
-  - **Tags** for supported devices, OS, theme and colour are set in Maker Console.
+  - **Tags** for supported devices, OS, theme and color are set in Maker Console.
   - Name and monetisation can't be changed later without emailing maker@elgato.com.
   - Revenue split 70/30 (S7).
 - **Icon-pack description advice** (S3) **[primary]**:
   - list the icon types;
-  - give the total count and the colour variants;
+  - give the total count and the color variants;
   - say whether icons are static, animated or include blank icons;
-  - use the colour, style and theme tags.
+  - use the color, style and theme tags.
 - **Trademarks** (S10) **[primary]**: "do not infringe trademarks or copyright material". When referring to IP, use phrasing like "inspired by" or "from the world of". The profile guidelines even use "Star Citizen Profile, macOS.streamDeckProfile" as a naming example.
 - **AI policy** (S10) **[primary]**:
   - You must declare AI usage.
@@ -529,7 +529,7 @@ What the tools print on success: "Validating and exporting the %s %s" and "The %
 
 ### 12.2 Titles over the icon
 
-- **The title is drawn by the Stream Deck app on top of the image.** The user sets it per key: Show Title on/off, top/middle/bottom, font, size, colour, style, underline. A plugin can only set defaults. **[primary: manifest schema State.TitleAlignment `bottom|middle|top`, FontSize, FontFamily, FontStyle `""|Bold Italic|Bold|Italic|Regular`, ShowTitle, TitleColor — each "Can be overridden by the user"]**
+- **The title is drawn by the Stream Deck app on top of the image.** The user sets it per key: Show Title on/off, top/middle/bottom, font, size, color, style, underline. A plugin can only set defaults. **[primary: manifest schema State.TitleAlignment `bottom|middle|top`, FontSize, FontFamily, FontStyle `""|Bold Italic|Bold|Italic|Regular`, ShowTitle, TitleColor — each "Can be overridden by the user"]**
 - **Icon packs carry no title data.** They are images only; titles live in profiles and actions. **[primary: S2 has no such fields]**
 - **What real profiles use** (counted across the profiles in `profiles-x/`, about 1,070 states) **[real files]**:
   - `FontSize` 12 (697 states; 658 as a number and 39 as the string `"12"`), 9 (271), 10 (54), 6 (28), and 16–24 for a few;
@@ -537,9 +537,9 @@ What the tools print on success: "Validating and exporting the %s %s" and "The %
   - typical extra keys: `"OutlineThickness": 2` and `"TitleColor": "#ffffff"`.
 - **Layout rule** **[inferred]**:
   - Font sizes are in the 72-pt key's coordinate space, so size 12 is about 24 px at 144. With the outline, a one-line bottom title covers roughly the **bottom 30–36 px of a 144 icon**, and two lines about 60 px.
-  - **Icons meant to carry a title**: keep the glyph inside the top ~100 px, centred around y ≈ 58, and keep the bottom band calm and dark.
-  - **Icons meant to stand alone** ("no-title" style, with any label baked in): centre the glyph and tell users to switch Show Title off.
-  - dcramer's 2026 pack does exactly this: an 84 px glyph centred on 144, used without titles. **[real files: R5]**
+  - **Icons meant to carry a title**: keep the glyph inside the top ~100 px, centered around y ≈ 58, and keep the bottom band calm and dark.
+  - **Icons meant to stand alone** ("no-title" style, with any label baked in): center the glyph and tell users to switch Show Title off.
+  - dcramer's 2026 pack does exactly this: an 84 px glyph centered on 144, used without titles. **[real files: R5]**
   - A good split is to ship both kinds, or one glyph-only set and use profile titles.
 
 ### 12.3 Safe area
@@ -559,7 +559,7 @@ What the tools print on success: "Validating and exporting the %s %s" and "The %
   - Formats: SVG glyphs on 16/20/24 px grids (`svg/s` 87 files, `svg/m` 431, `svg/l` 1,148) with `fill="currentColor"`, outline and `--filled` variants, and some `--color` logos. It also ships JS strings, React components and a font.
   - Useful glyphs for a ship HUD: `rocket`, `shield`/`shield-off`, `crosshair`, `compass`, `power`/`power-off`, `warning`, `signal*`, `lock`/`lock-open`, `flash`, `microphone`/`microphone-off`, `volume*`, `heat-sink`, `starbursts`, `wifi*`.
   - Using them needs only the MIT notice in `license.txt`. **[inferred from the license]**
-- **Action-list icons are a different thing** (plugin only): 20/40 px (category 28/56), monochrome white `#FFFFFF` on a transparent background, no solid backgrounds and no colours. **[primary: S9]** Key icons have no such limit.
+- **Action-list icons are a different thing** (plugin only): 20/40 px (category 28/56), monochrome white `#FFFFFF` on a transparent background, no solid backgrounds and no colors. **[primary: S9]** Key icons have no such limit.
 - Figma "Stream Deck Templates" (https://www.figma.com/community/file/1315040482142393672/stream-deck-templates) and the Elgato Media Room (https://www.elgato.com/s/media-room) are Elgato's recommended sources for gallery mock-ups. I could not open the Figma file (403). **[primary for the links]**
 
 ### 12.5 SVG and rendering caveats **[inferred]**
@@ -592,7 +592,7 @@ What the tools print on success: "Validating and exporting the %s %s" and "The %
 
 Notes for a generator using only Node built-ins **[inferred]**:
 
-- **GIF facts.** The format has a 256-colour palette per frame and 1-bit transparency.
+- **GIF facts.** The format has a 256-color palette per frame and 1-bit transparency.
   - Soft glows over transparency get jagged edges. Render animated icons on an **opaque dark background**, which suits black LCD keys anyway.
   - Frame delays are in centiseconds. 10–20 fps means **delay 5–10**. Elgato's template uses 13 (≈ 7.7 fps).
   - Set the NETSCAPE2.0 loop count to 0 (forever), as the template does.

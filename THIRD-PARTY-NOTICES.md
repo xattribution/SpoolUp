@@ -1,15 +1,15 @@
 # Third-party software
 
 SpoolUp itself is [MIT licensed](LICENSE). This page lists the third-party
-software it ships or uses, and where their licences are.
+software it ships or uses, and where their licenses are.
 
 ## Shipped with SpoolUp
 
-| software | where | licence |
+| software | where | license |
 |---|---|---|
-| [Node.js](https://nodejs.org) | inside `TabletDeckServer.exe`, which packs the Node.js runtime with the server | [Node.js licence](https://github.com/nodejs/node/blob/main/LICENSE): MIT, plus the licences of the libraries Node.js bundles (OpenSSL, V8, ICU, libuv, zlib and others) |
+| [Node.js](https://nodejs.org) | inside `TabletDeckServer.exe`, which packs the Node.js runtime with the server | [Node.js license](https://github.com/nodejs/node/blob/main/LICENSE): MIT, plus the licenses of the libraries Node.js bundles (OpenSSL, V8, ICU, libuv, zlib and others) |
 
-The installer puts the full licence text of the exact Node.js version it
+The installer puts the full license text of the exact Node.js version it
 contains in `THIRD-PARTY-NOTICES.txt`, next to `LICENSE.txt` in SpoolUp's
 install folder. The build writes that file from the Node.js it packs (see
 [Building the installer](docs/DEVELOPMENT.md#building-the-installer)).

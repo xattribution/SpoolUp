@@ -39,7 +39,7 @@ const listIcon = (body, size) => `<svg xmlns="http://www.w3.org/2000/svg" width=
 // The category icon: a deck of keys in HUD brackets.
 const CATEGORY = `<path d="M5 14V5h9M43 34v9h-9"/><rect x="11" y="13" width="11" height="9" rx="1.5"/><rect x="26" y="13" width="11" height="9" rx="1.5" fill="#FFFFFF"/><rect x="11" y="26" width="11" height="9" rx="1.5"/><rect x="26" y="26" width="11" height="9" rx="1.5"/>`;
 
-// The plugin icon: a lit key on a deck, in the house colours, at any size.
+// The plugin icon: a lit key on a deck, in the house colors, at any size.
 function pluginIcon(size) {
   const key = (x, y, lit) => `<rect x="${x}" y="${y}" width="112" height="112" rx="14" fill="${lit ? "#12253b" : "#0b1726"}" stroke="${lit ? "#4fb3ff" : "#1f3a58"}" stroke-width="${lit ? 6 : 4}"/>${lit ? `<rect x="${x - 8}" y="${y - 8}" width="128" height="128" rx="20" fill="none" stroke="#4fb3ff" stroke-width="10" opacity=".18"/>` : ""}`;
   const ship = keyart.icon(ICONS["flight-ready"], { ...theme, stroke: 2.6 }, 316, 196, 92, "#4fb3ff", { glow: true, strength: 1.6 });

@@ -74,7 +74,7 @@ Server -> client: `{t:"hello", states, voiceStatus, ...}`,
 `{t:"state", group, on}`, `{t:"states", states}`, `{t:"blocked", id}` (press skipped: Star Citizen not
 in front), `{t:"listening", on}`, `{t:"heard"...}`, `{t:"unheard"}`, `{t:"reload"}`,
 `{t:"panel", side, panel}` (below). Read public/app.js's
-connect() and server.js's upgrade handler for the exact behaviour. A press must always be released:
+connect() and server.js's upgrade handler for the exact behavior. A press must always be released:
 send "up" for every "down" on keyUp, willDisappear, deviceDidDisconnect, systemDidWakeUp and when
 either socket closes. One press per tap: no repeats or sequences; a dial detent counts as one tap
 (at most 5 per dialRotate event).

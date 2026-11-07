@@ -363,7 +363,7 @@ async function main() {
     const drakeAccent = data.themes.drake.accent;
     const redrawn = Object.values(keys).filter((k) => k[2] === XL || k[2] === STD).filter((k) => sd.find((m) => m.event === "setImage" && m.context === k[1], c0).length);
     check("every key redraws in the new theme", redrawn.length === Object.keys(keys).length, `${redrawn.length}/${Object.keys(keys).length}`);
-    check("  ...in its colours", lastImage(sd, "k-decoy").includes(drakeAccent));
+    check("  ...in its colors", lastImage(sd, "k-decoy").includes(drakeAccent));
     check("  ...and every dial too", Object.values(dials).every((d) => feedbacks(sd, d[1], c0).some((p) => p.bg)));
     check("the active theme key is lit", /ACTIVE/.test(lastImage(sd, "t-drake")));
     e0 = stream.mark();

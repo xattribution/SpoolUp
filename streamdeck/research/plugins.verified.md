@@ -11,7 +11,7 @@ Companion notes in this folder: `sdk.md`, `devices.md`, `profiles.md`, `iconpack
 `navigation.md` / `profiles.md`; this file only repeats what a Comms page needs.
 
 Raw evidence I fetched is under `verify-plugins/` in this folder: Marketplace pages and API
-answers (`mp/`, `api/`), help-centre articles as JSON and text (`help/`), plugin manifests, PI
+answers (`mp/`, `api/`), help-center articles as JSON and text (`help/`), plugin manifests, PI
 scripts and state images (`gh/`), and the help article's screenshots (`img/`).
 
 ---
@@ -46,10 +46,10 @@ scripts and state images (`gh/`), and the help article's screenshots (`img/`).
    "Start" (0) / "Stop" (1) are misleading. Generated OBS keys need their live art in `States[0]`,
    their idle art in `States[1]`, and an initial `"State": 1`.
 4. **Streamlabs is not an Elgato plugin.** `com.elgato.streamlabs` redirects to the "Streamlabs"
-   listing, which is owned by the **Streamlabs** organisation; its last version is 1.5.1
+   listing, which is owned by the **Streamlabs** organization; its last version is 1.5.1
    (2023-01-13). It is removed from the Elgato-maintained list.
 5. **The Elgato-maintained list was incomplete.** The Marketplace API lists **23** plugins for
-   Elgato's organisation (§15). Added: Zoom, Slack, Philips Hue Sync, ChatGPT & Codex, Window
+   Elgato's organization (§15). Added: Zoom, Slack, Philips Hue Sync, ChatGPT & Codex, Window
    Mover, Wave Cast, Elgato Studio, PowerPoint, Adobe Photoshop, Cam Link Pro. YouTube is now
    3.0.2.7 (2026-10-22, min SD 7.1).
 6. **Release dates and quotes.**
@@ -107,7 +107,7 @@ scripts and state images (`gh/`), and the help article's screenshots (`img/`).
 14. **Multimedia `actionIdx`** is settled in `navigation.md` §6.3, and I re-checked it against the
     help article, updated 2026-11-06: 0 Previous, 1 Play/Pause, 2 Next, 3 Stop, 4 Mute, 5 Volume
     Up, 6 Volume Down.
-15. **Discord keyboard shortcuts** are confirmed from Discord's support centre (§16).
+15. **Discord keyboard shortcuts** are confirmed from Discord's support center (§16).
     - Defaults are Ctrl+Shift+M (mute) and Ctrl+Shift+D (deafen); ⌘ replaces Ctrl on Mac. They are
       "only available for the browser and desktop version".
     - Custom keybinds (desktop only) are: Push to Talk, Push to Mute, Toggle Mute, Toggle Deafen,
@@ -175,7 +175,7 @@ scripts and state images (`gh/`), and the help article's screenshots (`img/`).
   exposes plugin UUIDs.
 - **Help articles:** fetched through the Zendesk API
   (`https://help.elgato.com/api/v2/help_center/en-us/articles/<id>.json`). Discord's support
-  centre was fetched the same way (`support.discord.com/api/v2/...`).
+  center was fetched the same way (`support.discord.com/api/v2/...`).
 - **Plugin files:** plain copies of older plugin folders committed to GitHub dotfiles. Discord
   2.0.3 and Control Center 1.9.3.274 come from `Qu3ntinS/dotfiles` and `joshmedeski/dotfiles`; OBS
   2.2.4 and Clocks 0.9.2.38 come from `joshmedeski/dotfiles`. Their manifests, property-inspector
@@ -328,9 +328,9 @@ message."*
 
 ## 2. What Stream Deck does when a plugin isn't installed
 
-All High: Elgato help centre and release notes, fetched through the API.
+All High: Elgato help center and release notes, fetched through the API.
 
-| Version | Behaviour | Source |
+| Version | Behavior | Source |
 |---|---|---|
 | any (current) | *"When Stream Deck keys are configured with an action and the plugin from which those actions came from is uninstalled or otherwise not found, those keys will display a question mark icon. This can occur when moving a Stream Deck profile from one computer to another."* Fixes: install from Marketplace; *"Press the key showing the '?'"*; *"Click a key with the '?' and then click 'Check Now'"*; *"Click the '?' located at the top of the software to perform a mass install or select specific ones"* | [Question mark icon on keys](https://help.elgato.com/hc/en-us/articles/360056747291) (updated 2026-10-19) |
 | (screenshots in that article, Stream Deck Neo, 7.x) | The "?" key is a white "?" on black with the action `Name` overlaid ("On / Off", "Set Brightness", ...), with **no custom art**. The PI shows *"You're missing a plugin for this action"* and **Check now**. The dialog shows *"Install missing plugins — One or more actions require the following plugin"*, lists the plugin by name, then **Install all** / **Not now** | same article, images saved in `verify-plugins/img/` |
@@ -663,7 +663,7 @@ disconnected**.
 | `com.elgato.obsstudio.profile` | Profile | 2 | `{"profile": "<name>"}` (script-written in Linedev; Low) |
 
 - **Caveat on bro69noscope:** every action there has `"State": 1`, including 1-state BarRaider
-  actions. The repo normalises its "vcs templates", so trust its **Settings**, not its `State`.
+  actions. The repo normalizes its "vcs templates", so trust its **Settings**, not its `State`.
 - `tuxcast`'s `com.elgato.obsstudio.savereplay` is **wrong**; the real UUID is `replaybuffer.save`.
 
 Generated Stream key (live art at index 0, idle at index 1, starting idle; long press as a safety):
@@ -890,12 +890,12 @@ on 2026-11-06:
 - **Elgato Spotify 2.5:** action UUIDs beyond `multimedia` (Low-Medium).
 - **Twitch:** post-1.10 action UUIDs.
 - **"?" keys:** whether a custom `States[].Title` replaces the action `Name`.
-- **Import:** behaviour for a plugin that isn't on Marketplace (sideloaded Tablet Deck plugin), and
+- **Import:** behavior for a plugin that isn't on Marketplace (sideloaded Tablet Deck plugin), and
   for a `Plugin.Version` that is older or newer than what is installed.
 - **Discord mute after Stream Deck quits:** whether it survives. Discord's RPC doc says controlled
   voice settings reset when the controlling app disconnects.
 - **Timer:** the `duration` unit and the meaning of `actionIdx`.
-- **Multimedia:** 13/14 (fast forward/rewind) and dial index 18 behaviour, per `navigation.md`.
+- **Multimedia:** 13/14 (fast forward/rewind) and dial index 18 behavior, per `navigation.md`.
 - **Website and Open Application:** `Plugin.Name` from an app-made 7.x export.
 
 ---
@@ -929,7 +929,7 @@ Elgato (primary)
     - Win Tools <https://marketplace.elgato.com/product/win-tools-c17abe0e-f565-4d86-a80a-73b1d31c0c7d>
 - Elgato org plugin list: `https://mp-gateway.elgato.com/products?organization_id=1807efeb-c394-4dcb-98a5-e9bbda06285e&extension=plugins&limit=100`
 - UUID → listing redirector: `https://apps.elgato.com/plugins/<pluginUUID>`
-- Help centre (via `help.elgato.com/api/v2/help_center/en-us/articles/<id>.json`):
+- Help center (via `help.elgato.com/api/v2/help_center/en-us/articles/<id>.json`):
   - Question mark icon on keys 360056747291 (and its screenshots)
   - Discord plugin setup 4422740578189
   - Volume Controller 10568396413965
@@ -976,7 +976,7 @@ Real profiles (GitHub)
 
 - App-made:
   - Voicemod, Weather and Multimedia pages: `Linedev-Web/OBS` `sauvegarde/streamdeck/ProfilesV3/303D8BA9-….sdProfile/Profiles/98C29EC2-…`, `EB35F0CE-…`
-  - OBS 3.0.3.31 settings and BarRaider Spotify 3.3.2: `bro69noscope/streamdeck-version-control` (templates; `State` normalised)
+  - OBS 3.0.3.31 settings and BarRaider Spotify 3.3.2: `bro69noscope/streamdeck-version-control` (templates; `State` normalized)
   - Volume Controller dials and key, Slack: `zalewskigrzegorz/dotfiles` `dot_config/streamdeck/1.Main.sdProfile/Profiles/{F16C597E-…,FE101857-…}`
   - Old Elgato Spotify 1.x: `Rukshin/dotfiles` `os/mac/streamdeck/ProfilesV2/`
   - RequiredPlugins samples: `profiles-x/heir` (7.3.1), `profiles-x/homeops-use` (7.4.0) in this folder

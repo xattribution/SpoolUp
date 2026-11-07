@@ -8,9 +8,9 @@ const keyart = require("../../streamdeck/keyart");
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const svg = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
 
-// Emblems in public/app.js are drawn on a 64 grid with parts in the theme's text colour;
-// keys draw icons on a 48 grid in one colour, so the emblem is scaled and the text-coloured
-// parts keep a placeholder that becomes the theme's text colour once the key is drawn.
+// Emblems in public/app.js are drawn on a 64 grid with parts in the theme's text color;
+// keys draw icons on a 48 grid in one color, so the emblem is scaled and the text-colored
+// parts keep a placeholder that becomes the theme's text color once the key is drawn.
 const TEXT = "__THEME_TEXT__";
 const emblemIcon = (emblem) => `<g transform="scale(.75)">${emblem}</g>`;
 
@@ -94,11 +94,11 @@ function createArt({ icons, themes, tokens }) {
   // One dial's 200x100 panel: theme frame, the dial's icon and name, and what turning and
   // pushing do. `id` keeps gradient ids apart when panels share one strip. `d.titleSize`:
   // the strip's title size (titleSize()); `d.external`: another plugin draws over this
-  // part (Discord's volume), so it gets the frame in its colour and nothing else.
+  // part (Discord's volume), so it gets the frame in its color and nothing else.
   function panelBody(th, d, id, { x = 0 } = {}) {
     const c = d ? colorOf(th, d.color) : th.dim;
     const W = 200, H = 100, f = 3, shape = outline(th, x + f, f, W - 2 * f, H - 2 * f);
-    // An unused dial is flat, in its blank keys' (page) colour: a face there would read
+    // An unused dial is flat, in its blank keys' (page) color: a face there would read
     // as a control, and a white one glares on a lit strip.
     const flat = !d && th.bg;
     const bgTop = flat || th.faceHi;
@@ -111,7 +111,7 @@ function createArt({ icons, themes, tokens }) {
     if (th.stripes) for (let y = f + 4; y < H - f; y += 5) parts.push(`<rect x="${x + f}" y="${y}" width="${W - 2 * f}" height="1.2" fill="#fff" opacity=".025"/>`);
     if (th.grid) for (let v = f + 20; v < W - f; v += 20) parts.push(`<rect x="${x + v}" y="${f}" width="1" height="${H - 2 * f}" fill="#fff" opacity=".035"/>`);
     if (d) {
-      if (th.top.kind !== "none" && th.top.height) parts.push(`<rect x="${x + 14}" y="${f + 1}" width="${th.top.kind === "centre" ? 172 : 64}" height="${Math.max(th.top.height * 0.9, 1.5)}" fill="${c}" opacity=".9"/>`);
+      if (th.top.kind !== "none" && th.top.height) parts.push(`<rect x="${x + 14}" y="${f + 1}" width="${th.top.kind === "center" ? 172 : 64}" height="${Math.max(th.top.height * 0.9, 1.5)}" fill="${c}" opacity=".9"/>`);
       if (th.edge) parts.push(`<rect x="${x + f}" y="${f + 8}" width="${th.edge}" height="${H - 2 * f - 16}" fill="${c}"/>`);
     }
     parts.push(`<path d="${shape}" fill="none" stroke="${d ? keyart.mix(th.lineHi, c, 0.6) : keyart.mix(th.inkDim, th.bg, 0.25)}" stroke-width="1.6" opacity=".9"/>`);

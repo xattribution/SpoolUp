@@ -440,7 +440,7 @@ function createActions({ sd, tablet, data, draw, log }) {
       icon = d && d.icon ? d.icon : "default";
       value = t("Not set");
     } else if (isSceneDial(d)) {
-      // The scene dial shows where it is: the current scene's icon, colour and name.
+      // The scene dial shows where it is: the current scene's icon, color and name.
       const i = sceneOn.get(ctx.device);
       const sc = i === undefined ? null : data.SCENES[i];
       label = t(d.label || "Scenes");

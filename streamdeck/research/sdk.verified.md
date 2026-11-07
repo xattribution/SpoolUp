@@ -69,7 +69,7 @@ My working files are under
       "the plugin's identifier, as provided by Stream Deck" (global settings).
     - sdpi-components 4.0.1, which Elgato bundles in its own product-viewer example, sends the
       registration `uuid` as `context` for **every** command. The draft's advice stands, now
-      labelled **[real files]**.
+      labeled **[real files]**.
     - Whether `uuid === actionInfo.context` is **undocumented**.
 
 **Upgrades**
@@ -103,7 +103,7 @@ My working files are under
   - the wire types of every event and command;
   - the image sizes and formats, and the 10-per-second guideline;
   - the localization format;
-  - the CLI's pack and validate behaviour, and its default ignore list;
+  - the CLI's pack and validate behavior, and its default ignore list;
   - the install paths and the developer-mode registry key;
   - the Node `WebSocket` and EOL facts;
   - the hardware pixel sizes.
@@ -170,7 +170,7 @@ My working files are under
    - The CLI only validates the folder, then zips it, removing `Nodejs.Debug` from the manifest.
    - A hand-made ZIP with the same layout should install: a third-party tool does exactly this.
 
-   **[primary for the CLI behaviour; real files for the hand-made ZIP]**
+   **[primary for the CLI behavior; real files for the hand-made ZIP]**
 
 ---
 
@@ -201,7 +201,7 @@ schema allows it.
 The schema is an `allOf` of `if Software.MinimumVersion == X then {…}` branches, with
 **`additionalProperties: false`**. That means:
 
-- A misspelt key is a validation error.
+- A misspelled key is a validation error.
 - Which features are allowed depends on `MinimumVersion`.
 
 I diffed the branches. This is what changes **[primary, from the schema]**:
@@ -281,7 +281,7 @@ Required: `UUID, Name, Icon, States`.
   layout on the touch strip.
 - `Icon`: PNG/SVG, extension omitted, 72/144. Shown "in the circular canvas that represents the
   dial" in the app.
-- `StackColor`: hex. The background colour in the app when the action is the current one in a
+- `StackColor`: hex. The background color in the app when the action is the current one in a
   dial stack.
 - `TriggerDescription`: `{ Rotate, Push, Touch, LongTouch }` (strings, localizable).
 
@@ -398,7 +398,7 @@ are placeholders. It is the draft's file with one change: the dial action also s
 - Adding `"Neo"` to any action's `Controllers` fails the schema unless
   `"MinimumVersion": "7.6"` **[primary, tested with ajv]**.
 - The manifest has only one `MinimumVersion`, so the whole plugin then targets 7.6. The app most
-  likely won't load or install it on 7.1–7.5 **[inferred: the app's behaviour isn't documented
+  likely won't load or install it on 7.1–7.5 **[inferred: the app's behavior isn't documented
   in what I read]**.
 - So there are two options: ship one plugin at 7.6, or leave the Neo action out.
 
@@ -891,7 +891,7 @@ All items (`type` ∈ `text`, `pixmap`, `bar`, `gbar`) share:
 - `zOrder`: 0–700, default 0.
 - `enabled`: bool.
 - `opacity`: 0, 0.1 … 1 (one decimal).
-- `background`: named colour, hex, or gradient `"0:#ff0000,0.5:yellow,1:#00ff00"`.
+- `background`: named color, hex, or gradient `"0:#ff0000,0.5:yellow,1:#00ff00"`.
 
 Per type:
 
@@ -1330,7 +1330,7 @@ Nothing here was tested against the real Stream Deck app, which needs Windows or
 
 **Other**
 
-- The help-centre release notes for 7.0–7.6: help.elgato.com still returns 403 (rechecked
+- The help-center release notes for 7.0–7.6: help.elgato.com still returns 403 (rechecked
   2026-11-06). I used docs.elgato.com's changelog, elgato.com articles and npm publish dates
   instead.
 - How Stream Deck restarts a crashing plugin. The docs only say it "provides automatic failure
@@ -1386,7 +1386,7 @@ Nothing here was tested against the real Stream Deck app, which needs Windows or
     2026-09-22.
   - https://registry.npmjs.org/@elgato/cli: latest 1.10.4; 1.10.0 on 2026-09-22.
   - https://registry.npmjs.org/@elgato/schemas: 0.6.0 on 2026-10-29.
-- SDK source for the controller-specific behaviour: `packages/plugin/src/actions/{key,dial,neo-infobar,service}.ts`
+- SDK source for the controller-specific behavior: `packages/plugin/src/actions/{key,dial,neo-infobar,service}.ts`
   and `packages/plugin/src/__tests__/connection.test.ts` (argv parsing).
 - Node release list: https://nodejs.org/dist/index.json
 - Node.js:

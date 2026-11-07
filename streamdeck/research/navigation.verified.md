@@ -337,7 +337,7 @@ Generate v3. v2 matters only for reading old files.
 ```
 
 `ProfileUUID` names the child page folder in the same `.sdProfile`, here `B3155C01-…`. It is never
-in `Pages.Pages` (0/772) and never equal to `Default`. `Name` is free text and may be localised
+in `Pages.Pages` (0/772) and never equal to `Default`. `Name` is free text and may be localized
 (`"Ordner erstellen"`) [R].
 
 ### 2.2 Back key [R-strong]
@@ -361,7 +361,7 @@ With Auto Folder Exit settings (WeisAir 7.4.x):
 - How a single action overrides the folder ("Follow folder settings") is stored is **[?]**. Four
   plugin actions carry `AutoExit` `{"Delay": 1, "Enabled": false}` with no other field.
 
-Behaviour, from help "Using Folders" [C]:
+Behavior, from help "Using Folders" [C]:
 
 - "You can create unlimited subfolders within folders."
 - "press and hold the return key to return to the top level".
@@ -426,7 +426,7 @@ is no Next key on the last page, so do not rely on wrapping.
 The only values above the page count are stale copies in WeisAir's one-page "Minimal" exports.
 
 - Go to Page also sits on folder pages (27 keys) and on the pinned page (1) [R].
-- A localised `Name` (`"Gehe zu Seite"`) is fine [R].
+- A localized `Name` (`"Gehe zu Seite"`) is fine [R].
 
 ### 3.3 Page Indicator [R, 2 keys; C feature]
 

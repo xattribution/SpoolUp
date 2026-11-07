@@ -72,7 +72,7 @@ Checked against the vendors' own pages on 2026-11-06. Legal, trademark and Cloud
    - The standalone profiles name the plugin as `Version: ${VERSION}.0` (`tools/make-streamdeck.js` around line 593). That version must be published on Marketplace: since Stream Deck 7.5.0, the import says so when a required version is missing. Rebuild the profiles after the plugin is approved.
    - Upload one ZIP per model: `dist/streamdeck/release/SpoolUp-StreamDeck-Profiles-<model>.zip`. Each holds that model's 12 theme profiles, a README and the keybind XML.
    - Tags per listing: only that model's Device tag, OS Windows, Type Gaming, Icons Yes, and Dial support Yes for + and + XL.
-   - Profiles that use Ctrl/Alt shortcuts should be labelled Windows. Our profile names give the model but not the OS (naming is around `tools/make-streamdeck.js` line 1116).
+   - Profiles that use Ctrl/Alt shortcuts should be labeled Windows. Our profile names give the model but not the OS (naming is around `tools/make-streamdeck.js` line 1116).
 10. **Submit the icon packs.** Each Icons listing takes one `.streamDeckIconPack` file, from `dist/streamdeck/icons/SpoolUp <Theme>.streamDeckIconPack`. Pick one of three options:
     - **(a)** 12 listings, one per theme. Rename each file to `<id>.streamDeckIconPack`, because Icon Pack Man flags a name that doesn't match the ID.
     - **(b)** One merged pack. This needs a generator change.
@@ -339,7 +339,7 @@ Notes:
    - Free; category **Utilities + tools**; the IARC age-rating questionnaire; a privacy policy; support = GitHub issues.
    - Package: the versioned, non-redirecting HTTPS URL, x64, en-us, EXE.
    - Installer parameters: `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /MERGETASKS=!scprofile`. Use `/VERYSILENT`, because `/SILENT` still shows a progress window.
-   - Return codes: 2 and 5 = cancelled; 8 = reboot required. That's the closest match: Inno's 8 means setup stopped *before* installing and needs a restart. Codes 1, 3, 4 and 7 go under miscellaneous, with the Inno exit-code page as the documentation URL.
+   - Return codes: 2 and 5 = canceled; 8 = reboot required. That's the closest match: Inno's 8 means setup stopped *before* installing and needs a restart. Codes 1, 3, 4 and 7 go under miscellaneous, with the Inno exit-code page as the documentation URL.
 5. Notes for certification:
    - the deck needs a second device's browser, or a browser on the same PC;
    - presses only reach Star Citizen while it's the focused window;

@@ -161,7 +161,7 @@ with "Publish" ticked (it creates the tag), or `git tag v1.7.0 origin/main` and 
 5. Small leftovers from the critique: the + XL On Foot and Comms pages leave one or two dials
    empty (the knob rule left nothing that sets a level or cycles there); the plugin lists two
    presets called "Voice Channel" (`channel`, `channelFoot`); `actions.js` and `pi.js` still use
-   red as Hold to Talk's fallback colour (the catalog now makes it blue).
+   red as Hold to Talk's fallback color (the catalog now makes it blue).
 
 ## Earlier work in this session (for context)
 

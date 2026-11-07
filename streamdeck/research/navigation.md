@@ -167,7 +167,7 @@ Stream Deck 7.2.1 export (Elgato Default Profile, Stream Deck +), page `43FD45D1
 
 `ProfileUUID` = UUID of the child page directory `B3155C01-9BD7-42FC-9676-05D857C43F99` in the same
 `.sdProfile`. The name `ProfileUUID` is historical (in v1 a folder was a nested profile). `Name` is
-localised (`"Ordner erstellen"` in German exports) and carries no meaning. [R]
+localized (`"Ordner erstellen"` in German exports) and carries no meaning. [R]
 
 v2 export (Stream Deck 6.x, `danexrc/Streamdeck-Profiles`, "Affinity Designer (32 Key)", 2024,
 https://github.com/danexrc/Streamdeck-Profiles):
@@ -212,7 +212,7 @@ https://github.com/WeisAir/weisair):
 
 v2 (6.x): `"Name": "Open Folder", "Settings": null` with a normal title-style `States[0]`. [R]
 
-Behaviour (Elgato help "Using Folders", updated 2026-11-02,
+Behavior (Elgato help "Using Folders", updated 2026-11-02,
 https://help.elgato.com/hc/en-us/articles/360027957912): "You can create unlimited subfolders within
 folders"; "press and hold the return key to return to the top level". [C] So a tap goes up one level, a
 hold goes to the top. A folder page has no pages of its own (one layout per folder) [I: no folder in any
@@ -277,7 +277,7 @@ committed 2026-11-01, https://github.com/simracecenter/streamdeck):
 - Across ~400 real Go to Page keys, values are 1–7 and once 10; **never 0**.
 - Third-party readers implement it as `PageIndex - 1` (`adblocker-1/FreeStream`, `freestream/actions.py`).
 
-Use a localised name freely; `"Name": "Gehe zu Seite"` imports fine. [R]
+Use a localized name freely; `"Name": "Gehe zu Seite"` imports fine. [R]
 
 ### 3.3 Page Indicator [R]
 

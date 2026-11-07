@@ -24,7 +24,7 @@ Full dump of all 1103 actions: `.../streamdeck-research/dl-sc/all_4.10.tsv`
   Options-menu settings only (`Disable VOIP`, `Mute Microphone`, `Enable Level-Activated Voice
   Transmission`). A Stream Deck "mute" key for game voice is not possible with game binds; use
   Discord/OS mute (see `plugins.md`).
-- Comms UI: **F11 = CommLink app** (was labelled "Contacts"), **F12 = chat**, **Enter** = focus
+- Comms UI: **F11 = CommLink app** (was labeled "Contacts"), **F12 = chat**, **Enter** = focus
   chat, **Tab** = cycle chat lobby (while chat is open), **[ / ]** = accept / reject invite,
   **hold ]** = ignore invite, **9** = hail target, **LAlt+F** = PIT wheel.
 - **Screenshots are not an actionmap action.** No `print`/screenshot action exists in
@@ -168,7 +168,7 @@ Not bindable (checked: no matching action anywhere in 4.10 `defaultProfile.xml`)
 | Target padlock / auto zoom | `v_look_ahead_start_target_tracking` / `v_target_tracking_auto_zoom` | `spaceship_targeting` | — | smart_toggle | High |
 | Cinematic camera | `cam_toggle_cinematic` | `default` | `backspace` | **tap** | Same key as self-destruct (hold 0.5 s) and on-foot force respawn (hold 0.5 s). Don't put it on a Stream Deck key as Backspace; a slow press risks self-destruct. High |
 | Missile cinematic cam | `v_weapon_launch_missile_cinematic` (toggle) / `…_hold` | `spaceship_missiles` | — | tap | Tablet Deck profile binds the toggle. High |
-| Advanced Camera Controls modifier | `view_enable_camview_mode` | `view_director_mode` ("Camera - Advanced Camera Controls") | `f4` (hold) | — | The rest of this map works while F4 is held. Medium on exact modifier behaviour |
+| Advanced Camera Controls modifier | `view_enable_camview_mode` | `view_director_mode` ("Camera - Advanced Camera Controls") | `f4` (hold) | — | The rest of this map works while F4 is held. Medium on exact modifier behavior |
 | Load view 1–9 / save view 1–9 | `view_load_view_N` / `view_save_view_N` | `view_director_mode` | `np_1`…`np_9` (tap) / same (≥ 0.25 s) | tap / delayed_press | High |
 | Clear saved view | `view_reset_saved` | `view_director_mode` | `np_0` | delayed_press | High |
 | FOV + / − | `view_fov_in` / `view_fov_out` | `view_director_mode` | `np_add` / `np_subtract` | — | High |
@@ -176,7 +176,7 @@ Not bindable (checked: no matching action anywhere in 4.10 `defaultProfile.xml`)
 | Camera offset X/Y/Z | `view_move_target_{X,Y,Z}_{pos,neg}` | `view_director_mode` | arrows, `pgup`/`pgdn` | — | High |
 | Reset view | `view_restore_defaults` | `view_director_mode` | `np_multiply` | — | High |
 | **Screenshot** | *(none)* | — | — | — | No screenshot action in `defaultProfile.xml` (High). Cvar `r_GetScreenShot` exists: "Capture a single screenshot … 1: Take screenshot immediately" (S6, High). Print Screen saving to `StarCitizen\LIVE\ScreenShots` is from old community posts only (**Medium-Low**; verify on a PC). A Stream Deck key can send `PrintScreen`; Windows' Win+PrtScn / Game Bar (Win+Alt+PrtScn) are OS alternatives. |
-| Visor HUD / AR mode | `toggle_ar_mode` | `spaceship_hud`, `player` | none | — | Unlabelled; skip. Medium |
+| Visor HUD / AR mode | `toggle_ar_mode` | `spaceship_hud`, `player` | none | — | Unlabeled; skip. Medium |
 
 ## 5. Ship actions worth a key (beyond the deck's current set)
 
@@ -242,7 +242,7 @@ engage." Exit: "To exit Quantum Travel Mode, press [~action(spaceship_quantum|v_
 | **Docking (initiate / cancel / undock)** | `v_toggle_docking_request` | `spaceship_docking` (moved here in 4.9; was `spaceship_movement` in 4.8) | `ralt+n` | tap |
 | Docking camera | `v_dock_toggle_view` | `spaceship_docking` | hold `0` (≥ 0.25 s) | delayed_press |
 | Headlights | `v_lights` | `lights_controller` | `l` | press |
-| Running lights / cabin lights | `v_toggle_running_lights` / `v_toggle_cabin_lights` | `lights_controller` | no default, no label | smart_toggle (Medium: unlabelled, may be unused) |
+| Running lights / cabin lights | `v_toggle_running_lights` / `v_toggle_cabin_lights` | `lights_controller` | no default, no label | smart_toggle (Medium: unlabeled, may be unused) |
 | Light amplification (night vision) | `v_light_amplification_toggle` | `seat_general` | `ralt+l` | tap (added 4.6) |
 | Doors toggle / lock toggle / ports | `v_toggle_all_doors`, `v_toggle_all_doorlocks`, `v_toggle_all_portlocks` | `spaceship_general`, `vehicle_general` | no default / no default / `ralt+K` (written with a capital K in the game file) | press |
 | Self destruct | `v_self_destruct` | `spaceship_general` | hold `backspace` ≥ 0.5 s | delayed_press_medium |
@@ -380,7 +380,7 @@ contain contextual overlaps such as `lalt+1` = mining module 1 and pin index 1).
 
 Checked every button in `layouts/*.json` and every entry in `ACTIONMAPS` in
 `tools/make-profile.js` against S1. These affect the Stream Deck pack because it reuses the same
-action catalogue.
+action catalog.
 
 **8.1 `scAction` names that no longer exist** (absent from 4.3.2 through 4.10.2; the game ignores
 them, so these buttons press nothing useful):

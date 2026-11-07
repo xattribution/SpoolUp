@@ -90,7 +90,7 @@ function parseArgs(argv) {
 
 // Theme names and emblems live in public/app.js (the deck's theme picker); they're read from
 // there so the pack and the deck never disagree. Emblem parts drawn in the theme's text
-// colour keep a placeholder that art.js fills in.
+// color keep a placeholder that art.js fills in.
 function loadThemes(tokens) {
   try {
     const src = read("public/app.js");

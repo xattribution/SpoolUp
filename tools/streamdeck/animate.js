@@ -87,12 +87,12 @@ function framesFor({ keyart = require("../../streamdeck/keyart"), theme, icon, l
 // drawing only what changed). Anything under it is invisible on a key.
 const FUZZ = 3;
 
-// What gives way when a GIF is over the size limit: colours first, then frames (each kept
+// What gives way when a GIF is over the size limit: colors first, then frames (each kept
 // frame shows as long as the ones it stands for, so the timing holds even though the frame
 // rate drops). Keys at 144 px come nowhere near 1 MB; a long, busy animation might.
-const SQUEEZE = [[1, 1], [2, 1], [2, 2], [4, 2], [4, 3], [8, 4]]; // [colours divided by, keep every nth frame]
+const SQUEEZE = [[1, 1], [2, 1], [2, 2], [4, 2], [4, 3], [8, 4]]; // [colors divided by, keep every nth frame]
 
-// Distance between colours as png.js weighs it for the static keys: green counts most.
+// Distance between colors as png.js weighs it for the static keys: green counts most.
 const dist = (p, r, g, b) => { const dr = r - p[0], dg = g - p[1], db = b - p[2]; return 2 * dr * dr + 4 * dg * dg + 3 * db * db; };
 function nearest(pal, r, g, b) {
   let best = 0, bestD = Infinity;
@@ -100,7 +100,7 @@ function nearest(pal, r, g, b) {
   return best;
 }
 
-// Every colour in the frames as [r, g, b, weight], a pixel weighing as long as its frame shows.
+// Every color in the frames as [r, g, b, weight], a pixel weighing as long as its frame shows.
 function histogram(images, shown) {
   const w = new Map();
   images.forEach((img, n) => {
@@ -115,8 +115,8 @@ function histogram(images, shown) {
 
 // One palette for all frames, which GIF needs (the static keys get one per image). Median cut
 // as in png.js, weighted by time on screen, then a few rounds of k-means: median cut alone
-// leaves too few steps in the smooth backdrop gradients when an effect's bright colours take
-// boxes of their own, and the rounds move colours back to where most pixels are. No
+// leaves too few steps in the smooth backdrop gradients when an effect's bright colors take
+// boxes of their own, and the rounds move colors back to where most pixels are. No
 // dithering, as on the static keys: it would crawl from frame to frame.
 function palette(colors, max) {
   if (colors.length <= max) return colors.map((c) => [c[0], c[1], c[2]]);
@@ -178,7 +178,7 @@ function build(images, frames, colors, max, fuzz) {
   const { width: W, height: H } = images[0];
   const moving = frames.some((f) => f.image !== frames[0].image);
   const pal = palette(colors, moving ? max - 1 : max);
-  const T = pal.length; // the transparent index, just after the colours
+  const T = pal.length; // the transparent index, just after the colors
   const cache = new Map();
   const indexed = images.map((img) => {
     const px = img.rgba, out = new Uint8Array(W * H);
@@ -227,10 +227,10 @@ function build(images, frames, colors, max, fuzz) {
 }
 
 // PNG frames (from the renderer) and their delays in centiseconds -> a looping GIF that fits
-// in maxBytes, with fewer colours, then fewer frames, if it has to.
+// in maxBytes, with fewer colors, then fewer frames, if it has to.
 function gifFromPngs(pngs, delays, { maxBytes = LIMITS.bytes, colors = 256, fuzz = FUZZ } = {}) {
   if (!Array.isArray(pngs) || !pngs.length || !Array.isArray(delays) || delays.length !== pngs.length) throw new Error("gifFromPngs needs PNG frames and one delay for each");
-  if (!(Number.isInteger(colors) && colors >= 2 && colors <= 256)) throw new Error(`A GIF has 2 to 256 colours, not ${colors}`);
+  if (!(Number.isInteger(colors) && colors >= 2 && colors <= 256)) throw new Error(`A GIF has 2 to 256 colors, not ${colors}`);
   // The idle key held for several frames is one picture: decoded, weighed and mapped once.
   const ids = new Map(), images = [], of = [];
   for (const buf of pngs) {
@@ -242,10 +242,10 @@ function gifFromPngs(pngs, delays, { maxBytes = LIMITS.bytes, colors = 256, fuzz
   if (images.some((img) => img.width !== width || img.height !== height)) throw new Error("A GIF's frames must all be the same size");
   const shown = images.map(() => 0);
   of.forEach((n, i) => { shown[n] += Math.max(1, delays[i]); });
-  const colours = histogram(images, shown);
+  const weighed = histogram(images, shown);
   let size = 0;
   for (const [less, every] of SQUEEZE) {
-    const buf = build(images, thin(of, delays, every), colours, Math.max(2, Math.floor(colors / less)), fuzz);
+    const buf = build(images, thin(of, delays, every), weighed, Math.max(2, Math.floor(colors / less)), fuzz);
     if (buf.length <= maxBytes) return buf;
     size = buf.length;
   }

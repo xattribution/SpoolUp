@@ -85,7 +85,7 @@ function createDraw(data) {
     // Rules along the top and bottom, unbroken from segment to segment.
     const x0 = first ? 6 : 0, x1 = last ? W - 6 : W;
     p.push(`<rect x="${x0}" y="4" width="${x1 - x0}" height="1" fill="${th.lineHi}" opacity=".7"/><rect x="${x0}" y="95" width="${x1 - x0}" height="1" fill="${th.lineHi}" opacity=".7"/>`);
-    // The dial's colour over its icon, like a key's top strip.
+    // The dial's color over its icon, like a key's top strip.
     p.push(`<rect x="14" y="3" width="48" height="3" fill="${c}"/>`);
     // Between dials: a thin divider with ticks.
     if (!first) p.push(`<rect x="0" y="16" width="1" height="68" fill="${th.line}"/><rect x="0" y="4" width="5" height="1" fill="${th.lineHi}"/><rect x="0" y="95" width="5" height="1" fill="${th.lineHi}"/>`);

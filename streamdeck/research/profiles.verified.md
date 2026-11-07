@@ -123,7 +123,7 @@ repeats what a profile writer needs.
     - So nobody can know a pack profile's UUID ahead of time, which is what Switch Profile would need.
       The draft had this as [I].
 13. **Meaning of the left/right modifier bits.**
-    - Self-labelled DCS keys confirm them: "L-Ctrl+L-Shift+P" = `0x10033`, "R-Alt+R-Shift+M" and
+    - Self-labeled DCS keys confirm them: "L-Ctrl+L-Shift+P" = `0x10033`, "R-Alt+R-Shift+M" and
       "R-Alt+R-Shift+W" = `0x10505`, "L-Ctrl+L-Alt+W" = `0x10066` [R].
     - `0x10000` matches the Hotkey's "differentiate left/right modifiers" option. That option arrived
       in Stream Deck 3.2 (2018) according to a Softpedia changelog, and DCS forum users describe it
@@ -273,7 +273,7 @@ Confirmed unchanged:
 | https://github.com/phew-blue/streamdeck-home-ops (full history) | v3: app exports from 7.4.0 (`7145092`, `usethisone`) and script-written files (`f1dd80b`, `5df9d77`) | Script file imported and re-exported; new UUIDs; image names kept; `" copy 1"` |
 | https://github.com/Nagaimo355/StreamDeckPlusController_for_DerailValley (`2465760`, 2026-03-18) | `.streamDeckProfilesBackup`, v3 on disk, Stream Deck + | Elgato's default + profile (Tutorials folder with `com.elgato.tutorial.*` actions); dial Hotkeys; `Encoder.Icon` 48×48; `Encoder.background` 200×100; controller `Background` 800×100; Action Trigger |
 | https://github.com/DKlaper/ga-msfs2024-stream-deck-plus (`3e15963`, 2025-02-01) | v2 without `Plugin`, Stream Deck + | `PageIndex` counts from 1, checked against page names |
-| https://github.com/bitwrestler/DCS-StreamDeckProfiles (`c5ccc4f`, 2024-01-13) | v2 without `Plugin` or `Pages.Default`, XL | Self-labelled left/right modifier keys; numpad with modifiers |
+| https://github.com/bitwrestler/DCS-StreamDeckProfiles (`c5ccc4f`, 2024-01-13) | v2 without `Plugin` or `Pages.Default`, XL | Self-labeled left/right modifier keys; numpad with modifiers |
 | https://github.com/JustaDevOnTheMove/StreamDeckProfiles (`5615b63`, 2025-07-24) | v2 **with `Plugin` on every action**, XL `20GAT9902` | 6.9-era v2; numpad keys with `VKeyCode -1`; SVG page icons |
 | https://github.com/phobicdotno/Stream-Deck-XL-.streamDeckProfile-by-Phobic | v2, XL | Real `page.next` / `page.previous` JSON |
 | Aputure Sidus Link Pro pack v1.7 (https://help.aputure.com/en/sidus-link-pro/stream-deck-profile) | v3, `AppVersion 7.5.1.22901`, macOS; Standard is a genuine export, XL / + / + XL re-encoded | macOS key codes; + XL keypad 9×4 with 4 dials filled |
@@ -289,7 +289,7 @@ left and right modifiers separately.
 | https://github.com/data-enabler/streamdeck-profile-generator (`62c75f5`, 2024-11-09) | README: "simply double-click the resulting `.streamDeckProfile` file to load it"; `actionId()` returns all zeros ("so I guess they don't matter?"); `profileFolderId()` test vectors match our algorithm |
 | https://github.com/jlgabriel/StreamDeck-Profile-Generator (`a81cb4d`, 2026-04-02) | README: "V3 format, compatible with Stream Deck software v7.3+". `528d53a`: "Default page must be empty… explicit Prev/Next Page buttons are needed for hardware navigation… Maximum 10 pages". `65775da`: `key_modifiers \|= 16384` for numpad, misnamed `Qt::KeypadModifier`. Known issue: punctuation keys display wrong on non-US layouts, but "The hotkeys still function correctly" |
 | https://github.com/verygoodplugins/streamdeck-mcp (`dd3e58d`, 2026-07-19) | `SKILL.md`: `Encoder.Icon` and `Encoder.background` "only survive a profile write when the action's plugin declares `Controllers: ["Encoder"]`"; + XL full-strip `Background` is 1200×100; + XL keypad 9×4 (PR #18) |
-| https://github.com/ydmw74/elgato2streamcontroller | Maps `system.hotkeyswitch` to `Hotkeys[0]` and `[1]`. Its "held while pressed" is its own StreamController mapping, not Elgato's behaviour |
+| https://github.com/ydmw74/elgato2streamcontroller | Maps `system.hotkeyswitch` to `Hotkeys[0]` and `[1]`. Its "held while pressed" is its own StreamController mapping, not Elgato's behavior |
 | https://github.com/BarRaider/streamdeck-foldereditor | Reads `%APPDATA%\Elgato\StreamDeck\ProfilesV2` |
 
 ---
@@ -538,7 +538,7 @@ The form a 7.x / 6.9 export uses (`Plugin` and `Resources` included):
   - For a third-party action it is `{Name, UUID: <plugin UUID>, Version: <plugin version>}`, e.g.
     `{"Name":"Volume Controller","UUID":"com.elgato.volume-controller","Version":"2.0.2.166"}` [R].
 - **`Resources`** is v3 only. It is `null`, or a map of files (7.1+) [C/R].
-- **`Name`** is only a label; localised exports contain `"Raccourci"` [R].
+- **`Name`** is only a label; localized exports contain `"Raccourci"` [R].
 - **`State` and `States`.** `State` is the current state index. `States` has one entry per state.
 - **Optional extras seen:**
   - `AutoExit: {"Delay":1,"Enabled":false}` on `backtoparent`
@@ -653,7 +653,7 @@ The first slot above is Ctrl+Alt+T.
 | `0x0040` | Left Alt | `0x10066` + W **"L-Ctrl+L-Alt+W"**; `0x10044` + 2 "AP Head" |
 | `0x0080` | Left Win | not seen [I] |
 | `0x0100` | Right Shift | `0x10505` + M **"R-Alt+R-Shift+M"** |
-| `0x0200` | Right Ctrl | `0x10202` + C "Cockpit" (Ka-50). Inferred from the bit pattern; no self-labelled key [I-strong] |
+| `0x0200` | Right Ctrl | `0x10202` + C "Cockpit" (Ka-50). Inferred from the bit pattern; no self-labeled key [I-strong] |
 | `0x0400` | Right Alt | `0x10505` + W **"R-Alt+R-Shift+W"** |
 | `0x0800` | Right Win | not seen [I] |
 | `0x4000` | numpad key | `16384` with VK 96–111; `0x4001` = Shift+Num+; `0x14202` = RCtrl+Num0; `0x14044` = LAlt+Num+ |

@@ -1,13 +1,13 @@
 // A small GIF89a writer on plain Node, for the icon packs' animated keys: Elgato animates
 // icon-pack icons from GIF only (streamdeck/research/iconpacks.verified.md 6.2). Every frame
-// is palette indices into one global colour table. A frame may cover only the box that
+// is palette indices into one global color table. A frame may cover only the box that
 // changed, with a transparent index for the pixels in it that didn't, because each frame is
 // left in place for the next to draw over (disposal "do not dispose"). The same input always
 // gives the same bytes: nothing here reads the clock or depends on the platform.
 //
 //   const gif = require("./gif");
 //   gif.encode({ width, height, palette: [[r, g, b], ...], frames, loop: 0 })   -> Buffer
-//     palette: 1 to 256 colours; loop: how many times to play, 0 (the default) for ever
+//     palette: 1 to 256 colors; loop: how many times to play, 0 (the default) for ever
 //     frames: [{ pixels, delay, x, y, width, height, transparent }]
 //       pixels: palette indices, row by row (an array, Buffer or Uint8Array)
 //       delay: how long the frame shows, in centiseconds
@@ -68,23 +68,23 @@ function subBlocks(data) {
 
 function encode({ width, height, palette, frames, loop = 0 }) {
   if (!isU16(width) || !isU16(height) || !width || !height) throw new Error(`A GIF is 1 to 65535 pixels a side, not ${width}x${height}`);
-  if (!Array.isArray(palette) || palette.length < 1 || palette.length > 256) throw new Error(`A GIF palette holds 1 to 256 colours, not ${Array.isArray(palette) ? palette.length : palette}`);
+  if (!Array.isArray(palette) || palette.length < 1 || palette.length > 256) throw new Error(`A GIF palette holds 1 to 256 colors, not ${Array.isArray(palette) ? palette.length : palette}`);
   if (!Array.isArray(frames) || !frames.length) throw new Error("A GIF needs at least one frame");
   if (!isU16(loop)) throw new Error(`A GIF's loop count is 0 (for ever) to 65535, not ${loop}`);
-  // The colour table holds a power of two colours; the unused ones stay black.
+  // The color table holds a power of two colors; the unused ones stay black.
   let bits = 1;
   while (1 << bits < palette.length) bits++;
   const table = Buffer.alloc(3 << bits);
   palette.forEach((c, i) => {
     for (let j = 0; j < 3; j++) {
-      if (!Number.isInteger(c[j]) || c[j] < 0 || c[j] > 255) throw new Error(`Palette colour ${i} isn't [r, g, b] in 0-255: ${JSON.stringify(c)}`);
+      if (!Number.isInteger(c[j]) || c[j] < 0 || c[j] > 255) throw new Error(`Palette color ${i} isn't [r, g, b] in 0-255: ${JSON.stringify(c)}`);
       table[i * 3 + j] = c[j];
     }
   });
-  const minSize = Math.max(2, bits); // GIF's smallest LZW code size is 2, even for 2 colours
+  const minSize = Math.max(2, bits); // GIF's smallest LZW code size is 2, even for 2 colors
   const parts = [
     Buffer.from("GIF89a", "ascii"),
-    // Logical screen: global colour table, 8 bits a channel, background colour 0, square pixels.
+    // Logical screen: global color table, 8 bits a channel, background color 0, square pixels.
     Buffer.from([...u16(width), ...u16(height), 0x80 | 0x70 | (bits - 1), 0, 0]),
     table,
     // NETSCAPE2.0 application extension: the loop count.
@@ -99,7 +99,7 @@ function encode({ width, height, palette, frames, loop = 0 }) {
     if (t !== undefined && !(Number.isInteger(t) && t >= 0 && t < palette.length)) throw new Error(`${at}: transparent index ${t} isn't in the palette`);
     const px = f.pixels;
     if (!px || px.length !== w * h) throw new Error(`${at}: ${px ? px.length : 0} pixels for a ${w}x${h} box`);
-    for (let i = 0; i < px.length; i++) if (!(px[i] >= 0 && px[i] < palette.length && Number.isInteger(px[i]))) throw new Error(`${at}: pixel ${i} is ${px[i]}, not an index into ${palette.length} colours`);
+    for (let i = 0; i < px.length; i++) if (!(px[i] >= 0 && px[i] < palette.length && Number.isInteger(px[i]))) throw new Error(`${at}: pixel ${i} is ${px[i]}, not an index into ${palette.length} colors`);
     // Graphic control: disposal 1 ("do not dispose", so later frames draw over this one),
     // the delay and the transparent index if there is one.
     parts.push(Buffer.from([0x21, 0xf9, 4, (1 << 2) | (t === undefined ? 0 : 1), ...u16(f.delay), t === undefined ? 0 : t, 0]));
@@ -131,7 +131,7 @@ function info(buf) {
       skip();
     } else if (block === 0x2c) {
       const flags = buf[pos + 8];
-      pos += 9 + (flags & 0x80 ? 3 << ((flags & 7) + 1) : 0) + 1; // descriptor, local colours, LZW code size
+      pos += 9 + (flags & 0x80 ? 3 << ((flags & 7) + 1) : 0) + 1; // descriptor, local colors, LZW code size
       skip();
       delays.push(delay);
       delay = 0;
