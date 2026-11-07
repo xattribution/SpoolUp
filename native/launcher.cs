@@ -349,6 +349,8 @@ static class Lang
         { "LINKS", new[] { "ENLACES", "LIENS", "LINKS" } },
         { "NETWORK", new[] { "RED", "RÉSEAU", "NETZWERK" } },
         { "Tablets connect over your home network. Windows has to treat it as a Private network: on a Public one it blocks them.", new[] { "Las tablets se conectan por tu red doméstica. Windows tiene que tratarla como red privada: en una pública las bloquea.", "Les tablettes se connectent par votre réseau domestique. Windows doit le traiter comme un réseau privé : sur un réseau public, il les bloque.", "Tablets verbinden sich über dein Heimnetzwerk. Windows muss es als privates Netzwerk behandeln: In einem öffentlichen blockiert es sie." } },
+        { "Let the SpoolUp app find this PC", new[] { "Permitir que la app SpoolUp encuentre este PC", "Laisser l'app SpoolUp trouver ce PC", "Die SpoolUp-App diesen PC finden lassen" } },
+        { "Answers the SpoolUp app on your local network only, with this PC's name and address. Never the pairing code.", new[] { "Responde a la app SpoolUp solo en tu red local, con el nombre y la dirección de este PC. Nunca el código de emparejamiento.", "Répond à l'app SpoolUp sur votre réseau local uniquement, avec le nom et l'adresse de ce PC. Jamais le code d'appairage.", "Antwortet der SpoolUp-App nur in deinem lokalen Netzwerk, mit Name und Adresse dieses PCs. Nie mit dem Kopplungscode." } },
         { "Websites the tablet can open on this PC", new[] { "Webs que la tablet puede abrir en este PC", "Sites que la tablette peut ouvrir", "Websites für das Tablet" } },
         { "One per line: Name | https://address. The tablet only sees the names, so it can't open anything else.", new[] { "Una por línea: Nombre | https://dirección. La tablet solo ve los nombres, así que no puede abrir nada más.", "Un par ligne : Nom | https://adresse. La tablette ne voit que les noms, elle ne peut donc rien ouvrir d'autre.", "Eine pro Zeile: Name | https://adresse. Das Tablet sieht nur die Namen und kann daher nichts anderes öffnen." } },
         { "Install keybind profile...", new[] { "Instalar perfil de teclas...", "Installer le profil de touches...", "Tastenprofil installieren..." } },
@@ -2925,7 +2927,7 @@ class SettingsWindow : HudDialog
         if (list.Count > 12) { MessageBox.Show(this, Lang.T("Up to 12 links, please."), "SpoolUp", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
         return new JavaScriptSerializer().Serialize(list);
     }
-    readonly HudView.Item pttSound, shortEmotes, pttButton;
+    readonly HudView.Item pttSound, shortEmotes, pttButton, discoveryOn;
     int pttKey;          // Windows virtual-key code, 0 = none
     string pttName = "";
     bool capturing;      // waiting for the player to press the push-to-talk key
@@ -2979,7 +2981,7 @@ class SettingsWindow : HudDialog
     // network on the right, and the buttons along the bottom. 16 pixels inside each panel,
     // 12 between them.
     public SettingsWindow(Dictionary<string, object> current, bool portFromCommandLine, Icon icon, string keybindProfile, string publicNetwork)
-        : base("SpoolUp settings", icon, 840, 684)
+        : base("SpoolUp settings", icon, 840, 720)
     {
         this.current = current;
         FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -3062,7 +3064,7 @@ class SettingsWindow : HudDialog
 
         // Why tablets need a Private network, or, while Windows calls it Public, that it's
         // blocking them now. The button is the main window's banner button.
-        Panel("NETWORK", 428, 478, 396, 146);
+        Panel("NETWORK", 428, 478, 396, 182);
         var network = Hint(publicNetwork != ""
             ? Lang.F("Windows treats \"{0}\" as a Public network. Set it to Private so tablets on your network can reach SpoolUp.", publicNetwork)
             : Lang.T("Tablets connect over your home network. Windows has to treat it as a Private network: on a Public one it blocks them."),
@@ -3070,14 +3072,17 @@ class SettingsWindow : HudDialog
         if (publicNetwork != "") network.Mark = Hud.Warn;
         var networkButton = Button("Open network settings", 444, 580, 232, delegate { DeckWindow.OpenNetworkSettings(publicNetwork); });
         networkButton.Tip = "Pick your network there and set its network profile to Private";
+        // The SpoolUp apps list this PC by itself (mDNS, see discovery.js); off, they need its address.
+        discoveryOn = Switch("Let the SpoolUp app find this PC", GetBool("discovery", true), 444, 624, 364);
+        discoveryOn.Tip = "Answers the SpoolUp app on your local network only, with this PC's name and address. Never the pairing code.";
 
-        Button("Install keybind profile...", 16, 636, 236, delegate
+        Button("Install keybind profile...", 16, 672, 236, delegate
         {
             using (var dialog = new KeybindProfileWindow(keybindProfile, Icon)) dialog.ShowDialog(this);
         });
         // The window's own language; the tablet picks its language in Deck settings.
-        Caption("Language", 268, 645);
-        Field(windowLanguage, 352, 636, 176, 32);
+        Caption("Language", 268, 681);
+        Field(windowLanguage, 352, 672, 176, 32);
         windowLanguage.DropDownStyle = ComboBoxStyle.DropDownList;
         windowLanguage.FlatStyle = FlatStyle.Flat;
         foreach (var choice in Lang.Choices) windowLanguage.Items.Add(choice[0] == "" ? Lang.T(choice[1]) : choice[1]);
@@ -3085,8 +3090,8 @@ class SettingsWindow : HudDialog
         for (int i = 0; i < Lang.Choices.Length; i++) if (Lang.Choices[i][0] == saved) windowLanguage.SelectedIndex = i;
         if (windowLanguage.SelectedIndex < 0) windowLanguage.SelectedIndex = 0;
 
-        Primary("Save", 624, 636, 96, delegate { Save(); });
-        Button("Cancel", 728, 636, 96, delegate { DialogResult = DialogResult.Cancel; });
+        Primary("Save", 624, 672, 96, delegate { Save(); });
+        Button("Cancel", 728, 672, 96, delegate { DialogResult = DialogResult.Cancel; });
         Accept = Save;
         Cancel = delegate { DialogResult = DialogResult.Cancel; };
         ResumeLayout(false);
@@ -3148,6 +3153,7 @@ class SettingsWindow : HudDialog
         Change("pttMode", Get("pttMode", "hold"), pttMode.SelectedIndex == 1 ? "toggle" : "hold", false);
         Change("pttSound", OnOff(GetBool("pttSound", true)), OnOff(pttSound.On), false);
         Change("shortEmotes", OnOff(GetBool("shortEmotes", false)), OnOff(shortEmotes.On), false);
+        Change("discovery", OnOff(GetBool("discovery", true)), OnOff(discoveryOn.On), false);
         if (links.Text.Trim() != LinksText().Trim())
         {
             string json = LinksJson();

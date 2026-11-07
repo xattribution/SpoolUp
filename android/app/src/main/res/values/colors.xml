@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The house colors (docs/DESIGN.md, "The other surfaces"). -->
+    <color name="ground">#FF05090F</color>
+    <color name="icon_line">#FF4FB3FF</color>
+</resources>

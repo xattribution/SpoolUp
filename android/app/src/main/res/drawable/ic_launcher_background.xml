@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- public/icon.svg's background: a radial glow from #12253B above the center to #05090F. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="672"
+    android:viewportHeight="672">
+    <path android:pathData="M0,0h672v672h-672z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="336"
+                android:centerY="233"
+                android:gradientRadius="410"
+                android:startColor="#FF12253B"
+                android:endColor="#FF05090F" />
+        </aapt:attr>
+    </path>
+</vector>

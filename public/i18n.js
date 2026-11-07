@@ -61,6 +61,8 @@
     "Hold to talk": ["Pulsa y habla", "Tenir pour parler", "Halten & sprechen"],
     "Settings": ["Ajustes", "Réglages", "Einstellungen"],
     "Fullscreen": ["Pantalla completa", "Plein écran", "Vollbild"],
+    "Switch PC": ["Cambiar de PC", "Changer de PC", "PC wechseln"],
+    "Leaves the deck for the app's list of PCs.": ["Sale del panel a la lista de PC de la app.", "Quitte le deck pour la liste des PC de l'app.", "Verlässt das Deck zur PC-Liste der App."],
     "Previous panel": ["Panel anterior", "Panneau précédent", "Vorheriges Panel"],
     "Next panel": ["Panel siguiente", "Panneau suivant", "Nächstes Panel"],
     "Turn your phone sideways": ["Gira el móvil", "Tournez votre téléphone", "Dreh dein Handy quer"],

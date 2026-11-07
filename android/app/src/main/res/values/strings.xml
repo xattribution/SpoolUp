@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">SpoolUp</string>
+    <string name="scan_hint">Point the camera at the QR code in the SpoolUp window on your PC.</string>
+    <string name="scan_cancel">Cancel</string>
+    <string name="scan_no_camera">Scanning needs the camera. Allow it in Android\'s settings for SpoolUp, or type the PC\'s address instead.</string>
+    <string name="scan_not_spoolup">That QR code isn\'t a SpoolUp address on your home network.</string>
+</resources>

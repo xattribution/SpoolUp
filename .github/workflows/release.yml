@@ -256,3 +256,88 @@ jobs:
           "@
           # --target tags this commit when the tag doesn't exist yet (a run by hand).
           gh release create $env:RELEASE_TAG $setup "$setup.sha256" --target "${{ github.sha }}" --title "SpoolUp $version" --notes $notes
+
+  # ---- The Android app (android/, docs/ANDROID.md) ----
+  # Builds a signed APK, SpoolUp-<version>.apk, and attaches it to the release the build job
+  # just published (or keeps it as a run artifact on a build-only run), with the bundle
+  # (.aab) for Google Play as a run artifact. Runs only when the upload key is set up as
+  # repository secrets; without them it skips, and the release is Windows only:
+  #   ANDROID_KEYSTORE           the keystore file, base64-encoded (base64 -w0 spoolup-upload.jks)
+  #   ANDROID_KEYSTORE_PASSWORD  its password
+  #   ANDROID_KEY_ALIAS          the key's alias in it
+  #   ANDROID_KEY_PASSWORD       the key's password
+  android:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      # Only the build step sees the secrets; this flag just says they're set.
+      ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+    steps:
+      - name: Skip without the Android upload key
+        if: env.ANDROID_SIGNING != 'true'
+        run: echo "::notice::No Android upload key in the repository secrets (ANDROID_KEYSTORE and friends), so no APK this time. docs/ANDROID.md says how to set it up."
+
+      - uses: actions/checkout@v7
+        if: env.ANDROID_SIGNING == 'true'
+
+      - uses: actions/setup-java@v4
+        if: env.ANDROID_SIGNING == 'true'
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # The same release as the build job: the pushed tag, or v<version> on a run by hand
+      # with "Publish" ticked (the build job has created it by now). Empty for a build-only run.
+      - name: Work out the release
+        if: env.ANDROID_SIGNING == 'true'
+        run: |
+          version=$(node -p "require('./package.json').version")
+          tag=""
+          if [ "${{ github.ref_type }}" = "tag" ]; then tag="${{ github.ref_name }}"
+          elif [ "${{ inputs.publish }}" = "true" ]; then tag="v$version"; fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=$tag" >> "$GITHUB_ENV"
+
+      # The runner image has the Android SDK; make sure the platform the app builds against is there.
+      - name: Set up the Android SDK
+        if: env.ANDROID_SIGNING == 'true'
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+
+      - name: Build the signed APK and bundle
+        if: env.ANDROID_SIGNING == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          SPOOLUP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SPOOLUP_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SPOOLUP_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          export SPOOLUP_KEYSTORE="$RUNNER_TEMP/spoolup-upload.jks"
+          printf '%s' "$ANDROID_KEYSTORE" | base64 -d > "$SPOOLUP_KEYSTORE"
+          ./gradlew --no-daemon testReleaseUnitTest lintRelease assembleRelease bundleRelease
+          rm -f "$SPOOLUP_KEYSTORE"
+
+      - name: Check the signature and name the files
+        if: env.ANDROID_SIGNING == 'true'
+        run: |
+          apk=android/app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$apk"
+          mkdir -p dist
+          cp "$apk" "dist/SpoolUp-$VERSION.apk"
+          cp android/app/build/outputs/bundle/release/app-release.aab "dist/SpoolUp-$VERSION.aab"
+          (cd dist && sha256sum "SpoolUp-$VERSION.apk" > "SpoolUp-$VERSION.apk.sha256")
+
+      - uses: actions/upload-artifact@v7
+        if: env.ANDROID_SIGNING == 'true'
+        with:
+          name: SpoolUp-Android
+          path: |
+            dist/*.apk
+            dist/*.apk.sha256
+            dist/*.aab
+
+      - name: Attach the APK to the release
+        if: env.ANDROID_SIGNING == 'true' && env.RELEASE_TAG != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$RELEASE_TAG" "dist/SpoolUp-$VERSION.apk" "dist/SpoolUp-$VERSION.apk.sha256" --clobber

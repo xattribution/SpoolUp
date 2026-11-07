@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_hint">Apunta la cámara al código QR de la ventana de SpoolUp en tu PC.</string>
+    <string name="scan_cancel">Cancelar</string>
+    <string name="scan_no_camera">Para escanear hace falta la cámara. Permítela en los ajustes de Android para SpoolUp, o escribe la dirección del PC.</string>
+    <string name="scan_not_spoolup">Ese código QR no es una dirección de SpoolUp en tu red doméstica.</string>
+</resources>

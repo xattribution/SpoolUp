@@ -570,6 +570,7 @@
   function fillAwake() {
     const A = window.DeckAwake;
     $("awakeBtn").hidden = !A;
+    document.querySelector(".sheet-awake").hidden = !A; // inside the apps, which keep the screen on
     if (!A) return;
     if (!awakeHooked) { awakeHooked = true; A.onChange(fillAwake); }
     $("awakeBtn").setAttribute("aria-checked", String(A.on()));
@@ -826,7 +827,14 @@
     }
   }
 
-  const buzz = (ms = 12) => { if (navigator.vibrate) navigator.vibrate(ms); };
+  // Inside the SpoolUp iPhone/iPad and Android apps, window.SpoolUpApp plays the device's own
+  // haptics (iOS Safari has no navigator.vibrate). The browser deck never has it.
+  const appHaptic = (ms) => (Array.isArray(ms) ? (ms[0] >= 30 ? "error" : "press") : ms >= 30 ? "press" : "tap");
+  const buzz = (ms = 12) => {
+    const app = window.SpoolUpApp;
+    if (app && typeof app.haptic === "function") { try { app.haptic(appHaptic(ms)); } catch {} return; }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  };
 
   // ---------- lit buttons ----------
 
@@ -1229,6 +1237,16 @@
     else (d.requestFullscreen || d.webkitRequestFullscreen)?.call(d);
   }
   $("fs").onclick = toggleFullscreen;
+  // Inside the SpoolUp apps, Deck settings gets the way back to the app's list of PCs.
+  if (window.SpoolUpApp && typeof window.SpoolUpApp.switchPC === "function") {
+    const back = document.createElement("button");
+    back.id = "switchPcBtn";
+    back.type = "button";
+    back.className = "sheet-action";
+    back.innerHTML = `<span class="sw-text"><b>Switch PC</b><span>Leaves the deck for the app's list of PCs.</span></span>`;
+    back.onclick = () => window.SpoolUpApp.switchPC();
+    $("langPick").after(back);
+  }
 
   window.DeckI18n.apply();
   buildPicker();

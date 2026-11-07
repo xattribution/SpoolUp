@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_hint">Richte die Kamera auf den QR-Code im SpoolUp-Fenster auf deinem PC.</string>
+    <string name="scan_cancel">Abbrechen</string>
+    <string name="scan_no_camera">Zum Scannen braucht SpoolUp die Kamera. Erlaube sie in den Android-Einstellungen für SpoolUp, oder gib die Adresse des PCs ein.</string>
+    <string name="scan_not_spoolup">Dieser QR-Code ist keine SpoolUp-Adresse in deinem Heimnetzwerk.</string>
+</resources>

@@ -15,6 +15,7 @@ const crypto = require("crypto");
 const { spawn, spawnSync, execFile, execFileSync } = require("child_process");
 const qr = require("./qr");
 const gameLog = require("./gamelog");
+const discovery = require("./discovery");
 
 // node:sea is missing before Node 20; that's never the installed app.
 const sea = (() => { try { return require("node:sea"); } catch { return null; } })();
@@ -206,6 +207,8 @@ const SETTINGS = {
   onlyWhenGameFocused: onOff,
   voice: onOff,
   shortEmotes: onOff,
+  // The SpoolUp apps find this PC on the local network (discovery.js); on unless false.
+  discovery: onOff,
   token: (v) => (/^[a-z0-9]{1,32}$/i.test(v) ? v.toLowerCase() : undefined),
   port: wholeNumber(1024, 65535),
   tapMs: wholeNumber(20, 200),
@@ -1774,8 +1777,30 @@ function checkNetwork() {
   });
 }
 
+// ---------- finding this PC from the apps (discovery.js) ----------
+
+// The SpoolUp apps list PCs that answer for _spoolup._tcp on the local network (mDNS).
+// Only real adapters answer: not VPNs or virtual ones, the same ones addresses() ranks
+// last. The records name the PC, its port and version, never the pairing code. The
+// "discovery" setting (on unless false) turns it off; the window's Settings has it.
+let advertiser = null;
+function setDiscovery(on) {
+  if (!on) {
+    if (advertiser) { advertiser.stop(); advertiser = null; }
+    return;
+  }
+  if (advertiser) return;
+  advertiser = discovery.create({
+    port: config.port, version: VERSION, name: os.hostname(),
+    adapters: (name) => !VIRTUAL_ADAPTER.test(name),
+    log: (msg) => console.log(msg),
+  });
+  advertiser.start();
+}
+
 server.listen(config.port, "0.0.0.0", () => {
   if (!UI) checkNetwork(); // with the window, sendReady checks
+  setDiscovery(config.discovery !== false);
   const { all, ips, lan } = addresses();
   console.log(`\nSpoolUp${VERSION ? ` ${VERSION}` : ""} running${DRY_RUN ? " (DRY RUN: no keys are sent)" : ""}.`);
   if (UI) { sendReady(); return; }
@@ -1801,6 +1826,7 @@ server.listen(config.port, "0.0.0.0", () => {
 
 const shutdown = () => {
   for (const k of keyHolds.keys()) sendKey("u", k.split(":").map(Number));
+  setDiscovery(false); // says goodbye, so the apps drop this PC from their lists
   setTimeout(() => process.exit(0), 100);
 };
 process.on("SIGINT", shutdown);
@@ -1837,6 +1863,7 @@ function applySetting(name, text) {
   }
   // The listener restarts with the new phrases.
   if (name === "shortEmotes" && voice) voice.kill();
+  if (name === "discovery") setDiscovery(value);
   sendReady();
 }
 
