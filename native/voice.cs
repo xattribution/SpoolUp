@@ -1,4 +1,4 @@
-// Voice commands: recognises a fixed list of phrases from the default microphone with
+// Voice commands: recognizes a fixed list of phrases from the default microphone with
 // Windows' built-in, offline speech recognition (System.Speech).
 // Commands on stdin, one per line:
 //   phrase <id> <text>   add a phrase for button <id> (before "ready")

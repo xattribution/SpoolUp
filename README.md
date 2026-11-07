@@ -46,10 +46,12 @@
 
 ### 🛸 A HUD for your tablet
 Landing, power management, quantum, operator modes, shields, targeting,
-salvage, mining, doors, comms, emotes and more, on a two-half HUD that pages through
-panels. Cockpit controls from 2.0: a landing-gear lever with three lamps, power
-sliders, a speed-range fader and an operator-mode dial, and halves you can
-resize. Phones get their own layout. In English, Español, Français or Deutsch.
+salvage, mining, doors, comms, emotes and more, on a HUD that fits your
+screen: one panel at a time on a phone, two halves on a tablet, and wide
+dashboards. **New in 2.1:** cockpit clusters (shields you shift by sliding
+toward a face, a targeting reticle, lights and doors, countermeasures under a
+flip cover), a new mode dial, emote favorites, swipes that never press a
+button, icons-only buttons and a screen that stays on. In English, Español, Français or Deutsch.
 
 </td>
 <td width="50%" valign="top">
@@ -87,7 +89,8 @@ key.
 <td valign="top">
 
 ### ✏️ Layout editor and starter layouts
-Drag buttons around and change their keys, labels, icons and animations, and
+Drag buttons and cockpit clusters on a snapping grid that fits every screen,
+build your own dashboards, change keys, labels, icons and animations, and
 share layouts as files. Or pick a starter layout for **Combat**, **Mining &
 Salvage** or **Hauling & Exploration**, or one for the **Prospector** or
 **Vulture**, separately on each tablet.
@@ -104,12 +107,11 @@ start with Windows, and updates with one click.
 <tr>
 <td colspan="2" valign="top">
 
-### 🎛️ Stream Deck pack
-Profiles for every Stream Deck from the Mini to the + XL in all 12 themes, with
-a page per scene, folders for emergencies, emotes and themes, dials and touch
-strips on the + and + XL, and a Comms page with Discord and OBS. Icon packs with
-every button, and a plugin that presses through SpoolUp and can keep your
-tablet and Stream Deck on the same scene. [More](#stream-deck)
+### 🎛️ Stream Deck
+SpoolUp for Stream Deck, sold on the Elgato Marketplace, brings profiles for
+every Stream Deck in all 12 themes, icon packs and a plugin that presses
+through SpoolUp and keeps your tablet and Stream Deck on the same scene.
+[More](#stream-deck)
 
 </td>
 </tr>
@@ -162,14 +164,15 @@ source code is here.
 - Make sure the tablet is on the same Wi-Fi or network as the PC.
 - Check that Windows treats your network as **Private** (Settings → Network &
   Internet → your network). The firewall rule only covers private networks.
-  SpoolUp checks this itself: when the network is Public, the window says so
-  under the address, with a **Set it to Private** link to Windows' network
-  settings.
+  SpoolUp checks this itself: when the network is Public, an amber banner
+  across the top of the window says so, and its **Open network settings**
+  button opens Windows' page for that network, where you choose **Private
+  network**. The banner goes once it's Private.
 - Type the address exactly as the SpoolUp window shows it, including the
   port (`:8765`).
 - **The QR code opens nothing:** with a VPN, WSL or a virtual machine, your PC
   has more than one address, and the QR code may use one the tablet can't
-  reach. SpoolUp skips VPN and virtual adapters it recognises, and running
+  reach. SpoolUp skips VPN and virtual adapters it recognizes, and running
   from source lists each address with its adapter's name. To choose it
   yourself, open the **Settings folder**, set `"host"` in `config.json` to the
   address of your Wi-Fi or Ethernet (e.g. `"host": "192.168.1.20"`) and restart
@@ -227,14 +230,16 @@ going again; your settings are kept.
 The window shows the QR code, address and pairing code, and live telemetry: how
 many tablets are connected, where keys go, and the presses of the last minute,
 with how many were held back because Star Citizen wasn't in front. Below that
-are the voice status and a log. Stars drift behind the panels while the window
-is in front (they stand still if Windows' "Show animations" is off); click an
-empty spot to send a pulse through them.
+are the voice status and a log. Everything sits on solid panels in a calm
+graphite look, with color only on status dots, the status pill and banners. A
+thin band of stars drifts in the title strip while the window is in front (it
+stands still if Windows' "Show animations" is off).
 
 - **Minimize** it to keep SpoolUp running in the tray; double-click the tray
   icon to bring it back. **Closing** the window quits.
 - **Settings:** pairing code, port, the "only while Star Citizen is in front"
-  check, tap length, voice on/off and language, the window's
+  check, tap length, voice on/off and language, what to do about a Public
+  network, the window's
   [language](#languages), and **Install keybind profile**.
 - **Edit layout** opens the [layout editor](#layout-editor).
 - **Start with Windows** starts it in the tray when you log in. **Settings
@@ -293,25 +298,49 @@ choose under **Layout**. Each tablet and phone remembers its own choice:
 
 | Layout | Opens on |
 |---|---|
-| **SpoolUp HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right |
+| **SpoolUp HUD** (default) | Power/Landing, Flight Assist, Shields, Targeting, Salvage and Mining on the left; QT/Systems, Operator Modes, Combat, Crew/Doors, On Foot, Comms and Emotes on the right; the Pilot, Combat and Industry dashboards in the one-panel view |
+| **Dashboards** | Only the wide dashboards: Pilot, Combat, Industry and Hauling |
 | **Combat** | Power/Landing, Shields, Targeting and Flight Assist first; Combat, QT/Systems, Operator Modes and Crew first |
 | **Mining & Salvage** | Mining and Salvage first; Operator Modes, QT/Systems, Crew and On Foot first |
 | **Hauling & Exploration** | Power/Landing, Flight Assist and Targeting first; QT/Systems, Crew, On Foot and Emotes first |
 | **Prospector** | A Prospector panel first (laser, modules, flight ready, gear, lights, quantum), then Mining; Operator Modes first |
 | **Vulture** | A Vulture panel first (salvage, flight ready, gear, VTOL, quantum, doors), then Salvage; Operator Modes first |
+| **SpoolUp HUD 2.0** | The 2.0 HUD as it was, with its free placement |
 | **Star Citizen** | A simpler tabbed grid of buttons |
 
 The starter and ship layouts have every panel too; they just put the ones for that
 kind of flying first, so Emotes and the rest are always a few arrow taps away. The
 ship panels reuse the deck's own buttons, so their keys and voice commands are the
-same as everywhere else (phones split a ship panel over two pages). Phones get
-versions sized for an iPhone 15 Pro in landscape that scale to fit other phones.
-Hold the phone sideways. Layouts you make in the editor show up in the list too.
+same as everywhere else. Layouts you make in the editor show up in the list too.
 
-**Two-finger swipe** (a switch under **Display** in Deck settings): swipe
-sideways with two fingers over a half to flip it to its next or previous panel,
-like its arrows. So a swipe never presses anything, a press then waits a moment
-(60 ms) in case a second finger follows; with it off, presses are instant.
+**Layouts that fit your screen.** The layouts lay every panel out on a grid
+that follows your screen, so phones and tablets use the same ones. A phone
+opens on one panel at a time, a tablet on two halves side by side, and the
+view button next to the page arrows switches between them; a phone held
+upright always shows one panel. Turn the screen, or switch between landing and
+docking, and everything moves to stay lined up. **Button size** in Deck
+settings picks Compact, Default or Roomy for each screen size. The one-panel
+view ends with wide **dashboards** that put the controls for one kind of
+flying on one screen; on a phone each keeps its main clusters so it fits
+without scrolling.
+
+**Swipes.** Swipe sideways with two fingers to flip panels (the **Two-finger
+swipe** switch under **Display** in Deck settings, on by default). A swipe
+never presses a button: a tap goes when your finger lifts (a hold button, like
+Engage Quantum, waits a moment, 120 ms), and a second finger landing or the
+finger sliding off the button cancels it. A finger already holding a button,
+like hold to talk, keeps working while another presses. The first time, a card
+above the page arrows shows what two fingers do. If you prefer one finger, turn on
+**One-finger swipe**: then swiping sideways anywhere flips panels, except on
+sliders, the gear lever, dials and clusters you drag. The page arrows still
+work as before.
+
+**Swipe up and down.** Two fingers swiping up or down do what you pick in Deck
+settings (each tablet and phone keeps its own choice): open mobiGlas (one tap
+of its button, the default for up), **Quick actions** (the default for down: a
+sheet with the top bar's buttons, the ones that matter in a hurry and your
+starred emotes), your **primary panel** (set in the layout editor) or any
+panel you choose.
 
 ### Cockpit controls
 
@@ -320,7 +349,41 @@ like its arrows. So a swipe never presses anything, a press then waits a moment
 </p>
 
 Some controls are drawn like hardware, in each maker's own style. Each one
-still presses one key at a time, through the same focus check as a button:
+still presses one key at a time, through the same focus check as a button.
+
+<p align="center">
+  <img src="docs/clusters.jpg" alt="The Combat dashboard with the shields, targeting and countermeasures clusters, power sliders and mode dial in the RSI, Drake, Origin and Esperia themes" width="100%">
+</p>
+
+**Cockpit clusters** (new in 2.1) put related controls into one instrument you
+can place on any panel or dashboard:
+
+- **Shields** have no words: the ship from above with an arc on each face, a
+  side view for top and bottom, and an outer ring. Slide a finger toward a face
+  to shift strength there (one tap per step, at most five per slide), tap a
+  face for one step, tap the ship to reset and tap the ring for Shields On/Off.
+- **Targeting** is a reticle between its buttons: Attacker, Friendly, Any and
+  In view, and Previous and Next Hostile at its sides. Tap the reticle's center
+  (or swipe right across it) for the next hostile, swipe left for the previous
+  one, and tap the inner ring for sub-targets.
+- **Countermeasures** sit in two groups: defense on top (Decoy and Noise
+  either side of Panic Decoys, under a flip cover that the first tap only
+  lifts), weapons below (Launch Missile, then Fewer Missiles and the lead /
+  lag pips).
+- **Lights and doors**: Lights, Lock and Unlock, and the doors drawn as two
+  leaves that slide apart while they're open. Tap the doors to toggle them, or
+  tap Open or Close.
+- **Turrets** are plain T1, T2 and T3 buttons with the turret icon; the
+  **quantum spool** fills while you hold Engage; the **mining** and **salvage
+  heads** and the **switch banks** gather their buttons the same way.
+- **QT/Systems** starts with what you press once at start-up, Flight Ready
+  beside the PWR, WEP, THR and SHLD switches, and gives the rest of the panel
+  to the quantum spool. The Pilot, Industry and Hauling dashboards start with
+  the same group.
+- Like the lit buttons, the clusters show what SpoolUp pressed, never a
+  reading from the game.
+
+The 2.0 controls:
 
 - **Landing-gear lever** (Power/Landing): pull the knob down to deploy, push it
   up to retract. Each pull or push taps the gear key once. The three lamps
@@ -330,20 +393,29 @@ still presses one key at a time, through the same focus check as a button:
   knob up or down: each step taps that system's up or down key once, at most
   five per drag. Tap the track beside the knob for a single step. Max and Min
   sit above and below. The sliders count the steps SpoolUp sent from the
-  centre (it can't read the game), so **Centre sliders** puts them back in
+  center (it can't read the game), so **Center sliders** puts them back in
   the middle without pressing anything; Max, Min and **Reset All** move them
   too.
 - **Speed-range fader** (Flight Assist): the same, lying down, for Speed
   Range + and −.
-- **Operator-mode dial** (QT/Systems; its own **Master Modes** panel on
-  phones): turn the needle to a mode and let go, or tap the mode. SCM/NAV is
-  the button in the middle.
+- **Operator-mode dial** (Operator Modes): tap a mode, or drag on the face
+  toward one and let go. SCM/NAV is the button in the middle. Each maker draws
+  it its own shape: a ring, a hex nut, a V, an octagon, an oval, a flower...
 - **Resize the halves:** **Deck settings → Edit layout** unlocks the seam
   between the two halves. Drag it to make one wider, then **Lock**; **Reset**
   puts it back. Each tablet keeps its own, and nothing presses while it's
   unlocked.
 
-The sliders, fader and lever work with a keyboard too (arrow keys, Enter).
+The sliders, fader, lever, dial and clusters work with a keyboard too (arrow
+keys, Enter).
+
+**Emotes.** The Emotes panel holds every Star Citizen emote. Tap one to play
+it. Hold one for half a second to star it (that presses nothing); starred
+emotes collect under ★ Favorites, and the board opens there once you have
+some. Tap + to make a group (say "Greetings"), then **Arrange**: drag emotes
+onto a tab to add them there, drag within Favorites or a group to change the
+order, and tap × to take one out. Hold a group's tab to rename or delete it.
+Each device keeps its own favorites and groups.
 
 ### Lit buttons
 
@@ -370,24 +442,43 @@ browser comes to the front, so this suits a second monitor best.
 ### Layout editor
 
 <p align="center">
-  <img src="docs/editor.jpg" alt="The layout editor: the deck on the left with Engage Quantum selected, its keys, mode, colour, icon, animation and voice phrases on the right" width="100%">
+  <img src="docs/editor.jpg" alt="The layout editor: the deck on the left with Engage Quantum selected, its keys, mode, color, icon, animation and voice phrases on the right" width="100%">
 </p>
 
 Click **Edit layout** in the window. It opens in your PC's browser and shows the
-deck exactly as the tablet does, but clicking a button selects it:
+deck exactly as the tablet does, but clicking selects instead of pressing:
 
-- **Drag** a button to move it, drag its yellow corner to resize it, or nudge it
-  with the arrow keys.
-- On the right, change its **label, keys, how it presses, colour, icon, press
-  animation and voice phrases**. Keys are picked from a list, so they're always
-  valid, and it warns when another button uses the same keys or phrases.
+- **Each panel is a grid.** Things flow in order and fill the rows; on a
+  screen with fewer columns they shrink and wrap, so everything stays lined up
+  on every phone and tablet. **Drag** something to reorder it (the rest moves
+  out of the way), or hold **Shift** (or pick **Pin**) to pin it to a cell.
+  Drag its yellow corner to resize it by whole cells. Arrow keys move it.
+- **Check every screen** at the top: **Small** or **Large** screen (or **Fit
+  window**), **Two halves** or **One panel**, the button size, and labels
+  **Shown** or **Icons only** (as a tablet set to icons only sees it).
+- **Add** (on the left) lists new buttons, groups and headers, and every
+  cluster and button already in the layout, by category. Click one to add it
+  to the panel you're on, or drag it onto a cell. A cluster added again is a
+  copy: the same buttons, shown in two places.
+- **Panels** (on the left) adds, renames, reorders and deletes panels, sets
+  which half they show in and the **primary panel** a swipe can jump to, and
+  builds dashboards from presets (Pilot, Gunner, Miner, Salvager, Hauler).
+- On the right, change the selected button's **label** (and an optional
+  **short label** for its face), **keys, how it presses, color, icon, press
+  animation and voice phrases**. **Labels: Inherit / Show / Hide** on a panel,
+  cluster or button overrides each tablet's Button labels setting. Keys are picked from a
+  list, so they're always valid, and it warns when another button uses the same
+  keys or phrases. A cluster lists its buttons; open one to change it.
 - Buttons tied to a Star Citizen keybind follow your in-game binds; untick
   **Follow game keybind** to set your own key.
-- **Add**, **Duplicate**, **Delete**, **Undo** and **Redo** are in the toolbar.
+- **Duplicate**, **Delete**, **Undo** and **Redo** are in the toolbar.
+
+Layouts made with SpoolUp 2.0 keep their free placement and open as before;
+**Convert to grid** makes a grid copy of one under a new name.
 
 **Save** stores your own copy (e.g. `my-hud`); the built-in layouts never
-change. With **Use on tablets** ticked, connected tablets switch to it and
-reload by themselves. The editor only works on the PC running SpoolUp.
+change. With **Use on tablets and phones** ticked, connected tablets and
+phones switch to it and reload by themselves. The editor only works on the PC running SpoolUp.
 
 **Share your layout:** **Export** saves the open layout as a `.json` file to
 send to friends. **Import…** opens such a file in the editor, not saved yet, so
@@ -431,7 +522,7 @@ and how sure it was, so you can tune it.
 
 Tap the sliders button (top right) and pick a manufacturer theme under **Theme**
 in **Deck settings**. Each tablet remembers its own. Every maker has its own
-design, not just its own colours: its own surfaces, button shapes, dials,
+design, not just its own colors: its own surfaces, button shapes, dials,
 switches, and lit, pressed and offline looks.
 
 | theme | looks like |
@@ -439,9 +530,9 @@ switches, and lit, pressed and offline looks.
 | RSI | navy glass with HUD corner brackets and gold section titles |
 | Drake | scratched gunmetal slabs with rivets, hazard stripes and stencil type |
 | Aegis | graphite on carbon weave, hard cut corners, red tactical marks |
-| Anvil | olive armour plates with screws, indicator lamps that light up |
+| Anvil | olive armor plates with screws, indicator lamps that light up |
 | Origin | cream and gold with black gloss buttons and a cream dial |
-| MISC | teal enamel in a grey bezel, orange tabs, gauge dials |
+| MISC | teal enamel in a gray bezel, orange tabs, gauge dials |
 | Crusader | open sky, frosted panels and pearl-white capsule buttons |
 | Banu | plum lacquer on carved wood, soft seed shapes, warm glow |
 | Aopoa | jade light, flowing panels, deep green forms with a living rim |
@@ -453,8 +544,21 @@ Under **Display**:
 
 - **Night mode** dims the whole deck for a dark room.
 - **Large text** makes labels bigger and bolder, easier to read at a glance.
-- **High contrast** turns any theme black and white with strong colours, plain
+- **High contrast** turns any theme black and white with strong colors, plain
   fonts and no glows.
+- **Keep screen on** (on by default) stops the tablet dimming or locking
+  while the deck is open; a locked tablet drops the connection. The line under
+  it says how: the browser's wake lock, or a silent hidden video where the
+  browser has no wake lock (plain http on your network). If neither works it
+  says so, with the setting to change on that device: on an iPad or iPhone,
+  **Settings → Display & Brightness → Auto-Lock → Never**, or Guided Access;
+  on Android, a longer screen timeout, or **Stay awake** while charging in
+  Developer options.
+- **Button labels**: **Icons and labels**, or **Icons only** for a calmer
+  deck. Buttons without an icon keep their label, and a hidden label is still
+  the button's name for screen readers and its voice phrase. The layout
+  editor can set any panel, cluster or button to show or hide its labels
+  regardless (**Labels: Inherit / Show / Hide**); the most specific one wins.
 - **Key labels** shows the key each button presses in a corner, from your
   keybinds (so a rebind in-game shows there too). Handy for learning the
   binds, or checking one when a button doesn't do what you expect.
@@ -506,123 +610,15 @@ language, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issu
 
 ### Stream Deck
 
-SpoolUp has a Stream Deck pack: ready-made profiles for every Stream Deck
-from the Mini to the + XL, in all 12 manufacturer themes, an icon pack per
-theme with every button for pages of your own, and a SpoolUp plugin. The
-profiles and icons work on their own; with the plugin, presses go through
-SpoolUp like a tablet's.
-
-<p align="center">
-  <img src="docs/streamdeck.jpg" alt="The Stream Deck + XL profile in the RSI theme: the Flight and Combat pages, with scene tabs along the top, power, speed limit, master mode and targets dials, and the touch strip" width="100%">
-</p>
-
-Each release has the pack under **Assets**:
-
-| Download | What it is |
-|---|---|
-| `SpoolUp-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
-| `SpoolUp-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
-| `com.xattribution.spoolup.streamDeckPlugin` | the plugin, with a profile for each model |
-
-Or build it yourself: see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#the-stream-deck-pack).
-
-**Scenes and folders.** Each profile has a page per scene: **Flight, Combat,
-Mining, Salvage, Hauling & Exploration, On Foot** and **Comms**. Folders hold
-**Emergency** (eject, self-destruct, exit seat), **Shields**, **Power**,
-**Emotes**, **Websites** (UEX, Erkul, SPViewer, SCMDB) and **Themes**, which
-opens the same page in another manufacturer's look. How you move between
-scenes depends on the model:
-
-| Model | Keys | Scenes |
-|---|---|---|
-| **Stream Deck + XL** | 9×4, 6 dials, touch strip | tabs along the top row; the last dial turns through them, push for Themes |
-| **Stream Deck XL** | 8×4 | tabs along the top row |
-| **Stream Deck +** | 4×2, 4 dials, touch strip | the last dial turns through them, push for the Scenes folder |
-| **Stream Deck** (15 keys, MK.2, Scissor Keys) and **Stream Deck Mobile** | 5×3 | the right column: Scenes, Next, Previous |
-| **Stream Deck Neo** and **Mini** | 4×2 and 3×2 | the last key opens Scenes |
-
-On the + and + XL, the dials are knobs: each sets a level or cycles through
-options, one press per notch (at most 5 a turn), and pushing one is a single
-press. Power (turn for − and +, push for max), the speed limit, laser power,
-beam spacing, the salvage modifier, master mode (SCM and NAV, push for
-Quantum), targets, the voice channel, brightness and volume; the touch strip
-shows what each one does. There are no profiles for the Studio or the Pedal (Stream Deck
-doesn't support profiles there), but the plugin's actions work on them.
-
-**Comms.** The Comms page has Star Citizen's own push to talk, proximity push
-to talk, hail, invites and chat; Discord mute, deafen, push to talk, push to
-mute, voice mode and a volume dial (Elgato's **Discord** plugin; authorize it
-once in Discord); OBS record, go live (a long press, so it can't start by
-accident), save replay and screenshot (Elgato's **OBS Studio** plugin); and the
-media keys and PC volume. A key for a plugin you don't have shows **?**, and
-Stream Deck offers to install it.
-
-**Profiles on their own:**
-
-1. Unzip the download for your model and double-click a profile,
-   `SpoolUp <theme> - <model>.streamDeckProfile`. Import any themes you want
-   to switch between. The + XL needs Stream Deck 7.3 or newer.
-2. In Star Citizen, load the **SpoolUp Keyboard** profile (see
-   [Keybinds](#keybinds); the zip has it too), since many keys press its binds.
-3. The keys are Stream Deck **Hotkeys**: Stream Deck presses them into
-   whatever window is in front, so they work without SpoolUp, but
-   SpoolUp's focus check doesn't guard them.
-
-Keys marked **PLUGIN** hold a key, or press it for a set time: Engage Quantum,
-Auto Land, SCM/NAV, Max and Min power, Self-D, push to talk and a few more.
-Stream Deck's Hotkey can only tap, so these go through the SpoolUp plugin,
-and need it and SpoolUp running. Theme keys open the same page in that
-theme's profile; if one doesn't switch after importing, pick its profile once
-in the key's settings.
-
-**With the plugin:** double-click `com.xattribution.spoolup.streamDeckPlugin`
-(Windows, Stream Deck 7.3 or newer). It adds a **SpoolUp** category with
-**Deck Button**, **Deck Dial**, **Scene**, **Theme**, **Hold to Talk**,
-**Status** and **Reset Lights**, and brings a profile for each model, which
-Stream Deck offers to install the first time a Scene key or the scene dial
-switches to it.
-
-- Presses go through SpoolUp: the focus check, lit buttons (gear, lights,
-  doors...) shared with your tablets, a red flash when a press is skipped, and
-  the press animations. **Theme** keys redraw every SpoolUp key in that
-  manufacturer's look.
-- With **Tablets follow scenes** on (it's off at first, in any SpoolUp
-  key's settings), picking a scene flips tablets that have **Follow Stream Deck
-  scenes** on (under **Display** in Deck settings) to that scene's panels.
-- The other way round, flipping a panel on a tablet takes the Stream Deck to
-  the scene with that panel, while it shows the SpoolUp profile and no key
-  on it is held down. Panels two scenes share (Power/Landing, Operator Modes)
-  leave it where it is. To stop that, turn off **Follow the tablet** in any
-  SpoolUp key's settings.
-- It finds SpoolUp on the same PC by itself. If **Status** shows OFFLINE or
-  WRONG CODE, set the port and pairing code in any SpoolUp key's settings.
-- A dial notch is one press, at most 5 per turn; turning back drops the ones
-  still waiting.
-
-**Icon packs:** double-click `SpoolUp <theme>.streamDeckIconPack`. Every
-button, including the ones that aren't on a page, appears in Stream Deck's icon
-library for keys of your own, and the ones with a press animation (gear struts,
-sliding doors, decoy sparks, the quantum charge...) also come animated.
-
-<details>
-<summary>Not tried on a real Stream Deck yet</summary>
-
-The pack is built from Elgato's documented formats and checked file by file,
-but hasn't been imported into the Stream Deck app yet. If something doesn't
-work, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issues/new/choose),
-with your model and Stream Deck version. In particular:
-
-- Importing the profiles, and how the keys, dials and touch strips look.
-- Theme keys switching to the right profile and page after import.
-- Dials: the order of turn left, push and turn right; one press per notch on a
-  fast spin.
-- The + XL's model ID and touch strip size.
-- Hotkeys with right-hand modifiers (RAlt, RCtrl) pressing the right-hand key.
-- The plugin finding SpoolUp, its first switch to its profiles, and the
-  PLUGIN keys' pictures.
-- **Follow the tablet:** the Stream Deck moving to the right page soon after a
-  tablet's panel flips, also with several Stream Decks connected.
-</details>
+<!-- Owner: replace https://marketplace.elgato.com below (and in site/index.html) with the SpoolUp for Stream Deck product page once it's live. -->
+SpoolUp works with **SpoolUp for Stream Deck**: the plugin, an icon pack and
+profiles for every Stream Deck from the Mini to the + XL, in all 12
+manufacturer themes. It's a separate paid product, available on the
+[Elgato Marketplace](https://marketplace.elgato.com).
+With the plugin, presses go through SpoolUp like a tablet's, with the same
+focus check, and a tablet with **Follow Stream Deck scenes** on (under
+**Display** in Deck settings) flips to the scene picked on the Stream Deck.
+The Stream Deck downloads from SpoolUp 2.0 and earlier releases keep working.
 
 ## Settings
 

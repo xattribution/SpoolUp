@@ -4,7 +4,7 @@ Checked against the vendors' own pages on 2026-11-06. Legal, trademark and Cloud
 
 ## TL;DR
 
-- **Elgato Marketplace:** it's free and there's no application. You create a Maker organization at https://maker.elgato.com, sign the Maker Agreement and upload each product. **Recommendation:** publish the **plugin first**, then the profiles, then the icon packs, and make every listing **free**. The "price match" rule requires that, because the pack is free on GitHub.
+- **Elgato Marketplace:** SpoolUp for Stream Deck (the plugin, icon pack and profiles) is a paid product built and published from the private repository `xattribution/SpoolUp-StreamDeck`, which holds the Marketplace steps and listings. Elgato's price-match rule is why this repository no longer ships Stream Deck downloads (from 2.1).
 - **winget / Microsoft Store:** these are two separate routes:
   - a manifest pull request to `microsoft/winget-pkgs`;
   - a Microsoft Store "EXE or MSI app" listing, which winget can also install from its `msstore` source.
@@ -16,88 +16,13 @@ Checked against the vendors' own pages on 2026-11-06. Legal, trademark and Cloud
 
 ## 1. Elgato Marketplace
 
-### Steps
+SpoolUp for Stream Deck is sold on the [Elgato Marketplace](https://marketplace.elgato.com) and built in the private repository `xattribution/SpoolUp-StreamDeck`. Its `docs/PUBLISHING.md` section 1 has the Marketplace rules and steps, and `docs/publishing/marketplace-listings.md` the listing text and the checklist before uploading.
 
-1. **Settle the identity first.** Product names can't be changed in Maker Console (only by emailing maker@elgato.com), and a plugin UUID can never change once it's published. What the repo has today:
-   - Plugin: `UUID com.xattribution.spoolup`, `Name`/`Category` "SpoolUp", `Author` "xattribution", in `streamdeck/plugin/com.xattribution.spoolup.sdPlugin/manifest.json`.
-   - Generator: `AUTHOR = "SpoolUp"` (line 39), `PLUGIN_UUID` (line 41) and `ICONPACK_ID = com.xattribution.spoolup.icons.<theme>` (line 43), in `tools/make-streamdeck.js`.
-   - **These two Author values disagree.** Elgato wants both to be your Marketplace organization name.
-2. **Create the Maker account.**
-   - Sign in at https://maker.elgato.com with an Elgato account.
-   - Create the organization. It gets a public `@handle`, and an alias is fine.
-   - Sign the Maker Agreement. You can only read its text inside Maker Console, so read it before signing.
-   - Set the support method to a link, for example https://github.com/xattribution/SpoolUp/issues.
-   - Skip Stripe. It's only needed for paid products.
-3. **Test on real hardware.**
-   - The rules: don't list an OS you haven't **tested** on, and don't list a device the profile wasn't **built for**.
-   - Elgato reviewers also check that the product works.
-   - What still needs testing is listed in the README section "Not tried on a real Stream Deck yet" and in `streamdeck/HANDOFF.md`.
-4. **Rebuild and validate.** The local `dist/streamdeck` is a stale 1.6.0.0 `com.nodiecode.tabletdeck` build, so rebuild it.
-   ```
-   node tools/make-streamdeck.js --release
-   node tools/make-streamdeck.js --check
-   npx @elgato/cli@1.10.4 validate dist/streamdeck/plugin/com.xattribution.spoolup.sdPlugin --force-update-check
-   ```
-   - Running it with `npx` adds no dependency to the repo.
-   - Elgato has no validator for profiles.
-   - For icon packs, `--check` already applies the rules of Icon Pack Man and the old DistributionTool. DistributionTool's downloads now return 404.
-5. **Make the listing media.** None of the existing images are the right size.
-   - Thumbnail: a **1920×960 PNG**.
-   - Gallery: **3–10 items**, either 1920×960 PNG or 1920×1080 MP4 under 250 MB.
-   - Plugin app icon: a **288×288 static PNG**. The artwork can come from `imgs/plugin/icon@2x.png`.
-   - Icon packs: icon previews. Elgato doesn't document the count or size.
-   - Plugin: a **demo video**, very likely required, because the plugin needs the SpoolUp app and Star Citizen.
-   - Everything in English. Show only keys that are actually in the product.
-6. **Write the listing text.** Base it on the README's "Stream Deck" section.
-   - **Name:** about 30 characters or fewer, no "Plugin", no Maker name, and "&" rather than "+" for "and".
-   - **Description:** 250–1,500 characters, with the first 250 unformatted.
-     - Requirements: Windows 10+, Stream Deck 7.3+ (+ XL), the SpoolUp app, the keybind profile, and Elgato's Discord and OBS plugins for the Comms page.
-     - Icon packs: 222 icons plus 21 animated GIFs per theme, lit variants, 12 themes.
-   - **Release notes:** generate them from CHANGELOG.md with `scripts/release-notes.js`.
-   - **AI use:** declare it with the "AI Content" tag. Elgato won't publish products "created entirely with AI".
-7. **Submit the plugin.**
-   - Go to Home > Create product > Stream Deck plugin.
-   - Upload `dist/streamdeck/com.xattribution.spoolup.streamDeckPlugin`.
-   - Price: **Free**.
-   - Tags: Type Gaming; Language English/Spanish/French/German; Dial support Yes; Neo Infobar No; Profiles Yes; OS Windows.
-   - Additional links: Support, Setup Guide (README#stream-deck), and Related Download (the releases page).
-   - **Untick "Automatically publish after being approved".**
-8. **Test the DRM build before you release it.**
-   - Elgato applies DRM to plugins with SDKVersion 3 and MinimumVersion 6.9 or newer, so this one qualifies.
-   - In the product's Versions tab, download the protected build and install it on Windows.
-   - Check that `data/*.json`, `<lang>.json` and `bin/*.js` load, that the 7 bundled profiles appear, and that `switchToProfile` works.
-   - Then press Release.
-   - ⚠ Elgato's DRM page lists "Node.js plugins must be using @elgato/streamdeck v2 or higher". Our plugin talks to Stream Deck directly and doesn't use that library at all. It never reads `manifest.json`, which is the reason for the rule, but it doesn't literally meet it. Test the protected build, or ask maker@elgato.com.
-9. **Line up versions, then submit the profiles.**
-   - The standalone profiles name the plugin as `Version: ${VERSION}.0` (`tools/make-streamdeck.js` around line 593). That version must be published on Marketplace: since Stream Deck 7.5.0, the import says so when a required version is missing. Rebuild the profiles after the plugin is approved.
-   - Upload one ZIP per model: `dist/streamdeck/release/SpoolUp-StreamDeck-Profiles-<model>.zip`. Each holds that model's 12 theme profiles, a README and the keybind XML.
-   - Tags per listing: only that model's Device tag, OS Windows, Type Gaming, Icons Yes, and Dial support Yes for + and + XL.
-   - Profiles that use Ctrl/Alt shortcuts should be labelled Windows. Our profile names give the model but not the OS (naming is around `tools/make-streamdeck.js` line 1116).
-10. **Submit the icon packs.** Each Icons listing takes one `.streamDeckIconPack` file, from `dist/streamdeck/icons/SpoolUp <Theme>.streamDeckIconPack`. Pick one of three options:
-    - **(a)** 12 listings, one per theme. Rename each file to `<id>.streamDeckIconPack`, because Icon Pack Man flags a name that doesn't match the ID.
-    - **(b)** One merged pack. This needs a generator change.
-    - **(c)** Bundle the packs inside the profile ZIPs only. If they're also listed on their own, the bundled copies need different IDs.
-    
-    Tags: Type Gaming, Theme, Style, Color Multicolor, Animated Yes.
-11. **Review.** Elgato documents **4–10 working days**. Feedback comes by email from maker@elgato.com. Approved products appear within 3 hours. To fix a rejected version, submit a revision of it from the Versions tab.
-12. **Every release:** use **Create version** on each listing, keep it free, and never change the UUIDs. Then add the Marketplace links to the README and CHANGELOG (and `site/index.html` if it lists the pack). Elgato's badge is at docs.elgato.com/resources/badges.
+What matters here:
 
-### Gotchas
-
-- **The plugin dependency.**
-  - Listings have no dependency field. List SpoolUp, the plugin, Discord and OBS in each description and link them as "Related Download".
-  - In the Stream Deck app, a missing plugin shows as a "?" key with a one-click install. That install only works for plugins published on Marketplace, so publish the plugin first.
-  - Featuring other Makers' plugins is allowed. Elgato says both Makers should "come to an agreement".
-- **Bundling themes.**
-  - A profile ZIP may hold many themes and models. Real listings already do that.
-  - An Icons listing is one pack. Of 900 listings checked, none had more than one variant.
-  - An all-models ZIP would be about 310 MB. Elgato documents no upload size limit.
-- **Free vs paid** is a store setting chosen at upload, and it can't be changed in Maker Console afterwards. Free products need no Stripe, tax or bank setup. Paid would be a 70/30 split, but price match rules it out here.
-- **Updates.**
-  - Plugin users signed in to Marketplace get updates automatically.
-  - Profiles **never** auto-update, so users have to download them again.
-  - Whether icon packs auto-update is unconfirmed. Say "download again" in the release notes.
-- **Users need a Marketplace account and Stream Deck 6.4+** to download, even free items. The GitHub downloads stay account-free.
+- **Price match.** Elgato's rule means the Stream Deck products can't be free elsewhere, so SpoolUp's releases and website carry no Stream Deck downloads from 2.1. Don't add any back.
+- **The server's side** of the plugin connection stays in this repository: [STREAMDECK-API.md](STREAMDECK-API.md). A change there, or to the button and panel ids in `layouts/hud.json`, the themes or the icons, needs the Stream Deck repository updated too.
+- **Links.** Once the product page is live, replace the placeholder `https://marketplace.elgato.com` links in the README's "Stream Deck" section and in `site/index.html` (each has a comment marking it).
 
 ---
 
@@ -339,7 +264,7 @@ Notes:
    - Free; category **Utilities + tools**; the IARC age-rating questionnaire; a privacy policy; support = GitHub issues.
    - Package: the versioned, non-redirecting HTTPS URL, x64, en-us, EXE.
    - Installer parameters: `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /MERGETASKS=!scprofile`. Use `/VERYSILENT`, because `/SILENT` still shows a progress window.
-   - Return codes: 2 and 5 = cancelled; 8 = reboot required. That's the closest match: Inno's 8 means setup stopped *before* installing and needs a restart. Codes 1, 3, 4 and 7 go under miscellaneous, with the Inno exit-code page as the documentation URL.
+   - Return codes: 2 and 5 = canceled; 8 = reboot required. That's the closest match: Inno's 8 means setup stopped *before* installing and needs a restart. Codes 1, 3, 4 and 7 go under miscellaneous, with the Inno exit-code page as the documentation URL.
 5. Notes for certification:
    - the deck needs a second device's browser, or a browser on the same PC;
    - presses only reach Star Citizen while it's the focused window;
@@ -356,16 +281,11 @@ Notes:
 ## 3. Things to decide or check
 
 **Decide**
-- The final name, UUIDs, Maker organization name and winget PackageIdentifier, before the first upload anywhere.
-- Make one Author value for Elgato: the manifest says "xattribution" and the icon packs say "SpoolUp".
-- Icon packs: 12 listings, one merged pack, or bundled in the profile ZIPs only.
-- Profiles: one listing per model, or one combined ZIP of about 310 MB.
+- The final name and winget PackageIdentifier, before the first upload anywhere.
 - Whether to fix `scprofile` in the installer, rather than relying on `/MERGETASKS=!scprofile` in every manifest.
 - Whether to list 1.7.0 at all. I recommend not; if you do, decide which repo's binary is canonical.
 
 **Check (needs Windows or real hardware)**
-- Stream Deck: every model and OS you will tag.
-- The Elgato DRM build: data and JS loading, bundled profiles, `switchToProfile`.
 - `winget validate`, the non-elevated install, the upgrade over a running copy (held keys released), and the uninstall.
 - Defender and other antivirus engines on the signed installer, `keysender.exe` and the server executable.
 
@@ -374,12 +294,3 @@ Notes:
 - Whether a Store reviewer treats SpoolUp as a game product.
 - Whether Partner Center accepts a GitHub or github.io Package URL.
 - Whether an Individual Store account can show "xattribution" as publisher, or link an Entra tenant for automation.
-- Elgato:
-  - the Maker Agreement text;
-  - upload size limits;
-  - the full tag lists and icon-preview sizes;
-  - whether Marketplace icon packs auto-update;
-  - whether 12 theme listings would be seen as duplicates.
-- The third-party claim that Maker Console has required DRM plugins since 2026-01-19. No Elgato page says so; our manifest meets it anyway.
-- What the profile import shows for a plugin that isn't on Marketplace, and how it matches `Plugin.Version`.
-- The ~3-day median Elgato review time. It comes from a sample of the Marketplace API; plan on 4–10 working days.

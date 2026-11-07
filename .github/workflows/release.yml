@@ -229,22 +229,6 @@ jobs:
             dist/*.exe
             dist/*.sha256
 
-      # The Stream Deck pack (tools/make-streamdeck.js): profiles per model, icon packs and the
-      # plugin, drawn in the runner's Edge. Nothing in it is an executable, so nothing to sign.
-      # It's an extra: if it fails, the release still goes out with the installer, without it.
-      - name: Build the Stream Deck pack
-        id: streamdeck
-        continue-on-error: true
-        run: |
-          node tools/make-streamdeck.js --skip preview --release
-          node tools/make-streamdeck.js --check
-
-      - uses: actions/upload-artifact@v7
-        if: steps.streamdeck.outcome == 'success'
-        with:
-          name: SpoolUp-StreamDeck
-          path: dist/streamdeck/release/*
-
       - name: Publish the release
         if: env.RELEASE_TAG != ''
         shell: pwsh
@@ -255,12 +239,6 @@ jobs:
           $setup = "dist/SpoolUp-Setup-$version.exe"
           $hash = (Get-Content "$setup.sha256").Split(" ")[0]
           $changes = (node scripts/release-notes.js $version) -join "`n"
-          # The Stream Deck pack, when its step built it (see "Build the Stream Deck pack").
-          $streamdeck = @(Get-ChildItem dist/streamdeck/release -File -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
-          $streamdeckNote = ""
-          if ($streamdeck.Count) {
-            $streamdeckNote = "**Stream Deck:** **SpoolUp-StreamDeck-Profiles-&lt;model&gt;.zip** has your model's profile in all 12 themes, **SpoolUp-StreamDeck-IconPacks.zip** the icon packs, and **com.xattribution.spoolup.streamDeckPlugin** the SpoolUp plugin. The pack is new and hasn't been tried on every model yet; please report anything that doesn't work. See [Stream Deck](https://github.com/xattribution/SpoolUp#stream-deck) in the README."
-          }
           $notes = @"
           ## What's new
 
@@ -270,8 +248,6 @@ jobs:
 
           Download **SpoolUp-Setup-$version.exe** below and run it. No Node.js needed. Already have SpoolUp (or Tablet Deck, its old name)? Run it over your copy; your settings are kept. After that it offers updates itself.
 
-          $streamdeckNote
-
           The installer and everything in it are code-signed: its Properties → Digital Signatures shows the publisher. You can also check it against the SHA-256 below. See the [code signing policy](https://github.com/xattribution/SpoolUp/blob/main/CODE_SIGNING.md).
 
           SHA-256: ``$hash``
@@ -279,4 +255,4 @@ jobs:
           > Fan project. Not affiliated with or endorsed by Cloud Imperium Games.
           "@
           # --target tags this commit when the tag doesn't exist yet (a run by hand).
-          gh release create $env:RELEASE_TAG $setup "$setup.sha256" @streamdeck --target "${{ github.sha }}" --title "SpoolUp $version" --notes $notes
+          gh release create $env:RELEASE_TAG $setup "$setup.sha256" --target "${{ github.sha }}" --title "SpoolUp $version" --notes $notes

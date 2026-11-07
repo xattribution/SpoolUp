@@ -6,7 +6,7 @@
 //
 // It drives Microsoft Edge (or Chrome) without a window through its DevTools protocol,
 // taps with real mouse events so the deck's own animations play, and records the screen.
-// The frames become an animated PNG (APNG): full colour, it plays in browsers and on
+// The frames become an animated PNG (APNG): full color, it plays in browsers and on
 // GitHub like a GIF, and only the part of each frame that changed is stored.
 "use strict";
 const fs = require("fs");
@@ -229,8 +229,8 @@ function writeApng(file, W, H, frames) {
     const record = () => send("Page.startScreencast", { format: "png", maxWidth: FRAME.width, maxHeight: FRAME.height, everyNthFrame: 1 });
 
     const evaluate = async (expr) => (await send("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true })).result.value;
-    // Centre of the first visible element matching a selector.
-    const centre = (selector, index = 0) => evaluate(`(() => {
+    // Center of the first visible element matching a selector.
+    const center = (selector, index = 0) => evaluate(`(() => {
       const els = [...document.querySelectorAll(${JSON.stringify(selector)})].filter((e) => e.offsetParent !== null || e.getClientRects().length);
       const r = els[${index}]?.getBoundingClientRect();
       return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
@@ -248,7 +248,7 @@ function writeApng(file, W, H, frames) {
       f.style.opacity = ${on ? 1 : 0}; f.style.transform = "scale(${on ? 1 : 1.4})";
     })()`);
     async function press(selector, holdMs = 140, index = 0) {
-      const p = await centre(selector, index);
+      const p = await center(selector, index);
       if (!p) { console.warn(`Not found: ${selector}`); return; }
       await finger(p, true);
       await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: p.x, y: p.y });

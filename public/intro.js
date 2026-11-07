@@ -18,7 +18,7 @@
   resize();
   window.addEventListener("resize", resize);
 
-  // Stars live in 3D: x/y in [-1, 1], z in (0, 1]; projected from the centre.
+  // Stars live in 3D: x/y in [-1, 1], z in (0, 1]; projected from the center.
   const stars = Array.from({ length: 320 }, () => ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() }));
   const accent = () => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#4fb3ff";
   let speed = 0.0016;          // drift; ramps up during the warp

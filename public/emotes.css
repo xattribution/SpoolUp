@@ -1,0 +1,184 @@
+/* The emote board (emotes.js): tabs across the top (Favorites, All, the player's groups,
+   +), Arrange at the end, and the emotes below as deck tiles, which take each maker's
+   button look from makers.css. Sizes come from the board's cell (--em-cols, --em-row,
+   --em-gap, --em-bar, set by emotes.js). */
+.em-board {
+  display: flex; flex-direction: column; gap: var(--em-gap, 8px);
+  overflow: hidden;
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+}
+
+.em-bar { flex: none; display: flex; align-items: stretch; gap: 6px; height: var(--em-bar, 44px); }
+.em-tabs {
+  position: relative; flex: 1; min-width: 0;
+  display: flex; align-items: stretch; gap: 4px;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scrollbar-width: none; touch-action: pan-x;
+}
+.em-tabs::-webkit-scrollbar { display: none; }
+
+.em-tab, .em-tool {
+  flex: none; min-width: var(--em-bar, 44px); padding: 0 12px; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(180deg, var(--face-hi), var(--face-lo));
+  color: var(--dim);
+  border: 1px solid var(--line);
+  border-radius: var(--btn-radius); clip-path: var(--btn-clip);
+  font: var(--label-weight) 13px/1 var(--font-body);
+  text-transform: var(--label-case); letter-spacing: var(--label-track);
+  white-space: nowrap; cursor: pointer; touch-action: pan-x;
+  transition: background .12s ease, border-color .12s ease, color .12s ease, transform .12s ease;
+}
+.em-tab:focus-visible, .em-tool:focus-visible, .em-board .em-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* The open tab: solid, with the accent under it. */
+.em-tab.on {
+  background: color-mix(in srgb, var(--accent) 24%, var(--face-hi));
+  border-color: var(--accent); color: var(--text);
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+.em-tab-star { color: var(--amber); font-size: 1.1em; }
+.em-tab-name { max-width: 11em; overflow: hidden; text-overflow: ellipsis; }
+.em-tab.em-add { font-size: 20px; font-weight: 400; color: var(--accent); }
+/* Arrange: tabs that take a dropped emote, and the one under the finger. */
+.em-tab.drop-ok { border-style: dashed; border-color: var(--line-hi); color: var(--text); }
+.em-tab.drop {
+  border-style: solid; border-color: var(--accent); color: var(--text);
+  background: color-mix(in srgb, var(--accent) 40%, var(--face-hi));
+  transform: scale(1.06);
+}
+.em-tool { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.em-tool.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+.em-list {
+  position: relative; flex: 1; min-height: 0;
+  display: grid; align-content: start;
+  grid-template-columns: repeat(var(--em-cols, 5), minmax(0, 1fr));
+  grid-auto-rows: var(--em-row, 72px);
+  gap: var(--em-gap, 8px);
+  padding: 2px;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; touch-action: pan-y;
+}
+
+/* Tiles: the deck's tile button (hud-btn s-tile), smaller. */
+.em-board .em-tile {
+  position: relative; min-width: 0; padding: 6px 4px; gap: 4px;
+  font-size: 11px; touch-action: pan-y;
+}
+.em-board .em-tile .hud-ico svg { width: 28px; height: 28px; }
+.em-board .em-tile .hud-lbl { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.em-board.tight .em-tile { padding: 4px 2px; gap: 2px; font-size: 10px; letter-spacing: .02em; }
+.em-board.tight .em-tile .hud-ico svg { width: 22px; height: 22px; }
+.em-board:not(.small) .em-tile { font-size: 12px; }
+.em-board:not(.small):not(.tight) .em-tile .hud-ico svg { width: 34px; height: 34px; }
+html[data-keys] .em-board .em-tile > .hud-key { top: auto; bottom: 3px; right: 5px; font-size: 9px; }
+
+/* The star on a favorite, everywhere it shows. */
+.em-star {
+  position: absolute; top: 3px; right: 5px; z-index: 2;
+  font: 13px/1 system-ui, sans-serif; color: var(--amber);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--amber) 60%, transparent);
+  opacity: 0; transform: scale(.3); pointer-events: none;
+  transition: opacity .15s ease, transform .2s cubic-bezier(.3, 1.6, .5, 1);
+}
+.em-tile.starred .em-star { opacity: 1; transform: none; }
+/* Holding: a bar fills along the bottom; when it's full the star flips. */
+.em-hold {
+  position: absolute; left: 6px; right: 6px; bottom: 3px; height: 3px; z-index: 2;
+  background: var(--amber); border-radius: 2px; pointer-events: none;
+  transform: scaleX(0); transform-origin: 0 50%; opacity: 0;
+}
+.em-tile.em-holding .em-hold { animation: em-hold .45s linear forwards; }
+@keyframes em-hold {
+  0%, 25% { transform: scaleX(0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+.em-burst {
+  position: absolute; left: 50%; top: 50%; z-index: 3; pointer-events: none;
+  font: 28px/1 system-ui, sans-serif; color: var(--amber);
+  text-shadow: 0 0 12px var(--amber);
+  transform: translate(-50%, -50%) scale(.4); opacity: 1;
+  animation: em-burst .55s ease-out forwards;
+}
+@keyframes em-burst {
+  60% { opacity: .9; }
+  to { transform: translate(-50%, -50%) scale(2.4) rotate(36deg); opacity: 0; }
+}
+
+.em-empty {
+  grid-column: 1 / -1; align-self: center; padding: 18px 10px;
+  text-align: center; color: var(--dim);
+  font: 600 14px/1.35 var(--font-body); letter-spacing: .02em;
+}
+.em-hint {
+  flex: none; margin-top: -2px;
+  text-align: center; color: var(--dim); font: 12px/1.3 var(--font-body);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.em-hint[hidden] { display: none; }
+
+/* Arrange: tiles wiggle and press nothing; the one being moved leaves a dim gap. */
+.em-board.arranging .em-tile { touch-action: none; cursor: grab; animation: em-wiggle .3s ease-in-out infinite alternate; }
+.em-board.arranging .em-tile:nth-child(2n) { animation-delay: -.15s; animation-direction: alternate-reverse; }
+@keyframes em-wiggle { from { rotate: -1.6deg; } to { rotate: 1.6deg; } }
+.em-board.arranging .em-tile { outline: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: -3px; }
+.em-board .em-tile.em-placeholder { opacity: .3; animation: none; }
+.em-ghost {
+  position: absolute; z-index: 20; margin: 0; pointer-events: none;
+  rotate: 3deg; scale: 1.08; opacity: .95;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .55);
+  animation: none !important;
+}
+.em-x {
+  position: absolute; top: 2px; left: 2px; z-index: 4;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--red); color: #fff; border: 2px solid var(--bg);
+  font: 700 17px/1 system-ui, sans-serif; cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .em-board.arranging .em-tile { animation: none; }
+  .em-tile.em-holding .em-hold { animation-duration: .45s; }
+  .em-tab.drop { transform: none; }
+}
+
+/* New group, Rename and the group menu: a small sheet over the deck. */
+.em-veil {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(0, 0, 0, .6);
+}
+.em-sheet {
+  width: min(420px, 100%); padding: 18px 16px 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--line-hi); border-radius: max(var(--btn-radius), 6px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+  font-family: var(--font-body);
+}
+.em-sheet h3 {
+  margin: 0; font: 400 18px/1.2 var(--font-display);
+  text-transform: var(--label-case); letter-spacing: var(--label-track);
+  overflow-wrap: anywhere;
+}
+.em-sheet input {
+  height: 44px; padding: 0 12px; width: 100%; box-sizing: border-box;
+  background: var(--face-lo); color: var(--text);
+  border: 1px solid var(--line-hi); border-radius: 4px;
+  font: 16px var(--font-body); /* 16px: iOS doesn't zoom in */
+}
+.em-sheet input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.em-acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.em-act {
+  min-height: 44px; padding: 0 16px; margin: 0;
+  background: var(--face-lo); color: var(--text);
+  border: 1px solid var(--line-hi); border-radius: 4px;
+  font: var(--label-weight) 14px/1 var(--font-body);
+  text-transform: var(--label-case); letter-spacing: var(--label-track);
+  cursor: pointer;
+}
+.em-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.em-act.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.em-act.primary:disabled { opacity: .45; cursor: default; }
+.em-act.danger { color: var(--red); border-color: color-mix(in srgb, var(--red) 55%, var(--line)); margin-right: auto; }

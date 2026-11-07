@@ -10,7 +10,7 @@
 //    voice listener and the sound player, with version info.
 // 4. Packs server.js, qr.js, public/, layouts/ and keybinds/ into TabletDeckServer.exe, a
 //    Node single executable application made from the node.exe running this script, and
-//    writes THIRD-PARTY-NOTICES.txt with that Node.js's licence.
+//    writes THIRD-PARTY-NOTICES.txt with that Node.js's license.
 // 5. Signs the .exe files, if SIGN_CMD is set (see below).
 // 6. Runs Inno Setup on installer/TabletDeck.iss (which signs the installer too, with
 //    SIGN_CMD) and writes the installer's SHA-256 checksum next to it.
@@ -193,7 +193,7 @@ async function buildApp() {
   await inject(exe, "NODE_SEA_BLOB", fs.readFileSync(blob), { sentinelFuse: "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2" });
 
   step("Writing the third-party notices");
-  // TabletDeckServer.exe contains the Node.js runtime, whose licence (covering the
+  // TabletDeckServer.exe contains the Node.js runtime, whose license (covering the
   // libraries Node bundles, like OpenSSL and V8) has to ship with every copy. The
   // Node.js download from nodejs.org has it next to node.exe (one folder up on Linux and
   // macOS); NODE_LICENSE overrides.

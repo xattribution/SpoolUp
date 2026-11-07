@@ -217,7 +217,7 @@ function parseCombo(combo) {
 
 // Returns { actionName: "lalt+n" } for keyboard rebinds in Star Citizen actionmaps or
 // Mappings profile files. `files` is one path or a list; later files win, matching a
-// profile loaded in-game on top of earlier customisations.
+// profile loaded in-game on top of earlier customizations.
 function readActionmapOverrides(files) {
   const overrides = {};
   for (const file of [].concat(files || [])) {
@@ -623,7 +623,7 @@ function startVoice() {
   proc.stdin.write("ready\n");
 }
 
-// Presses the button for a recognised phrase. The layout is re-read so in-game rebinds count.
+// Presses the button for a recognized phrase. The layout is re-read so in-game rebinds count.
 // Tells the voice listener the push-to-talk key (Windows virtual-key code, 0 = none).
 function sendPushToTalk() {
   if (!voice) return;
@@ -908,7 +908,8 @@ function handleEditor(req, res, url) {
     for (const file of layoutFiles()) {
       try {
         const l = JSON.parse(readConfigFile(file));
-        layouts.push({ file, name: l.name || file, canvas: l.canvas || null, custom: l.custom === true,
+        const grid = Boolean(l.grid && typeof l.grid === "object");
+        layouts.push({ file, name: l.name || file, canvas: l.canvas || null, grid, hidden: l.hidden === true, custom: l.custom === true,
           active: file === config.layout ? "tablet" : file === config.phoneLayout ? "phone" : null });
       } catch { /* not a layout */ }
     }
@@ -944,25 +945,32 @@ function handleEditor(req, res, url) {
         if (!custom) return sendJson(res, 400, { error: `"${name}" is a built-in layout. Pick another name.` });
       }
       const layout = data.layout;
-      if (!layout || typeof layout !== "object" || !Array.isArray(layout.canvas)) return sendJson(res, 400, { error: "That isn't a layout." });
+      // A 2.0 canvas layout, or a grid layout (2.1), which fits every screen.
+      const grid = Boolean(layout && typeof layout === "object" && layout.grid && typeof layout.grid === "object" && !Array.isArray(layout.grid));
+      if (!layout || typeof layout !== "object" || !(grid || Array.isArray(layout.canvas))) return sendJson(res, 400, { error: "That isn't a layout." });
+      if (grid && (!layout.panels || typeof layout.panels !== "object")) return sendJson(res, 400, { error: "That isn't a layout." });
       layout.custom = true;
       try { prepareLayout(JSON.parse(JSON.stringify(layout))); } catch (err) { return sendJson(res, 400, { error: err.message }); }
       const target = path.join(DATA_DIR, file);
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, JSON.stringify(layout, null, 2) + "\n");
       console.log(`Saved layout ${file}.`);
-      const kind = layout.canvas[1] < 500 ? "phoneLayout" : "layout";
-      if (data.use && config[kind] !== file) {
-        config[kind] = file;
-        saveSetting(kind, file);
-        console.log(`${kind === "layout" ? "Tablets" : "Phones"} now use ${file}.`);
+      // "Use on tablets": a grid layout is for phones and tablets alike.
+      const kinds = grid ? ["layout", "phoneLayout"] : [layout.canvas[1] < 500 ? "phoneLayout" : "layout"];
+      if (data.use) {
+        for (const kind of kinds) {
+          if (config[kind] === file) continue;
+          config[kind] = file;
+          saveSetting(kind, file);
+          console.log(`${kind === "layout" ? "Tablets" : "Phones"} now use ${file}.`);
+        }
       }
       if (config.layout === file || config.phoneLayout === file) {
         reloadTablets();
         // Voice commands come from the tablet layout; restart the listener so they match.
-        if (kind === "layout" && voice) voice.kill();
+        if (config.layout === file && voice) voice.kill();
       }
-      sendJson(res, 200, { ok: true, file, active: config[kind] === file });
+      sendJson(res, 200, { ok: true, file, active: kinds.every((kind) => config[kind] === file) });
     });
     return;
   }
@@ -998,8 +1006,9 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ on: Boolean(config.voice), ready: Boolean(voice), ...tabletVoice, commands: voiceList }));
     return;
   }
-  // Layouts a tablet can pick in its settings sheet: the ones made for its screen (phone
-  // layouts are under 500 px tall), plus tabbed grid layouts, which fit any screen.
+  // Layouts a tablet can pick in its settings sheet: the 2.0 ones made for its screen (phone
+  // layouts are under 500 px tall), plus grid layouts and tabbed layouts, which fit any
+  // screen. Hidden ones (copies kept so old settings still find them) aren't listed.
   if (url.pathname === "/layouts.json") {
     if (refusePairing(req, res, url)) return;
     const phone = url.searchParams.get("device") === "phone";
@@ -1007,12 +1016,16 @@ const server = http.createServer((req, res) => {
     for (const file of layoutFiles()) {
       try {
         const l = JSON.parse(readConfigFile(file));
+        if (l.hidden === true) continue;
         if (l.canvas && (l.canvas[1] < 500) !== phone) continue;
         layouts.push({ file, name: l.name || file, custom: l.custom === true });
       } catch { /* not a layout */ }
     }
     const pcChoice = phone && config.phoneLayout && readConfigFile(config.phoneLayout) ? config.phoneLayout : config.layout;
-    return sendJson(res, 200, { layouts, pcChoice });
+    // The PC's choice by name too, since a hidden copy (hud-phone.json) isn't in the list.
+    let pcName = null;
+    try { pcName = JSON.parse(readConfigFile(pcChoice)).name || null; } catch { /* unreadable: the deck says "default" */ }
+    return sendJson(res, 200, { layouts, pcChoice, pcName });
   }
   if (url.pathname === "/layout.json") {
     if (refusePairing(req, res, url)) return;
@@ -1050,7 +1063,7 @@ server.on("upgrade", (req, socket) => {
   wsAccept(req, socket);
   const who = socket.remoteAddress;
   const device = url.searchParams.get("device") || "tablet";
-  // The Stream Deck plugin (streamdeck/plugin) connects like a tablet and presses the same
+  // The Stream Deck plugin (docs/STREAMDECK-API.md) connects like a tablet and presses the same
   // buttons through the same checks; only its name in the log differs.
   const kind = device === "streamdeck" ? "Stream Deck" : "Tablet";
   console.log(`${kind} connected: ${who}`);

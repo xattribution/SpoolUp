@@ -1,4 +1,4 @@
-/* Intro screen: shown on every launch, tap to continue. Colours come from the theme. */
+/* Intro screen: shown on every launch, tap to continue. Colors come from the theme. */
 
 #intro {
   position: fixed; inset: 0; z-index: 50; overflow: hidden;

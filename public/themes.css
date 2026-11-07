@@ -82,7 +82,7 @@
   --tab-radius: 0;
 }
 
-/* ---------- Anvil Aerospace: olive drab armour plates, screws, stencils ---------- */
+/* ---------- Anvil Aerospace: olive drab armor plates, screws, stencils ---------- */
 [data-theme="anvil"] {
   --bg: #2c3226;
   --bg-art: var(--scratches),
@@ -92,7 +92,7 @@
   --panel: #353c2d; --panel-hi: #414936; --line: #4f583f; --line-hi: #8a9562;
   --text: #ece9d2; --dim: #b8b797; --ink: #ece9d2; --ink-dim: #b2b093;
   --accent: #eaa53a; --green: #a9d25c; --amber: #eaa53a; --red: #e85d3f; --blue: #9cc0d0;
-  --material: armour; --face-hi: #424a37; --face-lo: #2f3528;
+  --material: armor; --face-hi: #424a37; --face-lo: #2f3528;
   --plate: var(--scratches), linear-gradient(180deg, #394030, #2f3528); --plate-line: #222719;
   --font-display: "Black Ops One", Impact, sans-serif; --font-body: "Chakra Petch", "Segoe UI", sans-serif;
   --label-case: uppercase; --label-track: .08em; --label-weight: 600;
@@ -127,7 +127,7 @@
   --tab-radius: 14px 14px 0 0;
 }
 
-/* ---------- MISC: teal-slate enamel, grey bezel, orange tabs ---------- */
+/* ---------- MISC: teal-slate enamel, gray bezel, orange tabs ---------- */
 [data-theme="misc"] {
   --bg: #2c4c4e;
   --bg-art: repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px),

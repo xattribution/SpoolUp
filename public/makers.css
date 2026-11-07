@@ -1,8 +1,8 @@
 /* Each manufacturer's own drawing of the HUD: its plates, bezel, buttons, headers and
-   widgets, and its lit, pressed, blocked and offline looks. Colours come from the theme's
+   widgets, and its lit, pressed, blocked and offline looks. Colors come from the theme's
    tokens (themes.css); this file says what a token can't: shapes, materials, marks.
    Buttons are drawn from variables set on the button (see .hud-btn in hud.css), so a
-   maker's look keeps working with every state and with the button's colour (--c).
+   maker's look keeps working with every state and with the button's color (--c).
    Everything is gradients and borders: nothing here animates or filters per frame. */
 
 /* ====================================================================================
@@ -38,6 +38,30 @@
 [data-theme="rsi"] .hud-rotary .rt-face { background: repeating-conic-gradient(rgba(79,179,255,.18) 0 1deg, transparent 1deg 10deg), radial-gradient(circle, #0b1420 0 40%, rgba(79,179,255,.07) 41% 69%, rgba(9,16,27,.85) 70%); border-color: #35598a; }
 [data-theme="rsi"] .hud-rotary .rt-ticks { stroke: #4fb3ff; }
 [data-theme="rsi"] .hud-rotary .rt-needle { width: 4px; left: calc(50% - 2px); background: linear-gradient(0deg, transparent 0 38%, #4fb3ff 38%); }
+
+/* 2.1 clusters: an instrument ring with ticks and a hairline needle, glass faces held in
+   corner brackets, smooth glowing arcs */
+[data-theme="rsi"] #canvas {
+  --dial-shape: circle; --arc-style: curve; --arc-gap: 4; --cl-line: 1.5; --cl-seg: 6; --cl-cap: round;
+  --cl-ship: rgba(79,179,255,.12); --cl-ship-line: #6fb6ff; --cl-glow: drop-shadow(0 0 6px rgba(79,179,255,.65));
+  --cl-chip-r: 50%;
+  --cl-face: linear-gradient(#4fb3ff, #4fb3ff) 0 0 / 14px 1.5px, linear-gradient(#4fb3ff, #4fb3ff) 0 0 / 1.5px 14px,
+    linear-gradient(#4fb3ff, #4fb3ff) 100% 100% / 14px 1.5px, linear-gradient(#4fb3ff, #4fb3ff) 100% 100% / 1.5px 14px;
+}
+[data-theme="rsi"] .cl-cluster, [data-theme="rsi"] .hud-dial { background-repeat: no-repeat; }
+[data-theme="rsi"] .hud-dial .dl-face { fill: rgba(79,179,255,.06); }
+[data-theme="rsi"] .hud-dial .dl-rail { stroke: #35598a; }
+[data-theme="rsi"] .hud-dial .dl-tick { stroke: #4fb3ff; stroke-width: 1.5; }
+[data-theme="rsi"] .hud-dial .dl-collar { stroke: #4fb3ff; stroke-dasharray: 1 5; }
+[data-theme="rsi"] .hud-dial .dl-needle { height: 2px; margin-top: -1px; background: linear-gradient(90deg, transparent 0 30%, #4fb3ff 30%); }
+[data-theme="rsi"] .hud-dial .dl-cap.on, [data-theme="rsi"] .cl-word { color: #f0c069; }
+[data-theme="rsi"] .cl-shields .cl-ring-track { stroke: #22344b; opacity: .8; }
+[data-theme="rsi"] .cl-targeting .cl-ret-ring { stroke-dasharray: 2 6; }
+[data-theme="rsi"] .cl-hull .cl-door-frame { stroke: #f0c069; stroke-width: 1.5px; }
+[data-theme="rsi"] .cl-hull .cl-leaf rect { fill: rgba(150,200,255,.08); stroke: rgba(150,200,255,.45); stroke-width: 1; }
+[data-theme="rsi"] .cl-hull .cl-door-sill { stroke: #f0c069; stroke-width: 2; }
+[data-theme="rsi"] .cl-cm .cl-plate, [data-theme="rsi"] .cl-hull .cl-doors { border-color: rgba(150,200,255,.22); background: linear-gradient(180deg, rgba(150,200,255,.07), rgba(150,200,255,.02)); }
+[data-theme="rsi"] .cl-targeting .cl-ret-cross { stroke-dasharray: 1 5; }
 
 /* ====================================================================================
    Drake: scratched gunmetal slabs, rivets, hazard stripes, stencil type
@@ -136,6 +160,31 @@
 [data-theme="drake"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 0; clip-path: polygon(50% 0, 100% 14px, 100% 100%, 0 100%, 0 14px); background: repeating-linear-gradient(-45deg, #f2c230 0 5px, #14130f 5px 10px); box-shadow: none; }
 [data-theme="drake"] .hud-rotary .rt-hub { border-radius: 4px; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
 
+/* 2.1 clusters: a pointy-top hex nut with a hazard-striped needle, flat faceted slabs for
+   arcs, hazard-taped rings, gunmetal with yellow stencil edges, no glow */
+[data-theme="drake"] #canvas {
+  --dial-shape: hex; --arc-style: facet; --arc-gap: 3; --cl-line: 2.5; --cl-seg: 11; --cl-cap: butt;
+  --cl-ship: #2f2c26; --cl-ship-line: #f2c230; --cl-glow: none; --cl-dash: 12 7;
+  --cl-chip-r: 0; --cl-chip-clip: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  --cl-face: var(--scratches), linear-gradient(180deg, rgba(47,44,38,.5), rgba(20,19,15,.5));
+}
+[data-theme="drake"] .hud-dial .dl-face { fill: #1d1b17; }
+[data-theme="drake"] .hud-dial .dl-rail { stroke: #f2c230; stroke-dasharray: 12 7; }
+[data-theme="drake"] .hud-dial .dl-tick { stroke: #f2c230; stroke-width: 4; }
+[data-theme="drake"] .hud-dial .dl-needle { height: 8px; margin-top: -4px; border-radius: 0; box-shadow: none;
+  background: repeating-linear-gradient(-60deg, #f2c230 0 5px, #14130f 5px 10px); clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%); }
+[data-theme="drake"] .hud-dial .dl-hub { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); border-radius: 0; }
+[data-theme="drake"] .hud-dial .dl-cap { font-family: var(--font-display); font-weight: 400; letter-spacing: .1em; }
+[data-theme="drake"] .cl-shields .cl-ring-track { stroke: #f2c230; opacity: .5; }
+[data-theme="drake"] .cl-shields .cl-seg.on { stroke: #a6d13c; }
+[data-theme="drake"] .cl-targeting .cl-bracket { stroke-width: 6px; stroke-linecap: butt; }
+[data-theme="drake"] .cl-cm .cl-tube { border-radius: 0; background: repeating-linear-gradient(-45deg, var(--c) 0 8px, #14130f 8px 16px) 0 0 / 100% 12px no-repeat, var(--mark), var(--face); }
+[data-theme="drake"] .cl-cm .cl-cover { background: repeating-linear-gradient(-45deg, #f2c230 0 12px, #14130f 12px 24px); border-color: #f2c230; }
+[data-theme="drake"] .cl-hull .cl-door-sill { stroke: #f2c230; stroke-width: 7; stroke-dasharray: 10 8; stroke-linecap: butt; }
+[data-theme="drake"] .cl-hull .cl-door-frame { stroke: #f2c230; stroke-width: 5px; stroke-linejoin: miter; }
+[data-theme="drake"] .cl-hull .cl-leaf rect { fill: #2a2822; stroke: #57513f; stroke-width: 2; }
+[data-theme="drake"] .cl-hull .cl-doors, [data-theme="drake"] .cl-cm .cl-plate { border-radius: 0; border-color: #3a362a; background: repeating-linear-gradient(-45deg, rgba(242,194,48,.5) 0 6px, transparent 6px 12px) 0 0 / 100% 5px no-repeat, #16150f; }
+
 /* ====================================================================================
    Aegis: carbon weave, graphite with cut corners, red tactical marks
    ==================================================================================== */
@@ -205,8 +254,30 @@
 [data-theme="aegis"] .hud-rotary .rt-needle { width: 8px; left: calc(50% - 4px); border-radius: 0; clip-path: polygon(50% 0, 100% 20px, 60% 100%, 40% 100%, 0 20px); background: linear-gradient(0deg, transparent 0 40%, #ff3b3b 40%); box-shadow: none; }
 [data-theme="aegis"] .hud-rotary .rt-hub { border-radius: 0; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
 
+/* 2.1 clusters: modes on a V with the hub on top, cut-corner chips, thin hard facets with
+   wide gaps, carbon faces, red tactical ticks */
+[data-theme="aegis"] #canvas {
+  --dial-shape: chevron; --arc-style: facet; --arc-gap: 9; --cl-line: 1.5; --cl-seg: 4; --cl-cap: butt;
+  --cl-ship: #1f2226; --cl-ship-line: #f3f5f8; --cl-glow: drop-shadow(0 0 3px rgba(255,59,59,.55)); --cl-dash: 18 4;
+  --cl-chip-r: 0; --cl-chip-clip: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  --cl-face: conic-gradient(from 45deg, rgba(27,29,34,.6) 25%, rgba(13,14,16,.6) 0 50%, rgba(27,29,34,.6) 0 75%, rgba(13,14,16,.6) 0) 0 0 / 6px 6px;
+}
+[data-theme="aegis"] .cl-cluster, [data-theme="aegis"] .hud-dial { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+[data-theme="aegis"] .hud-dial .dl-face { fill: none; }
+[data-theme="aegis"] .hud-dial .dl-rail { stroke: #5c636e; stroke-width: 3; }
+[data-theme="aegis"] .hud-dial .dl-spoke { stroke: #3a3f47; stroke-dasharray: none; }
+[data-theme="aegis"] .hud-dial .dl-spoke.on { stroke: #ff3b3b; filter: none; stroke-width: 4; }
+[data-theme="aegis"] .hud-dial .dl-collar { stroke: #ff3b3b; }
+[data-theme="aegis"] .hud-dial .dl-hub { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); border-radius: 0; }
+[data-theme="aegis"] .cl-shields .cl-ring { stroke-dasharray: 18 4; }
+[data-theme="aegis"] .cl-targeting .cl-pip { fill: none; stroke: #ff3b3b; stroke-width: 2; }
+[data-theme="aegis"] .cl-hull .cl-door-frame { stroke: #ff3b3b; stroke-width: 2px; stroke-linejoin: miter; }
+[data-theme="aegis"] .cl-hull .cl-door-sill { stroke: #ff3b3b; stroke-dasharray: 2 4; }
+[data-theme="aegis"] .cl-hull .cl-leaf rect { fill: #1d1f24; stroke: #3c3f46; }
+[data-theme="aegis"] .cl-hull .cl-doors, [data-theme="aegis"] .cl-cm .cl-plate { border-radius: 0; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); border-color: rgba(255,59,59,.35); }
+
 /* ====================================================================================
-   Anvil: olive drab armour, screwed plates, indicator lamps, stencil type
+   Anvil: olive drab armor, screwed plates, indicator lamps, stencil type
    ==================================================================================== */
 [data-theme="anvil"] #canvas {
   --bezel: inset 0 0 0 2px #1c2016, inset 0 0 50px rgba(0,0,0,.35);
@@ -277,6 +348,30 @@
 [data-theme="anvil"] .hud-rotary .rt-ticks { stroke: #eaa53a; stroke-width: 3; }
 [data-theme="anvil"] .hud-rotary .rt-needle { width: 8px; left: calc(50% - 4px); background: linear-gradient(0deg, transparent 0 38%, #ece9d2 38%); box-shadow: 0 0 0 1px #222719; }
 [data-theme="anvil"] .hud-rotary .rt-hub { box-shadow: 0 0 0 4px #222719, 0 0 0 6px #5d6748; }
+
+/* 2.1 clusters: an armored octagon plate with screw heads, square chips, thick block arcs,
+   olive drab with lamp-lit marks */
+[data-theme="anvil"] #canvas {
+  --dial-shape: octagon; --arc-style: facet; --arc-gap: 7; --cl-line: 3; --cl-seg: 13; --cl-cap: butt;
+  --cl-ship: #424a37; --cl-ship-line: #c8cfa4; --cl-glow: drop-shadow(0 0 4px color-mix(in srgb, var(--c) 70%, transparent)); --cl-dash: 1 16;
+  --cl-chip-r: 3px; --cl-chip-clip: none;
+  --cl-face: var(--scratches), linear-gradient(180deg, rgba(66,74,55,.55), rgba(47,53,40,.55));
+}
+[data-theme="anvil"] .hud-dial .dl-face { fill: #2f3528; stroke: #8a9562; stroke-width: 6; }
+[data-theme="anvil"] .hud-dial .dl-rail { stroke: #1e2219; stroke-width: 3; stroke-dasharray: 1 16; stroke-linecap: round; }
+[data-theme="anvil"] .hud-dial .dl-tick { stroke: #eaa53a; stroke-width: 5; stroke-linecap: square; }
+[data-theme="anvil"] .hud-dial .dl-needle { height: 7px; margin-top: -3.5px; border-radius: 1px; background: linear-gradient(90deg, transparent 0 35%, #eaa53a 35%); box-shadow: 0 0 0 1px #1e2219; }
+[data-theme="anvil"] .hud-dial .dl-hub { border-radius: 6px; clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+[data-theme="anvil"] .hud-dial .dl-cap { font-family: var(--font-display); font-weight: 400; }
+[data-theme="anvil"] .cl-shields .cl-ring-track { stroke: #1e2219; opacity: .9; stroke-dasharray: 1 16; stroke-linecap: round; }
+[data-theme="anvil"] .cl-shields .cl-seg { stroke: #2f3528; }
+[data-theme="anvil"] .cl-targeting .cl-bracket { stroke-width: 5px; stroke-linecap: square; }
+[data-theme="anvil"] .cl-bank .cl-toggle { border-radius: 2px; }
+[data-theme="anvil"] .cl-bank .cl-toggle::after { border-radius: 1px; }
+[data-theme="anvil"] .cl-hull .cl-door-frame { stroke-width: 6px; stroke-linecap: square; stroke-linejoin: miter; }
+[data-theme="anvil"] .cl-hull .cl-leaf rect { stroke-width: 3; }
+[data-theme="anvil"] .cl-hull .cl-door-sill { stroke-width: 6; stroke-linecap: square; }
+[data-theme="anvil"] .cl-hull .cl-doors, [data-theme="anvil"] .cl-cm .cl-plate { border-radius: 2px; border-width: 2px; box-shadow: inset 0 0 0 3px rgba(0,0,0,.25); }
 
 /* ====================================================================================
    Origin: cream luxury, black gloss controls, gold hairlines, a cream dial
@@ -363,8 +458,31 @@
 [data-theme="origin"] .hud-rotary .rt-ticks { stroke: #caa468; stroke-width: 1.5; }
 [data-theme="origin"] .hud-rotary .rt-needle { width: 3px; left: calc(50% - 1.5px); background: linear-gradient(0deg, transparent 0 40%, #8b6d3e 40%); box-shadow: none; }
 
+/* 2.1 clusters: a slim cream ellipse with pill chips, gold hairlines, black gloss faces,
+   arcs as fine strokes with a soft gold light */
+[data-theme="origin"] #canvas {
+  --dial-shape: oval; --dial-chip-w: 1.45; --arc-style: curve; --arc-gap: 6; --cl-line: 1; --cl-seg: 3.5; --cl-cap: round;
+  --cl-ship: #131315; --cl-ship-line: #c9a66b; --cl-glow: drop-shadow(0 0 4px rgba(201,166,107,.6));
+  --cl-chip-r: 999px; --cl-chip-clip: none;
+  --cl-face: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.05), transparent 60%);
+}
+[data-theme="origin"] .hud-dial .dl-face { fill: #ebe4d6; opacity: .1; }
+[data-theme="origin"] .hud-dial .dl-rail { stroke: #c9a66b; stroke-width: 1; }
+[data-theme="origin"] .hud-dial .dl-deco, [data-theme="origin"] .hud-dial .dl-collar { stroke: #c9a66b; opacity: .6; }
+[data-theme="origin"] .hud-dial .dl-tick { stroke: #c9a66b; stroke-width: 1; }
+[data-theme="origin"] .hud-dial .dl-needle { height: 1.5px; margin-top: -.75px; background: linear-gradient(90deg, transparent 0 40%, #c9a66b 40%); box-shadow: none; }
+[data-theme="origin"] .hud-dial .dl-cap { text-transform: none; letter-spacing: .02em; font-weight: 500; }
+[data-theme="origin"] .cl-shields .cl-ring { stroke: #c9a66b; }
+[data-theme="origin"] .cl-shields .cl-seg { stroke: rgba(201,166,107,.25); }
+[data-theme="origin"] .cl-targeting .cl-bracket { stroke-width: 1px; }
+[data-theme="origin"] .cl-quantum .cl-spool-track, [data-theme="origin"] .cl-quantum .cl-spool-fill { stroke-width: 3; }
+[data-theme="origin"] .cl-hull .cl-door-frame, [data-theme="origin"] .cl-hull .cl-door-sill { stroke: #b08d57; stroke-width: 1px; }
+[data-theme="origin"] .cl-hull .cl-leaf rect { fill: #f4ede1; stroke: #b08d57; stroke-width: 1; }
+[data-theme="origin"] .cl-hull .cl-leaf path { stroke: #b08d57; }
+[data-theme="origin"] .cl-hull .cl-doors, [data-theme="origin"] .cl-cm .cl-plate { border-radius: 22px; border-color: rgba(176,141,87,.45); background: rgba(176,141,87,.08); }
+
 /* ====================================================================================
-   MISC: teal-slate enamel, grey bezel, orange tabs, gauge dials
+   MISC: teal-slate enamel, gray bezel, orange tabs, gauge dials
    ==================================================================================== */
 [data-theme="misc"] #canvas { --veil: linear-gradient(rgba(150,160,160,.22), rgba(150,160,160,.22)); }
 [data-theme="misc"] #canvas:not(.compact) { --bezel: inset 0 0 0 4px #b4baba, inset 0 0 0 5px #7c8686, inset 0 0 30px rgba(0,0,0,.3); }
@@ -415,6 +533,28 @@
 [data-theme="misc"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, #213a3c 41% 64%, #2c4c4e 65%); border: 4px solid #93b8b8; box-shadow: inset 0 0 0 2px #213a3c; }
 [data-theme="misc"] .hud-rotary .rt-ticks { stroke: #ff8a2a; stroke-width: 4; }
 [data-theme="misc"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 5px; background: linear-gradient(0deg, transparent 0 36%, #ff8a2a 36%); box-shadow: 0 2px 0 #9c4a0e; }
+
+/* 2.1 clusters: a rounded-rect rail like a cargo deck, module chips with orange tabs,
+   gauge-tick rings, teal enamel faces in a gray bezel */
+[data-theme="misc"] #canvas {
+  --dial-shape: rect; --dial-chip-w: 1.25; --arc-style: facet; --arc-gap: 5; --cl-line: 2; --cl-seg: 8; --cl-cap: round;
+  --cl-ship: #294648; --cl-ship-line: #d9e3e3; --cl-glow: none; --cl-dash: 2 6;
+  --cl-chip-r: 6px; --cl-chip-clip: none;
+  --cl-face: linear-gradient(180deg, rgba(59,99,102,.45), rgba(41,70,72,.45));
+}
+[data-theme="misc"] .cl-cluster, [data-theme="misc"] .hud-dial { box-shadow: inset 0 0 0 2px #7c8686; border-radius: 8px; }
+[data-theme="misc"] .hud-dial .dl-face { fill: #294648; }
+[data-theme="misc"] .hud-dial .dl-rail { stroke: #b4baba; stroke-width: 4; }
+[data-theme="misc"] .hud-dial .dl-chip { border-top: 5px solid var(--accent); }
+[data-theme="misc"] .hud-dial .dl-spoke.on { stroke: #ff8a2a; filter: none; }
+[data-theme="misc"] .hud-dial .dl-hub { border-radius: 10px; }
+[data-theme="misc"] .cl-shields .cl-ring-track { stroke: #b4baba; stroke-dasharray: 2 6; opacity: .8; }
+[data-theme="misc"] .cl-shields .cl-seg.on { stroke: #52dcab; }
+[data-theme="misc"] .cl-targeting .cl-ret-ring { stroke-dasharray: 2 6; stroke-width: 3; }
+[data-theme="misc"] .cl-turrets .cl-turret, [data-theme="misc"] .cl-mining .cl-cart { border-top: 5px solid var(--accent); }
+[data-theme="misc"] .cl-hull .cl-door-frame { stroke-width: 4px; }
+[data-theme="misc"] .cl-hull .cl-door-sill { stroke: var(--accent); stroke-width: 6; stroke-dasharray: 2 6; }
+[data-theme="misc"] .cl-hull .cl-doors, [data-theme="misc"] .cl-cm .cl-plate { border-radius: 12px; border-top: 5px solid var(--accent); }
 
 /* ====================================================================================
    Crusader: open sky, frosted plates, pearl-white capsules
@@ -475,6 +615,27 @@
 [data-theme="crusader"] .hud-rotary .rt-ticks { stroke: #2a78c8; stroke-width: 2.5; }
 [data-theme="crusader"] .hud-rotary .rt-needle { width: 6px; left: calc(50% - 3px); background: linear-gradient(0deg, transparent 0 38%, #2a78c8 38%); box-shadow: 0 0 10px rgba(42,120,200,.4); }
 
+/* 2.1 clusters: an open 270-degree ring over a horizon line, pearl capsules, smooth
+   arcs in sky blue on frosted plates */
+[data-theme="crusader"] #canvas {
+  --dial-shape: arc; --arc-style: curve; --arc-gap: 5; --cl-line: 2; --cl-seg: 8; --cl-cap: round;
+  --cl-ship: #ffffff; --cl-ship-line: #2a78c8; --cl-glow: drop-shadow(0 1px 3px rgba(42,120,200,.35));
+  --cl-chip-r: 50%; --cl-chip-clip: none;
+  --cl-face: linear-gradient(180deg, rgba(255,255,255,.55), rgba(229,238,246,.4));
+}
+[data-theme="crusader"] .cl-cluster, [data-theme="crusader"] .hud-dial { border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(95,152,207,.35); }
+[data-theme="crusader"] .hud-dial .dl-face { fill: none; }
+[data-theme="crusader"] .hud-dial .dl-rail { stroke: #5f98cf; stroke-width: 3; }
+[data-theme="crusader"] .hud-dial .dl-deco { stroke: #2a78c8; stroke-width: 2; opacity: .55; }
+[data-theme="crusader"] .hud-dial .dl-chip { --face: linear-gradient(180deg, #ffffff, #dfe9f3); box-shadow: 0 2px 6px rgba(21,48,77,.18), inset 0 1px 0 #fff; }
+[data-theme="crusader"] .hud-dial .dl-needle { background: linear-gradient(90deg, transparent 0 38%, #2a78c8 38%); box-shadow: none; height: 3px; }
+[data-theme="crusader"] .cl-shields .cl-ring-track { stroke: #b4c9dd; opacity: .9; }
+[data-theme="crusader"] .cl-cm .cl-cover-word { background: rgba(21,48,77,.8); }
+[data-theme="crusader"] .cl-hull .cl-door-frame { stroke: #2a78c8; stroke-width: 3px; }
+[data-theme="crusader"] .cl-hull .cl-leaf rect { fill: #ffffff; stroke: #b4c9dd; }
+[data-theme="crusader"] .cl-hull .cl-door-sill { stroke: #2a78c8; stroke-width: 3; }
+[data-theme="crusader"] .cl-hull .cl-doors, [data-theme="crusader"] .cl-cm .cl-plate { border-radius: 18px; border-color: #c9d9e8; background: linear-gradient(180deg, #f3f8fd, #e4eef8); box-shadow: inset 0 1px 0 #fff; }
+
 /* ====================================================================================
    Banu: plum lacquer on carved wood, soft seed shapes, warm glow
    ==================================================================================== */
@@ -522,6 +683,27 @@
 [data-theme="banu"] .hud-rotary .rt-face { border-radius: 48% 52% 50% 50% / 55% 55% 45% 45%; background: radial-gradient(circle, transparent 0 40%, rgba(242,163,58,.1) 41% 70%), #2a1729; border-color: rgba(255,200,140,.25); box-shadow: 0 0 30px -8px rgba(242,163,58,.4), inset 0 0 24px rgba(0,0,0,.4); }
 [data-theme="banu"] .hud-rotary .rt-ticks { stroke: #f2a33a; stroke-width: 5; }
 [data-theme="banu"] .hud-rotary .rt-needle { width: 12px; left: calc(50% - 6px); border-radius: 50% 50% 2px 2px / 30% 30% 2px 2px; background: linear-gradient(0deg, transparent 0 40%, #f2a33a 40%, #ffd59a); box-shadow: 0 0 14px rgba(242,163,58,.6); }
+
+/* 2.1 clusters: a flower of petal chips round a seed hub, arcs as rows of beads, carved
+   wood faces under plum lacquer, a warm glow */
+[data-theme="banu"] #canvas {
+  --dial-shape: bloom; --arc-style: curve; --arc-gap: 4; --cl-line: 2; --cl-seg: 9; --cl-cap: round;
+  --cl-ship: #5a3a24; --cl-ship-line: #f2a33a; --cl-glow: drop-shadow(0 0 7px rgba(242,163,58,.6)); --cl-dash: .1 9;
+  --cl-chip-r: 50%; --cl-chip-clip: none;
+  --cl-face: radial-gradient(ellipse at 50% 50%, rgba(242,163,58,.08), transparent 70%);
+}
+[data-theme="banu"] .hud-dial .dl-face { fill: rgba(53,28,55,.6); }
+[data-theme="banu"] .hud-dial .dl-rail { stroke: #f2a33a; stroke-width: 4; stroke-dasharray: .1 10; stroke-linecap: round; }
+[data-theme="banu"] .hud-dial .dl-collar { stroke: #a06a9a; stroke-width: 3; stroke-dasharray: .1 7; }
+[data-theme="banu"] .hud-dial .dl-needle { height: 6px; margin-top: -3px; border-radius: 3px; background: linear-gradient(90deg, transparent 0 45%, #f2a33a 45%); }
+[data-theme="banu"] .hud-dial .dl-hub { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+[data-theme="banu"] .cl-shields .cl-seg { stroke-dasharray: .1 7; }
+[data-theme="banu"] .cl-shields .cl-ring-track { stroke-dasharray: .1 10; stroke: #a06a9a; opacity: .9; }
+[data-theme="banu"] .cl-targeting .cl-bracket { stroke-dasharray: .1 7; stroke-width: 4px; }
+[data-theme="banu"] .cl-turrets .cl-turret { border-radius: 26px 26px 18px 18px / 30px 30px 14px 14px; }
+[data-theme="banu"] .cl-hull .cl-door-frame { stroke-dasharray: .1 8; stroke-width: 5px; }
+[data-theme="banu"] .cl-hull .cl-door-sill { stroke-dasharray: .1 8; stroke-width: 5; }
+[data-theme="banu"] .cl-hull .cl-doors, [data-theme="banu"] .cl-cm .cl-plate { border-radius: 30px 30px 18px 18px / 36px 36px 14px 14px; }
 
 /* ====================================================================================
    Aopoa: jade light, flowing plates, deep green forms with a living rim
@@ -572,6 +754,27 @@
 [data-theme="aopoa"] .hud-rotary .rt-face { background: radial-gradient(circle, transparent 0 40%, rgba(62,230,176,.12) 41% 66%, transparent 67%), linear-gradient(160deg, #1e5245, #0f3129); border: 0; box-shadow: 0 0 0 2px rgba(62,230,176,.35), 0 0 30px -6px #3ee6b0; }
 [data-theme="aopoa"] .hud-rotary .rt-ticks { stroke: #3ee6b0; }
 [data-theme="aopoa"] .hud-rotary .rt-needle { width: 6px; left: calc(50% - 3px); border-radius: 3px; background: linear-gradient(0deg, transparent 0 38%, #c8fff0 38%, #3ee6b0); box-shadow: 0 0 14px #3ee6b0; }
+
+/* 2.1 clusters: a crescent that holds the hub, blob chips, thick living arcs in jade light,
+   deep green shell faces */
+[data-theme="aopoa"] #canvas {
+  --dial-shape: crescent; --arc-style: curve; --arc-gap: 3; --cl-line: 2.5; --cl-seg: 12; --cl-cap: round;
+  --cl-ship: #0f3129; --cl-ship-line: #3ee6b0; --cl-glow: drop-shadow(0 0 9px rgba(62,230,176,.7));
+  --cl-chip-r: 58% 42% 55% 45% / 48% 58% 42% 52%; --cl-chip-clip: none;
+  --cl-face: radial-gradient(ellipse at 30% 30%, rgba(62,230,176,.1), transparent 65%);
+}
+[data-theme="aopoa"] .cl-cluster, [data-theme="aopoa"] .hud-dial { border-radius: 28px 10px 28px 10px; }
+[data-theme="aopoa"] .hud-dial .dl-face { fill: none; }
+[data-theme="aopoa"] .hud-dial .dl-rail { stroke: #3ee6b0; stroke-width: 14; opacity: .22; }
+[data-theme="aopoa"] .hud-dial .dl-deco { stroke: #3ee6b0; stroke-width: 2; opacity: .7; }
+[data-theme="aopoa"] .hud-dial .dl-spoke { stroke: #2a6152; stroke-dasharray: none; stroke-width: 3; stroke-linecap: round; }
+[data-theme="aopoa"] .hud-dial .dl-spoke.on { stroke: #3ee6b0; filter: drop-shadow(0 0 6px #3ee6b0); stroke-width: 5; }
+[data-theme="aopoa"] .hud-dial .dl-hub { border-radius: 52% 48% 45% 55% / 50% 55% 45% 50%; }
+[data-theme="aopoa"] .cl-shields .cl-ring { stroke-linecap: round; }
+[data-theme="aopoa"] .cl-targeting .cl-bracket { stroke-width: 5px; }
+[data-theme="aopoa"] .cl-hull .cl-door-frame { stroke-width: 4px; filter: drop-shadow(0 0 5px var(--accent)); }
+[data-theme="aopoa"] .cl-hull .cl-leaf rect { stroke: var(--accent); stroke-opacity: .5; }
+[data-theme="aopoa"] .cl-hull .cl-doors, [data-theme="aopoa"] .cl-cm .cl-plate { border-radius: 28px 10px 28px 10px; }
 
 /* ====================================================================================
    Argo: safety-yellow work panels, black utility keys, hazard bands, big codes
@@ -642,6 +845,28 @@
 [data-theme="argo"] .hud-rotary .rt-needle { width: 12px; left: calc(50% - 6px); border-radius: 0; background: linear-gradient(0deg, transparent 0 38%, #ffc21f 38%); box-shadow: 0 0 0 2px #1a1505; }
 [data-theme="argo"] .hud-rotary .rt-hub { border-radius: 8px; }
 
+/* 2.1 clusters: a load-frame triangle with riveted square chips, heavy faceted blocks,
+   hazard-banded rings, black work faces with big yellow codes */
+[data-theme="argo"] #canvas {
+  --dial-shape: triangle; --arc-style: facet; --arc-gap: 4; --cl-line: 3; --cl-seg: 13; --cl-cap: square;
+  --cl-ship: #171717; --cl-ship-line: #ffc21f; --cl-glow: none; --cl-dash: 10 10;
+  --cl-chip-r: 2px; --cl-chip-clip: none;
+  --cl-face: linear-gradient(180deg, rgba(32,32,32,.6), rgba(23,23,23,.6));
+}
+[data-theme="argo"] .hud-dial .dl-face { fill: #171717; stroke: #ffc21f; stroke-width: 10; stroke-dasharray: 10 10; }
+[data-theme="argo"] .hud-dial .dl-rail { stroke: #ffc21f; stroke-width: 3; }
+[data-theme="argo"] .hud-dial .dl-chip { background: radial-gradient(circle at 6px 6px, #ffc21f 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 6px) 6px, #ffc21f 2px, transparent 2.5px),
+  radial-gradient(circle at 6px calc(100% - 6px), #ffc21f 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), #ffc21f 2px, transparent 2.5px), var(--mark), var(--face); }
+[data-theme="argo"] .hud-dial .dl-spoke { stroke: #6a6a6a; stroke-dasharray: none; }
+[data-theme="argo"] .hud-dial .dl-spoke.on { stroke: #ffc21f; filter: none; stroke-width: 5; }
+[data-theme="argo"] .hud-dial .dl-hub { border-radius: 4px; clip-path: polygon(50% 0, 100% 100%, 0 100%); padding-top: 22%; }
+[data-theme="argo"] .cl-shields .cl-ring-track { stroke: #ffc21f; stroke-dasharray: 10 10; opacity: .8; }
+[data-theme="argo"] .cl-turrets .cl-turret { font-size: 22px; }
+[data-theme="argo"] .cl-targeting .cl-bracket { stroke-width: 7px; stroke-linecap: square; }
+[data-theme="argo"] .cl-hull .cl-door-frame { stroke: #ffc21f; stroke-width: 7px; stroke-linecap: square; stroke-linejoin: miter; }
+[data-theme="argo"] .cl-hull .cl-door-sill { stroke: #ffc21f; stroke-width: 8; stroke-dasharray: 12 8; stroke-linecap: butt; }
+[data-theme="argo"] .cl-hull .cl-doors, [data-theme="argo"] .cl-cm .cl-plate { border-radius: 3px; border: 2px solid #3d3a2c; background: repeating-linear-gradient(90deg, #ffc21f 0 10px, #1a1813 10px 20px) 0 100% / 100% 4px no-repeat, rgba(0,0,0,.25); }
+
 /* ====================================================================================
    Consolidated Outland: desert sand, sunset stripes, warm brown kit
    ==================================================================================== */
@@ -701,6 +926,27 @@
 [data-theme="cnou"] .hud-rotary .rt-ticks { z-index: 1; stroke: #ffb03b; stroke-width: 3; }
 [data-theme="cnou"] .hud-rotary .rt-needle { z-index: 1; width: 7px; left: calc(50% - 3.5px); background: linear-gradient(0deg, transparent 0 38%, #ff6a13 38%, #ffb03b); box-shadow: none; }
 
+/* 2.1 clusters: a half ring rising over a horizon with the hub on it, rounded tiles with a
+   sunset stripe, dashed arcs, warm clay faces */
+[data-theme="cnou"] #canvas {
+  --dial-shape: sunrise; --arc-style: curve; --arc-gap: 3; --cl-line: 2; --cl-seg: 9; --cl-cap: butt;
+  --cl-ship: #2f251f; --cl-ship-line: #ffb03b; --cl-glow: drop-shadow(0 0 5px rgba(255,106,19,.55)); --cl-dash: 6 3;
+  --cl-chip-r: 14px; --cl-chip-clip: none;
+  --cl-face: linear-gradient(0deg, rgba(255,106,19,.14) 0 3px, transparent 3px 7px, rgba(255,176,59,.12) 7px 10px, transparent 10px) 0 100% / 100% 12px no-repeat,
+    linear-gradient(180deg, rgba(75,60,50,.5), rgba(47,37,31,.5));
+}
+[data-theme="cnou"] .hud-dial .dl-face { fill: rgba(255,106,19,.08); }
+[data-theme="cnou"] .hud-dial .dl-rail { stroke: #ff6a13; stroke-width: 3; stroke-dasharray: 6 3; }
+[data-theme="cnou"] .hud-dial .dl-deco { stroke: #ffb03b; stroke-width: 3; }
+[data-theme="cnou"] .hud-dial .dl-chip { box-shadow: inset 0 -5px 0 -1px #ff6a13, inset 0 -8px 0 -1px #ffb03b; }
+[data-theme="cnou"] .hud-dial .dl-spoke.on { stroke: #ff6a13; }
+[data-theme="cnou"] .hud-dial .dl-hub { border-radius: 999px 999px 12px 12px; }
+[data-theme="cnou"] .cl-shields .cl-seg { stroke-dasharray: 6 3; }
+[data-theme="cnou"] .cl-salvage .cl-beam { stroke-dasharray: 8 4; }
+[data-theme="cnou"] .cl-hull .cl-door-frame { stroke-width: 3px; }
+[data-theme="cnou"] .cl-hull .cl-door-sill { stroke-width: 3; stroke-dasharray: 14 4; }
+[data-theme="cnou"] .cl-hull .cl-doors, [data-theme="cnou"] .cl-cm .cl-plate { border-radius: 16px; border-bottom: 3px solid var(--accent); }
+
 /* ====================================================================================
    Esperia: Tevarin plum night, swept blade shapes, coral light with a prism edge
    ==================================================================================== */
@@ -754,9 +1000,31 @@
 [data-theme="esperia"] .hud-rotary .rt-needle { width: 10px; left: calc(50% - 5px); border-radius: 0; clip-path: polygon(50% 0, 100% 60%, 50% 100%, 0 60%); background: linear-gradient(0deg, transparent 0 36%, #ffb3a0 50%, #ff7a5c); box-shadow: none; }
 [data-theme="esperia"] .hud-rotary .rt-hub { border-radius: 4px 40px 4px 40px; }
 
+/* 2.1 clusters: a four-point star inside a rhombus, diamond chips, thin swept facets with a
+   prism edge, plum silk faces */
+[data-theme="esperia"] #canvas {
+  --dial-shape: diamond; --arc-style: facet; --arc-gap: 2; --cl-line: 1; --cl-seg: 3; --cl-cap: round;
+  --cl-ship: #21162a; --cl-ship-line: #ff7a5c; --cl-glow: drop-shadow(-1px 0 1px rgba(122,200,255,.8)) drop-shadow(1px 0 1px rgba(255,122,92,.9));
+  --cl-chip-r: 0; --cl-chip-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --cl-face: linear-gradient(115deg, transparent 40%, rgba(169,175,255,.06) 50%, transparent 60%);
+}
+[data-theme="esperia"] .hud-dial .dl-face { fill: rgba(33,22,42,.7); }
+[data-theme="esperia"] .hud-dial .dl-rail { stroke: #9a5e78; stroke-width: 1; }
+[data-theme="esperia"] .hud-dial .dl-deco { stroke: #ff7a5c; stroke-width: 1.5; fill: rgba(255,122,92,.07); }
+[data-theme="esperia"] .hud-dial .dl-spoke { stroke: #45304f; stroke-dasharray: 1 3; }
+[data-theme="esperia"] .hud-dial .dl-spoke.on { stroke: #ff7a5c; filter: drop-shadow(-1px 0 0 #7ac8ff) drop-shadow(1px 0 0 #ff7a5c); stroke-width: 2; }
+[data-theme="esperia"] .hud-dial .dl-chip .hud-ico svg { width: calc(var(--chip) * .34); height: calc(var(--chip) * .34); }
+[data-theme="esperia"] .hud-dial .dl-hub { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); border-radius: 0; font-size: 10px; }
+[data-theme="esperia"] .hud-dial .dl-cap { text-transform: none; letter-spacing: .08em; }
+[data-theme="esperia"] .cl-turrets .cl-turret { letter-spacing: .14em; font-weight: 400; }
+[data-theme="esperia"] .cl-targeting .cl-bracket { stroke-width: 1.5px; }
+[data-theme="esperia"] .cl-hull .cl-door-frame, [data-theme="esperia"] .cl-hull .cl-door-sill { stroke-width: 1.5px; }
+[data-theme="esperia"] .cl-hull .cl-leaf rect { fill: color-mix(in srgb, var(--accent) 10%, var(--face-lo)); }
+[data-theme="esperia"] .cl-hull .cl-doors, [data-theme="esperia"] .cl-cm .cl-plate { border-radius: 2px; clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+
 /* ====================================================================================
    High contrast (Deck settings) gives every maker the same plain black, white and strong
-   colours: no materials, marks or bezels, solid faces. The theme's shapes stay.
+   colors: no materials, marks or bezels, solid faces. The theme's shapes stay.
    ==================================================================================== */
 html[data-contrast] #canvas .hud-btn {
   --face: linear-gradient(#000, #000); --mark: none; --edge: #bdbdbd; --bevel: none;

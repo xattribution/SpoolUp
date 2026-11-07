@@ -34,7 +34,7 @@ Apply on [signpath.org](https://signpath.org). Answers for the form:
 | Project name | SpoolUp |
 | Repository | https://github.com/xattribution/SpoolUp |
 | Home page / download page | https://xattribution.github.io/SpoolUp/ and https://github.com/xattribution/SpoolUp/releases |
-| Licence | MIT, for all of the project's own code |
+| License | MIT, for all of the project's own code |
 | Code signing policy | https://github.com/xattribution/SpoolUp/blob/main/CODE_SIGNING.md |
 | Build system | GitHub Actions on GitHub-hosted Windows runners (`.github/workflows/release.yml`) |
 | What gets signed | Windows executables: the installer `SpoolUp-Setup-<version>.exe`, and inside it `TabletDeck.exe`, `TabletDeckServer.exe`, `native/keysender.exe`, `native/voice.exe` and `native/sound.exe` |
@@ -59,10 +59,10 @@ the app presses keys:
 
 **Third-party code**, so SignPath can judge it:
 
-> `TabletDeckServer.exe` contains the Node.js runtime (MIT, with the licences
+> `TabletDeckServer.exe` contains the Node.js runtime (MIT, with the licenses
 > of its bundled libraries listed in `THIRD-PARTY-NOTICES.txt` in the
 > installer). The installer is built with Inno Setup, which has its own
-> permissive licence (https://jrsoftware.org/files/is/license.txt). There is no
+> permissive license (https://jrsoftware.org/files/is/license.txt). There is no
 > proprietary code.
 
 ## 3. After approval

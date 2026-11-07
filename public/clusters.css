@@ -1,0 +1,298 @@
+/* Cockpit clusters and the mode dial (SpoolUp 2.1): clusters.js and dial.js draw the
+   geometry; this file draws the strokes, faces and lit looks from the theme's tokens and a
+   few variables each maker sets in makers.css (marked "2.1 clusters" there):
+     --cl-line      stroke width of the art (brackets, rails, outlines)
+     --cl-seg       width of a lit arc segment; --cl-cap its line ends (round, butt, square)
+     --cl-glow      the filter lit parts get (a glow, or none)
+     --cl-ship      the ship's fill; --cl-ship-line its outline
+     --cl-face      what a cluster sits on (its instrument face)
+     --cl-dash      the rail's dash pattern (none, or hazard and rivet patterns)
+     --cl-chip-r    a dial chip's corner radius; --cl-chip-clip its clip-path
+   and two that dial.js and clusters.js read for geometry:
+     --dial-shape   the dial's shape (circle, hex, chevron, ...)
+     --arc-style    curve or facet; --arc-gap the gap between arc segments (degrees)
+   Lit looks follow Button lights: they come from the states app.js passes, which are off
+   with lights off. Nothing animates with Reduce motion. */
+
+#canvas {
+  --dial-shape: circle; --arc-style: curve; --arc-gap: 5;
+  --cl-line: 2; --cl-seg: 7; --cl-cap: round;
+  --cl-glow: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 60%, transparent));
+  --cl-ship: color-mix(in srgb, var(--ink) 14%, transparent); --cl-ship-line: var(--ink-dim);
+  --cl-face: none; --cl-dash: none; --cl-chip-r: 50%; --cl-chip-clip: none;
+}
+
+.cl-cluster, .hud-dial {
+  --c: var(--accent);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  outline: none; background: var(--cl-face); border-radius: var(--btn-radius);
+}
+.cl-cluster:focus-visible, .hud-dial:focus-visible, .cl-zone:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.cl-cluster > *, .hud-dial > * { position: absolute; }
+.cl-art, .dl-art { left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: none; stroke-linecap: var(--cl-cap); stroke-linejoin: round; }
+.cl-btn { position: absolute; }
+
+/* A zone is a shape you tap: invisible, with a light wash while held or hit. */
+.cl-zone { border-radius: 50%; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+.cl-zone.cl-down, .cl-zone.cl-hit { background: radial-gradient(circle, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%); }
+.cl-zone.denied { animation: cl-deny .5s ease-out; }
+@keyframes cl-deny { 0%, 40% { background: radial-gradient(circle, color-mix(in srgb, var(--red) 45%, transparent), transparent 72%); } 100% { background: transparent; } }
+.cl-glyph { display: inline-flex; color: var(--c); }
+.cl-glyph svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cl-ship { fill: var(--cl-ship); stroke: var(--cl-ship-line); stroke-width: calc(var(--cl-line) * 1px); vector-effect: non-scaling-stroke; }
+.cl-chev { stroke: var(--ink-dim); stroke-width: 2.5; }
+
+/* ---------- shields ---------- */
+.cl-shields { --c: var(--green); }
+.cl-shields .cl-ring-track { stroke: color-mix(in srgb, var(--hud-line) 60%, transparent); stroke-dasharray: var(--cl-dash); opacity: .35; }
+.cl-shields .cl-ring { stroke: var(--line-hi); opacity: .5; transition: stroke .2s, opacity .2s; }
+.cl-shields.powered .cl-ring { stroke: var(--c); opacity: 1; filter: var(--cl-glow); }
+.cl-shields .cl-power-glyph path { stroke: var(--ink-dim); stroke-width: 2; }
+.cl-shields.powered .cl-power-glyph path { stroke: var(--bg); }
+.cl-shields .cl-guide { stroke: var(--line-hi); stroke-width: 1.5; opacity: .5; }
+.cl-shields .cl-seg { stroke: color-mix(in srgb, var(--c) 22%, var(--hud-line)); stroke-width: calc(var(--cl-seg) * 1px); transition: stroke .15s, stroke-width .15s; }
+.cl-shields .cl-seg.on { stroke: var(--c); filter: var(--cl-glow); }
+.cl-shields .cl-seg.f-front.on { stroke-width: calc((var(--cl-seg) + var(--n-front, 0) * 1.2) * 1px); }
+.cl-shields .cl-seg.f-back.on { stroke-width: calc((var(--cl-seg) + var(--n-back, 0) * 1.2) * 1px); }
+.cl-shields .cl-seg.f-left.on { stroke-width: calc((var(--cl-seg) + var(--n-left, 0) * 1.2) * 1px); }
+.cl-shields .cl-seg.f-right.on { stroke-width: calc((var(--cl-seg) + var(--n-right, 0) * 1.2) * 1px); }
+.cl-shields .cl-side .cl-seg, .cl-shields .cl-side .cl-seg.on { stroke-width: calc(var(--cl-seg) * .5px); }
+.cl-shields .cl-hull-ring { stroke: var(--hud-line); stroke-width: 1; fill: color-mix(in srgb, var(--face-lo) 70%, transparent); }
+.cl-shields .cl-zone.cl-face { border-radius: 50%; }
+.cl-shields .cl-side-zone { border-radius: var(--btn-radius); }
+.cl-shields.cl-dragging .cl-ship { stroke: var(--c); }
+
+/* ---------- targeting ---------- */
+.cl-targeting { --c: var(--red); }
+.cl-targeting .cl-bracket { stroke: var(--line-hi); stroke-width: calc(var(--cl-line) * 1.4px); }
+.cl-targeting .cl-ret-cross { stroke: var(--hud-line); stroke-width: 1; opacity: .8; }
+.cl-targeting .cl-ret-ring { stroke: var(--c); stroke-width: calc(var(--cl-line) * 1px); stroke-dasharray: var(--cl-dash); opacity: .85; }
+.cl-targeting .cl-ret-tick { stroke: var(--c); stroke-width: calc(var(--cl-line) * 1px); }
+.cl-targeting .cl-pip { fill: var(--c); filter: var(--cl-glow); }
+.cl-targeting .cl-zone { border-radius: 50%; }
+.cl-targeting .cl-ring-word { text-align: center; color: var(--ink-dim); font-size: 10px; pointer-events: none; }
+/* The cycle buttons: icon over word, colored by what they cycle. */
+.cl-targeting .cl-cycle { flex-direction: column; gap: 4px; padding: 4px 6px; font-size: 12px; text-align: center; }
+.cl-targeting .cl-cycle .hud-ico svg { width: 24px; height: 24px; }
+.cl-targeting .cl-cycle.c-attacker { --c: var(--red); }
+.cl-targeting .cl-cycle.c-friendly { --c: var(--green); }
+.cl-targeting .cl-cycle.c-any, .cl-targeting .cl-cycle.c-view { --c: var(--blue); }
+.cl-targeting .cl-hostile { --c: var(--red); flex-direction: column; gap: 4px; padding: 6px; font-size: 11.5px; text-align: center; }
+.cl-targeting .cl-hostile .hud-ico svg { width: 30px; height: 30px; }
+.cl-targeting .cl-hostile.narrow .hud-lbl { display: none; }
+.cl-targeting.cl-going-next .h-next, .cl-targeting.cl-going-prev .h-prev { border-color: var(--c); box-shadow: var(--press-ring); }
+.cl-word { color: var(--ink); font: var(--label-weight) 11px/1.1 var(--font-body); text-transform: var(--label-case); letter-spacing: var(--label-track); }
+.compact .cl-targeting .cl-cycle { font-size: 10.5px; gap: 2px; }
+.compact .cl-targeting .cl-cycle .hud-ico svg { width: 20px; height: 20px; }
+
+/* ---------- hull: lights and doors ---------- */
+.cl-hull { --c: var(--amber); }
+.cl-hull .cl-lights, .cl-hull .cl-lockb { flex-direction: column; gap: 6px; text-align: center; font-size: 13px; padding: 6px; }
+.cl-hull .cl-lights .hud-ico svg { width: 34px; height: 34px; }
+.cl-hull .cl-lockb .hud-ico svg { width: 24px; height: 24px; }
+.cl-hull .cl-doorb { gap: 8px; font-size: 13px; }
+.cl-hull .cl-doorb .hud-ico svg { width: 24px; height: 24px; }
+/* The doors: a frame on a sill with two leaves that slide apart while they're open. */
+.cl-hull .cl-doors {
+  border-radius: var(--btn-radius); border: 1px solid var(--hud-line);
+  background: color-mix(in srgb, var(--face-lo) 70%, transparent); overflow: hidden;
+}
+.cl-hull .cl-doors > * { position: absolute; }
+.cl-hull .cl-doors.cl-down, .cl-hull .cl-doors.cl-hit { background: color-mix(in srgb, var(--c) 16%, var(--face-lo)); }
+.cl-hull .cl-door-gap { fill: color-mix(in srgb, var(--bg) 85%, #000); stroke: none; transition: fill .3s; }
+.cl-hull.doors-open .cl-door-gap { fill: color-mix(in srgb, var(--c) 20%, var(--bg)); }
+.cl-hull.doors-lit .cl-door-gap { fill: color-mix(in srgb, var(--c) 34%, var(--bg)); }
+.cl-hull .cl-leaf rect { fill: color-mix(in srgb, var(--ink) 16%, var(--face-lo)); stroke: var(--line-hi); stroke-width: 1.5; }
+.cl-hull .cl-leaf path { stroke: var(--ink-dim); stroke-width: 3; }
+#canvas .cl-hull .cl-leaf .cl-slit { fill: color-mix(in srgb, var(--bg) 70%, #000); stroke: var(--line-hi); stroke-width: 1; }
+.cl-hull .cl-leaf { transition: transform .45s cubic-bezier(.4,.1,.2,1); }
+.cl-hull.doors-open .l-left { transform: translateX(calc(var(--leaf) * -1)); }
+.cl-hull.doors-open .l-right { transform: translateX(var(--leaf)); }
+.cl-hull .cl-door-frame { stroke: var(--c); stroke-width: calc(var(--cl-line) * 1.5px); }
+.cl-hull .cl-door-sill { stroke: var(--c); stroke-width: 4; stroke-dasharray: var(--cl-dash); }
+.cl-hull.doors-lit .cl-door-frame { filter: var(--cl-glow); }
+.cl-hull .cl-door-word { text-align: center; color: var(--ink-dim); font-size: 11px; line-height: 1.6; pointer-events: none; }
+.cl-hull.doors-open .cl-door-word { color: var(--ink); }
+
+/* ---------- turrets ---------- */
+.cl-turrets .cl-turret { gap: 8px; font: 700 18px/1 var(--font-display); letter-spacing: .04em; }
+.cl-turrets .cl-turret .hud-ico svg { width: 28px; height: 28px; }
+.cl-turrets .cl-num, .cl-mining .cl-num { display: none; }
+.cl-turrets .cl-turret.lbl-off .cl-num, .cl-mining .cl-cart.lbl-off .cl-num {
+  display: block; position: absolute; right: 10%; bottom: 14%; color: var(--ink); font: 700 13px/1 var(--font-display);
+}
+.compact .cl-turrets .cl-turret { font-size: 15px; gap: 6px; }
+
+/* ---------- countermeasures ---------- */
+/* Two backing plates: defense (decoy, panic, noise) and weapons (the missile and its
+   modifiers), so the groups read at a glance. */
+.cl-cm .cl-plate { border-radius: calc(var(--btn-radius) + 3px); background: color-mix(in srgb, var(--face-lo) 55%, transparent); border: 1px solid color-mix(in srgb, var(--hud-line) 70%, transparent); pointer-events: none; }
+.cl-cm .cl-plate.p-defense { border-color: color-mix(in srgb, var(--amber) 28%, var(--hud-line)); }
+.cl-cm .cl-plate.p-weapons { border-color: color-mix(in srgb, var(--red) 28%, var(--hud-line)); }
+.cl-cm .cl-tube { flex-direction: column; gap: 6px; padding: 6px 4px; font-size: 13px; text-align: center; }
+.cl-cm .cl-tube .hud-ico svg { width: 30px; height: 30px; }
+.cl-cm .cl-tube.t-noise { --c: var(--blue); }
+.cl-cm .cl-tube.t-decoy { --c: var(--amber); }
+.cl-cm .cl-missile { gap: 12px; font-size: 16px; }
+.cl-cm .cl-missile .hud-ico svg { width: 30px; height: 30px; }
+.cl-cm .cl-missile::before { content: ""; position: absolute; left: 12px; top: 50%; width: 20px; height: 22px; transform: translateY(-50%); opacity: .55;
+  background: repeating-linear-gradient(90deg, var(--c) 0 3px, transparent 3px 7px); pointer-events: none; }
+.cl-cm.cm-row .cl-missile { flex-direction: column; gap: 6px; font-size: 13px; text-align: center; }
+.cl-cm.cm-row .cl-missile::before { display: none; }
+.cl-cm .cl-small { gap: 8px; font-size: 12.5px; padding: 0 8px; }
+.cl-cm .cl-small .hud-ico svg { width: 22px; height: 22px; }
+.cl-cm .cl-cover {
+  z-index: 2; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  border: 2px solid var(--red); border-radius: var(--btn-radius); clip-path: var(--btn-clip);
+  background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--red) 55%, #000) 0 10px, #141010 10px 20px);
+  transform-origin: 50% 0; transition: transform .22s ease, opacity .22s ease;
+}
+.cl-cm .cl-cover-word { color: #fff; background: rgba(0,0,0,.65); padding: 3px 8px; font: 700 12px/1 var(--font-body); text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; text-align: center; }
+.cl-cm .cl-cover-hinge { position: absolute; left: 12%; right: 12%; top: -1px; height: 5px; background: var(--red); border-radius: 0 0 3px 3px; }
+.cl-cm.cover-up .cl-cover { transform: perspective(300px) rotateX(78deg); opacity: .35; pointer-events: none; }
+.cl-cm .cl-panic { --c: var(--red); flex-direction: column; gap: 4px; text-align: center; font-size: 13px; }
+.compact .cl-cm .cl-tube, .compact .cl-cm .cl-panic { font-size: 11px; gap: 3px; }
+.compact .cl-cm .cl-tube .hud-ico svg { width: 24px; height: 24px; }
+.compact .cl-cm .cl-missile { font-size: 13px; }
+.compact .cl-cm .cl-small { font-size: 11px; gap: 5px; padding: 0 4px; }
+.compact .cl-cm .cl-small .hud-ico svg { width: 18px; height: 18px; }
+
+/* ---------- quantum ---------- */
+.cl-quantum { --c: var(--blue); }
+.cl-quantum .cl-spool-track { stroke: color-mix(in srgb, var(--c) 18%, var(--hud-line)); stroke-width: 7; }
+.cl-quantum .cl-spool-fill { stroke: var(--c); stroke-width: 7; transition: stroke-dashoffset .25s ease-out; filter: var(--cl-glow); }
+.cl-quantum:has(.cl-qhub.pressed) .cl-spool-fill { stroke-dashoffset: 0 !important; transition: stroke-dashoffset 2.4s linear; }
+.cl-quantum .cl-spool-tick { stroke: var(--line-hi); stroke-width: 1.5; }
+.cl-quantum .cl-spool-rail { stroke: color-mix(in srgb, var(--c) 30%, var(--hud-line)); stroke-width: 2; stroke-dasharray: var(--cl-dash); }
+.cl-quantum .cl-spool-rail-tick { stroke: var(--hud-line); stroke-width: 1.5; }
+.cl-quantum:has(.cl-qhub.pressed) .cl-spool-rail { stroke: var(--c); filter: var(--cl-glow); }
+.cl-quantum .cl-qhub { border-radius: 50%; clip-path: none; flex-direction: column; gap: 4px; padding: 6px; font-size: 13px; text-align: center; }
+.cl-quantum .cl-ready { flex-direction: column; gap: 4px; font-size: 12px; text-align: center; }
+.cl-quantum .cl-qhub .fx-state { bottom: 16%; font-size: 8px; }
+.compact .cl-quantum .cl-qhub .fx-state, .cl-quantum.tight .cl-qhub .fx-state { display: none; }
+.compact .cl-quantum .cl-qhub .hud-lbl { font-size: 10.5px; }
+
+/* ---------- mining ---------- */
+.cl-mining .cl-rock { flex-direction: column; gap: 2px; font-size: 12px; }
+.cl-mining .cl-rock.r-up { border-radius: 999px 999px var(--btn-radius) var(--btn-radius); }
+.cl-mining .cl-rock.r-down { border-radius: var(--btn-radius) var(--btn-radius) 999px 999px; }
+.cl-mining .cl-gauge { border: 1px solid var(--hud-line); border-radius: 5px; overflow: hidden; background: var(--face-lo); }
+.cl-mining .cl-gauge-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: var(--amber); transition: height .3s ease-out; }
+.cl-mining:has(.r-up.pressed) .cl-gauge-fill { height: 100%; transition: height 1.6s linear; }
+.cl-mining:has(.r-down.pressed) .cl-gauge-fill { height: 6%; transition: height 1.6s linear; }
+.cl-mining .cl-fire { border-radius: 50%; clip-path: none; flex-direction: column; gap: 4px; font-size: 13px;
+  box-shadow: var(--bevel), inset 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent), inset 0 0 0 7px color-mix(in srgb, var(--c) 50%, transparent); }
+.cl-mining .cl-fire .hud-ico svg { width: 30px; height: 30px; }
+.cl-mining .cl-throw { padding: 8px 4px; }
+.cl-mining .cl-throw .hud-ico { display: none; }
+.cl-mining .cl-throw.lbl-off .hud-lbl { display: flex; } /* its two words are the switch itself */
+.cl-mining .cl-throw .hud-lbl { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; gap: 6px; font-size: 11px; }
+.cl-mining .cl-throw b { font-weight: inherit; color: var(--c); }
+.cl-mining .cl-throw b.t-b, .cl-mining .cl-throw.side-b b.t-a { color: var(--ink-dim); opacity: .7; }
+.cl-mining .cl-throw.side-b b.t-b { color: var(--c); opacity: 1; }
+.cl-mining .cl-throw-knob { flex: 1; width: 14px; border-radius: 7px; background: linear-gradient(var(--c) 0 42%, var(--face-lo) 42%); border: 1px solid var(--hud-line); }
+.cl-mining .cl-throw.side-b .cl-throw-knob { background: linear-gradient(var(--face-lo) 58%, var(--c) 58%); }
+.cl-mining .cl-cart { font-size: 12px; gap: 6px; border-top: 3px solid var(--c); }
+.compact .cl-mining .cl-cart .hud-ico, .compact .cl-mining .cl-rock .hud-lbl { display: none; }
+
+/* ---------- salvage ---------- */
+.cl-salvage { --c: var(--amber); }
+.cl-salvage .cl-head { fill: color-mix(in srgb, var(--c) 14%, var(--face-lo)); stroke: var(--c); stroke-width: calc(var(--cl-line) * 1px); }
+.cl-salvage .cl-head-line { stroke: var(--c); stroke-width: 1.5; opacity: .7; }
+.cl-salvage .cl-beam { stroke: var(--c); stroke-width: 4; filter: var(--cl-glow); transition: d .2s; }
+.cl-salvage .cl-plate { stroke: var(--hud-line); stroke-width: 3; stroke-dasharray: var(--cl-dash); }
+.cl-salvage .cl-zone { border-radius: var(--btn-radius); display: flex; align-items: center; justify-content: center; }
+.cl-salvage .cl-space { border: 1px solid var(--hud-line); background: color-mix(in srgb, var(--face-lo) 70%, transparent); }
+
+/* ---------- switch banks ---------- */
+.cl-bank .cl-rocker { flex-direction: column; gap: 4px; padding: 6px 4px; font-size: 11.5px; text-align: center; }
+.cl-bank .cl-rocker .hud-ico { display: none; }
+.cl-bank .cl-rocker.lbl-off .hud-ico { display: inline-flex; } /* icons only: the icon instead of the word */
+.cl-bank .cl-rocker.lbl-off .hud-ico svg { width: 24px; height: 24px; }
+.cl-bank .cl-toggle { position: relative; width: 26px; height: 14px; flex: none; border-radius: 7px; background: var(--face-lo); border: 1px solid var(--hud-line); }
+.cl-bank .cl-toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-dim); transition: left .15s, background .15s; }
+.cl-bank .cl-rocker.fx-on .cl-toggle { border-color: var(--c); }
+.cl-bank .cl-rocker.fx-on .cl-toggle::after { left: 14px; background: var(--c); box-shadow: 0 0 6px var(--c); }
+.cl-bank .cl-rocker .hud-key, .cl-bank .cl-rocker .fx-state { display: none; }
+.compact .cl-bank .cl-rocker { flex-direction: row; gap: 6px; }
+.compact .cl-bank .cl-toggle { width: 20px; height: 12px; }
+.compact .cl-bank .cl-toggle::after { width: 6px; height: 6px; }
+.compact .cl-bank .cl-rocker.fx-on .cl-toggle::after { left: 10px; }
+.compact .cl-bank .cl-rocker { font-size: 10px; }
+.cl-bank.narrow .cl-rocker { flex-direction: column; gap: 3px; padding: 4px 2px; font-size: 9.5px; letter-spacing: .02em; }
+
+/* ---------- the mode dial ---------- */
+.hud-dial { cursor: grab; }
+.hud-dial.turning { cursor: grabbing; }
+.hud-dial .dl-face { fill: color-mix(in srgb, var(--face-lo) 65%, transparent); stroke: none; }
+.hud-dial .dl-rail { stroke: var(--line-hi); stroke-width: calc(var(--cl-line) * 1px); stroke-dasharray: var(--cl-dash); }
+.hud-dial .dl-deco { stroke: var(--hud-line); stroke-width: 1; }
+.hud-dial .dl-tick { stroke: var(--line-hi); stroke-width: 2; }
+.hud-dial .dl-collar { stroke: var(--hud-line); stroke-width: 1; fill: none; }
+.hud-dial .dl-spoke { stroke: var(--hud-line); stroke-width: 1.5; stroke-dasharray: 3 4; transition: stroke .15s; }
+.hud-dial .dl-spoke.on { stroke: var(--accent); stroke-width: 3; stroke-dasharray: none; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 60%, transparent)); }
+.hud-dial .dl-spoke.aim { stroke: var(--ink); stroke-dasharray: none; }
+.hud-dial .dl-needle {
+  height: 4px; margin-top: -2px; transform-origin: 0 50%; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0 40%, var(--accent) 40%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
+  transition: transform .25s cubic-bezier(.3,.7,.2,1), width .25s ease;
+}
+.hud-dial.turning .dl-needle { transition: none; }
+.hud-dial.unset .dl-needle { opacity: .3; }
+.hud-dial .dl-chip {
+  padding: 0; gap: 0; flex-direction: column; border-radius: var(--cl-chip-r); clip-path: var(--cl-chip-clip);
+}
+.hud-dial .dl-chip .hud-lbl, .hud-dial .dl-chip .hud-key { display: none; }
+.hud-dial .dl-chip .hud-ico svg { width: calc(var(--chip) * .42); height: calc(var(--chip) * .42); }
+.hud-dial .dl-chip.dl-on { --face: linear-gradient(color-mix(in srgb, var(--c) 30%, var(--face-lo)), color-mix(in srgb, var(--c) 14%, var(--face-lo))); border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c), 0 0 14px -3px var(--c); }
+.hud-dial .dl-chip.dl-aim { border-color: var(--ink); }
+.hud-dial .dl-cap { text-align: center; pointer-events: none; color: var(--ink-dim); font: var(--label-weight) 10.5px/1.15 var(--font-body); text-transform: var(--label-case); letter-spacing: var(--label-track); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-dial .dl-cap.on { color: var(--ink); }
+.hud-dial .dl-hub { border-radius: 50%; clip-path: none; flex-direction: column; gap: 2px; padding: 4px; font-size: 12px; text-align: center; }
+.hud-dial .dl-hub .hud-key { top: auto; bottom: 8px; right: auto; left: 50%; transform: translateX(-50%); }
+.hud-dial .dl-now { font: 600 9.5px/1 var(--font-body); color: var(--accent); letter-spacing: .06em; text-transform: uppercase; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-dial .dl-hub .dl-now:empty { display: none; }
+.hud-dial.denied { animation: cl-dial-deny .45s ease-out; }
+@keyframes cl-dial-deny { 0%, 40% { filter: drop-shadow(0 0 8px var(--red)); } 100% { filter: none; } }
+.compact .hud-dial .dl-hub { font-size: 10.5px; }
+/* Bloom: the chips are petals pointing outward; their icons stay upright. */
+.hud-dial.dl-bloom .dl-chip { rotate: var(--rot); border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%; }
+.hud-dial.dl-bloom .dl-chip .hud-ico { rotate: calc(var(--rot) * -1); }
+
+/* ---------- Large text ---------- */
+html[data-large] .cl-word { font-size: 13px; font-weight: 700; }
+html[data-large] .hud-dial .dl-cap { font-size: 12.5px; font-weight: 700; }
+html[data-large] .hud-dial .dl-now { font-size: 11px; font-weight: 700; }
+html[data-large] .cl-turrets .cl-turret { font-size: 21px; }
+html[data-large] .cl-targeting .cl-cycle, html[data-large] .cl-hull .cl-lights, html[data-large] .cl-hull .cl-lockb, html[data-large] .cl-hull .cl-doorb { font-size: 14px; font-weight: 700; }
+html[data-large] .cl-bank .cl-rocker, html[data-large] .cl-cm .cl-small, html[data-large] .cl-mining .cl-cart, html[data-large] .cl-mining .cl-throw .hud-lbl { font-size: 14px; font-weight: 700; }
+html[data-large] .compact .cl-bank .cl-rocker { font-size: 12px; }
+
+/* ---------- High contrast: white lines on black, color only where it means something ---------- */
+html[data-contrast] #canvas { --cl-ship: #000; --cl-ship-line: #fff; --cl-face: none; --cl-glow: none; --cl-dash: none; }
+html[data-contrast] #canvas .cl-shields .cl-ring-track, html[data-contrast] #canvas .cl-shields .cl-ring { stroke: #fff; opacity: 1; }
+html[data-contrast] #canvas .cl-shields.powered .cl-ring { stroke: var(--green); }
+html[data-contrast] #canvas .cl-shields .cl-seg { stroke: #555; }
+html[data-contrast] #canvas .cl-shields .cl-seg.on { stroke: var(--green); }
+html[data-contrast] #canvas .cl-guide, html[data-contrast] #canvas .cl-ret-cross, html[data-contrast] #canvas .dl-deco, html[data-contrast] #canvas .dl-collar { stroke: #bdbdbd; }
+html[data-contrast] #canvas .cl-bracket, html[data-contrast] #canvas .cl-ret-ring, html[data-contrast] #canvas .cl-ret-tick, html[data-contrast] #canvas .cl-chev,
+html[data-contrast] #canvas .dl-rail, html[data-contrast] #canvas .dl-tick { stroke: #fff; }
+html[data-contrast] #canvas .cl-word, html[data-contrast] #canvas .dl-cap { color: #fff; }
+html[data-contrast] #canvas .dl-face, html[data-contrast] #canvas .cl-shields .cl-hull-ring { fill: #000; }
+html[data-contrast] #canvas .dl-spoke { stroke: #888; }
+html[data-contrast] #canvas .dl-spoke.on, html[data-contrast] #canvas .dl-needle { stroke: #fff; background: #fff; box-shadow: none; filter: none; }
+html[data-contrast] #canvas .cl-hull .cl-doors, html[data-contrast] #canvas .cl-cm .cl-plate { background: #000; border-color: #fff; }
+html[data-contrast] #canvas .cl-hull .cl-leaf rect { fill: #000; stroke: #fff; }
+html[data-contrast] #canvas .cl-hull .cl-door-frame, html[data-contrast] #canvas .cl-hull .cl-door-sill { stroke: #fff; filter: none; }
+html[data-contrast] #canvas .cl-hull.doors-open .cl-door-gap { fill: var(--amber); }
+html[data-contrast] #canvas .cl-salvage .cl-head { fill: #000; stroke: #fff; }
+html[data-contrast] #canvas .cl-quantum .cl-spool-track { stroke: #555; }
+html[data-contrast] #canvas .cl-cm .cl-cover { background: repeating-linear-gradient(-45deg, var(--red) 0 10px, #000 10px 20px); border-color: #fff; }
+html[data-contrast] #canvas .cl-zone.cl-down, html[data-contrast] #canvas .cl-zone.cl-hit { background: rgba(255,255,255,.18); }
+
+/* ---------- Reduce motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cl-cluster *, .hud-dial * { transition: none !important; animation: none !important; }
+  .cl-quantum:has(.cl-qhub.pressed) .cl-spool-fill, .cl-mining:has(.pressed) .cl-gauge-fill { transition: none !important; }
+}

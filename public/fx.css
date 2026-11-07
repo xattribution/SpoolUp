@@ -1,4 +1,4 @@
-/* Press animations. Colour comes from each button's --c (theme + button colour). */
+/* Press animations. Color comes from each button's --c (theme + button color). */
 
 .fx-host { overflow: hidden; }
 .fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; border-radius: inherit; }

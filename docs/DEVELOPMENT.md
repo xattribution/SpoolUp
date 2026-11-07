@@ -10,6 +10,7 @@ signing, the website and the demo recording. For using SpoolUp, see the
 - [Project layout](#project-layout)
 - [Editing layouts by hand](#editing-layouts-by-hand)
 - [The keybind profile](#the-keybind-profile)
+- [The Stream Deck connection](#the-stream-deck-connection)
 - [Building the installer](#building-the-installer)
 - [Releasing](#releasing)
 - [Code signing](#code-signing)
@@ -84,12 +85,11 @@ layout from `layouts/`, and presses only play their animations. The website's
 |---|---|
 | `server.js` | the server: serves the deck, pairs tablets, sends keys, runs voice, the layout editor's API |
 | `qr.js` | QR code generator for the console and the app window |
-| `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
-| `layouts/` | built-in layouts; `hud-phone.json` and the starter layouts are generated |
+| `public/` | the deck (`index.html`, `app.js`, `canvas.js`, `grid.js`, the widgets in `dial.js`, `clusters.js` and `emotes.js`, `i18n.js`, themes, icons, animations, `sound.js`), the layout editor (`editor.*`) and the showcase |
+| `layouts/` | built-in layouts; `hud.json` is the source, `hud-phone.json` and the starter layouts are generated, `hud-classic*.json` keep the 2.0 HUD as it was |
 | `keybinds/` | the SpoolUp Keyboard profile for Star Citizen (generated) |
 | `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
-| `tools/` | generators for the phone layout, starter layouts, keybind profile and Stream Deck pack (`make-streamdeck.js`, helpers in `tools/streamdeck/`), and the demo recorder |
-| `streamdeck/` | the Stream Deck pack's sources: action catalog, scene layouts, key art, the plugin, research and handoff notes |
+| `tools/` | generators for the phone layout, starter layouts and keybind profile, the grid layout check (`check-grid.js`) and the demo recorder |
 | `scripts/` | the installer build and release notes |
 | `installer/` | the Inno Setup script |
 | `site/` | the website (GitHub Pages) |
@@ -101,14 +101,23 @@ the JSON. With the installed app, put your layout in `%APPDATA%\TabletDeck\layou
 a file there with the same name as a built-in one (e.g. `hud.json`) replaces it,
 and one with a new name needs `layout` set in `config.json`.
 
-Canvas layouts (`hud.json` and friends) place each element at `x`, `y`, `w`, `h`
-in canvas pixels; elements in a panel are relative to their half. Element types
-include `button`, `header`, `switch` (with `when` to show elements per mode),
-`menu`, `slider`, `grid`, the cockpit controls below and decorations.
-`star-citizen.json` is an older tabbed grid layout.
+There are three kinds of layout:
+
+- **Grid layouts** (2.1; `hud.json`, the starters, Dashboards) have a `grid`
+  object. Every panel is an arrangement of buttons, controls and widgets on a grid
+  of cells that follows the screen, so one file fits phones and tablets. See
+  [Grid layouts](#grid-layouts) below.
+- **Canvas layouts** (2.0; `hud-classic.json`, `hud-classic-phone.json`, players'
+  own 2.0 layouts) have a `canvas` size and place each element at `x`, `y`, `w`,
+  `h` in canvas pixels; elements in a panel are relative to their half. They draw
+  exactly as in 2.0. The layout editor can convert one into a new grid layout.
+- `star-citizen.json` is an older tabbed grid layout (`pages`).
+
+Element types include `button`, `header`, `switch` (with `when` to show elements
+per mode), `menu`, `slider`, `grid`, the cockpit controls below and decorations.
 
 Cockpit controls (2.0) hold ordinary button definitions inside them, so the
-server, voice commands, the keybind profile and the Stream Deck catalog find
+server, voice commands, the keybind profile and the Stream Deck plugin find
 those buttons as usual. Each has its own `id` (no `keys`) so the layout editor
 can select it. Every step, pull or turn sends one `tap` of one inner button, through
 the same focus check and press scheduling as a tapped button:
@@ -116,20 +125,163 @@ the same focus check and press scheduling as a tapped button:
 | type | fields | what a gesture presses |
 |---|---|---|
 | `lever` | `label`, `button` | pulling the knob down or pushing it up past halfway taps `button` once; its lamps follow `button.state` |
-| `level` | `label`, `icon`, `color`, `steps` (each way, default 5), `up`, `down`, `follows` | each step up or down taps `up` or `down` once, at most 5 per drag and 140 ms apart; `follows` maps `max`, `min`, `centre` to button ids whose presses move it |
+| `level` | `label`, `icon`, `color`, `steps` (each way, default 5), `up`, `down`, `follows` | each step up or down taps `up` or `down` once, at most 5 per drag and 140 ms apart; `follows` maps `max`, `min`, `center` (2.0 files say `centre`, still read) to button ids whose presses move it |
 | `fader` | the same as `level` | the same, lying down |
 | `rotary` | `label`, `hub`, `options` | turning the needle to an option and letting go, or tapping it, taps that option once; `hub` is a button in the middle |
-| `recentre` | `label` | nothing: puts every `level` and `fader` back in the centre |
+| `recenter` | `label` | nothing: puts every `level` and `fader` back in the center (`recentre`, its 2.0 name, still works) |
 
-Levels and faders show the steps sent from the centre, not a game value, and keep
+Levels and faders show the steps sent from the center, not a game value, and keep
 them per device with the page positions.
+
+### Grid layouts
+
+A grid layout (SpoolUp 2.1) has a `grid` object and no `canvas` or `regions`;
+`chrome` and `panels` keep their names, so the server, voice, the keybind
+profile and the Stream Deck plugin find every button as before:
+
+```jsonc
+{
+  "name": "SpoolUp HUD",
+  "grid": {
+    "version": 3,
+    "density": { "small": "default", "large": "default" },  // compact | default | roomy
+    "start": { "small": "full", "large": "halves" },          // optional; these are the defaults
+    "halves": { "left": ["power-landing", "..."], "right": ["qt-systems", "..."] },
+    "full": ["pilot", "combat-dash"],                         // dashboards, first in the one-panel view
+    "primary": "pilot"                                        // optional; a gesture can jump to it
+  },
+  "chrome": [ { "type": "action", "action": "menu", "icon": "emblem", "bar": "left" }, "..." ],
+  "panels": {
+    "shields": { "title": "Shields", "cols": 6, "elements": [
+      { "type": "shields", "id": "sh-cluster", "span": [6, 6], "size": { "small": [6, 5] }, "...": "..." }
+    ] },
+    "pilot": { "title": "Pilot", "cols": 12, "wide": true, "elements": [
+      { "type": "ref", "id": "pilot-sh-cluster", "ref": "sh-cluster", "span": [4, 3] }
+    ] }
+  }
+}
+```
+
+- **Screens.** The deck has two size classes: `small` when the stage's shorter
+  side is under 500 px, else `large` (`?viewport=small|large` forces one). Small
+  screens open on one panel, large ones on two halves; the pager's view button
+  switches, a phone held upright always shows one. Each class has three
+  densities (the cell width it aims for); players pick one in Deck settings
+  (Button size), else the layout's `grid.density` applies.
+- **Panels.** A half panel is authored on 6 columns (`cols`), a dashboard on 12
+  with `wide: true` (shown only in the one-panel view). The one-panel view pages
+  through `grid.full`, then the left half's panels, then the right's.
+- **Items.** Every element needs a unique `id`. `span` is `[columns, rows]` in
+  the panel's authored columns (buttons default to `[2, 1]`, widgets to their
+  registered size); `size: { "small": [w, h], "large": [w, h] }` wins in that
+  class; `at: [col, row]` pins it to a cell; `only: "small"` or `only: "large"`
+  shows it on that class alone (the dashboards keep three or four clusters on a
+  phone, so they fit without scrolling); `when` works as in 2.0, and hidden
+  items are dropped before placement so the rest close up. `x`, `y`, `w`, `h`
+  are ignored.
+- **Placement** (`DeckGrid.place` in `public/grid.js`): the deck works out how
+  many columns fit (an even number, 4 to 12), scales spans down when there are
+  fewer columns than authored (never below an item's minimum width: a group
+  keeps its own columns), never stretches them when there are more, places pins
+  first and then packs everything else in order, first fit. Rows fill the panel
+  between the class's smallest and tallest cell; a panel that needs more scrolls
+  up and down. Height left over under a panel (a phone held upright) goes to
+  the rows that hold clusters alone, so a cluster grows and buttons keep their
+  height. Each cell becomes an ordinary box, so 2.0's controls work in it.
+- **Labels**: `"labels": "show"` or `"hide"` on a panel, an item (a cluster,
+  control, group or ref) or a button overrides Deck settings' Button labels
+  (Icons and labels, or Icons only, per device, kept as `labels` in the
+  deck's storage); the most specific setting wins (button, then the ref, then
+  the item it shows, then the group, then the panel). A hidden label stays
+  the button's `aria-label`, title and voice phrase, and a button without an
+  `icon` always shows its label. Widgets get the setting as `ctx.labels()`;
+  their buttons from `ctx.hudButton` follow it on their own.
+- **`group`**: `{ "type": "group", "id", "label", "title", "style": "plain" |
+  "danger", "cols": 6, "span", "elements": [...] }`, a framed sub-panel laid out
+  on its own columns by the same rules and scaled to its box, so it keeps its
+  arrangement. `title` is drawn above it on the deck; `label` only names it in
+  the layout editor.
+- **`ref`**: `{ "type": "ref", "id", "ref": "<element id>", "span" }` draws that
+  element (a cluster, group or control anywhere in `panels`) here too, with the
+  same buttons and ids, so nothing is defined twice; both copies share its
+  per-device memory.
+
+Per-device state (page positions, the view, the seam, slider steps, dials,
+widget memory) is kept as `deck-grid-small` and `deck-grid-large`; on first use
+each starts from the 2.0 store of the same screen, which is never removed.
+
+**Widgets** are element types that scripts register, drawn in a cell like any
+other control: the mode dial (`public/dial.js`), the cockpit clusters
+(`public/clusters.js`) and the emote board (`public/emotes.js`). A registered
+type wins over the built-in renderer (the new dial replaces 2.0's `rotary` in
+every layout); a type nothing draws shows its buttons as a plain grid.
+
+```js
+window.DeckWidgets.register("shields", {
+  label: "Shields", category: "shields", icon: "power-shields",  // for the layout editor's library
+  spans: { small: [6, 4], large: [6, 6] }, min: [3, 3], max: [12, 8],
+  drag: "xy",                       // "x", "y", "xy" or "": what a drag on it claims
+  grows: true,                      // false for a row of plain buttons: its rows don't stretch tall
+  buttons: (e) => [["front", e.faces.front], "..."],  // its parts, for the editor
+  render(e, ctx) { return root; },  // the deck positions the root in its cell
+});
+```
+
+The built-in widgets and the buttons each one takes (every value is an ordinary
+button object, with its own unique `id`, `keys` and `scAction`):
+
+| `type` | fields | gestures (one tap each) |
+|---|---|---|
+| `rotary` | `hub`, `options` (each a button with `label`), `label` | tap a chip, or drag on the face and let go; the hub taps `hub`. Its shape comes from the maker's `--dial-shape` |
+| `shields` | `faces: { front, back, left, right, top, bottom }`, `reset`, `power` | slide toward a face: one tap per 36 px (28 on small screens), at most 5 per slide; tap a face, the ship (`reset`) or the ring (`power`) |
+| `targeting` | `next`, `prev`, `corners: { attacker, friendly, any, view }`, `sub` | the four cycles and Prev / Next Hostile are buttons around the reticle; tap its center or swipe right across it for `next`, swipe left for `prev` (once per swipe), tap the inner ring for `sub` |
+| `hull` | `lights`, `doors: { toggle, open, close }`, `lock: { lock, unlock }` | tap Lights, Lock or Unlock, tap the drawn doors to toggle them, or tap Open or Close |
+| `turrets` | `seats` (a list) | tap a seat's button (T1, T2, ...) |
+| `countermeasures` | `decoy`, `noise`, `panic`, `missile`, `fewer`, `pips` | `panic` sits under a cover between Decoy and Noise: the first tap lifts it and presses nothing |
+| `quantum` | `engage` (a hold button), optional `ready` | hold Engage; the HUD keeps Flight Ready with the power switches (`qt-boot`) |
+| `mining` | `mode`, `fire`, `laserType`, `up`, `down`, `modules` (a list) | taps; `up` and `down` press as their buttons say |
+| `salvage` | `left`, `right`, `wider`, `narrower` | swipe sideways for modifier left or right; drag up or down for spacing (one tap per 32 px, at most 5); tap a chevron |
+| `switchbank` | `buttons` (a list) | tap a switch |
+| `emotes` | `buttons` (the emotes) | tap plays one; hold stars it and presses nothing; favorites and groups are kept per device in `spoolup-emotes` |
+
+`ctx` gives `D` (the deck: `tapStep`, `bindControl`, `stateOf`, `buzz`, `toast`,
+`deckIcon`, `canPress`, `store`), `tr`, `make`, `text`, `keyText`,
+`hudButton(def, style)` (a real bound button), `size` (the box in px),
+`sizeClass`, `scale()`, `editing` and `place(el, e)` (the layout editor),
+`mem(e)` and `save()` (per-device memory by element id), `follow(buttonId, fn)`,
+`onRecenter(fn)`, `swiping()`, `steps` (`PER_DRAG` 5, `GAP_MS` 140), 2.0's
+`stepper`, `ticks` and `showLevel`, and `renderChild(e, box)` for nested items.
+Every press goes through `hudButton` or one `D.tapStep(button)` per gesture
+step. A widget ignores a `pointerdown` while `ctx.swiping()` is true, and lets go
+on `pointercancel` (the deck sends one when two fingers start a swipe); a tap on
+lift checks `ctx.swiping()` and presses nothing then.
+
+**Swipes and gestures.** Two fingers swiping sideways page the half under them
+(or the one panel), on by default for grid layouts; one finger swiping sideways
+anywhere is an option in Deck settings, off by default, and never starts on an
+element marked `data-drag` (sliders, the lever, dials, clusters that are
+dragged). While swipes are on a press waits 120 ms: a second finger landing, or
+with one-finger swipes the finger setting off sideways, cancels it, so a swipe
+never presses a key; a finger that lifts first is still one press, and a finger
+already holding a button (hold to talk) isn't part of a swipe. Two fingers up or
+down run what the device picked in Deck settings: one tap of `top-mobiglas`, the
+Quick actions sheet, the primary panel or a chosen panel.
+
+Check the built-in grid layouts after changing them (unique ids, refs, no
+overlaps at five screen sizes, every type drawn):
+
+```
+node tools/check-grid.js
+```
 
 Button fields:
 
 | field | meaning |
 |---|---|
 | `id` | unique name for the button |
-| `label` | text on the button; also its voice phrase |
+| `label` | text on the button; also its voice phrase and its name for screen readers |
+| `short` | optional shorter text for the button's face (`"Flight Ready"`); `label` stays its name and voice phrase |
+| `labels` | `"show"` or `"hide"`: this button's label regardless of Deck settings (see Labels above) |
 | `keys` | Star Citizen key names joined with `+`: `r`, `lalt+n`, `np_1`, `f5`, `ralt+y` |
 | `mode` | `tap` (quick press), `hold` (held while your finger is down), `timed` (held for `ms`) |
 | `color` | `green`, `amber`, `red`, `blue` or blank (uses the theme's accent) |
@@ -146,20 +298,23 @@ Key names: `a`-`z`, `0`-`9`, `f1`-`f24`, `np_0`-`np_9`, `np_period`, `np_add`,
 
 ### Generated layouts
 
-The phone layout and the starter and ship layouts are generated from
+The starter and ship layouts and Dashboards are generated from
 `layouts/hud.json`, so keys and animations match. Ship layouts copy the HUD's
-buttons into their own panel under new ids (`pr-…`, `vu-…`); to add a ship, add
-it to `SHIPS` in `tools/make-starter-layouts.js`. After editing it:
+cluster and buttons into their own panel under new ids (`pr-…`, `vu-…`); to add
+a ship, add it to `SHIPS` in `tools/make-starter-layouts.js`. After editing it:
 
 ```
 node tools/make-phone-layout.js
 node tools/make-starter-layouts.js
+node tools/check-grid.js
 ```
 
-The phone layout is sized for an iPhone 15 Pro in landscape: a 734×372 canvas,
-the 852×393 screen minus the Dynamic Island and home indicator. The page counts
-any screen whose short side is under 500 points as a phone; add
-`&device=tablet` or `&device=phone` to the address to override that.
+Since 2.1 the grid layouts fit every screen, so `hud-phone.json` and each
+`*-phone.json` are the same layouts marked `"hidden": true`: settings that name
+them keep working, and the layout lists show each once. The page still asks the
+server for `device=phone` on screens whose short side is under 500 points, for
+2.0 canvas layouts; add `&device=tablet` or `&device=phone` to override that, or
+`&viewport=small` / `&viewport=large` to pick a grid layout's size class.
 
 ### Themes
 
@@ -220,58 +375,16 @@ Fire Laser, Fracture/Extract, Laser Power +, Speed Range + / −), and it isn't
 known yet whether that key replaces the mouse bind, or (Launch Missile) the
 held press hasn't been tried in the game.
 
-## The Stream Deck pack
+## The Stream Deck connection
 
-The pack is generated from the deck's own buttons, icons and themes:
-
-| file | what it holds |
-|---|---|
-| `streamdeck/catalog.js` | every action a Stream Deck key can be: the deck's buttons (from `layouts/hud.json`), plus Discord, OBS, media, websites, navigation and the plugin's own |
-| `streamdeck/scenes.js` | the models, the scenes (a page each), the folders, the dial presets and a hand-made grid per scene for the 15-key, XL, + and + XL; the Mini and Neo take the first keys of the 15-key's |
-| `streamdeck/keyart.js` | draws a key, a 144×144 SVG, from a theme's tokens in `public/themes.css` and an icon from `public/icons.js` |
-| `streamdeck/plugin/` | the plugin, `com.xattribution.spoolup.sdPlugin`, and its tests |
-| `streamdeck/CONTRACT.md` | what the generator and the plugin agree on: action UUIDs, settings, data files |
-| `streamdeck/research/` | the Stream Deck and Star Citizen facts the formats follow, with sources (`*.verified.md` are fact-checked) |
-| `streamdeck/HANDOFF.md` | decisions, status and next steps |
-
-Build it with Microsoft Edge or Google Chrome installed (it draws the keys there,
-headless; no npm packages):
-
-```
-node tools/make-streamdeck.js
-```
-
-That takes about two minutes and writes `dist/streamdeck/`: `icons/` (an icon
-pack per theme), `profiles/<model>/` (a profile per theme), `keybinds/`, the
-plugin `com.xattribution.spoolup.streamDeckPlugin` and `preview/` (a sheet per
-model and theme, and `index.html`; look at these after a layout change).
-`--themes rsi,origin --models std,plusxl` builds a few, `--skip icons,plugin,preview`
-leaves parts out, `--release` also zips the downloads into `dist/streamdeck/release/`,
-and `--check` validates the layouts and a build without a browser. The same
-command twice gives the same files.
-
-**A new deck button** reaches the catalog by itself. Put it on a page in
-`streamdeck/scenes.js` if it should be on one; every action is in the icon packs
-either way. A button that holds a key (`"mode": "hold"` or `"timed"`) becomes the
-plugin's key action, marked PLUGIN, in the standalone profiles, because Stream
-Deck's own Hotkey can only tap.
-
-**The plugin** is plain Node (Stream Deck runs it on its own Node 24) with no
-npm packages. At run time it reads `data/*.json` and `bin/keyart.js`, which the
-generator writes when it packs the plugin; to try the source folder, write them
-with `node streamdeck/plugin/test/make-test-data.js`. Its tests run against a
-fake Stream Deck and a dry-run server:
-
-```
-node streamdeck/plugin/test/check.js
-node streamdeck/plugin/test/run.js
-node streamdeck/plugin/test/rules.js
-```
-
-`load.js` checks the 10-pictures-a-second limit, `words.js` that every status
-word fits in all four languages, and `inspector.js` the settings page in
-Chromium (with `NODE_PATH` pointing at a Playwright install). The plugin's own
-words are in `en.json`, `es.json`, `fr.json` and `de.json` in its folder.
+SpoolUp for Stream Deck (the plugin, icon pack and profiles) is a separate paid
+product on the Elgato Marketplace, built in a private repository. SpoolUp's side
+of it is the server's WebSocket: the plugin connects with `device=streamdeck`,
+presses buttons by their id in `layouts/hud.json`, and relays scenes to and from
+tablets. [STREAMDECK-API.md](STREAMDECK-API.md) describes the messages, the
+pairing and the scene relay, and what the plugin's build reads from this
+repository. Renaming a button or panel id in `layouts/hud.json` breaks the
+Stream Deck keys and scenes that use it.
 
 ## Building the installer
 
@@ -291,7 +404,7 @@ and Node.js 20 or newer. `scripts/build.js`:
 4. packs `server.js`, `qr.js`, `public/`, `layouts/` and `keybinds/` into
    `TabletDeckServer.exe` with Node's
    [single executable application](https://nodejs.org/api/single-executable-applications.html)
-   feature, and writes `THIRD-PARTY-NOTICES.txt` with that Node.js's licence (see
+   feature, and writes `THIRD-PARTY-NOTICES.txt` with that Node.js's license (see
    [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md); set `NODE_LICENSE` if the
    build can't find Node's `LICENSE` file);
 5. signs the files when `SIGN_CMD` is set;
