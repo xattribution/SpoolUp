@@ -1063,7 +1063,7 @@ server.on("upgrade", (req, socket) => {
   wsAccept(req, socket);
   const who = socket.remoteAddress;
   const device = url.searchParams.get("device") || "tablet";
-  // The Stream Deck plugin (streamdeck/plugin) connects like a tablet and presses the same
+  // The Stream Deck plugin (docs/STREAMDECK-API.md) connects like a tablet and presses the same
   // buttons through the same checks; only its name in the log differs.
   const kind = device === "streamdeck" ? "Stream Deck" : "Tablet";
   console.log(`${kind} connected: ${who}`);

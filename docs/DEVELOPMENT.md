@@ -10,6 +10,7 @@ signing, the website and the demo recording. For using SpoolUp, see the
 - [Project layout](#project-layout)
 - [Editing layouts by hand](#editing-layouts-by-hand)
 - [The keybind profile](#the-keybind-profile)
+- [The Stream Deck connection](#the-stream-deck-connection)
 - [Building the installer](#building-the-installer)
 - [Releasing](#releasing)
 - [Code signing](#code-signing)
@@ -88,8 +89,7 @@ layout from `layouts/`, and presses only play their animations. The website's
 | `layouts/` | built-in layouts; `hud.json` is the source, `hud-phone.json` and the starter layouts are generated, `hud-classic*.json` keep the 2.0 HUD as it was |
 | `keybinds/` | the SpoolUp Keyboard profile for Star Citizen (generated) |
 | `native/` | C# sources: `launcher.cs` (the app window), `keysender.cs`, `voice.cs`, `sound.cs` |
-| `tools/` | generators for the phone layout, starter layouts, keybind profile and Stream Deck pack (`make-streamdeck.js`, helpers in `tools/streamdeck/`), the grid layout check (`check-grid.js`) and the demo recorder |
-| `streamdeck/` | the Stream Deck pack's sources: action catalog, scene layouts, key art, the plugin, research and handoff notes |
+| `tools/` | generators for the phone layout, starter layouts and keybind profile, the grid layout check (`check-grid.js`) and the demo recorder |
 | `scripts/` | the installer build and release notes |
 | `installer/` | the Inno Setup script |
 | `site/` | the website (GitHub Pages) |
@@ -117,7 +117,7 @@ Element types include `button`, `header`, `switch` (with `when` to show elements
 per mode), `menu`, `slider`, `grid`, the cockpit controls below and decorations.
 
 Cockpit controls (2.0) hold ordinary button definitions inside them, so the
-server, voice commands, the keybind profile and the Stream Deck catalog find
+server, voice commands, the keybind profile and the Stream Deck plugin find
 those buttons as usual. Each has its own `id` (no `keys`) so the layout editor
 can select it. Every step, pull or turn sends one `tap` of one inner button, through
 the same focus check and press scheduling as a tapped button:
@@ -137,7 +137,7 @@ them per device with the page positions.
 
 A grid layout (SpoolUp 2.1) has a `grid` object and no `canvas` or `regions`;
 `chrome` and `panels` keep their names, so the server, voice, the keybind
-profile and the Stream Deck catalog find every button as before:
+profile and the Stream Deck plugin find every button as before:
 
 ```jsonc
 {
@@ -257,7 +257,7 @@ down run what the device picked in Deck settings: one tap of `top-mobiglas`, the
 Quick actions sheet, the primary panel or a chosen panel.
 
 Check the built-in grid layouts after changing them (unique ids, refs, no
-overlaps at five screen sizes, every type drawn, Stream Deck scene ids):
+overlaps at five screen sizes, every type drawn):
 
 ```
 node tools/check-grid.js
@@ -362,58 +362,16 @@ Fire Laser, Fracture/Extract, Laser Power +, Speed Range + / −), and it isn't
 known yet whether that key replaces the mouse bind, or (Launch Missile) the
 held press hasn't been tried in the game.
 
-## The Stream Deck pack
+## The Stream Deck connection
 
-The pack is generated from the deck's own buttons, icons and themes:
-
-| file | what it holds |
-|---|---|
-| `streamdeck/catalog.js` | every action a Stream Deck key can be: the deck's buttons (from `layouts/hud.json`), plus Discord, OBS, media, websites, navigation and the plugin's own |
-| `streamdeck/scenes.js` | the models, the scenes (a page each), the folders, the dial presets and a hand-made grid per scene for the 15-key, XL, + and + XL; the Mini and Neo take the first keys of the 15-key's |
-| `streamdeck/keyart.js` | draws a key, a 144×144 SVG, from a theme's tokens in `public/themes.css` and an icon from `public/icons.js` |
-| `streamdeck/plugin/` | the plugin, `com.xattribution.spoolup.sdPlugin`, and its tests |
-| `streamdeck/CONTRACT.md` | what the generator and the plugin agree on: action UUIDs, settings, data files |
-| `streamdeck/research/` | the Stream Deck and Star Citizen facts the formats follow, with sources (`*.verified.md` are fact-checked) |
-| `streamdeck/HANDOFF.md` | decisions, status and next steps |
-
-Build it with Microsoft Edge or Google Chrome installed (it draws the keys there,
-headless; no npm packages):
-
-```
-node tools/make-streamdeck.js
-```
-
-That takes about two minutes and writes `dist/streamdeck/`: `icons/` (an icon
-pack per theme), `profiles/<model>/` (a profile per theme), `keybinds/`, the
-plugin `com.xattribution.spoolup.streamDeckPlugin` and `preview/` (a sheet per
-model and theme, and `index.html`; look at these after a layout change).
-`--themes rsi,origin --models std,plusxl` builds a few, `--skip icons,plugin,preview`
-leaves parts out, `--release` also zips the downloads into `dist/streamdeck/release/`,
-and `--check` validates the layouts and a build without a browser. The same
-command twice gives the same files.
-
-**A new deck button** reaches the catalog by itself. Put it on a page in
-`streamdeck/scenes.js` if it should be on one; every action is in the icon packs
-either way. A button that holds a key (`"mode": "hold"` or `"timed"`) becomes the
-plugin's key action, marked PLUGIN, in the standalone profiles, because Stream
-Deck's own Hotkey can only tap.
-
-**The plugin** is plain Node (Stream Deck runs it on its own Node 24) with no
-npm packages. At run time it reads `data/*.json` and `bin/keyart.js`, which the
-generator writes when it packs the plugin; to try the source folder, write them
-with `node streamdeck/plugin/test/make-test-data.js`. Its tests run against a
-fake Stream Deck and a dry-run server:
-
-```
-node streamdeck/plugin/test/check.js
-node streamdeck/plugin/test/run.js
-node streamdeck/plugin/test/rules.js
-```
-
-`load.js` checks the 10-pictures-a-second limit, `words.js` that every status
-word fits in all four languages, and `inspector.js` the settings page in
-Chromium (with `NODE_PATH` pointing at a Playwright install). The plugin's own
-words are in `en.json`, `es.json`, `fr.json` and `de.json` in its folder.
+SpoolUp for Stream Deck (the plugin, icon pack and profiles) is a separate paid
+product on the Elgato Marketplace, built in a private repository. SpoolUp's side
+of it is the server's WebSocket: the plugin connects with `device=streamdeck`,
+presses buttons by their id in `layouts/hud.json`, and relays scenes to and from
+tablets. [STREAMDECK-API.md](STREAMDECK-API.md) describes the messages, the
+pairing and the scene relay, and what the plugin's build reads from this
+repository. Renaming a button or panel id in `layouts/hud.json` breaks the
+Stream Deck keys and scenes that use it.
 
 ## Building the installer
 

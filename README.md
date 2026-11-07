@@ -107,12 +107,11 @@ start with Windows, and updates with one click.
 <tr>
 <td colspan="2" valign="top">
 
-### 🎛️ Stream Deck pack
-Profiles for every Stream Deck from the Mini to the + XL in all 12 themes, with
-a page per scene, folders for emergencies, emotes and themes, dials and touch
-strips on the + and + XL, and a Comms page with Discord and OBS. Icon packs with
-every button, and a plugin that presses through SpoolUp and can keep your
-tablet and Stream Deck on the same scene. [More](#stream-deck)
+### 🎛️ Stream Deck
+SpoolUp for Stream Deck, sold on the Elgato Marketplace, brings profiles for
+every Stream Deck in all 12 themes, icon packs and a plugin that presses
+through SpoolUp and keeps your tablet and Stream Deck on the same scene.
+[More](#stream-deck)
 
 </td>
 </tr>
@@ -588,123 +587,15 @@ language, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issu
 
 ### Stream Deck
 
-SpoolUp has a Stream Deck pack: ready-made profiles for every Stream Deck
-from the Mini to the + XL, in all 12 manufacturer themes, an icon pack per
-theme with every button for pages of your own, and a SpoolUp plugin. The
-profiles and icons work on their own; with the plugin, presses go through
-SpoolUp like a tablet's.
-
-<p align="center">
-  <img src="docs/streamdeck.jpg" alt="The Stream Deck + XL profile in the RSI theme: the Flight and Combat pages, with scene tabs along the top, power, speed limit, master mode and targets dials, and the touch strip" width="100%">
-</p>
-
-Each release has the pack under **Assets**:
-
-| Download | What it is |
-|---|---|
-| `SpoolUp-StreamDeck-Profiles-<model>.zip` | that model's profile in each of the 12 themes, and the keybind profile |
-| `SpoolUp-StreamDeck-IconPacks.zip` | 12 icon packs, 222 icons each, the 21 animated buttons also as GIFs |
-| `com.xattribution.spoolup.streamDeckPlugin` | the plugin, with a profile for each model |
-
-Or build it yourself: see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#the-stream-deck-pack).
-
-**Scenes and folders.** Each profile has a page per scene: **Flight, Combat,
-Mining, Salvage, Hauling & Exploration, On Foot** and **Comms**. Folders hold
-**Emergency** (eject, self-destruct, exit seat), **Shields**, **Power**,
-**Emotes**, **Websites** (UEX, Erkul, SPViewer, SCMDB) and **Themes**, which
-opens the same page in another manufacturer's look. How you move between
-scenes depends on the model:
-
-| Model | Keys | Scenes |
-|---|---|---|
-| **Stream Deck + XL** | 9×4, 6 dials, touch strip | tabs along the top row; the last dial turns through them, push for Themes |
-| **Stream Deck XL** | 8×4 | tabs along the top row |
-| **Stream Deck +** | 4×2, 4 dials, touch strip | the last dial turns through them, push for the Scenes folder |
-| **Stream Deck** (15 keys, MK.2, Scissor Keys) and **Stream Deck Mobile** | 5×3 | the right column: Scenes, Next, Previous |
-| **Stream Deck Neo** and **Mini** | 4×2 and 3×2 | the last key opens Scenes |
-
-On the + and + XL, the dials are knobs: each sets a level or cycles through
-options, one press per notch (at most 5 a turn), and pushing one is a single
-press. Power (turn for − and +, push for max), the speed limit, laser power,
-beam spacing, the salvage modifier, master mode (SCM and NAV, push for
-Quantum), targets, the voice channel, brightness and volume; the touch strip
-shows what each one does. There are no profiles for the Studio or the Pedal (Stream Deck
-doesn't support profiles there), but the plugin's actions work on them.
-
-**Comms.** The Comms page has Star Citizen's own push to talk, proximity push
-to talk, hail, invites and chat; Discord mute, deafen, push to talk, push to
-mute, voice mode and a volume dial (Elgato's **Discord** plugin; authorize it
-once in Discord); OBS record, go live (a long press, so it can't start by
-accident), save replay and screenshot (Elgato's **OBS Studio** plugin); and the
-media keys and PC volume. A key for a plugin you don't have shows **?**, and
-Stream Deck offers to install it.
-
-**Profiles on their own:**
-
-1. Unzip the download for your model and double-click a profile,
-   `SpoolUp <theme> - <model>.streamDeckProfile`. Import any themes you want
-   to switch between. The + XL needs Stream Deck 7.3 or newer.
-2. In Star Citizen, load the **SpoolUp Keyboard** profile (see
-   [Keybinds](#keybinds); the zip has it too), since many keys press its binds.
-3. The keys are Stream Deck **Hotkeys**: Stream Deck presses them into
-   whatever window is in front, so they work without SpoolUp, but
-   SpoolUp's focus check doesn't guard them.
-
-Keys marked **PLUGIN** hold a key, or press it for a set time: Engage Quantum,
-Auto Land, SCM/NAV, Max and Min power, Self-D, push to talk and a few more.
-Stream Deck's Hotkey can only tap, so these go through the SpoolUp plugin,
-and need it and SpoolUp running. Theme keys open the same page in that
-theme's profile; if one doesn't switch after importing, pick its profile once
-in the key's settings.
-
-**With the plugin:** double-click `com.xattribution.spoolup.streamDeckPlugin`
-(Windows, Stream Deck 7.3 or newer). It adds a **SpoolUp** category with
-**Deck Button**, **Deck Dial**, **Scene**, **Theme**, **Hold to Talk**,
-**Status** and **Reset Lights**, and brings a profile for each model, which
-Stream Deck offers to install the first time a Scene key or the scene dial
-switches to it.
-
-- Presses go through SpoolUp: the focus check, lit buttons (gear, lights,
-  doors...) shared with your tablets, a red flash when a press is skipped, and
-  the press animations. **Theme** keys redraw every SpoolUp key in that
-  manufacturer's look.
-- With **Tablets follow scenes** on (it's off at first, in any SpoolUp
-  key's settings), picking a scene flips tablets that have **Follow Stream Deck
-  scenes** on (under **Display** in Deck settings) to that scene's panels.
-- The other way round, flipping a panel on a tablet takes the Stream Deck to
-  the scene with that panel, while it shows the SpoolUp profile and no key
-  on it is held down. Panels two scenes share (Power/Landing, Operator Modes)
-  leave it where it is. To stop that, turn off **Follow the tablet** in any
-  SpoolUp key's settings.
-- It finds SpoolUp on the same PC by itself. If **Status** shows OFFLINE or
-  WRONG CODE, set the port and pairing code in any SpoolUp key's settings.
-- A dial notch is one press, at most 5 per turn; turning back drops the ones
-  still waiting.
-
-**Icon packs:** double-click `SpoolUp <theme>.streamDeckIconPack`. Every
-button, including the ones that aren't on a page, appears in Stream Deck's icon
-library for keys of your own, and the ones with a press animation (gear struts,
-sliding doors, decoy sparks, the quantum charge...) also come animated.
-
-<details>
-<summary>Not tried on a real Stream Deck yet</summary>
-
-The pack is built from Elgato's documented formats and checked file by file,
-but hasn't been imported into the Stream Deck app yet. If something doesn't
-work, please say so on [GitHub](https://github.com/xattribution/SpoolUp/issues/new/choose),
-with your model and Stream Deck version. In particular:
-
-- Importing the profiles, and how the keys, dials and touch strips look.
-- Theme keys switching to the right profile and page after import.
-- Dials: the order of turn left, push and turn right; one press per notch on a
-  fast spin.
-- The + XL's model ID and touch strip size.
-- Hotkeys with right-hand modifiers (RAlt, RCtrl) pressing the right-hand key.
-- The plugin finding SpoolUp, its first switch to its profiles, and the
-  PLUGIN keys' pictures.
-- **Follow the tablet:** the Stream Deck moving to the right page soon after a
-  tablet's panel flips, also with several Stream Decks connected.
-</details>
+<!-- Owner: replace https://marketplace.elgato.com below (and in site/index.html) with the SpoolUp for Stream Deck product page once it's live. -->
+SpoolUp works with **SpoolUp for Stream Deck**: the plugin, an icon pack and
+profiles for every Stream Deck from the Mini to the + XL, in all 12
+manufacturer themes. It's a separate paid product, available on the
+[Elgato Marketplace](https://marketplace.elgato.com).
+With the plugin, presses go through SpoolUp like a tablet's, with the same
+focus check, and a tablet with **Follow Stream Deck scenes** on (under
+**Display** in Deck settings) flips to the scene picked on the Stream Deck.
+The Stream Deck downloads from SpoolUp 2.0 and earlier releases keep working.
 
 ## Settings
 

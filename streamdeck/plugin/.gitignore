@@ -1,5 +1,0 @@
-# Written into the plugin folder when it's packed (tools/make-streamdeck.js) or tested by
-# hand; never part of the source.
-com.xattribution.spoolup.sdPlugin/data/
-com.xattribution.spoolup.sdPlugin/bin/keyart.js
-com.xattribution.spoolup.sdPlugin/logs/

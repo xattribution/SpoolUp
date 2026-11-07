@@ -87,6 +87,11 @@ before tagging a release.
   says so, with an **Open network settings** button that opens the page for
   that network, where you pick Private. Settings has a Network section with
   the same button.
+- **The Stream Deck pack is sold separately.** SpoolUp for Stream Deck (the
+  plugin, icon pack and profiles) is now on the
+  [Elgato Marketplace](https://marketplace.elgato.com), and the free Stream
+  Deck downloads stop with 2.1. Stream Deck downloads from earlier releases
+  keep working with SpoolUp 2.1.
 - "Centre sliders" is now "Center sliders", and SpoolUp uses American
   spelling throughout.
 - What each button presses hasn't changed, and every press still goes

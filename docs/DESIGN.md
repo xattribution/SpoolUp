@@ -31,8 +31,9 @@ character, the way the "Tablet Deck 2" design did it:
 
 The tokens below carry the colors, type and material; `public/makers.css`
 carries each maker's drawing (see [Maker drawings](#maker-drawings)). When a
-theme needs something neither can say yet, add it (and its drawing in the deck
-and in the Stream Deck key art) rather than settling for a recolor.
+theme needs something neither can say yet, add it (and its drawing in the deck,
+and tell the Stream Deck key art, see [Stream Deck keys](#stream-deck-keys))
+rather than settling for a recolor.
 
 ## Theme tokens
 
@@ -166,8 +167,8 @@ colors needs a line there.
 1. **Copy a block** in `public/themes.css`, give it a new id, and set every
    token in the table. Start from a theme with a similar feel: a dark one for a
    dark theme, Crusader or Origin for a light one. Then give it its own section
-   in `public/makers.css`, and its `--material` a drawing in `material()` and
-   `litMark()` in `streamdeck/keyart.js` if no existing one fits.
+   in `public/makers.css`. A `--material` no existing theme uses also needs a
+   drawing in the Stream Deck key art (see [Stream Deck keys](#stream-deck-keys)).
 2. **Fonts:** if the theme uses a new Google font, add it to the Google Fonts
    link in both `public/index.html` and `public/editor.html`, and end the font
    stack with a system fallback (`system-ui, sans-serif`). The deck also has to
@@ -294,35 +295,14 @@ inside a drawn frame that gets the accent focus ring while it has focus.
 
 ## Stream Deck keys
 
-The Stream Deck pack's keys (`streamdeck/keyart.js`) are the deck's buttons
-redrawn as 144×144 pictures, in the theme's own tokens, so a key looks like the
-same button on the tablet:
-
-- **Built from `public/themes.css`**: the key's face (`--face-hi`, `--face-lo`)
-  on the page color, frame, corner radius or cut, top strip (Drake's hazard
-  stripes, CO's segment), backdrop glow, icon stroke and fonts all come from the
-  theme's tokens, and `--material` picks the maker's surface and lit mark in
-  `material()` and `litMark()` (the same ideas as makers.css draws on the deck:
-  rivets, weave, lamp, gloss, tabs...). Don't draw one theme's keys by hand;
-  add a token or a material, and every key gets it.
-- **Icon above, label below, one status word under it** (DEPLOYED, ON, PLUGIN).
-  Labels wrap to two lines and shrink to fit 110 px, clear of the frame and the
-  accent bars; status words stay short (the plugin's translations have their
-  own short forms).
-- **Colors mean the same as on the deck**: red danger and combat, green power and
-  on, amber mining and salvage, blue the rest. A lit key takes its color's tint
-  and ring and its maker's lit mark; a skipped press flashes red; offline keys
-  go dim with a red cross.
-- **Badges sit top right**: a folder for keys that open a folder, an arrow for Back.
-- **Empty slots are blank keys** in the page color with a small cross, so a page
-  reads as one panel, light themes too (never a white face).
-- **Touch strips** (Stream Deck + and + XL) are one HUD panel across all the
-  dials: each dial's 200×100 part has its label, icon and color, and says what
-  turning each way and pushing do.
-- **Simple SVG only**: paths, strokes and gradients, no filters or arcs (Stream
-  Deck's SVG renderer is SVG Tiny), with glows drawn as layered strokes.
-- **Original icons**, no brand logos: the Discord and OBS keys use the deck's own
-  icons, and theme keys use each manufacturer's emblem from the deck.
+SpoolUp for Stream Deck, a separate paid product, draws its keys in its own
+private repository (`xattribution/SpoolUp-StreamDeck`) as the deck's buttons
+redrawn as 144×144 pictures. It reads every theme's tokens from
+`public/themes.css` and the icons from `public/icons.js`, so a key looks like
+the same button on the tablet: `--face-hi`, `--face-lo`, `--material` and
+`--key-radius` matter there as well as on the deck. Keep every token in every
+theme, and when a theme gets a new `--material` or drawing, say so in that
+repository so its keys follow. See [STREAMDECK-API.md](STREAMDECK-API.md).
 
 ## Motion, night mode and layering
 

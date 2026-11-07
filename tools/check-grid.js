@@ -6,9 +6,7 @@
 // - placed cells never overlap and never run off the grid;
 // - every element type is drawn by something: a 2.0 renderer or a registered widget
 //   (public/grid.js, clusters.js, dial.js and emotes.js are loaded with no DOM, so a
-//   widget that touches the page while registering fails here);
-// - every SpoolUp button a Stream Deck scene or folder uses (streamdeck/scenes.js) is in
-//   layouts/hud.json.
+//   widget that touches the page while registering fails here).
 //
 // Panels that need to scroll at a size are listed as notes, not failures (hidden copies,
 // the *-phone.json files, are checked but not noted again).
@@ -152,33 +150,6 @@ const files = fs.readdirSync(path.join(ROOT, "layouts")).filter((f) => f.endsWit
 let grids = 0;
 for (const f of files) {
   try { if (checkLayout(f)) grids++; } catch (err) { fail(`layouts/${f}: ${err.message}`); }
-}
-
-// ---------- Stream Deck scenes ----------
-try {
-  const hud = JSON.parse(fs.readFileSync(path.join(ROOT, "layouts", "hud.json"), "utf8"));
-  const inHud = new Set();
-  (function walk(n) {
-    if (Array.isArray(n)) { n.forEach(walk); return; }
-    if (!n || typeof n !== "object") return;
-    if (typeof n.id === "string") inHud.add(n.id);
-    for (const v of Object.values(n)) if (v && typeof v === "object") walk(v);
-  })(hud);
-  const scenes = require(path.join(ROOT, "streamdeck", "scenes.js"));
-  const catalog = require(path.join(ROOT, "streamdeck", "catalog.js"));
-  const seen = new Set();
-  for (const model of Object.keys(scenes.MODELS)) {
-    for (const ref of scenes.refsIn(scenes.layoutFor(model))) {
-      if (seen.has(ref)) continue;
-      seen.add(ref);
-      const a = catalog.byId.get ? catalog.byId.get(ref) : catalog.byId[ref];
-      if (!a) fail(`streamdeck/scenes.js uses "${ref}", which isn't in the Stream Deck catalog`);
-      else if (a.kind === "deck" && !inHud.has(ref)) fail(`streamdeck/scenes.js uses "${ref}", which isn't in layouts/hud.json`);
-    }
-    for (const s of scenes.SCENES) for (const id of Object.values(s.tablet || {})) if (!hud.panels[id]) fail(`streamdeck/scenes.js: scene "${s.id}" follows panel "${id}", which isn't in layouts/hud.json`);
-  }
-} catch (err) {
-  fail(`Stream Deck scenes: ${err.message}`);
 }
 
 for (const n of notes) console.log(`note: ${n}`);

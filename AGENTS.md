@@ -21,6 +21,7 @@ Imperium Games.
 | `native/` | C# sources: the app window, the key sender, the voice listener, the sound player |
 | `tools/`, `scripts/` | generators, the installer build, release notes |
 | `site/` | the website on GitHub Pages |
+| `docs/STREAMDECK-API.md` | the server's side of the Stream Deck plugin, a separate paid product built in a private repository |
 
 ## Ground rules
 
@@ -117,6 +118,11 @@ tested if they weren't.
 - **The version** lives in `package.json`. A release is a commit with the new
   version and its `CHANGELOG.md` section, then a `v<version>` tag; the Release
   workflow builds and publishes it. Don't tag or release without the owner.
+- **No Stream Deck downloads.** SpoolUp for Stream Deck is sold on the Elgato
+  Marketplace, whose price-match rule rules out free copies, so releases and
+  the website don't ship Stream Deck files. The plugin still talks to
+  `server.js`: keep [docs/STREAMDECK-API.md](docs/STREAMDECK-API.md) true, and
+  don't rename button or panel ids in `layouts/hud.json` without saying so.
 - **Pushing to `main` publishes the website** when it touches `site/`,
   `public/`, `layouts/` or the images in `docs/`.
 
