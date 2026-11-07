@@ -14,7 +14,7 @@
 #define FirewallRule "Tablet Deck"
 
 [Setup]
-; Never change AppId: Windows uses it to recognise upgrades of the same app.
+; Never change AppId: Windows uses it to recognize upgrades of the same app.
 AppId={{A7A9440D-F358-4D02-81DE-04193AAA6A52}
 AppName={#AppName}
 AppVersion={#AppVersion}
@@ -104,7 +104,7 @@ Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=
 [Code]
 var
   StarCitizenDir: String; // ...\StarCitizen\LIVE, or '' when not found
-  TasksLabelled: Boolean;
+  TasksLabeled: Boolean;
 
 // The same install folders server.js searches for actionmaps.xml.
 function FindStarCitizen(): String;
@@ -190,15 +190,15 @@ begin
     Result := ExpandConstant('{app}\keybinds');
 end;
 
-// Shows where the keybind profile goes, or greys the option out without Star Citizen.
+// Shows where the keybind profile goes, or grays the option out without Star Citizen.
 // Runs once: the page can be shown again with Back.
 procedure CurPageChanged(CurPageID: Integer);
 var
   I: Integer;
   Caption: String;
 begin
-  if (CurPageID <> wpSelectTasks) or TasksLabelled then Exit;
-  TasksLabelled := True;
+  if (CurPageID <> wpSelectTasks) or TasksLabeled then Exit;
+  TasksLabeled := True;
   for I := 0 to WizardForm.TasksList.Items.Count - 1 do
   begin
     Caption := WizardForm.TasksList.ItemCaption[I];

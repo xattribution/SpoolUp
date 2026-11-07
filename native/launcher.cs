@@ -179,7 +179,6 @@ static class Lang
         { "SCAN WITH YOUR TABLET'S CAMERA", new[] { "ESCANEA CON TU TABLET", "SCANNEZ AVEC VOTRE TABLETTE", "MIT DER TABLET-KAMERA SCANNEN" } },
         { "ADDRESS", new[] { "DIRECCIÓN", "ADRESSE", "ADRESSE" } },
         { "No network found. Connect this PC to Wi-Fi or a network.", new[] { "No se encontró ninguna red. Conecta este PC a una wifi o a una red.", "Aucun réseau trouvé. Connectez ce PC au Wi-Fi ou à un réseau.", "Kein Netzwerk gefunden. Verbinde diesen PC mit WLAN oder einem Netzwerk." } },
-        { "Windows treats \"{0}\" as Public: tablets can't connect.", new[] { "Windows trata \"{0}\" como pública: las tablets no pueden conectarse.", "Windows considère \"{0}\" comme public : les tablettes ne peuvent pas se connecter.", "Windows behandelt \"{0}\" als öffentlich: Tablets können sich nicht verbinden." } },
         { "ALSO", new[] { "TAMBIÉN", "AUSSI", "AUCH" } },
         { "PAIRING CODE", new[] { "CÓDIGO DE EMPAREJAMIENTO", "CODE D'APPAIRAGE", "KOPPLUNGSCODE" } },
         { "TABLETS", new[] { "TABLETS", "TABLETTES", "TABLETS" } },
@@ -217,6 +216,9 @@ static class Lang
         { " (test mode)", new[] { " (modo prueba)", " (mode test)", " (Testmodus)" } },
         { "Windows treats \"{0}\" as a Public network, so tablets can't connect. In Windows: Settings > Network & Internet > {0} > set it to Private.", new[] { "Windows trata \"{0}\" como red pública, así que las tablets no pueden conectarse. En Windows: Configuración > Red e Internet > {0} > ponla como privada.", "Windows considère \"{0}\" comme un réseau public, donc les tablettes ne peuvent pas se connecter. Dans Windows : Paramètres > Réseau et Internet > {0} > réglez-le sur Privé.", "Windows behandelt \"{0}\" als öffentliches Netzwerk, daher können Tablets sich nicht verbinden. In Windows: Einstellungen > Netzwerk und Internet > {0} > auf Privat stellen." } },
         { "Tablets can't connect", new[] { "Las tablets no pueden conectarse", "Les tablettes ne peuvent pas se connecter", "Tablets können sich nicht verbinden" } },
+        { "Windows treats \"{0}\" as a Public network. Set it to Private so tablets on your network can reach SpoolUp.", new[] { "Windows trata \"{0}\" como red pública. Ponla como privada para que las tablets de tu red puedan llegar a SpoolUp.", "Windows considère \"{0}\" comme un réseau public. Passez-le en privé pour que les tablettes de votre réseau puissent joindre SpoolUp.", "Windows behandelt \"{0}\" als öffentliches Netzwerk. Stelle es auf Privat, damit Tablets in deinem Netzwerk SpoolUp erreichen." } },
+        { "Choose your network, then Private network. SpoolUp checks again every 20 seconds.", new[] { "Elige tu red y luego Red privada. SpoolUp vuelve a comprobarlo cada 20 segundos.", "Choisissez votre réseau, puis Réseau privé. SpoolUp vérifie à nouveau toutes les 20 secondes.", "Wähle dein Netzwerk, dann Privates Netzwerk. SpoolUp prüft alle 20 Sekunden erneut." } },
+        { "Open network settings", new[] { "Abrir configuración de red", "Ouvrir les paramètres réseau", "Netzwerkeinstellungen öffnen" } },
         { "Windows treats \"{0}\" as a Public network. Open SpoolUp to fix it.", new[] { "Windows trata \"{0}\" como red pública. Abre SpoolUp para arreglarlo.", "Windows considère \"{0}\" comme un réseau public. Ouvrez SpoolUp pour corriger cela.", "Windows behandelt \"{0}\" als öffentliches Netzwerk. Öffne SpoolUp, um das zu beheben." } },
         { "Restarting the server for the new settings...", new[] { "Reiniciando el servidor con los nuevos ajustes...", "Redémarrage du serveur avec les nouveaux réglages...", "Server startet mit den neuen Einstellungen neu..." } },
         { "Couldn't save the settings: {0}", new[] { "No se pudieron guardar los ajustes: {0}", "Impossible d'enregistrer les réglages : {0}", "Die Einstellungen konnten nicht gespeichert werden: {0}" } },
@@ -237,7 +239,6 @@ static class Lang
         { "Settings folder", new[] { "Carpeta de ajustes", "Dossier des réglages", "Einstellungsordner" } },
         { "Check for updates now", new[] { "Buscar actualizaciones ahora", "Rechercher les mises à jour", "Jetzt nach Updates suchen" } },
         { "Feedback & ideas", new[] { "Comentarios e ideas", "Avis et idées", "Feedback & Ideen" } },
-        { "Set it to Private ›", new[] { "Ponla como privada ›", "La passer en privé ›", "Auf Privat stellen ›" } },
         { "What's new", new[] { "Novedades", "Nouveautés", "Neuigkeiten" } },
         { "Update now", new[] { "Actualizar ahora", "Mettre à jour", "Jetzt aktualisieren" } },
         { "Later", new[] { "Más tarde", "Plus tard", "Später" } },
@@ -270,9 +271,9 @@ static class Lang
         { "the download failed ({0})", new[] { "la descarga falló ({0})", "le téléchargement a échoué ({0})", "der Download ist fehlgeschlagen ({0})" } },
         { "the download didn't match its checksum, so it wasn't installed", new[] { "la descarga no coincidía con su suma de comprobación, así que no se instaló", "le téléchargement ne correspondait pas à sa somme de contrôle, il n'a donc pas été installé", "der Download passte nicht zu seiner Prüfsumme und wurde daher nicht installiert" } },
         { "couldn't check the download ({0})", new[] { "no se pudo comprobar la descarga ({0})", "impossible de vérifier le téléchargement ({0})", "der Download konnte nicht geprüft werden ({0})" } },
-        { "the Windows permission prompt was cancelled", new[] { "se canceló el aviso de permisos de Windows", "la demande d'autorisation de Windows a été annulée", "die Windows-Berechtigungsabfrage wurde abgebrochen" } },
+        { "the Windows permission prompt was canceled", new[] { "se canceló el aviso de permisos de Windows", "la demande d'autorisation de Windows a été annulée", "die Windows-Berechtigungsabfrage wurde abgebrochen" } },
         { "the installer finished without updating", new[] { "el instalador terminó sin actualizar", "l'installateur s'est terminé sans mettre à jour", "der Installer wurde ohne Update beendet" } },
-        { "the installer stopped (code {0}). Was the Windows prompt cancelled?", new[] { "el instalador se detuvo (código {0}). ¿Se canceló el aviso de Windows?", "l'installateur s'est arrêté (code {0}). La demande de Windows a-t-elle été annulée ?", "der Installer wurde beendet (Code {0}). Wurde die Windows-Abfrage abgebrochen?" } },
+        { "the installer stopped (code {0}). Was the Windows prompt canceled?", new[] { "el instalador se detuvo (código {0}). ¿Se canceló el aviso de Windows?", "l'installateur s'est arrêté (code {0}). La demande de Windows a-t-elle été annulée ?", "der Installer wurde beendet (Code {0}). Wurde die Windows-Abfrage abgebrochen?" } },
         { "Update failed: {0}", new[] { "La actualización falló: {0}", "Échec de la mise à jour : {0}", "Update fehlgeschlagen: {0}" } },
         { "Updated to SpoolUp {0}.", new[] { "Actualizado a SpoolUp {0}.", "Mis à jour vers SpoolUp {0}.", "Auf SpoolUp {0} aktualisiert." } },
 
@@ -339,6 +340,8 @@ static class Lang
         { "Play a sound when it starts and stops listening", new[] { "Sonido al empezar y dejar de escuchar", "Un son quand l'écoute démarre et s'arrête", "Ton beim Start und Ende des Zuhörens" } },
         { "Pick a key Star Citizen doesn't use, like a mouse side button, a numpad key or F13-F24: the key still reaches the game.", new[] { "Elige una tecla que Star Citizen no use, como un botón lateral del ratón, una tecla del teclado numérico o F13-F24: la tecla sigue llegando al juego.", "Choisissez une touche que Star Citizen n'utilise pas, comme un bouton latéral de souris, une touche du pavé numérique ou F13-F24 : la touche arrive quand même au jeu.", "Wähle eine Taste, die Star Citizen nicht nutzt, etwa eine Maus-Seitentaste, eine Ziffernblocktaste oder F13-F24: Die Taste kommt trotzdem im Spiel an." } },
         { "LINKS", new[] { "ENLACES", "LIENS", "LINKS" } },
+        { "NETWORK", new[] { "RED", "RÉSEAU", "NETZWERK" } },
+        { "Tablets connect over your home network. Windows has to treat it as a Private network: on a Public one it blocks them.", new[] { "Las tablets se conectan por tu red doméstica. Windows tiene que tratarla como red privada: en una pública las bloquea.", "Les tablettes se connectent par votre réseau domestique. Windows doit le traiter comme un réseau privé : sur un réseau public, il les bloque.", "Tablets verbinden sich über dein Heimnetzwerk. Windows muss es als privates Netzwerk behandeln: In einem öffentlichen blockiert es sie." } },
         { "Websites the tablet can open on this PC", new[] { "Webs que la tablet puede abrir en este PC", "Sites que la tablette peut ouvrir", "Websites für das Tablet" } },
         { "One per line: Name | https://address. The tablet only sees the names, so it can't open anything else.", new[] { "Una por línea: Nombre | https://dirección. La tablet solo ve los nombres, así que no puede abrir nada más.", "Un par ligne : Nom | https://adresse. La tablette ne voit que les noms, elle ne peut donc rien ouvrir d'autre.", "Eine pro Zeile: Name | https://adresse. Das Tablet sieht nur die Namen und kann daher nichts anderes öffnen." } },
         { "Install keybind profile...", new[] { "Instalar perfil de teclas...", "Installer le profil de touches...", "Tastenprofil installieren..." } },
@@ -353,8 +356,9 @@ static class Lang
     };
 }
 
-// The house colours and fonts (docs/DESIGN.md) and the HUD's drawing pieces: thin-lined
-// panels with corner brackets and "// HEADING" titles, letter-spaced labels, rulers.
+// The app window's colors and fonts (docs/DESIGN.md) and its drawing pieces: solid panels
+// with a title, letter-spaced labels, status dots and pills. Text sits on solid fills only,
+// in Ink or Dim; the status colors mark a dot, a pill or a banner, never body text.
 // Sizes are in 96-dpi pixels; HudView scales everything for the screen.
 static class Hud
 {
@@ -381,29 +385,36 @@ static class Hud
         c.HandleCreated += delegate { try { SetWindowTheme(c.Handle, "DarkMode_Explorer", null); } catch (Exception) { } };
     }
 
-    public static readonly Color Back = Color.FromArgb(5, 9, 15);
-    public static readonly Color Panel = Color.FromArgb(11, 23, 38);
-    public static readonly Color PanelHi = Color.FromArgb(18, 37, 59);
-    public static readonly Color Line = Color.FromArgb(31, 58, 88);
-    public static readonly Color Accent = Color.FromArgb(79, 179, 255);
-    public static readonly Color Ink = Color.FromArgb(232, 238, 245);
-    public static readonly Color Dim = Color.FromArgb(138, 160, 184);
-    public static readonly Color Good = Color.FromArgb(91, 227, 125);
-    public static readonly Color Warn = Color.FromArgb(255, 179, 71);
-    public static readonly Color Bad = Color.FromArgb(255, 107, 107);
+    // A graphite palette: solid surfaces a step apart, near-white text, one blue accent.
+    // Dim is still 7:1 on Panel, so secondary text stays easy to read.
+    public static readonly Color Back = Color.FromArgb(0x0E, 0x11, 0x16);    // window, and fields inside panels
+    public static readonly Color Panel = Color.FromArgb(0x16, 0x1B, 0x22);
+    public static readonly Color PanelHi = Color.FromArgb(0x1F, 0x26, 0x30); // buttons, hover
+    public static readonly Color Line = Color.FromArgb(0x2D, 0x36, 0x43);
+    public static readonly Color Ink = Color.FromArgb(0xF2, 0xF5, 0xF8);
+    public static readonly Color Dim = Color.FromArgb(0xAA, 0xB4, 0xC0);
+    public static readonly Color Accent = Color.FromArgb(0x4F, 0xB3, 0xFF); // buttons, links, focus
+    public static readonly Color AccentInk = Color.FromArgb(0x06, 0x12, 0x1F); // text on Accent
+    public static readonly Color Good = Color.FromArgb(0x3D, 0xDC, 0x84);
+    public static readonly Color Warn = Color.FromArgb(0xFF, 0xB0, 0x20);
+    public static readonly Color WarnInk = Color.FromArgb(0x1A, 0x13, 0x00);   // text on Warn
+    public static readonly Color Bad = Color.FromArgb(0xFF, 0x5A, 0x5F);
 
     // Bahnschrift (Windows 10 and later) has the squared, instrument-panel look of the deck's
-    // fonts; older Windows falls back to Segoe UI.
+    // fonts; older Windows falls back to Segoe UI. Labels use its SemiBold cut: the light and
+    // regular weights look thin at these sizes.
     static readonly string Display = Installed("Bahnschrift") ? "Bahnschrift" : "Segoe UI";
+    static readonly string DisplaySemi = Installed("Bahnschrift SemiBold") ? "Bahnschrift SemiBold" : null;
     static readonly Dictionary<string, Font> fonts = new Dictionary<string, Font>();
     static readonly StringFormat typographic = MakeTypographic();
 
+    // GDI+ quietly swaps in another font for a family it doesn't have, so ask first.
     static bool Installed(string family)
     {
         try
         {
             using (var f = new FontFamily(family))
-                return f.Name == family && f.IsStyleAvailable(FontStyle.Regular) && f.IsStyleAvailable(FontStyle.Bold);
+                return f.Name == family && f.IsStyleAvailable(FontStyle.Regular);
         }
         catch (Exception) { return false; }
     }
@@ -430,7 +441,7 @@ static class Hud
     }
 
     public static Font Head(float px) { return Get(Display, px, FontStyle.Bold); }
-    public static Font Label(float px) { return Get(Display, px, FontStyle.Regular); }
+    public static Font Label(float px) { return DisplaySemi != null ? Get(DisplaySemi, px, FontStyle.Regular) : Get(Display, px, FontStyle.Bold); }
     public static Font Body(float px) { return Get("Segoe UI", px, FontStyle.Regular); }
     public static Font Mono(float px, bool bold) { return Get("Consolas", px, bold ? FontStyle.Bold : FontStyle.Regular); }
 
@@ -443,7 +454,13 @@ static class Hud
 
     public static Color Fade(Color c, int alpha) { return Color.FromArgb(Math.Max(0, Math.Min(255, alpha)), c); }
 
-    // Letter-spaced text, the HUD's labels and headings; returns its width.
+    // a mixed with b: t = 0 is a, 1 is b. Opaque, unlike Fade, so text over it keeps ClearType.
+    public static Color Mix(Color a, Color b, float t)
+    {
+        return Color.FromArgb((int)(a.R + (b.R - a.R) * t), (int)(a.G + (b.G - a.G) * t), (int)(a.B + (b.B - a.B) * t));
+    }
+
+    // Letter-spaced text, the labels and headings; returns its width.
     public static float Spaced(Graphics g, string text, Font font, Color color, float x, float y, float spacing)
     {
         float start = x, scale;
@@ -492,55 +509,78 @@ static class Hud
             g.DrawString(text, font, brush, box, f);
     }
 
-    public static void Dot(Graphics g, Color color, float cx, float cy)
+    // The height wrapped text takes at a width, for layouts that grow with their text.
+    public static float WrappedHeight(string text, Font font, float width)
     {
-        using (var glow = new SolidBrush(Fade(color, 60))) g.FillEllipse(glow, cx - 6, cy - 6, 12, 12);
-        using (var dot = new SolidBrush(color)) g.FillEllipse(dot, cx - 3.5f, cy - 3.5f, 7, 7);
+        using (var bmp = new Bitmap(1, 1))
+        using (var g = Graphics.FromImage(bmp))
+            return (float)Math.Ceiling(g.MeasureString(text, font, (int)width).Height);
     }
 
-    // Corner brackets: short accent strokes at the four corners of a box.
-    public static void Brackets(Graphics g, RectangleF r, Color color, float arm)
+    // A status dot: solid, no glow.
+    public static void Dot(Graphics g, Color color, float cx, float cy)
     {
-        using (var pen = new Pen(color, 1.5f))
+        using (var dot = new SolidBrush(color)) g.FillEllipse(dot, cx - 4, cy - 4, 8, 8);
+    }
+
+    public static GraphicsPath Rounded(RectangleF r, float radius)
+    {
+        var path = new GraphicsPath();
+        float d = Math.Min(radius * 2, Math.Min(r.Width, r.Height));
+        if (d <= 0) { path.AddRectangle(r); return path; }
+        path.AddArc(r.X, r.Y, d, d, 180, 90);
+        path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+        path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
+        path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+        return path;
+    }
+
+    public static void Box(Graphics g, RectangleF r, float radius, Color fill, Color border)
+    {
+        using (var path = Rounded(r, radius))
         {
-            g.DrawLines(pen, new[] { new PointF(r.Left, r.Top + arm), new PointF(r.Left, r.Top), new PointF(r.Left + arm, r.Top) });
-            g.DrawLines(pen, new[] { new PointF(r.Right - arm, r.Top), new PointF(r.Right, r.Top), new PointF(r.Right, r.Top + arm) });
-            g.DrawLines(pen, new[] { new PointF(r.Left, r.Bottom - arm), new PointF(r.Left, r.Bottom), new PointF(r.Left + arm, r.Bottom) });
-            g.DrawLines(pen, new[] { new PointF(r.Right - arm, r.Bottom), new PointF(r.Right, r.Bottom), new PointF(r.Right, r.Bottom - arm) });
+            if (fill != Color.Empty) using (var brush = new SolidBrush(fill)) g.FillPath(brush, path);
+            if (border != Color.Empty) using (var pen = new Pen(border, 1f)) g.DrawPath(pen, path);
         }
     }
 
-    // A row of ruler ticks, every fourth one longer.
-    public static void Ruler(Graphics g, float x, float y, float width, Color color)
+    // A status pill ending at right: a dot and a word on a tint of the status color, with
+    // Ink text so it reads on any of them. Returns its box.
+    public static RectangleF Pill(Graphics g, string word, Color color, float right, float y)
     {
-        using (var pen = new Pen(color, 1f))
-            for (int i = 0; i * 6 <= width; i++)
-                g.DrawLine(pen, x + i * 6, y, x + i * 6, y + (i % 4 == 0 ? 6 : 3));
+        var font = Label(13);
+        float w = SpacedWidth(g, word, font, 1.4f);
+        var r = new RectangleF(right - w - 40, y, w + 40, 26);
+        Box(g, r, 13, Mix(Panel, color, 0.22f), Mix(Line, color, 0.6f));
+        Dot(g, color, r.X + 15, r.Y + 13);
+        Spaced(g, word, font, Ink, r.X + 26, r.Y + (r.Height - font.Height) / 2 + 1, 1.4f);
+        return r;
     }
 
-    // A panel: a translucent fill the stars show through, a thin border, accent corner
-    // brackets, its "// TITLE" and a ruler in the top-right corner.
+    // A panel: a solid fill, a thin border and its title, Ink on a short accent bar.
     public static void PanelBox(Graphics g, RectangleF r, string title)
     {
-        using (var fill = new SolidBrush(Fade(Panel, 168))) g.FillRectangle(fill, r);
-        using (var border = new Pen(Line, 1f)) g.DrawRectangle(border, r.X, r.Y, r.Width, r.Height);
-        Brackets(g, r, Fade(Accent, 200), 9);
-        float w = Spaced(g, "// " + Lang.T(title), Head(11), Accent, r.X + 14, r.Y + 9, 1.6f);
-        using (var pen = new Pen(Fade(Line, 255), 1f)) g.DrawLine(pen, r.X + 22 + w, r.Y + 16, r.Right - 70, r.Y + 16);
-        Ruler(g, r.Right - 62, r.Y + 11, 48, Fade(Accent, 110));
+        Box(g, r, 6, Panel, Line);
+        using (var bar = new SolidBrush(Accent)) g.FillRectangle(bar, r.X + 16, r.Y + 15, 3, 12);
+        Spaced(g, Lang.T(title), Head(12.5f), Ink, r.X + 26, r.Y + 13, 1.4f);
     }
 }
 
-// The main window's face, drawn by hand: a starfield that drifts behind the panels, shifts
-// with the mouse (near stars more than far ones) and lights up along a ring sent out by a
-// click, plus the window's own buttons, switches, slider and links. The owner draws the
-// panels in DrawContent onto an opaque layer, so text gets ClearType; that layer is cached
-// and only redrawn after Redraw(), and the stars are drawn over it outside Covers. The stars
-// move only while Running (the window is in front) and Windows' "Show animations" is on,
-// so nothing animates behind Star Citizen.
+// The main window's face, drawn by hand: solid panels on a solid background, the window's
+// own buttons, switches, slider and links, and a thin band of stars in the title strip that
+// drifts, shifts with the mouse (near stars more than far ones) and lights up along a ring
+// sent out by a click. The owner draws the panels in DrawContent onto an opaque layer, so
+// text gets ClearType; that layer is cached and only redrawn after Redraw(). The stars are
+// drawn over it only inside StarBand and outside Covers, so they never pass behind text.
+// They move only while Running (the window is in front) and Windows' "Show animations" is
+// on, so nothing animates behind Star Citizen.
 class HudView : Control
 {
     public enum Kind { Button, Primary, Switch, Slider, Link }
+
+    // The item sits on the amber warning banner: drawn dark, so it reads on amber.
+    public const int OnWarn = 1;
 
     // Something to click. Box is in 96-dpi pixels, like everything drawn here.
     public class Item
@@ -550,6 +590,7 @@ class HudView : Control
         public string Text = "", Tip = "";
         public bool Visible = true, Enabled = true, On;
         public bool Mono; // links: the address, in a monospaced font
+        public int Look;  // 0, or OnWarn
         public int Value, Min, Max = 100;
         public MethodInvoker Click;   // buttons and links; switches after On flips
         public MethodInvoker Changed; // the slider, on every step
@@ -564,8 +605,9 @@ class HudView : Control
 
     public readonly List<Item> Items = new List<Item>();
     public Action<Graphics> DrawContent;
-    // Where the moving stars pass behind: panels and text outside them. DrawContent sets
-    // these; the items are covered too.
+    // The only place stars are drawn (empty: none), and the text inside it they stay out
+    // of. DrawContent sets Covers; the items are covered too.
+    public RectangleF StarBand = RectangleF.Empty;
     public readonly List<RectangleF> Covers = new List<RectangleF>();
     public float Zoom = 1f; // screen pixels per 96-dpi pixel
 
@@ -577,7 +619,7 @@ class HudView : Control
     readonly System.Windows.Forms.Timer tipDelay = new System.Windows.Forms.Timer { Interval = 500 };
     double lastFrame;
     float time;
-    PointF mouse, look; // the mouse, and where the stars currently "look" (eases towards it)
+    PointF mouse, look; // the mouse, and where the stars currently "look" (eases toward it)
     bool mouseInside;
     Bitmap backdrop, content;
     bool contentDirty = true;
@@ -670,10 +712,10 @@ class HudView : Control
         var g = e.Graphics;
         if (contentDirty || content == null) DrawContentLayer();
         g.DrawImageUnscaled(content, 0, 0);
+        if (StarBand.IsEmpty) return;
         g.ScaleTransform(Zoom, Zoom);
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        var area = Area;
-        using (var open = new Region(new RectangleF(0, 0, area.Width, area.Height)))
+        using (var open = new Region(StarBand))
         {
             foreach (var r in Covers) open.Exclude(RectangleF.Inflate(r, 1, 1));
             foreach (var item in Items) if (item.Visible) open.Exclude(RectangleF.Inflate(item.Box, 2, 2));
@@ -702,28 +744,11 @@ class HudView : Control
         }
     }
 
-    // The still part of the background: deep space, a soft glow and a faint grid.
+    // The background: one solid color, nothing behind the text.
     Bitmap DrawBackdrop()
     {
         var bmp = new Bitmap(ClientSize.Width, ClientSize.Height, PixelFormat.Format32bppPArgb);
-        using (var g = Graphics.FromImage(bmp))
-        {
-            g.Clear(Hud.Back);
-            g.ScaleTransform(Zoom, Zoom);
-            var area = Area;
-            using (var path = new GraphicsPath())
-            {
-                var glow = new RectangleF(-area.Width * 0.25f, -area.Height * 0.6f, area.Width * 1.1f, area.Height * 1.4f);
-                path.AddEllipse(glow);
-                using (var brush = new PathGradientBrush(path) { CenterColor = Color.FromArgb(46, 30, 90, 150), SurroundColors = new[] { Color.FromArgb(0, 5, 9, 15) } })
-                    g.FillEllipse(brush, glow);
-            }
-            using (var pen = new Pen(Color.FromArgb(14, Hud.Accent), 1f))
-            {
-                for (float x = 0; x < area.Width; x += 40) g.DrawLine(pen, x, 0, x, area.Height);
-                for (float y = 0; y < area.Height; y += 40) g.DrawLine(pen, 0, y, area.Width, y);
-            }
-        }
+        using (var g = Graphics.FromImage(bmp)) g.Clear(Hud.Back);
         return bmp;
     }
 
@@ -732,10 +757,12 @@ class HudView : Control
         var area = Area;
         float cx = area.Width / 2, cy = area.Height / 2;
         if (look.IsEmpty) look = new PointF(cx, cy);
-        foreach (var s in stars)
+        // A third of them: the band is thin, and a sparse field stays calm.
+        for (int i = 0; i < stars.Count; i += 3)
         {
+            var s = stars[i];
             float x = s.X * area.Width - (look.X - cx) * 0.035f * s.Depth;
-            float y = s.Y * area.Height - (look.Y - cy) * 0.035f * s.Depth;
+            float y = StarBand.Y + s.Y * StarBand.Height - (look.Y - cy) * 0.01f * s.Depth;
             foreach (var p in pulses)
             {
                 float d = (float)Math.Sqrt((x - p.X) * (x - p.X) + (y - p.Y) * (y - p.Y));
@@ -743,7 +770,7 @@ class HudView : Control
             }
             float twinkle = motion ? 0.78f + 0.22f * (float)Math.Sin(time * (1.3 + s.Depth) + s.Phase) : 1f;
             int alpha = (int)(s.Alpha * twinkle + (255 - s.Alpha) * s.Glow);
-            var color = s.Glow > 0 ? Blend(Hud.Ink, Hud.Accent, s.Glow) : (s.Depth >= 1f ? Hud.Ink : Color.FromArgb(170, 200, 230));
+            var color = s.Glow > 0 ? Hud.Mix(Hud.Ink, Hud.Accent, s.Glow) : (s.Depth >= 1f ? Hud.Ink : Hud.Dim);
             float size = s.Size + s.Glow * 2.5f;
             // Near stars and lit ones get a soft halo.
             if (s.Depth >= 1f || s.Glow > 0)
@@ -761,11 +788,6 @@ class HudView : Control
     }
 
     static float PulseRadius(Pulse p) { return p.Age * 460f; }
-
-    static Color Blend(Color a, Color b, float t)
-    {
-        return Color.FromArgb((int)(a.R + (b.R - a.R) * t), (int)(a.G + (b.G - a.G) * t), (int)(a.B + (b.B - a.B) * t));
-    }
 
     void DrawContentLayer()
     {
@@ -792,65 +814,69 @@ class HudView : Control
     {
         var r = item.Box;
         bool hot = item == hover && item.Enabled, down = item == pressed && hot;
+        bool onWarn = item.Look == OnWarn;
         switch (item.Kind)
         {
             case Kind.Button:
             case Kind.Primary:
+                // Primary: solid accent with dark text. The others: a raised gray fill with a
+                // border. On the warning banner: dark on amber.
                 bool primary = item.Kind == Kind.Primary;
-                Color fill = !item.Enabled ? Hud.Fade(Hud.Panel, 220)
-                    : down ? Hud.Fade(Hud.Accent, 90)
-                    : primary ? Hud.Fade(Hud.Accent, hot ? 70 : 38)
-                    : hot ? Hud.PanelHi : Hud.Fade(Hud.Panel, 235);
-                using (var brush = new SolidBrush(fill)) g.FillRectangle(brush, r);
-                using (var pen = new Pen(!item.Enabled ? Hud.Line : primary || hot ? Hud.Accent : Hud.Line, 1f))
-                    g.DrawRectangle(pen, r.X, r.Y, r.Width, r.Height);
-                if (item.Enabled)
-                    using (var pen = new Pen(Hud.Accent, 2f))
-                    {
-                        g.DrawLine(pen, r.X, r.Y + 1, r.X + 7, r.Y + 1);
-                        g.DrawLine(pen, r.Right - 7, r.Bottom - 1, r.Right, r.Bottom - 1);
-                    }
-                var font = Hud.Head(11.5f);
-                string text = Lang.T(item.Text).ToUpperInvariant();
-                float w = Hud.SpacedWidth(g, text, font, 1.3f);
+                Color fill, border, ink;
+                if (!item.Enabled) { fill = Hud.Panel; border = Hud.Line; ink = Hud.Mix(Hud.Panel, Hud.Dim, 0.6f); }
+                else if (onWarn) { fill = down ? Hud.Mix(Hud.WarnInk, Hud.Warn, 0.25f) : hot ? Hud.Mix(Hud.WarnInk, Hud.Warn, 0.14f) : Hud.WarnInk; border = fill; ink = Hud.Ink; }
+                else if (primary) { fill = down ? Hud.Mix(Hud.Accent, Hud.AccentInk, 0.2f) : hot ? Hud.Mix(Hud.Accent, Hud.Ink, 0.25f) : Hud.Accent; border = fill; ink = Hud.AccentInk; }
+                else { fill = down ? Hud.Line : hot ? Hud.Mix(Hud.PanelHi, Hud.Line, 0.6f) : Hud.PanelHi; border = hot ? Hud.Mix(Hud.Line, Hud.Accent, 0.5f) : Hud.Line; ink = Hud.Ink; }
+                Hud.Box(g, r, 5, fill, border);
+                var font = Hud.Label(13.5f);
+                string text = Lang.T(item.Text);
+                float w = Hud.SpacedWidth(g, text, font, 0.4f);
                 // A longer translation gets a smaller font rather than spilling out of the button.
-                for (float px = 11f; w > r.Width - 12 && px >= 9f; px -= 0.5f)
+                for (float px = 13f; w > r.Width - 20 && px >= 10.5f; px -= 0.5f)
                 {
-                    font = Hud.Head(px);
-                    w = Hud.SpacedWidth(g, text, font, 1.3f);
+                    font = Hud.Label(px);
+                    w = Hud.SpacedWidth(g, text, font, 0.4f);
                 }
-                Hud.Spaced(g, text, font, item.Enabled ? Hud.Ink : Hud.Fade(Hud.Dim, 140),
-                    r.X + (r.Width - w) / 2, r.Y + (r.Height - font.Height) / 2 + 1, 1.3f);
+                Hud.Spaced(g, text, font, ink, r.X + (r.Width - w) / 2, r.Y + (r.Height - font.Height) / 2 + 1, 0.4f);
                 break;
             case Kind.Switch:
-                var track = new RectangleF(r.X, r.Y + (r.Height - 16) / 2, 34, 16);
-                using (var brush = new SolidBrush(item.On ? Hud.Fade(Hud.Accent, 60) : Hud.Fade(Hud.Panel, 235))) g.FillRectangle(brush, track);
-                using (var pen = new Pen(item.On || hot ? Hud.Accent : Hud.Line, 1f)) g.DrawRectangle(pen, track.X, track.Y, track.Width, track.Height);
-                using (var brush = new SolidBrush(item.On ? Hud.Accent : Hud.Dim))
-                    g.FillRectangle(brush, item.On ? track.Right - 13 : track.X + 3, track.Y + 3, 10, 10);
-                Hud.Text(g, Lang.T(item.Text), Hud.Body(13), hot ? Hud.Ink : Hud.Fade(Hud.Ink, 225), new RectangleF(r.X + 44, r.Y, r.Width - 44, r.Height));
+                var track = new RectangleF(r.X, r.Y + (r.Height - 20) / 2, 36, 20);
+                Hud.Box(g, track, 10, item.On ? (hot ? Hud.Mix(Hud.Accent, Hud.Ink, 0.2f) : Hud.Accent) : Hud.Back,
+                    item.On ? Color.Empty : hot ? Hud.Accent : Hud.Mix(Hud.Line, Hud.Dim, 0.35f));
+                using (var knob = new SolidBrush(item.On ? Hud.AccentInk : Hud.Dim))
+                    g.FillEllipse(knob, item.On ? track.Right - 17 : track.X + 3, track.Y + 3, 14, 14);
+                // Two lines where it needs them, rather than cutting the label short.
+                var label = new RectangleF(r.X + 48, r.Y, r.Width - 48, r.Height);
+                string sw = Lang.T(item.Text);
+                if (Hud.Width(g, sw, Hud.Body(13)) <= label.Width) Hud.Text(g, sw, Hud.Body(13), Hud.Ink, label);
+                else
+                    using (var brush = new SolidBrush(Hud.Ink))
+                    using (var f = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisWord })
+                        g.DrawString(sw, Hud.Body(13), brush, label, f);
                 break;
             case Kind.Slider:
                 float mid = r.Y + r.Height / 2, t = item.Max > item.Min ? (item.Value - item.Min) / (float)(item.Max - item.Min) : 0;
-                float knob = r.X + 4 + t * (r.Width - 8);
-                using (var pen = new Pen(Hud.Line, 2f)) g.DrawLine(pen, r.X, mid, r.Right, mid);
-                using (var pen = new Pen(item.Enabled ? Hud.Accent : Hud.Dim, 2f)) g.DrawLine(pen, r.X, mid, knob, mid);
-                Hud.Ruler(g, r.X, mid + 6, r.Width, Hud.Fade(Hud.Line, 255));
+                float knobX = r.X + 7 + t * (r.Width - 14);
+                Hud.Box(g, new RectangleF(r.X, mid - 2, r.Width, 4), 2, Hud.Line, Color.Empty);
+                Hud.Box(g, new RectangleF(r.X, mid - 2, knobX - r.X, 4), 2, item.Enabled ? Hud.Accent : Hud.Dim, Color.Empty);
                 using (var brush = new SolidBrush(!item.Enabled ? Hud.Dim : hot || dragging == item ? Hud.Ink : Hud.Accent))
-                    g.FillRectangle(brush, knob - 3, mid - 8, 6, 16);
+                    g.FillEllipse(brush, knobX - 7, mid - 7, 14, 14);
+                using (var pen = new Pen(Hud.Panel, 2f)) g.DrawEllipse(pen, knobX - 7, mid - 7, 14, 14);
                 break;
             case Kind.Link:
-                var linkFont = item.Mono ? Hud.Mono(14, false) : Hud.Body(12.5f);
-                string label = Lang.T(item.Text);
-                float lw = Hud.Width(g, label, linkFont);
+                var linkFont = item.Mono ? Hud.Mono(18, true) : Hud.Body(13);
+                string link = Lang.T(item.Text);
+                float lw = Hud.Width(g, link, linkFont);
                 r.Width = Math.Min(lw + 2, item.Box.Width);
-                Hud.Text(g, label, linkFont, hot ? Hud.Ink : Hud.Accent, item.Box);
-                if (hot) using (var pen = new Pen(Hud.Ink, 1f)) g.DrawLine(pen, r.X, r.Bottom - 2, r.Right, r.Bottom - 2);
+                Hud.Text(g, link, linkFont, hot ? Hud.Ink : Hud.Accent, item.Box);
+                using (var pen = new Pen(hot ? Hud.Ink : Hud.Fade(Hud.Accent, 110), 1f)) g.DrawLine(pen, r.X, r.Bottom - 1, r.Right, r.Bottom - 1);
                 break;
         }
+        // A keyboard focus ring that's easy to see: a solid 2-pixel outline around the item.
         if (item == focused && showFocus && Focused)
-            using (var pen = new Pen(Hud.Accent, 1f) { DashStyle = DashStyle.Dot })
-                g.DrawRectangle(pen, r.X - 3, r.Y - 3, r.Width + 6, r.Height + 6);
+            using (var path = Hud.Rounded(RectangleF.Inflate(r, 3, 3), 7))
+            using (var pen = new Pen(onWarn ? Hud.WarnInk : Hud.Accent, 2f))
+                g.DrawPath(pen, path);
     }
 
     // The QR code at whole screen pixels per module, so cameras read it easily, with a white
@@ -946,7 +972,7 @@ class HudView : Control
 
     void SlideTo(Item item, float x)
     {
-        float t = Math.Max(0, Math.Min(1, (x - item.Box.X - 4) / (item.Box.Width - 8)));
+        float t = Math.Max(0, Math.Min(1, (x - item.Box.X - 7) / (item.Box.Width - 14)));
         SetValue(item, item.Min + (int)Math.Round(t * (item.Max - item.Min)));
     }
 
@@ -1042,17 +1068,19 @@ class HudView : Control
     protected override void OnLostFocus(EventArgs e) { base.OnLostFocus(e); Redraw(); }
 }
 
-// The other windows' HUD look: the main window's stars, standing still, and its panels,
-// buttons and switches, drawn by a HudView. Fields that take typing or picking (text
-// boxes, number boxes, lists) stay real Windows controls on top, in the house colours
-// inside a drawn frame. Positions are in 96-dpi pixels, like HudView's.
+// The other windows' look: the main window's panels, buttons and switches, drawn by a
+// HudView on the same solid background, without the stars. Fields that take typing or
+// picking (text boxes, number boxes, lists) stay real Windows controls on top, in the
+// window's colors inside a drawn frame. Positions are in 96-dpi pixels, like HudView's.
 class HudDialog : Form
 {
-    // Text drawn in a panel: a caption, a hint or a status line. Change Text or Color, then Redraw.
+    // Text drawn in a panel: a caption, a hint or a status line. Change Text, Color or Mark,
+    // then Redraw. A status line keeps its text Ink and shows its state as a dot (Mark).
     protected class Note
     {
         public string Text = "";
         public Color Color = Hud.Dim;
+        public Color Mark = Color.Empty;
         public RectangleF Box;
         public Font Font;
         public bool Caption;
@@ -1123,7 +1151,7 @@ class HudDialog : Form
     // A small letter-spaced label above a field.
     protected Note Caption(string text, float x, float y)
     {
-        var note = new Note { Text = Lang.T(text).ToUpperInvariant(), Box = new RectangleF(x, y, 400, 14), Font = Hud.Label(11.5f), Caption = true };
+        var note = new Note { Text = Lang.T(text).ToUpperInvariant(), Box = new RectangleF(x, y, 400, 15), Font = Hud.Label(12), Caption = true };
         notes.Add(note);
         return note;
     }
@@ -1131,7 +1159,7 @@ class HudDialog : Form
     // Wrapping text: help under a field, or a status message.
     protected Note Hint(string text, float x, float y, float w, float h)
     {
-        var note = new Note { Text = Lang.T(text), Box = new RectangleF(x, y, w, h), Font = Hud.Body(11.5f) };
+        var note = new Note { Text = Lang.T(text), Box = new RectangleF(x, y, w, h), Font = Hud.Body(13) };
         notes.Add(note);
         return note;
     }
@@ -1139,7 +1167,7 @@ class HudDialog : Form
     protected HudView.Item Button(string text, float x, float y, float w, MethodInvoker click)
     {
         var item = hud.Add(HudView.Kind.Button, text, click);
-        item.Box = new RectangleF(x, y, w, 28);
+        item.Box = new RectangleF(x, y, w, 32);
         return item;
     }
 
@@ -1154,7 +1182,7 @@ class HudDialog : Form
     {
         var item = hud.Add(HudView.Kind.Switch, text, null);
         item.On = on;
-        item.Box = new RectangleF(x, y, w, 22);
+        item.Box = new RectangleF(x, y, w, 24);
         return item;
     }
 
@@ -1162,7 +1190,7 @@ class HudDialog : Form
     // their own border, so the frame is the only one; the frame lights up while it has focus.
     protected T Field<T>(T c, float x, float y, float w, float h) where T : Control
     {
-        c.BackColor = Hud.Panel;
+        c.BackColor = Hud.Back;
         c.ForeColor = Hud.Ink;
         var text = c as TextBoxBase;
         if (text != null) text.BorderStyle = BorderStyle.None;
@@ -1183,7 +1211,7 @@ class HudDialog : Form
         return c;
     }
 
-    // Fields sit inside their frames: single-line ones centred, the rest filling it.
+    // Fields sit inside their frames: single-line ones centered, the rest filling it.
     void PlaceFields()
     {
         float z = hud.Zoom;
@@ -1209,15 +1237,23 @@ class HudDialog : Form
         foreach (var n in notes) hud.Covers.Add(n.Box);
         foreach (var c in fields)
         {
-            if (c is ComboBox) continue; // a flat combo box draws its own frame
             var f = frames[c];
-            using (var fill = new SolidBrush(Hud.Panel)) g.FillRectangle(fill, f);
-            using (var pen = new Pen(c.ContainsFocus ? Hud.Accent : c.Enabled ? Hud.Line : Hud.Fade(Hud.Line, 120), 1f))
-                g.DrawRectangle(pen, f.X, f.Y, f.Width, f.Height);
+            // A flat combo box draws its own border; it still gets the focus ring.
+            if (!(c is ComboBox))
+                using (var fill = new SolidBrush(Hud.Back)) g.FillRectangle(fill, f);
+            if (c.ContainsFocus)
+                using (var pen = new Pen(Hud.Accent, 2f)) g.DrawRectangle(pen, f.X - 1, f.Y - 1, f.Width + 2, f.Height + 2);
+            else if (!(c is ComboBox))
+                using (var pen = new Pen(c.Enabled ? Hud.Mix(Hud.Line, Hud.Dim, 0.25f) : Hud.Line, 1f)) g.DrawRectangle(pen, f.X, f.Y, f.Width, f.Height);
         }
         foreach (var n in notes)
         {
-            if (n.Caption) Hud.Spaced(g, n.Text, n.Font, n.Color, n.Box.X, n.Box.Y, 1.6f);
+            if (n.Caption) Hud.Spaced(g, n.Text, n.Font, n.Color, n.Box.X, n.Box.Y, 1.2f);
+            else if (n.Mark != Color.Empty)
+            {
+                Hud.Dot(g, n.Mark, n.Box.X + 4, n.Box.Y + 10);
+                Hud.Wrapped(g, n.Text, n.Font, Hud.Ink, new RectangleF(n.Box.X + 16, n.Box.Y, n.Box.Width - 16, n.Box.Height));
+            }
             else Hud.Wrapped(g, n.Text, n.Font, n.Color, n.Box);
         }
     }
@@ -1238,7 +1274,7 @@ class DeckWindow : Form
     // The old name, so "Start with Windows" turned on in an older version stays on.
     const string RunValue = "Tablet Deck";
     // The window's size in 96-dpi pixels; it scales with the screen.
-    const int DesignWidth = 900, DesignHeight = 640;
+    const int DesignWidth = 900, DesignHeight = 688;
 
     readonly string appDir = Path.GetDirectoryName(Application.ExecutablePath);
     readonly string serverArgs;
@@ -1268,14 +1304,16 @@ class DeckWindow : Form
     int pressCount, blockedCount;
     string lastPress = "";
     // Panel boxes, set by Arrange.
-    RectangleF connectBox, linkBox, telemetryBox, voiceBox, systemBox, logBox, bannerBox;
+    RectangleF connectBox, linkBox, telemetryBox, voiceBox, systemBox, logBox, bannerBox, networkBox;
 
     readonly HudView.Item addressLink, copyButton, settingsButton, editButton, restartButton;
     readonly HudView.Item voiceListButton, strictness, startWithWindows, autoUpdate, folderLink, checkLink, feedbackLink;
-    readonly HudView.Item networkLink;
+    // The Public-network banner's button: opens Windows' settings for that network.
+    readonly HudView.Item networkButton;
     // The adapter Windows treats as a Public network (tablets can't connect), or "".
     string publicNetwork = "";
     bool publicNetworkNoticed;
+    float networkGrown; // how much taller the window got for the banner, in 96-dpi pixels
     const string FeedbackPage = "https://github.com/xattribution/SpoolUp/issues/new/choose";
     readonly HudView.Item bannerWhatsNew, bannerUpdate, bannerLater;
     string editorUrl = ""; // the layout editor on this PC, set when the server is ready
@@ -1333,6 +1371,12 @@ class DeckWindow : Form
         hud.DrawContent = DrawHud;
         Controls.Add(hud);
 
+        // First, so Tab reaches it first while the banner shows.
+        networkButton = hud.Add(HudView.Kind.Primary, "Open network settings", delegate { OpenNetworkSettings(publicNetwork); });
+        networkButton.Look = HudView.OnWarn;
+        networkButton.Visible = false;
+        networkButton.Tip = "Pick your network there and set its network profile to Private";
+
         addressLink = hud.Add(HudView.Kind.Link, "", delegate { if (link != "") Process.Start(link); });
         addressLink.Mono = true;
         addressLink.Tip = "Opens the deck in this PC's browser";
@@ -1375,10 +1419,6 @@ class DeckWindow : Form
         checkLink = hud.Add(HudView.Kind.Link, "Check for updates now", delegate { CheckForUpdates(true); });
         feedbackLink = hud.Add(HudView.Kind.Link, "Feedback & ideas", delegate { Process.Start(FeedbackPage); });
         feedbackLink.Tip = "Report a problem or suggest an idea on GitHub";
-        // Opens Windows' network settings, where the network can be set to Private.
-        networkLink = hud.Add(HudView.Kind.Link, "Set it to Private ›", delegate { Process.Start("ms-settings:network-status"); });
-        networkLink.Visible = false;
-        networkLink.Tip = "Pick your network there and set its network profile to Private";
 
         // The update banner, above the panels when there's news.
         bannerWhatsNew = hud.Add(HudView.Kind.Button, "What's new", delegate { if (whatsNewUrl != "") Process.Start(whatsNewUrl); });
@@ -1394,10 +1434,10 @@ class DeckWindow : Form
         };
 
         log.ReadOnly = true;
-        log.BackColor = Hud.Panel;
+        log.BackColor = Hud.Back;
         log.ForeColor = Hud.Ink;
         log.BorderStyle = BorderStyle.None;
-        log.Font = new Font("Consolas", 9f);
+        log.Font = new Font("Consolas", 10f);
         log.DetectUrls = false;
         log.WordWrap = true;
         log.ScrollBars = RichTextBoxScrollBars.Vertical;
@@ -1440,6 +1480,21 @@ class DeckWindow : Form
         Hud.DarkTitleBar(this);
     }
 
+    // Windows' settings page for the network an adapter is on: the Wi-Fi or Ethernet page when
+    // the adapter's name says which, where "Network profile type" sits near the top, or the
+    // general network status page. Shared with Settings.
+    public static void OpenNetworkSettings(string adapter)
+    {
+        string name = (adapter ?? "").ToLowerInvariant();
+        string page = name.Contains("wi-fi") || name.Contains("wifi") || name.Contains("wlan") || name.Contains("wireless") ? "ms-settings:network-wifi"
+            : name.Contains("ethernet") ? "ms-settings:network-ethernet" : "ms-settings:network-status";
+        try { Process.Start(page); }
+        catch (Exception)
+        {
+            try { Process.Start("ms-settings:network-status"); } catch (Exception) { }
+        }
+    }
+
     // The stars only move while this window is in front.
     protected override void OnActivated(EventArgs e) { base.OnActivated(e); hud.Running = true; }
     protected override void OnDeactivate(EventArgs e) { base.OnDeactivate(e); hud.Running = false; }
@@ -1447,64 +1502,82 @@ class DeckWindow : Form
     // ---------- layout and drawing ----------
 
     // Places the panels and items for the window's size, in 96-dpi pixels: the header, the
-    // update banner if shown, CONNECT and LINK side by side, TELEMETRY under LINK, VOICE and
-    // SYSTEM below, and the log filling the rest.
+    // Public-network and update banners if shown, CONNECT and LINK side by side, TELEMETRY
+    // under LINK, VOICE and SYSTEM below, and the log filling the rest. 16 pixels around the
+    // edges, 12 between panels.
     void Arrange()
     {
         var area = hud.Area;
         if (area.Width < 200 || area.Height < 200) return; // minimized
-        float w = area.Width, top = 74;
-        bannerBox = new RectangleF(20, top, w - 40, 38);
-        if (bannerShown) top += 50;
-        connectBox = new RectangleF(20, top, 280, 300);
-        linkBox = new RectangleF(316, top, w - 336, 172);
-        telemetryBox = new RectangleF(316, top + 184, w - 336, 116);
-        voiceBox = new RectangleF(20, top + 312, w - 356, 140);
-        systemBox = new RectangleF(w - 320, top + 312, 300, 140);
-        logBox = new RectangleF(20, top + 464, w - 40, Math.Max(70, area.Height - top - 464 - 16));
+        float w = area.Width, top = 76;
+        hud.StarBand = new RectangleF(0, 0, w, 64);
+        if (publicNetwork != "")
+        {
+            networkBox = new RectangleF(16, top, w - 32, NetworkBannerHeight(w - 32));
+            top += networkBox.Height + 12;
+        }
+        bannerBox = new RectangleF(16, top, w - 32, 44);
+        if (bannerShown) top += 56;
+        connectBox = new RectangleF(16, top, 280, 312);
+        linkBox = new RectangleF(308, top, w - 324, 176);
+        telemetryBox = new RectangleF(308, top + 188, w - 324, 124);
+        voiceBox = new RectangleF(16, top + 324, w - 360, 152);
+        systemBox = new RectangleF(w - 332, top + 324, 316, 152);
+        logBox = new RectangleF(16, top + 488, w - 32, Math.Max(84, area.Height - top - 488 - 16));
 
-        float x = linkBox.X + 16, right = linkBox.Right - 16, row = linkBox.Bottom - 42;
-        addressLink.Box = new RectangleF(x, linkBox.Y + 46, right - x, 20);
-        editButton.Box = restartButton.Box = new RectangleF(right - 128, row, 128, 28);
-        settingsButton.Box = new RectangleF(right - 128 - 10 - 104, row, 104, 28);
-        copyButton.Box = new RectangleF(right - 128 - 10 - 104 - 10 - 104, row, 104, 28);
+        float x = linkBox.X + 16, right = linkBox.Right - 16, row = linkBox.Bottom - 48;
+        addressLink.Box = new RectangleF(x, linkBox.Y + 58, right - x, 26);
+        editButton.Box = restartButton.Box = new RectangleF(right - 136, row, 136, 32);
+        settingsButton.Box = new RectangleF(right - 136 - 8 - 112, row, 112, 32);
+        copyButton.Box = new RectangleF(right - 136 - 8 - 112 - 8 - 112, row, 112, 32);
 
-        voiceListButton.Box = new RectangleF(voiceBox.Right - 112, voiceBox.Y + 30, 96, 24);
-        strictness.Box = new RectangleF(voiceBox.X + 104, voiceBox.Y + 72, 190, 14);
-        startWithWindows.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 32, systemBox.Width - 32, 22);
-        autoUpdate.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 60, systemBox.Width - 32, 22);
-        folderLink.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 92, 128, 18);
-        feedbackLink.Box = new RectangleF(systemBox.X + 152, systemBox.Y + 92, systemBox.Width - 168, 18);
-        checkLink.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 112, systemBox.Width - 32, 18);
-        networkLink.Box = new RectangleF(linkBox.Right - 16 - 150, linkBox.Y + 67, 150, 18);
+        voiceListButton.Box = new RectangleF(voiceBox.Right - 16 - 120, voiceBox.Y + 36, 120, 32);
+        strictness.Box = new RectangleF(voiceBox.X + 132, voiceBox.Y + 82, 200, 18);
+        startWithWindows.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 40, systemBox.Width - 32, 24);
+        autoUpdate.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 72, systemBox.Width - 32, 24);
+        folderLink.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 106, 124, 20);
+        feedbackLink.Box = new RectangleF(systemBox.X + 148, systemBox.Y + 106, systemBox.Width - 164, 20);
+        checkLink.Box = new RectangleF(systemBox.X + 16, systemBox.Y + 128, systemBox.Width - 32, 20);
 
-        float bx = bannerBox.Right - 8;
+        if (publicNetwork != "")
+            networkButton.Box = new RectangleF(networkBox.Right - 16 - 232, networkBox.Y + (networkBox.Height - 36) / 2, 232, 36);
+        float bx = bannerBox.Right - 6;
         foreach (var b in new[] { bannerLater, bannerUpdate, bannerWhatsNew })
         {
-            float bw = b == bannerUpdate ? 120 : 100;
-            if (b.Visible) { bx -= bw; b.Box = new RectangleF(bx, bannerBox.Y + 5, bw, 28); bx -= 8; }
+            float bw = b == bannerUpdate ? 128 : 108;
+            if (b.Visible) { bx -= bw; b.Box = new RectangleF(bx, bannerBox.Y + 6, bw, 32); bx -= 8; }
         }
 
         float z = hud.Zoom;
-        log.Bounds = new Rectangle((int)((logBox.X + 12) * z), (int)((logBox.Y + 30) * z), (int)((logBox.Width - 24) * z), (int)((logBox.Height - 40) * z));
+        log.Bounds = new Rectangle((int)((logBox.X + 22) * z), (int)((logBox.Y + 46) * z), (int)((logBox.Width - 44) * z), (int)((logBox.Height - 58) * z));
         hud.Redraw();
+    }
+
+    // The Public-network banner's text, and the height it needs at a width.
+    string NetworkBody() { return Lang.F("Windows treats \"{0}\" as a Public network. Set it to Private so tablets on your network can reach SpoolUp.", publicNetwork); }
+    static string NetworkSteps() { return Lang.T("Choose your network, then Private network. SpoolUp checks again every 20 seconds."); }
+    static float NetworkTextWidth(float width) { return width - 68 - 16 - 232 - 16; }
+
+    float NetworkBannerHeight(float width)
+    {
+        float tw = NetworkTextWidth(width);
+        float h = 12 + 26 + Hud.WrappedHeight(NetworkBody(), Hud.Body(13), tw) + 4 + Hud.WrappedHeight(NetworkSteps(), Hud.Body(13), tw) + 14;
+        return Math.Max(88, h);
     }
 
     void DrawHud(Graphics g)
     {
         var area = hud.Area;
-        // The stars pass behind the panels and the header's text.
-        hud.Covers.AddRange(new[] { connectBox, linkBox, telemetryBox, voiceBox, systemBox, logBox,
-            new RectangleF(20, 10, 360, 48), new RectangleF(area.Width - 240, 12, 220, 44) });
-        if (bannerShown) hud.Covers.Add(bannerBox);
+        hud.Covers.AddRange(new[] { connectBox, linkBox, telemetryBox, voiceBox, systemBox, logBox });
         DrawHeader(g, area.Width);
+        if (publicNetwork != "") DrawNetworkBanner(g);
         if (bannerShown)
         {
-            using (var fill = new SolidBrush(Hud.Fade(Hud.Accent, 40))) g.FillRectangle(fill, bannerBox);
-            using (var pen = new Pen(Hud.Accent, 1f)) g.DrawRectangle(pen, bannerBox.X, bannerBox.Y, bannerBox.Width, bannerBox.Height);
+            Hud.Box(g, bannerBox, 6, Hud.Mix(Hud.Panel, Hud.Accent, 0.14f), Hud.Mix(Hud.Line, Hud.Accent, 0.7f));
             float buttonsLeft = bannerBox.Right;
             foreach (var b in new[] { bannerWhatsNew, bannerUpdate, bannerLater }) if (b.Visible) buttonsLeft = Math.Min(buttonsLeft, b.Box.X);
-            Hud.Text(g, bannerText(), Hud.Body(13.5f), Hud.Ink, new RectangleF(bannerBox.X + 14, bannerBox.Y, buttonsLeft - bannerBox.X - 24, bannerBox.Height));
+            Hud.Dot(g, Hud.Accent, bannerBox.X + 20, bannerBox.Y + bannerBox.Height / 2);
+            Hud.Text(g, bannerText(), Hud.Body(13.5f), Hud.Ink, new RectangleF(bannerBox.X + 34, bannerBox.Y, buttonsLeft - bannerBox.X - 46, bannerBox.Height));
         }
         DrawConnect(g);
         DrawLink(g);
@@ -1512,58 +1585,69 @@ class DeckWindow : Form
         DrawVoice(g);
         Hud.PanelBox(g, systemBox, "SYSTEM");
         Hud.PanelBox(g, logBox, "LOG");
-        using (var fill = new SolidBrush(Hud.Panel))
-            g.FillRectangle(fill, logBox.X + 8, logBox.Y + 26, logBox.Width - 16, logBox.Height - 32);
+        Hud.Box(g, new RectangleF(logBox.X + 12, logBox.Y + 40, logBox.Width - 24, logBox.Height - 52), 4, Hud.Back, Hud.Line);
+    }
+
+    // Solid amber across the window, dark text, and the one button that fixes it.
+    void DrawNetworkBanner(Graphics g)
+    {
+        var r = networkBox;
+        Hud.Box(g, r, 6, Hud.Warn, Color.Empty);
+        float gx = r.X + 20, gy = r.Y + 16;
+        using (var dark = new SolidBrush(Hud.WarnInk))
+            g.FillPolygon(dark, new[] { new PointF(gx + 16, gy), new PointF(gx + 33, gy + 29), new PointF(gx - 1, gy + 29) });
+        var bang = Hud.Head(17);
+        Hud.Spaced(g, "!", bang, Hud.Warn, gx + 16 - Hud.Width(g, "!", bang) / 2, gy + 9, 0);
+        float tx = r.X + 68, tw = NetworkTextWidth(r.Width);
+        Hud.Text(g, Lang.T("Tablets can't connect"), Hud.Head(16), Hud.WarnInk, new RectangleF(tx, r.Y + 12, tw, 24));
+        float bh = Hud.WrappedHeight(NetworkBody(), Hud.Body(13), tw);
+        Hud.Wrapped(g, NetworkBody(), Hud.Body(13), Hud.WarnInk, new RectangleF(tx, r.Y + 38, tw, bh + 2));
+        Hud.Wrapped(g, NetworkSteps(), Hud.Body(13), Hud.WarnInk, new RectangleF(tx, r.Y + 42 + bh, tw, Math.Max(18, r.Bottom - (r.Y + 42 + bh))));
     }
 
     void DrawHeader(Graphics g, float width)
     {
         // An original mark: a hexagon frame around a pointer, like a cockpit indicator.
         var hex = new PointF[6];
-        for (int i = 0; i < 6; i++) hex[i] = new PointF(38 + 15 * (float)Math.Cos(Math.PI / 3 * i + Math.PI / 6), 34 + 15 * (float)Math.Sin(Math.PI / 3 * i + Math.PI / 6));
-        using (var pen = new Pen(Hud.Accent, 1.5f)) g.DrawPolygon(pen, hex);
+        for (int i = 0; i < 6; i++) hex[i] = new PointF(32 + 15 * (float)Math.Cos(Math.PI / 3 * i + Math.PI / 6), 32 + 15 * (float)Math.Sin(Math.PI / 3 * i + Math.PI / 6));
+        using (var pen = new Pen(Hud.Accent, 2f)) g.DrawPolygon(pen, hex);
         using (var brush = new SolidBrush(Hud.Accent))
-            g.FillPolygon(brush, new[] { new PointF(38, 25), new PointF(44, 40), new PointF(38, 36), new PointF(32, 40) });
-        float tw = Hud.Spaced(g, "SPOOLUP", Hud.Head(24), Hud.Accent, 64, 17, 3f);
-        if (version != "") Hud.Spaced(g, "V" + version, Hud.Label(11.5f), Hud.Dim, 64 + tw + 12, 29, 1.2f);
-        Hud.Spaced(g, Lang.T("STAR CITIZEN CONTROL DECK"), Hud.Label(11.5f), Hud.Dim, 65, 45, 2.4f);
+            g.FillPolygon(brush, new[] { new PointF(32, 23), new PointF(38, 38), new PointF(32, 34), new PointF(26, 38) });
+        float tw = Hud.Spaced(g, "SPOOLUP", Hud.Head(24), Hud.Ink, 58, 12, 3f), vw = 0;
+        if (version != "") vw = 12 + Hud.Spaced(g, "V" + version, Hud.Label(12), Hud.Dim, 58 + tw + 12, 22, 1.2f);
+        float sw = Hud.Spaced(g, Lang.T("STAR CITIZEN CONTROL DECK"), Hud.Label(12), Hud.Dim, 59, 41, 2f);
+        hud.Covers.Add(new RectangleF(12, 6, Math.Max(58 + tw + vw, 59 + sw) + 8, 54));
 
-        // Status on the right: a dot and one word, the uptime under it.
-        var chipFont = Hud.Head(13);
-        string word = Lang.T(chip);
-        float cw = Hud.SpacedWidth(g, word, chipFont, 2f);
-        Hud.Spaced(g, word, chipFont, stateColor, width - 22 - cw, 20, 2f);
-        Hud.Dot(g, stateColor, width - 34 - cw, 28);
+        // Status on the right: a pill with a dot and one word, the uptime under it.
+        var pill = Hud.Pill(g, Lang.T(chip), stateColor, width - 16, 9);
+        hud.Covers.Add(RectangleF.Inflate(pill, 6, 4));
         if (runningSince != DateTime.MinValue)
         {
             var up = DateTime.Now - runningSince;
             string text = Lang.T("UPTIME") + " " + ((int)up.TotalHours).ToString("00") + ":" + up.Minutes.ToString("00") + ":" + up.Seconds.ToString("00");
-            float uw = Hud.SpacedWidth(g, text, Hud.Mono(11, false), 1f);
-            Hud.Spaced(g, text, Hud.Mono(11, false), Hud.Dim, width - 22 - uw, 42, 1f);
+            float uw = Hud.SpacedWidth(g, text, Hud.Mono(12, false), 0.6f);
+            Hud.Spaced(g, text, Hud.Mono(12, false), Hud.Dim, width - 18 - uw, 40, 0.6f);
+            hud.Covers.Add(new RectangleF(width - 26 - uw, 36, uw + 16, 22));
         }
-
-        using (var pen = new Pen(Hud.Line, 1f)) g.DrawLine(pen, 20, 62, width - 20, 62);
-        using (var pen = new Pen(Hud.Accent, 2f)) g.DrawLine(pen, 20, 62, 150, 62);
-        Hud.Ruler(g, width - 200, 64, 180, Hud.Fade(Hud.Accent, 90));
+        using (var pen = new Pen(Hud.Line, 1f)) g.DrawLine(pen, 0, 64, width, 64);
     }
 
     void DrawConnect(Graphics g)
     {
         var r = connectBox;
         Hud.PanelBox(g, r, "CONNECT");
-        var qrBox = new RectangleF(r.X + 22, r.Y + 34, 236, 236);
+        var qrBox = new RectangleF(r.X + 22, r.Y + 40, 236, 236);
         if (qrRows.Length > 0) hud.DrawQr(g, qrBox, qrRows);
         else
         {
-            using (var pen = new Pen(Hud.Line, 1f) { DashStyle = DashStyle.Dash }) g.DrawRectangle(pen, qrBox.X, qrBox.Y, qrBox.Width, qrBox.Height);
+            Hud.Box(g, qrBox, 4, Hud.Back, Hud.Line);
             string text = Lang.T(serverReady ? "NO NETWORK FOUND" : chip == "STOPPED" ? "OFFLINE" : "WAITING FOR THE SERVER");
-            float w = Hud.SpacedWidth(g, text, Hud.Label(11), 1.6f);
-            Hud.Spaced(g, text, Hud.Label(11), Hud.Dim, qrBox.X + (qrBox.Width - w) / 2, qrBox.Y + qrBox.Height / 2 - 6, 1.6f);
+            float w = Hud.SpacedWidth(g, text, Hud.Label(12), 1.2f);
+            Hud.Spaced(g, text, Hud.Label(12), Hud.Dim, qrBox.X + (qrBox.Width - w) / 2, qrBox.Y + qrBox.Height / 2 - 7, 1.2f);
         }
-        Hud.Brackets(g, RectangleF.Inflate(qrBox, 6, 6), Hud.Accent, 14);
         string caption = Lang.T("SCAN WITH YOUR TABLET'S CAMERA");
-        float cw = Hud.SpacedWidth(g, caption, Hud.Label(11.5f), 1.4f);
-        Hud.Spaced(g, caption, Hud.Label(11.5f), Hud.Dim, r.X + (r.Width - cw) / 2, r.Bottom - 22, 1.4f);
+        float cw = Hud.SpacedWidth(g, caption, Hud.Label(12), 1.2f);
+        Hud.Spaced(g, caption, Hud.Label(12), Hud.Dim, r.X + (r.Width - cw) / 2, r.Bottom - 26, 1.2f);
     }
 
     void DrawLink(Graphics g)
@@ -1573,42 +1657,53 @@ class DeckWindow : Form
         Hud.PanelBox(g, r, "LINK");
         if (serverReady)
         {
-            Hud.Spaced(g, Lang.T("ADDRESS"), Hud.Label(11.5f), Hud.Dim, x, r.Y + 32, 1.6f);
-            if (link == "") Hud.Text(g, Lang.T("No network found. Connect this PC to Wi-Fi or a network."), Hud.Body(13), Hud.Warn, new RectangleF(x, r.Y + 46, w, 20));
-            if (publicNetwork != "")
-                Hud.Text(g, Lang.F("Windows treats \"{0}\" as Public: tablets can't connect.", publicNetwork),
-                    Hud.Body(12), Hud.Warn, new RectangleF(x, r.Y + 67, networkLink.Box.X - x - 8, 18));
-            else if (others != "") Hud.Text(g, Lang.T("ALSO") + "  " + others, Hud.Mono(11, false), Hud.Dim, new RectangleF(x, r.Y + 68, w, 16));
+            Hud.Spaced(g, Lang.T("ADDRESS"), Hud.Label(12), Hud.Dim, x, r.Y + 40, 1.2f);
+            if (link == "")
+            {
+                Hud.Dot(g, Hud.Warn, x + 4, r.Y + 71);
+                Hud.Text(g, Lang.T("No network found. Connect this PC to Wi-Fi or a network."), Hud.Body(13), Hud.Ink, new RectangleF(x + 16, r.Y + 60, w - 16, 22));
+            }
+            if (others != "") Hud.Text(g, Lang.T("ALSO") + "  " + others, Hud.Mono(12, false), Hud.Dim, new RectangleF(x, r.Y + 88, w, 18));
         }
-        else Hud.Wrapped(g, stateText(), Hud.Body(13.5f), stateColor, new RectangleF(x, r.Y + 34, w, 50));
-        Hud.Spaced(g, Lang.T("PAIRING CODE"), Hud.Label(11.5f), Hud.Dim, x, r.Y + 92, 1.6f);
-        Hud.Spaced(g, pairingCode, Hud.Mono(28, true), Hud.Ink, x - 1, r.Y + 106, 3f);
+        else
+        {
+            Hud.Dot(g, stateColor, x + 4, r.Y + 50);
+            Hud.Wrapped(g, stateText(), Hud.Body(13.5f), Hud.Ink, new RectangleF(x + 16, r.Y + 40, w - 16, 66));
+        }
+        Hud.Spaced(g, Lang.T("PAIRING CODE"), Hud.Label(12), Hud.Dim, x, r.Y + 112, 1.2f);
+        Hud.Spaced(g, pairingCode, Hud.Mono(28, true), Hud.Ink, x - 1, r.Y + 128, 3f);
     }
 
     void DrawTelemetry(Graphics g)
     {
         var r = telemetryBox;
         Hud.PanelBox(g, r, "TELEMETRY");
-        float y = r.Y + 32, h = r.Height - 46, x = r.X + 16, gap = 10;
+        float y = r.Y + 40, h = r.Height - 52, x = r.X + 16, gap = 10;
         float total = r.Width - 32 - gap * 2;
         var tablets = new RectangleF(x, y, total * 0.24f, h);
         var keys = new RectangleF(tablets.Right + gap, y, total * 0.31f, h);
         var presses = new RectangleF(keys.Right + gap, y, r.Right - 16 - keys.Right - gap, h);
 
-        Tile(g, tablets, "TABLETS", tabletCount.ToString(), Hud.Ink, "CONNECTED");
+        Tile(g, tablets, "TABLETS", tabletCount.ToString(), Color.Empty, "CONNECTED");
         string target = !serverReady ? "-" : dryRun ? "LOG ONLY" : focusCheck ? "STAR CITIZEN" : "ANY WINDOW";
         string why = !serverReady ? "" : dryRun ? "TEST MODE: NO KEYS SENT" : focusCheck ? "ONLY WHILE IT'S IN FRONT" : "FOCUS CHECK IS OFF";
-        Tile(g, keys, "KEYS GO TO", target, !serverReady ? Hud.Dim : dryRun || !focusCheck ? Hud.Warn : Hud.Ink, why);
+        Tile(g, keys, "KEYS GO TO", target, !serverReady ? Color.Empty : dryRun || !focusCheck ? Hud.Warn : Hud.Good, why);
 
-        Tile(g, presses, "PRESSES", pressCount.ToString(), Hud.Ink, lastPress != "" ? Lang.F("LAST: {0}", lastPress.ToUpperInvariant()) : "NONE YET");
+        Tile(g, presses, "PRESSES", pressCount.ToString(), Color.Empty, lastPress != "" ? Lang.F("LAST: {0}", lastPress.ToUpperInvariant()) : "NONE YET");
+        float graphTop = 26;
         if (blockedCount > 0)
         {
+            // Beside the caption when there's room, else in a line of its own under the graph.
             string text = Lang.F("{0} BLOCKED", blockedCount);
-            float bw = Hud.SpacedWidth(g, text, Hud.Label(11), 1.2f);
-            Hud.Spaced(g, text, Hud.Label(11), Hud.Warn, presses.Right - 10 - bw, presses.Y + 8, 1.2f);
+            float bw = Hud.SpacedWidth(g, text, Hud.Label(12), 1f);
+            float caption = Hud.SpacedWidth(g, Lang.T("PRESSES"), Hud.Label(12), 1.2f);
+            float by = presses.Width - 20 - caption - 24 > bw ? presses.Y + 8 : presses.Y + 25;
+            if (by > presses.Y + 8) graphTop = 44;
+            Hud.Spaced(g, text, Hud.Label(12), Hud.Ink, presses.Right - 10 - bw, by, 1f);
+            Hud.Dot(g, Hud.Warn, presses.Right - 20 - bw, by + 7);
         }
         // The last minute in 2-second bars.
-        var graph = new RectangleF(presses.X + presses.Width * 0.45f, presses.Y + 24, presses.Width * 0.55f - 12, presses.Height - 34);
+        var graph = new RectangleF(presses.X + presses.Width * 0.45f, presses.Y + graphTop, presses.Width * 0.55f - 12, presses.Height - graphTop - 8);
         var bars = new int[30];
         var now = DateTime.Now;
         foreach (var t in recentPresses)
@@ -1619,7 +1714,7 @@ class DeckWindow : Form
         int most = 3;
         foreach (int b in bars) most = Math.Max(most, b);
         float bar = graph.Width / 30;
-        using (var brush = new SolidBrush(Hud.Fade(Hud.Accent, 200)))
+        using (var brush = new SolidBrush(Hud.Accent))
             for (int i = 0; i < 30; i++)
                 if (bars[i] > 0)
                 {
@@ -1629,16 +1724,16 @@ class DeckWindow : Form
         using (var pen = new Pen(Hud.Line, 1f)) g.DrawLine(pen, graph.X, graph.Bottom + 1, graph.Right, graph.Bottom + 1);
     }
 
-    static void Tile(Graphics g, RectangleF r, string caption, string value, Color color, string note)
+    // A readout: caption, value and a note, with a status dot by the caption when mark is set.
+    static void Tile(Graphics g, RectangleF r, string caption, string value, Color mark, string note)
     {
-        using (var fill = new SolidBrush(Hud.Fade(Hud.Back, 140))) g.FillRectangle(fill, r);
-        using (var pen = new Pen(Hud.Line, 1f)) g.DrawRectangle(pen, r.X, r.Y, r.Width, r.Height);
-        using (var pen = new Pen(Hud.Accent, 2f)) g.DrawLine(pen, r.X, r.Y + 6, r.X, r.Y + 20);
-        Hud.Spaced(g, Lang.T(caption), Hud.Label(11), Hud.Dim, r.X + 10, r.Y + 8, 1.4f);
+        Hud.Box(g, r, 4, Hud.Back, Hud.Line);
+        float cw = Hud.Spaced(g, Lang.T(caption), Hud.Label(12), Hud.Dim, r.X + 10, r.Y + 8, 1.2f);
+        if (mark != Color.Empty) Hud.Dot(g, mark, r.X + 20 + cw, r.Y + 15);
         value = Lang.T(value);
-        var font = Hud.Head(value.Length > 6 ? 17 : 24);
-        Hud.Text(g, value, font, color, new RectangleF(r.X + 10, r.Y + 21, r.Width - 16, 36));
-        Hud.Text(g, Lang.T(note), Hud.Label(10.5f), Hud.Dim, new RectangleF(r.X + 10, r.Bottom - 18, r.Width - 16, 14));
+        var font = Hud.Head(value.Length > 6 ? 16 : 22);
+        Hud.Text(g, value, font, Hud.Ink, new RectangleF(r.X + 10, r.Y + 23, r.Width - 16, 28));
+        Hud.Text(g, Lang.T(note), Hud.Label(11.5f), Hud.Dim, new RectangleF(r.X + 10, r.Bottom - 19, r.Width - 16, 15));
     }
 
     void DrawVoice(Graphics g)
@@ -1646,13 +1741,17 @@ class DeckWindow : Form
         var r = voiceBox;
         float x = r.X + 16;
         Hud.PanelBox(g, r, "VOICE");
-        Hud.Dot(g, voiceColor, x + 4, r.Y + 42);
-        Hud.Text(g, voiceText(), Hud.Body(13), voiceColor, new RectangleF(x + 16, r.Y + 32, voiceListButton.Box.X - x - 26, 20));
-        Hud.Spaced(g, Lang.T("STRICTNESS"), Hud.Label(11.5f), Hud.Dim, x, r.Y + 68, 1.6f);
-        Hud.Spaced(g, strictness.Value + "%", Hud.Head(13), strictness.Enabled ? Hud.Ink : Hud.Dim, strictness.Box.Right + 14, r.Y + 67, 1f);
-        Hud.Wrapped(g, Lang.T("Lower accepts more but may mishear. Higher is stricter."), Hud.Body(11), Hud.Dim,
-            new RectangleF(strictness.Box.Right + 60, r.Y + 62, r.Right - strictness.Box.Right - 76, 32));
-        Hud.Text(g, lastHeard(), Hud.Body(12.5f), lastHeardColor, new RectangleF(x, r.Bottom - 28, r.Width - 32, 18));
+        Hud.Dot(g, voiceColor, x + 4, r.Y + 52);
+        Hud.Text(g, voiceText(), Hud.Body(13), Hud.Ink, new RectangleF(x + 16, r.Y + 40, voiceListButton.Box.X - x - 28, 24));
+        Hud.Spaced(g, Lang.T("STRICTNESS"), Hud.Label(12), Hud.Dim, x, r.Y + 84, 1.2f);
+        Hud.Spaced(g, strictness.Value + "%", Hud.Head(13), strictness.Enabled ? Hud.Ink : Hud.Dim, strictness.Box.Right + 14, r.Y + 83, 0.6f);
+        Hud.Text(g, Lang.T("Lower accepts more but may mishear. Higher is stricter."), Hud.Body(13), Hud.Dim, new RectangleF(x, r.Y + 104, r.Width - 32, 20));
+        string heard = lastHeard();
+        if (heard != "")
+        {
+            Hud.Dot(g, lastHeardColor, x + 4, r.Y + 137);
+            Hud.Text(g, heard, Hud.Body(13), lastHeardColor == Hud.Dim ? Hud.Dim : Hud.Ink, new RectangleF(x + 16, r.Y + 126, r.Width - 48, 22));
+        }
     }
 
     // ---------- server ----------
@@ -1895,8 +1994,7 @@ class DeckWindow : Form
                 }
                 break;
             case "network":
-                publicNetwork = Str(ev, "category") == "Public" ? Str(ev, "adapter") : "";
-                networkLink.Visible = publicNetwork != "";
+                SetPublicNetwork(Str(ev, "category") == "Public" ? Str(ev, "adapter") : "");
                 if (publicNetwork != "" && !publicNetworkNoticed)
                 {
                     publicNetworkNoticed = true;
@@ -1958,6 +2056,22 @@ class DeckWindow : Form
         else commandsWindow.Activate();
     }
 
+    // Shows the Public-network banner while adapter isn't "", and takes it away after. The
+    // window grows to make room, as it does for the update banner.
+    void SetPublicNetwork(string adapter)
+    {
+        if (adapter == publicNetwork) return;
+        publicNetwork = adapter;
+        networkButton.Visible = adapter != "";
+        float want = adapter != "" ? NetworkBannerHeight(hud.Area.Width - 32) + 12 : 0;
+        if (WindowState == FormWindowState.Normal)
+        {
+            Height = Math.Max(MinimumSize.Height, Height + (int)((want - networkGrown) * hud.Zoom));
+            networkGrown = want;
+        }
+        Arrange();
+    }
+
     // The header's one-word status, and the sentence shown while the server isn't running.
     void SetState(string word, Func<string> text, Color color)
     {
@@ -1967,6 +2081,7 @@ class DeckWindow : Form
         hud.Redraw();
     }
 
+    // Warnings get a "!" in the warning color and keep their text in Ink, like the rest.
     void AppendLog(string line, Color color)
     {
         // Keep the last 500 lines.
@@ -1979,6 +2094,12 @@ class DeckWindow : Form
         }
         log.SelectionStart = log.TextLength;
         log.SelectionLength = 0;
+        if (color == Hud.Warn)
+        {
+            log.SelectionColor = Hud.Warn;
+            log.AppendText("! ");
+            color = Hud.Ink;
+        }
         log.SelectionColor = color;
         log.AppendText(line + "\n");
         log.ScrollToCaret();
@@ -1995,7 +2116,7 @@ class DeckWindow : Form
         bannerUpdate.Visible = buttons == "update";
         bannerLater.Visible = buttons != "busy";
         bannerLater.Text = buttons == "update" ? "Later" : "Close";
-        if (!bannerShown && WindowState == FormWindowState.Normal) Height += (int)(50 * hud.Zoom);
+        if (!bannerShown && WindowState == FormWindowState.Normal) Height += (int)(56 * hud.Zoom);
         bannerShown = true;
         Arrange();
     }
@@ -2008,7 +2129,7 @@ class DeckWindow : Form
 
     void HideBanner()
     {
-        if (bannerShown && WindowState == FormWindowState.Normal) Height = Math.Max(MinimumSize.Height, Height - (int)(50 * hud.Zoom));
+        if (bannerShown && WindowState == FormWindowState.Normal) Height = Math.Max(MinimumSize.Height, Height - (int)(56 * hud.Zoom));
         bannerShown = false;
         foreach (var b in new[] { bannerWhatsNew, bannerUpdate, bannerLater }) b.Visible = false;
         Arrange();
@@ -2190,7 +2311,7 @@ class DeckWindow : Form
         }
         catch (Win32Exception ex)
         {
-            UpdateFailed(() => ex.NativeErrorCode == 1223 ? Lang.T("the Windows permission prompt was cancelled") : ex.Message);
+            UpdateFailed(() => ex.NativeErrorCode == 1223 ? Lang.T("the Windows permission prompt was canceled") : ex.Message);
             return;
         }
         // Normally the installer closes this window. If it ends first, the update didn't happen.
@@ -2201,7 +2322,7 @@ class DeckWindow : Form
             {
                 int code = installer.ExitCode;
                 installer = null;
-                UpdateFailed(() => code == 0 ? Lang.T("the installer finished without updating") : Lang.F("the installer stopped (code {0}). Was the Windows prompt cancelled?", code));
+                UpdateFailed(() => code == 0 ? Lang.T("the installer finished without updating") : Lang.F("the installer stopped (code {0}). Was the Windows prompt canceled?", code));
             });
         };
     }
@@ -2268,7 +2389,7 @@ class DeckWindow : Form
         try { current = new JavaScriptSerializer().DeserializeObject(File.ReadAllText(ConfigFile())) as Dictionary<string, object>; }
         catch (Exception) { }
         using (var dialog = new SettingsWindow(current ?? new Dictionary<string, object>(), serverArgs.Contains("--port"), Icon,
-            Path.Combine(appDir, "keybinds", "TabletDeck-StarCitizen.xml")))
+            Path.Combine(appDir, "keybinds", "TabletDeck-StarCitizen.xml"), publicNetwork))
         {
             var result = dialog.ShowDialog(this);
             if (result == DialogResult.OK && dialog.LanguageChanged) ApplyLanguage();
@@ -2421,16 +2542,17 @@ class VoiceCommandsWindow : HudDialog
 
         panel = Panel("COMMANDS", 16, 16, 508, 548);
         note = Hint("Hold the mic button on the tablet and say one of these. Most Star Citizen controls are toggles, " +
-            "so \"engines on\" and \"engines off\" press the same key.", 32, 44, 476, 36);
-        Field(search, 32, 86, 476, 28);
+            "so \"engines on\" and \"engines off\" press the same key.", 32, 56, 476, 54);
+        Field(search, 32, 116, 476, 32);
         search.TextChanged += delegate { Fill(); };
         search.HandleCreated += delegate { SendMessage(search.Handle, 0x1501, (IntPtr)1, Lang.T("Search, e.g. shields or quantum")); }; // EM_SETCUEBANNER
-        Caption("Say", 38, 126);
-        presses = Caption("Presses", 300, 126);
-        Field(list, 32, 144, 476, 404);
+        Caption("Say", 38, 160);
+        presses = Caption("Presses", 300, 160);
+        Field(list, 32, 180, 476, 368);
         list.View = View.Details;
         list.FullRowSelect = true;
         list.HeaderStyle = ColumnHeaderStyle.None; // the captions above are the headings
+        list.Font = new Font("Segoe UI", 10f);
         list.Columns.Add("Say", 262);
         list.Columns.Add("Presses", 200);
         ResumeLayout(false);
@@ -2442,10 +2564,10 @@ class VoiceCommandsWindow : HudDialog
         var area = hud.Area;
         float w = area.Width - 32, h = area.Height - 32;
         panel.Box = new RectangleF(16, 16, w, h);
-        note.Box = new RectangleF(32, 44, w - 32, 36);
-        Frame(search, new RectangleF(32, 86, w - 32, 28));
+        note.Box = new RectangleF(32, 56, w - 32, 54);
+        Frame(search, new RectangleF(32, 116, w - 32, 32));
         presses.Box.X = 38 + (w - 44) * 0.55f;
-        Frame(list, new RectangleF(32, 144, w - 32, h - 144));
+        Frame(list, new RectangleF(32, 180, w - 32, h - 180));
         // Column widths aren't scaled with the window, so set them for its size and the screen.
         float inner = (w - 32 - 26) * hud.Zoom;
         if (list.Columns.Count == 2)
@@ -2490,27 +2612,28 @@ class KeybindProfileWindow : HudDialog
     readonly CheckedListBox list = new CheckedListBox();
     readonly Note status;
 
-    public KeybindProfileWindow(string profile, Icon icon) : base("Install keybind profile", icon, 560, 452)
+    public KeybindProfileWindow(string profile, Icon icon) : base("Install keybind profile", icon, 560, 504)
     {
         this.profile = profile;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
 
-        Panel("STAR CITIZEN COPIES", 16, 16, 528, 248);
+        Panel("STAR CITIZEN COPIES", 16, 16, 528, 276);
         var intro = Hint("Copies the SpoolUp Keyboard profile into Star Citizen, so buttons for actions with no default key work. " +
-            "Tick the copies of the game to install it into.", 32, 44, 496, 36);
+            "Tick the copies of the game to install it into.", 32, 56, 496, 54);
         intro.Color = Hud.Ink;
-        Field(list, 32, 86, 496, 126);
+        Field(list, 32, 116, 496, 120);
         list.CheckOnClick = true;
         list.HorizontalScrollbar = true;
-        Button("Choose game folder...", 32, 222, 210, delegate { ChooseFolder(); });
+        list.Font = new Font("Segoe UI", 10f);
+        Button("Choose game folder...", 32, 248, 220, delegate { ChooseFolder(); });
 
-        Panel("STATUS", 16, 276, 528, 116);
-        status = Hint("", 32, 304, 496, 80);
+        Panel("STATUS", 16, 304, 528, 140);
+        status = Hint("", 32, 344, 496, 90);
 
-        var install = Primary("Install", 348, 408, 96, delegate { Install(); });
-        Button("Close", 448, 408, 96, delegate { Close(); });
+        var install = Primary("Install", 336, 456, 100, delegate { Install(); });
+        Button("Close", 444, 456, 100, delegate { Close(); });
         Accept = delegate { if (install.Enabled) Install(); };
         Cancel = Close;
         ResumeLayout(false);
@@ -2528,10 +2651,12 @@ class KeybindProfileWindow : HudDialog
                 : "Found {0} copies of the game. Missing one? Click \"Choose game folder...\".", games.Count), Hud.Dim);
     }
 
+    // The status in Ink, with its state as a dot: Dim for plain news.
     void ShowStatus(string text, Color color)
     {
         status.Text = text;
-        status.Color = color;
+        status.Mark = color == Hud.Dim ? Color.Empty : color;
+        status.Color = Hud.Ink;
         Redraw();
     }
 
@@ -2762,97 +2887,109 @@ class SettingsWindow : HudDialog
         return System.Text.RegularExpressions.Regex.Replace(name, "[^A-Za-z0-9 +-]", "");
     }
 
-    // Two columns of panels: pairing, keys and voice on the left, push-to-talk and links on
-    // the right, and the buttons along the bottom.
-    public SettingsWindow(Dictionary<string, object> current, bool portFromCommandLine, Icon icon, string keybindProfile)
-        : base("SpoolUp settings", icon, 800, 584)
+    // Two columns of panels: pairing, keys and voice on the left, push-to-talk, links and
+    // network on the right, and the buttons along the bottom. 16 pixels inside each panel,
+    // 12 between them.
+    public SettingsWindow(Dictionary<string, object> current, bool portFromCommandLine, Icon icon, string keybindProfile, string publicNetwork)
+        : base("SpoolUp settings", icon, 840, 684)
     {
         this.current = current;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
 
-        Panel("PAIRING", 16, 16, 376, 184);
-        Caption("Pairing code", 32, 48);
-        Field(code, 32, 64, 186, 28);
-        code.Font = new Font("Consolas", 11f);
+        Panel("PAIRING", 16, 16, 396, 224);
+        Caption("Pairing code", 32, 56);
+        Field(code, 32, 74, 200, 32);
+        code.Font = new Font("Consolas", 12f, FontStyle.Bold);
         code.MaxLength = 32;
         code.Text = Get("token", "");
-        Button("New random code", 228, 64, 148, delegate { code.Text = RandomCode(); });
-        Hint("Letters and numbers. Tablets already paired keep working until they reload; new ones need the new code.", 32, 98, 344, 32);
-        Caption("Port", 32, 136);
-        Field(port, 32, 152, 90, 28);
+        Button("New random code", 244, 74, 152, delegate { code.Text = RandomCode(); });
+        Hint("Letters and numbers. Tablets already paired keep working until they reload; new ones need the new code.", 32, 114, 364, 38);
+        Caption("Port", 32, 162);
+        Field(port, 32, 180, 96, 32);
         port.Minimum = 1024;
         port.Maximum = 65535;
         port.Value = Math.Max(1024, Math.Min(65535, GetNumber("port", 8765)));
         port.Enabled = !portFromCommandLine;
         Hint(portFromCommandLine ? "Set with --port when SpoolUp was started, so it can't be changed here."
-            : "Changing it restarts the server. Tablets then need the new address or QR code.", 134, 150, 242, 34);
+            : "Changing it restarts the server. Tablets then need the new address or QR code.", 140, 176, 256, 54);
 
-        Panel("KEYS", 16, 212, 376, 132);
-        focus = Switch("Only press keys while Star Citizen is in front", GetBool("onlyWhenGameFocused", true), 32, 244, 344);
+        Panel("KEYS", 16, 252, 396, 154);
+        focus = Switch("Only press keys while Star Citizen is in front", GetBool("onlyWhenGameFocused", true), 32, 292, 364);
         focus.Tip = "Keys never reach another window, like a browser or chat, by accident.";
-        Caption("Tap length", 32, 278);
-        Field(tap, 32, 294, 80, 28);
+        Caption("Tap length", 32, 328);
+        Field(tap, 32, 346, 88, 32);
         tap.Minimum = 20;
         tap.Maximum = 200;
         tap.Value = Math.Max(20, Math.Min(200, GetNumber("tapMs", 60)));
-        Hint("milliseconds a tap holds the key. Raise it if the game misses taps.", 124, 292, 252, 34);
+        Hint("milliseconds a tap holds the key. Raise it if the game misses taps.", 132, 342, 264, 54);
 
-        Panel("VOICE", 16, 356, 376, 168);
-        voiceOn = Switch("Voice commands", GetBool("voice", true), 32, 388, 344);
+        Panel("VOICE", 16, 418, 396, 204);
+        voiceOn = Switch("Voice commands", GetBool("voice", true), 32, 458, 364);
         voiceOn.Click = delegate { language.Enabled = shortEmotes.Enabled = voiceOn.On; Redraw(); };
-        Caption("Voice language", 32, 422);
-        Field(language, 32, 438, 110, 28);
+        Caption("Voice language", 32, 494);
+        Field(language, 32, 512, 112, 32);
         language.DropDownStyle = ComboBoxStyle.DropDown;
         language.FlatStyle = FlatStyle.Flat;
         language.Items.AddRange(new object[] { "en-US", "en-GB", "en-AU", "en-CA", "en-IN" });
         language.Text = Get("voiceLanguage", "en-US");
-        Hint("Needs that English speech recognizer installed in Windows (Settings > Time & Language > Speech).", 154, 434, 222, 48);
-        shortEmotes = Switch("Emotes also answer to one word, like \"wave\"", GetBool("shortEmotes", false), 32, 490, 344);
+        Hint("Needs that English speech recognizer installed in Windows (Settings > Time & Language > Speech).", 156, 508, 240, 72);
+        shortEmotes = Switch("Emotes also answer to one word, like \"wave\"", GetBool("shortEmotes", false), 32, 584, 364);
         shortEmotes.Tip = "Without this, emotes need \"emote\" first (\"emote wave\"), so a stray word doesn't set one off.";
         language.Enabled = shortEmotes.Enabled = voiceOn.On;
 
         // Push-to-talk from a key or mouse button on the PC (see native/voice.cs).
-        Panel("PUSH-TO-TALK", 408, 16, 376, 232);
-        Caption("Key on this PC", 424, 48);
+        Panel("PUSH-TO-TALK", 428, 16, 396, 260);
+        Caption("Key on this PC", 444, 56);
         pttKey = GetNumber("pttKey", 0);
         pttName = Get("pttKeyName", "");
-        pttButton = Button("", 424, 64, 250, delegate { StartCapture(); });
+        pttButton = Button("", 444, 74, 256, delegate { StartCapture(); });
         pttButton.OtherButton = (b) =>
         {
             if (!capturing) return;
             int vk = b == MouseButtons.Middle ? 4 : b == MouseButtons.XButton1 ? 5 : b == MouseButtons.XButton2 ? 6 : 0;
             if (vk != 0) SetPttKey(vk);
         };
-        Button("None", 682, 64, 86, delegate { SetPttKey(0); });
-        Caption("Mode", 424, 104);
-        Field(pttMode, 424, 120, 344, 28);
+        Button("None", 712, 74, 96, delegate { SetPttKey(0); });
+        Caption("Mode", 444, 118);
+        Field(pttMode, 444, 136, 364, 32);
         pttMode.DropDownStyle = ComboBoxStyle.DropDownList;
         pttMode.FlatStyle = FlatStyle.Flat;
         pttMode.Items.AddRange(new object[] { Lang.T("Hold to talk"), Lang.T("Press to start, again to stop") });
         pttMode.SelectedIndex = Get("pttMode", "hold") == "toggle" ? 1 : 0;
-        pttSound = Switch("Play a sound when it starts and stops listening", GetBool("pttSound", true), 424, 160, 344);
-        Hint("Pick a key Star Citizen doesn't use, like a mouse side button, a numpad key or F13-F24: the key still reaches the game.", 424, 192, 344, 48);
+        pttSound = Switch("Play a sound when it starts and stops listening", GetBool("pttSound", true), 444, 178, 364);
+        Hint("Pick a key Star Citizen doesn't use, like a mouse side button, a numpad key or F13-F24: the key still reaches the game.", 444, 210, 364, 56);
         ShowPttKey();
 
         // Websites the tablet's "Open on PC" buttons open here, one per line: "Name | https://...".
-        Panel("LINKS", 408, 260, 376, 264);
-        Caption("Websites the tablet can open on this PC", 424, 292);
-        Field(links, 424, 308, 344, 152);
+        Panel("LINKS", 428, 288, 396, 178);
+        Caption("Websites the tablet can open on this PC", 444, 328);
+        Field(links, 444, 346, 364, 64);
         links.Multiline = true;
         links.ScrollBars = ScrollBars.Vertical;
-        links.Font = new Font("Consolas", 9.5f);
+        links.Font = new Font("Consolas", 10f);
         links.Text = LinksText();
-        Hint("One per line: Name | https://address. The tablet only sees the names, so it can't open anything else.", 424, 468, 344, 48);
+        Hint("One per line: Name | https://address. The tablet only sees the names, so it can't open anything else.", 444, 418, 364, 40);
 
-        Button("Install keybind profile...", 16, 540, 250, delegate
+        // Why tablets need a Private network, or, while Windows calls it Public, that it's
+        // blocking them now. The button is the main window's banner button.
+        Panel("NETWORK", 428, 478, 396, 146);
+        var network = Hint(publicNetwork != ""
+            ? Lang.F("Windows treats \"{0}\" as a Public network. Set it to Private so tablets on your network can reach SpoolUp.", publicNetwork)
+            : Lang.T("Tablets connect over your home network. Windows has to treat it as a Private network: on a Public one it blocks them."),
+            444, 518, 364, 56);
+        if (publicNetwork != "") network.Mark = Hud.Warn;
+        var networkButton = Button("Open network settings", 444, 580, 232, delegate { DeckWindow.OpenNetworkSettings(publicNetwork); });
+        networkButton.Tip = "Pick your network there and set its network profile to Private";
+
+        Button("Install keybind profile...", 16, 636, 236, delegate
         {
             using (var dialog = new KeybindProfileWindow(keybindProfile, Icon)) dialog.ShowDialog(this);
         });
         // The window's own language; the tablet picks its language in Deck settings.
-        Caption("Language", 282, 548);
-        Field(windowLanguage, 372, 540, 180, 28);
+        Caption("Language", 268, 645);
+        Field(windowLanguage, 352, 636, 176, 32);
         windowLanguage.DropDownStyle = ComboBoxStyle.DropDownList;
         windowLanguage.FlatStyle = FlatStyle.Flat;
         foreach (var choice in Lang.Choices) windowLanguage.Items.Add(choice[0] == "" ? Lang.T(choice[1]) : choice[1]);
@@ -2860,8 +2997,8 @@ class SettingsWindow : HudDialog
         for (int i = 0; i < Lang.Choices.Length; i++) if (Lang.Choices[i][0] == saved) windowLanguage.SelectedIndex = i;
         if (windowLanguage.SelectedIndex < 0) windowLanguage.SelectedIndex = 0;
 
-        Primary("Save", 584, 540, 96, delegate { Save(); });
-        Button("Cancel", 688, 540, 96, delegate { DialogResult = DialogResult.Cancel; });
+        Primary("Save", 624, 636, 96, delegate { Save(); });
+        Button("Cancel", 728, 636, 96, delegate { DialogResult = DialogResult.Cancel; });
         Accept = Save;
         Cancel = delegate { DialogResult = DialogResult.Cancel; };
         ResumeLayout(false);
