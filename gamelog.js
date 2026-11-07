@@ -1,6 +1,6 @@
 // Battle state from Star Citizen's Game.log, the text log the game writes next to its
-// install for support and which other programs may read. It's only ever read, a few times
-// a second while it grows; nothing in the game is touched. What it can tell:
+// install for support and which other programs may read. It's read a few times a second
+// while it grows. What it can tell:
 //   - the ship you fly;
 //   - your ship being hit, and by whom;
 //   - your ship disabled or destroyed;

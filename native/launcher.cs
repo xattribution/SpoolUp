@@ -250,7 +250,7 @@ static class Lang
         { "Pairing code, port, focus check, tap length, voice language and the Star Citizen keybind profile", new[] { "Código de emparejamiento, puerto, control de foco, duración del toque, idioma de voz y el perfil de teclas de Star Citizen", "Code d'appairage, port, contrôle du focus, durée d'appui, langue vocale et profil de touches Star Citizen", "Kopplungscode, Port, Fokusprüfung, Tippdauer, Sprachbefehl-Sprache und das Star-Citizen-Tastenprofil" } },
         { "Opens the layout editor in your browser: move buttons, change their keys, labels and icons", new[] { "Abre el editor de diseños en tu navegador: mueve botones y cambia sus teclas, nombres e iconos", "Ouvre l'éditeur de disposition dans votre navigateur : déplacez les boutons, changez leurs touches, libellés et icônes", "Öffnet den Layout-Editor im Browser: Tasten verschieben, ihre Tasten, Beschriftungen und Symbole ändern" } },
         { "Everything you can say, and the button each one presses", new[] { "Todo lo que puedes decir y el botón que pulsa cada frase", "Tout ce que vous pouvez dire, et le bouton que chaque phrase active", "Alles, was du sagen kannst, und welche Taste jeder Befehl drückt" } },
-        { "Looks for a new version on GitHub when SpoolUp starts and once a day. Updates only install when you click Update now.", new[] { "Busca una versión nueva en GitHub al iniciar SpoolUp y una vez al día. Solo se instala cuando pulsas Actualizar ahora.", "Cherche une nouvelle version sur GitHub au démarrage de SpoolUp et une fois par jour. Rien ne s'installe sans un clic sur Mettre à jour.", "Sucht beim Start von SpoolUp und einmal am Tag auf GitHub nach einer neuen Version. Installiert wird nur, wenn du auf Jetzt aktualisieren klickst." } },
+        { "Looks for a new version on GitHub when SpoolUp starts and once a day. Click Update now to install it.", new[] { "Busca una versión nueva en GitHub al iniciar SpoolUp y una vez al día. Pulsa Actualizar ahora para instalarla.", "Cherche une nouvelle version sur GitHub au démarrage de SpoolUp et une fois par jour. Cliquez sur Mettre à jour pour l'installer.", "Sucht beim Start von SpoolUp und einmal am Tag auf GitHub nach einer neuen Version. Klicke auf Jetzt aktualisieren, um sie zu installieren." } },
         { "Opens the folder with config.json and your own layouts", new[] { "Abre la carpeta con config.json y tus propios diseños", "Ouvre le dossier contenant config.json et vos propres dispositions", "Öffnet den Ordner mit config.json und deinen eigenen Layouts" } },
         { "Report a problem or suggest an idea on GitHub", new[] { "Informa de un problema o propón una idea en GitHub", "Signalez un problème ou proposez une idée sur GitHub", "Melde ein Problem oder schlag eine Idee auf GitHub vor" } },
         { "Pick your network there and set its network profile to Private", new[] { "Elige ahí tu red y pon su perfil de red como privado", "Choisissez votre réseau et réglez son profil réseau sur Privé", "Wähle dort dein Netzwerk und stelle sein Netzwerkprofil auf Privat" } },
@@ -329,7 +329,7 @@ static class Lang
         { "Changing it restarts the server. Tablets then need the new address or QR code.", new[] { "Reinicia el servidor. Las tablets necesitarán la nueva dirección o el QR.", "Redémarre le serveur. Les tablettes devront reprendre l'adresse ou le QR.", "Startet den Server neu. Tablets brauchen dann neue Adresse oder QR-Code." } },
         { "KEYS", new[] { "TECLAS", "TOUCHES", "TASTEN" } },
         { "Only press keys while Star Citizen is in front", new[] { "Pulsar teclas solo con Star Citizen en primer plano", "Seulement si Star Citizen est devant", "Tasten nur drücken, wenn Star Citizen vorne ist" } },
-        { "Keys never reach another window, like a browser or chat, by accident.", new[] { "Las teclas nunca llegan por error a otra ventana, como un navegador o un chat.", "Les touches n'atteignent jamais par erreur une autre fenêtre, comme un navigateur ou un chat.", "Tasten landen nie versehentlich in einem anderen Fenster, etwa einem Browser oder Chat." } },
+        { "Off: keys go to whichever window is in front.", new[] { "Desactivado: las teclas van a la ventana que esté en primer plano.", "Désactivé : les touches vont à la fenêtre au premier plan.", "Aus: Tasten gehen an das Fenster, das gerade vorne ist." } },
         { "Tap length", new[] { "Duración del toque", "Durée d'appui", "Tippdauer" } },
         { "milliseconds a tap holds the key. Raise it if the game misses taps.", new[] { "milisegundos que un toque mantiene la tecla. Súbelo si el juego pierde toques.", "millisecondes de maintien par appui. À augmenter si le jeu rate des appuis.", "Millisekunden, die ein Tippen die Taste hält. Erhöhen, wenn das Spiel Tipps verpasst." } },
         { "Voice language", new[] { "Idioma de voz", "Langue vocale", "Sprache für Befehle" } },
@@ -1434,7 +1434,7 @@ class DeckWindow : Form
             SendToServer("set autoUpdate " + (autoUpdate.On ? "on" : "off"));
             if (autoUpdate.On) CheckForUpdates(false);
         };
-        autoUpdate.Tip = "Looks for a new version on GitHub when SpoolUp starts and once a day. Updates only install when you click Update now.";
+        autoUpdate.Tip = "Looks for a new version on GitHub when SpoolUp starts and once a day. Click Update now to install it.";
         folderLink = hud.Add(HudView.Kind.Link, "Settings folder", delegate { OpenSettingsFolder(); });
         folderLink.Tip = "Opens the folder with config.json and your own layouts";
         checkLink = hud.Add(HudView.Kind.Link, "Check for updates now", delegate { CheckForUpdates(true); });
@@ -3086,7 +3086,7 @@ class SettingsWindow : HudDialog
 
         Panel("KEYS", 16, 252, 396, 154);
         focus = Switch("Only press keys while Star Citizen is in front", GetBool("onlyWhenGameFocused", true), 32, 292, 364);
-        focus.Tip = "Keys never reach another window, like a browser or chat, by accident.";
+        focus.Tip = "Off: keys go to whichever window is in front.";
         Caption("Tap length", 32, 328);
         Field(tap, 32, 346, 88, 32);
         tap.Minimum = 20;

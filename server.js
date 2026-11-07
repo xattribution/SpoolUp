@@ -277,7 +277,7 @@ if (process.argv.includes("--find-game")) {
 // --merge-profile <out.xml> [actionmaps.xml]: write "SpoolUp Keyboard (your binds)" and exit
 // without starting. The app window's "Install keybind profile..." runs this for each copy of
 // the game that has an actionmaps.xml; a copy without one gets the plain profile. Without a
-// path, the actionmaps.xml findActionmaps() finds is used. actionmaps.xml is only read.
+// path, the actionmaps.xml findActionmaps() finds is used.
 //
 // Loading a profile in-game replaces every bind with the profile's, so the merged profile
 // carries the player's whole profile over (keyboard, mouse, joystick and gamepad binds, device
@@ -1710,7 +1710,7 @@ server.on("upgrade", (req, socket) => {
 
 // ---------- battle state from Game.log ----------
 
-// gamelog.js follows the game's own log (read only) for hits on your ship, its damage, your
+// gamelog.js follows the game's own log for hits on your ship, its damage, your
 // death and your kills, and the paired decks show it. Stream Decks don't get it (it isn't
 // in docs/STREAMDECK-API.md). "gameLog": false in config.json turns the reading off.
 // --game-log <file> follows that file instead of the found install's, to try it with a
@@ -1821,7 +1821,7 @@ function checkNetwork() {
 
 // The SpoolUp apps list PCs that answer for _spoolup._tcp on the local network (mDNS).
 // Only real adapters answer: not VPNs or virtual ones, the same ones addresses() ranks
-// last. The records name the PC, its port and version, never the pairing code. The
+// last. The records name the PC, its port and version. The
 // "discovery" setting (on unless false) turns it off; the window's Settings has it.
 let advertiser = null;
 function setDiscovery(on) {

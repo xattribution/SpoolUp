@@ -13,7 +13,7 @@
 
 <p align="center">
   A HUD-style button deck in your tablet's browser, where every button presses real keys on your gaming PC.<br>
-  Free and open source. No app on the tablet, no account.
+  Free and open source. The tablet uses its browser, or the SpoolUp app on Android.
 </p>
 
 <p align="center">
@@ -36,7 +36,7 @@
 **Contents:** [Features](#features) · [Get started](#get-started) ·
 [Troubleshooting](#troubleshooting) · [Using SpoolUp](#using-spoolup) ·
 [Settings](#settings) · [How it works](#how-it-works) ·
-[Safety and privacy](#safety-and-privacy) · [Developers](#developers)
+[Pairing and network](#pairing-and-network) · [Developers](#developers)
 
 ## Features
 
@@ -124,7 +124,7 @@ through SpoolUp and keeps your tablet and Stream Deck on the same scene.
 ## Get started
 
 You need **Windows 10 or 11** on the gaming PC and a **tablet or phone on the
-same Wi-Fi**. Nothing else.
+same Wi-Fi**.
 
 1. **Download** `SpoolUp-Setup-<version>.exe` from the
    [latest release](https://github.com/xattribution/SpoolUp/releases/latest)
@@ -250,8 +250,8 @@ stands still if Windows' "Show animations" is off).
 - **Start with Windows** starts it in the tray when you log in. **Settings
   folder** opens the folder with `config.json` and your own layouts.
 - **Updates:** SpoolUp checks for a new version when it starts and once a
-  day, and shows **What's new** and **Update now**. Nothing installs until you
-  click; your settings are kept. [CHANGELOG.md](CHANGELOG.md) lists every
+  day, and shows **What's new** and **Update now**, which installs it and keeps
+  your settings. [CHANGELOG.md](CHANGELOG.md) lists every
   version's changes.
 
 <br clear="right">
@@ -364,8 +364,8 @@ flying on one screen; on a phone each keeps its main clusters so it fits
 without scrolling.
 
 **Swipes.** Swipe sideways with two fingers to flip panels (the **Two-finger
-swipe** switch under **Display** in Deck settings, on by default). A swipe
-never presses a button: a tap goes when your finger lifts (a hold button, like
+swipe** switch under **Display** in Deck settings, on by default). A tap goes
+when your finger lifts (a hold button, like
 Engage Quantum, waits a moment, 120 ms), and a second finger landing or the
 finger sliding off the button cancels it. A finger already holding a button,
 like hold to talk, keeps working while another presses. The first time, a card
@@ -421,8 +421,7 @@ can place on any panel or dashboard:
   beside the PWR, WEP, THR and SHLD switches, and gives the rest of the panel
   to the quantum spool. The Pilot, Industry and Hauling dashboards start with
   the same group.
-- Like the lit buttons, the clusters show what SpoolUp pressed, never a
-  reading from the game.
+- Like the lit buttons, the clusters show what SpoolUp pressed.
 
 The 2.0 controls:
 
@@ -444,14 +443,13 @@ The 2.0 controls:
   it its own shape: a ring, a hex nut, a V, an octagon, an oval, a flower...
 - **Resize the halves:** **Deck settings → Edit layout** unlocks the seam
   between the two halves. Drag it to make one wider, then **Lock**; **Reset**
-  puts it back. Each tablet keeps its own, and nothing presses while it's
-  unlocked.
+  puts it back. Each tablet keeps its own.
 
 The sliders, fader, lever, dial and clusters work with a keyboard too (arrow
 keys, Enter).
 
 **Emotes.** The Emotes panel holds every Star Citizen emote. Tap one to play
-it. Hold one for half a second to star it (that presses nothing); starred
+it. Hold one for half a second to star it; starred
 emotes collect under ★ Favorites, and the board opens there once you have
 some. Tap + to make a group (say "Greetings"), then **Arrange**: drag emotes
 onto a tab to add them there, drag within Favorites or a group to change the
@@ -478,8 +476,7 @@ DEPLOYED, and the power toggles, lights, VTOL, flight ready, speed limiter, deco
 ESP, G-safety and door locks light up while they're on. Every tablet shows the same,
 voice commands count too, and a press the focus check skips changes nothing.
 
-SpoolUp can't see the game, so the lights only follow what SpoolUp
-pressed. If you use the keyboard, the game changes something by itself, or you
+The lights follow what SpoolUp pressed. If you use the keyboard, the game changes something by itself, or you
 respawn, they can be wrong: **Reset button lights** under **Display** in Deck
 settings turns them all off. They also start off whenever SpoolUp starts.
 
@@ -489,7 +486,7 @@ settings turns them all off. They also start off whenever SpoolUp starts.
 (trading), **Erkul** (loadouts), **SPViewer** or **SCMDB** (missions, crafting
 and mining) to open it in the PC's browser.
 Change the list in **Settings → Links**, one per line as `Name | https://address`.
-The tablet only gets the names and can't make the PC open anything else. The
+The tablet gets the names and the PC opens the matching address. The
 browser comes to the front, so this suits a second monitor best.
 
 ### Layout editor
@@ -529,8 +526,7 @@ deck exactly as the tablet does, but clicking selects instead of pressing:
 Layouts made with SpoolUp 2.0 keep their free placement and open as before;
 **Convert to grid** makes a grid copy of one under a new name.
 
-**Save** stores your own copy (e.g. `my-hud`); the built-in layouts never
-change. With **Use on tablets and phones** ticked, connected tablets and
+**Save** stores your own copy (e.g. `my-hud`) beside the built-in layouts. With **Use on tablets and phones** ticked, connected tablets and
 phones switch to it and reload by themselves. The editor only works on the PC running SpoolUp.
 
 **Share your layout:** **Export** saves the open layout as a `.json` file to
@@ -551,8 +547,7 @@ tablet shows what it heard, or "Didn't catch that".
 side button works well) and hold it to talk instead, or press once to start and
 again to stop. A soft sound plays when it starts and stops listening, and the
 tablet's mic lights up. Pick a key Star Citizen doesn't use, since the key still
-reaches the game. SpoolUp only checks that one key; it doesn't record what
-you type.
+reaches the game.
 
 - Every button answers to its name ("landing gear", "fire laser", "max
   shields"; `+` and `−` are said as "up" and "down", so "shields up").
@@ -615,9 +610,8 @@ Under **Display**:
 - **Key labels** shows the key each button presses in a corner, from your
   keybinds (so a rebind in-game shows there too). Handy for learning the
   binds, or checking one when a button doesn't do what you expect.
-- **Button lights** can be turned off. The deck can't read the game, so lit
-  buttons only follow your taps; if you also use your keyboard or HOTAS, they can
-  drift out of sync. **Reset button lights** clears them while they're on.
+- **Button lights** can be turned off. Lit buttons follow your taps; if you
+  also use your keyboard or HOTAS, they can drift out of sync. **Reset button lights** clears them while they're on.
 
 <p align="center">
   <img src="docs/themes.jpg" alt="The deck in all 12 manufacturer themes" width="100%">
@@ -640,9 +634,9 @@ They're made on the spot from a few tones, not sound files. Change them under
 - **Volume** sets how loud, wherever they play. Each change plays a chirp so you
   can tell.
 
-A tablet can only pick one of the PC's outputs and send it short tones; the PC
-makes the sounds itself and nothing reaches the game. While the tablet isn't
-connected, its sounds play on the tablet.
+The tablet picks one of the PC's outputs and sends it short tones, and the PC
+makes the sounds itself. While the tablet isn't connected, its sounds play on
+the tablet.
 
 ### Languages
 
@@ -691,7 +685,7 @@ Uninstalling keeps them unless you choose to delete them.
 | `actionmaps` | keybind files to read, in order (later files win); `"auto"` is your `actionmaps.xml`, from the running game's channel, else LIVE | `["keybinds/TabletDeck-StarCitizen.xml", "auto"]` |
 | `gameFolders` | the Star Citizen folder to use instead of finding it automatically: a `StarCitizen` folder, the folder holding it, or one channel's folder (`D:\Games\StarCitizen\PTU`); set with Settings → Star Citizen → **Change...** | `[]` (automatic) |
 | `gameLog` | `false` stops reading Star Citizen's Game.log for battle alerts | on |
-| `discovery` | answers the SpoolUp apps on your local network so they can list this PC (mDNS, `_spoolup._tcp`, UDP 5353), with its name, port and version, never the pairing code; `false` turns it off (Settings → Network → Let the SpoolUp app find this PC) | on |
+| `discovery` | answers the SpoolUp apps on your local network so they can list this PC (mDNS, `_spoolup._tcp`, UDP 5353), with its name, port and version; `false` turns it off (Settings → Network → Let the SpoolUp app find this PC) | on |
 | `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
 | `onlyWhenGameFocused` | only press keys while Star Citizen is in front; `false` sends them to whatever window is in front | `true` |
 | `voice` | voice commands on or off | `true` |
@@ -734,19 +728,17 @@ flowchart LR
     style pc fill:transparent,stroke:#4fb3ff,stroke-dasharray:6 4,color:#4fb3ff
 ```
 
-The tablet only shows the buttons; everything else happens on the PC. A press
+The tablet shows the buttons, and the PC does the rest. A press
 travels over your home network to SpoolUp, which checks that Star Citizen is
 the window in front and has the key sender type the button's keys, like a
-second keyboard. One press per tap: no macros or automation, nothing touches the
-game's memory, and the only game files SpoolUp opens are your keybinds and the
-game's log, both read only (plus the keybind profile, when you ask it to
-install one).
+second keyboard, one press per tap. SpoolUp reads your keybinds and the game's
+log from your Star Citizen folder, and copies the keybind profile there when you
+install it.
 
-## Safety and privacy
+## Pairing and network
 
 - Only devices with the pairing code can press keys. After 5 wrong codes in a
-  minute, a device is ignored for a minute, so nothing on the network can keep
-  guessing. Changing the code in **Settings** disconnects every device paired
+  minute, a device is ignored for a minute. Changing the code in **Settings** disconnects every device paired
   with the old one. Keep SpoolUp on your home network; don't expose its port
   to the internet.
 - The tablet talks to the PC over plain `http`, so the connection isn't
@@ -756,8 +748,7 @@ install one).
   blocked on networks Windows marks as public.
 - Held keys are released at once if the tablet disconnects (or after 5 seconds
   if it goes quiet), when Star Citizen loses focus, and after 2 minutes at
-  most, and releasing a held button always goes through, so no key stays
-  stuck.
+  most, and releasing a held button always goes through.
 - Presses don't mix. Buttons tapped at the same moment, from one tablet or
   several, take turns when their keys could combine (Weapons + on F5 pressed
   under Shields −'s LAlt would reach the game as LAlt+F5, Weapons −). And while
@@ -767,12 +758,10 @@ install one).
   tablet checks the other way too: if the PC stops answering, it says
   Reconnecting… instead of looking connected. While connected, it shows the
   round trip to the PC ("Connected · 8 ms").
-- No accounts, ads or tracking. The only internet traffic is the update check
-  (GitHub; you can turn it off) and the theme fonts the tablet loads from Google
-  Fonts. With discovery on, SpoolUp also answers the apps' questions on your
-  local network (multicast DNS, which routers don't forward), with the PC's
-  name, the deck's port and SpoolUp's version, never the pairing code. See
-  [CODE_SIGNING.md](CODE_SIGNING.md#privacy).
+- The app window checks GitHub for updates (Settings can turn this off), and
+  the tablet loads the theme fonts from Google Fonts. With discovery on,
+  SpoolUp answers the apps over multicast DNS with the PC's name, the deck's
+  port and SpoolUp's version.
 - Ideas, problems or a layout to share? **Feedback & ideas** in the window's
   System panel, at the bottom of Deck settings on the tablet, or the
   [issue forms](https://github.com/xattribution/SpoolUp/issues/new/choose).
