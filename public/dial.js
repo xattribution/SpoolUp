@@ -200,7 +200,7 @@
       b.style.setProperty("--rot", `${(c.angle + 90).toFixed(1)}deg`);
       Object.assign(b.style, { left: `${c.x - (g.d * chipW) / 2}px`, top: `${c.y - g.d / 2}px`, width: `${g.d * chipW}px`, height: `${g.d}px` });
       el.appendChild(b);
-      if (roomy) {
+      if (roomy && !b.classList.contains("lbl-off")) { // icons only: no caption either
         const cap = make("span", "dl-cap");
         cap.textContent = tr(o.label);
         cap.setAttribute("aria-hidden", "true");

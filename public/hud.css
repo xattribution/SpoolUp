@@ -588,3 +588,11 @@ html[data-keys][data-large] .hud-key { font-size: 10px; }
 .grid-mode .hud-menu .sheet { max-width: calc(100% - 24px); max-height: calc(100% - 24px); overflow-y: auto; }
 .grid-mode.compact .hud-menu .opts { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); grid-auto-rows: minmax(66px, auto); }
 .grid-mode.compact .hud-menu .s-cell .hud-ico svg { width: 22px; height: 22px; }
+
+/* Icons only (Deck settings' Button labels, or a layout's labels setting): the label goes
+   and the icon grows. The button keeps its name for screen readers and voice, and buttons
+   without an icon never get this class. Controls hide their name only next to an icon. */
+.hud-btn.lbl-off .hud-lbl { display: none; }
+.hud-btn.lbl-off .hud-ico svg { width: 30px; height: 30px; }
+.s-tile.lbl-off .hud-ico svg { width: 28px; height: 28px; }
+.lbl-off .lvl-cap .hud-ico:not(:empty) + .t, .lbl-off .fd-head .hud-ico:not(:empty) + .t, .lbl-off .cl-word { display: none; }

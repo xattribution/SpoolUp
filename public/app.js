@@ -537,6 +537,16 @@
     if (deckCanvas) deckCanvas.render();
   };
 
+  // Button labels: icons and labels, or icons only, kept per device. A layout can set a
+  // panel, cluster or button its own way ("labels" in the layout editor), which wins; a
+  // button without an icon always keeps its label. canvas.js reads "labels".
+  $("labelsPick").value = store.get("labels") === "icons" ? "icons" : "show";
+  $("labelsPick").onchange = (e) => {
+    store.set("labels", e.target.value === "icons" ? "icons" : "");
+    if (deckCanvas) deckCanvas.render();
+  };
+
+
   // Follow Stream Deck scenes: on unless turned off on this device.
   const followScenes = () => store.get("follow-scenes") !== "off";
   $("followBtn").setAttribute("aria-checked", String(followScenes()));

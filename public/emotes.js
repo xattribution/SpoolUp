@@ -205,6 +205,9 @@
         }
         t.setAttribute("aria-label", tr(def.label));
         t.title = `${tr(def.label)} — ${def.keys}`;
+        // Icons only (Deck settings or the layout): every emote has its own picture.
+        const own = def.labels === "show" || def.labels === "hide" ? def.labels : ctx.labels ? ctx.labels() : "show";
+        if (own === "hide") t.classList.add("lbl-off");
         return t;
       };
 

@@ -1408,6 +1408,12 @@
       layout.grid.density = { ...(layout.grid.density || {}), [cls]: v };
       rebuild();
     }));
+    // How a tablet set to icons only would show it (Deck settings' Button labels).
+    bar.append(seg("Labels", [["show", "Shown", "Deck settings: icons and labels"], ["icons", "Icons only", "Deck settings: icons only; the layout's own Labels settings still win"]], store.get("labels") === "icons" ? "icons" : "show", (v) => {
+      store.set("labels", v === "icons" ? "icons" : "");
+      rebuild();
+      renderPreviewBar();
+    }));
     bar.append(make("span", { className: "ed-grow" }));
     bar.append(seg("Drop", [["flow", "Flow", "Things keep their order and fill the rows"], ["pin", "Pin", "Things stay on the cell you drop them on (or hold Shift)"]], pinMode ? "pin" : "flow", (v) => { pinMode = v === "pin"; renderPreviewBar(); }));
     const reflow = make("button", { type: "button", textContent: "Reflow panel", title: "Unpin everything on the panel in focus, so it all flows in order" });
@@ -1480,6 +1486,21 @@
     return (e) => { snapshot(); apply(e.target); redraw(); if (rerenderProps) renderProps(); renderLibrary(); };
   }
 
+  // Labels on the deck: Inherit, Show or Hide (icon only). Kept as "labels" on a panel, an
+  // item (a cluster, control, group or copy) or a button; on the deck the most specific
+  // one wins over the next one out, and the deck's own Button labels setting is the last.
+  const LABEL_HINTS = {
+    panel: "Inherit follows Button labels in each tablet's Deck settings. Clusters and buttons can set their own.",
+    item: "Inherit follows the group it's in, else the panel. Its buttons can set their own.",
+    button: "Inherit follows its cluster or group, else the panel. A button without an icon always shows its label; hidden, it still has its name for screen readers and voice.",
+  };
+  function labelsField(obj, kind) {
+    const sel = make("select");
+    for (const [v, t] of [["", "Inherit"], ["show", "Show"], ["hide", "Hide (icons only)"]]) sel.append(make("option", { value: v, textContent: t, selected: (obj.labels || "") === v }));
+    sel.addEventListener("change", change(() => { if (sel.value) obj.labels = sel.value; else delete obj.labels; }));
+    return field("Labels", sel, LABEL_HINTS[kind]);
+  }
+
   function renderProps() {
     const side = $("props");
     side.innerHTML = "";
@@ -1509,6 +1530,9 @@
     if (at && at.group) side.append(backToGroup(at.group));
 
     side.append(field("Label", textInput(b.label, (v) => { b.label = v; side.querySelector("h2").textContent = v || "(no label)"; })));
+    side.append(field("Short label (optional)", textInput(b.short || "", (v) => { if (v) b.short = v; else delete b.short; }),
+      "Shown on the button instead of its label; the label stays its name for voice and screen readers."));
+    side.append(labelsField(b, "button"));
 
     // Keys: follows the Star Citizen keybind for its action, or its own keys.
     const following = Boolean(b.scAction);
@@ -1775,6 +1799,7 @@
         open.onclick = () => { if (where) showPanel(where.panelId); select(t.id); };
         side.append(open);
       }
+      side.append(labelsField(e, "item"));
       gridProps(side, at);
       return;
     }
@@ -1794,11 +1819,12 @@
       }
       if (!(e.elements || []).length) list.append(make("div", { className: "hint", textContent: "Empty. With the group selected, things from Add go into it." }));
       side.append(field("Inside it", list, "Click a part on the preview, or here, to edit it. While the group is selected, Add puts things in it."));
+      side.append(labelsField(e, "item"));
       gridProps(side, at);
       return;
     }
     const def = Widgets && Widgets.get(e.type);
-    if (isControl(e) && !def) { renderControlProps(side, e); gridProps(side, at); return; }
+    if (isControl(e) && !def) { renderControlProps(side, e); side.append(labelsField(e, "item")); gridProps(side, at); return; }
     if (def && def.hint) side.append(make("div", { className: "hint", textContent: def.hint }));
     if ("label" in e || "title" in e || "text" in e) {
       const k = "label" in e ? "label" : "title" in e ? "title" : "text";
@@ -1814,6 +1840,7 @@
       }
       side.append(field("Its buttons", list, "Open one to change its label, keys, color or voice phrases."));
     }
+    side.append(labelsField(e, "item"));
     gridProps(side, at);
   }
 
@@ -1860,6 +1887,7 @@
     if (p) {
       side.append(make("h2", { textContent: p.title || id }), make("div", { className: "id", textContent: `Panel · id: ${id}` }));
       side.append(field("Title", textInput(p.title, (v) => { p.title = v; side.querySelector("h2").textContent = v || id; renderLibraryLater(); })));
+      side.append(labelsField(p, "panel"));
       const track = make("select");
       for (const [t, title] of TRACKS) track.append(make("option", { value: t, textContent: title, selected: trackOf(id) === t }));
       if (!trackOf(id)) track.prepend(make("option", { value: "", textContent: "Not shown", selected: true }));

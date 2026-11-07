@@ -268,6 +268,12 @@
     "as last sent": ["según el último envío", "selon le dernier envoi", "wie zuletzt gesendet"],
     "Switches": ["Interruptores", "Interrupteurs", "Schalter"],
 
+    // ---------- 2.1 refinements ----------
+    "Button labels": ["Etiquetas de los botones", "Libellés des boutons", "Button-Beschriftungen"],
+    "Icons and labels": ["Iconos y etiquetas", "Icônes et libellés", "Symbole und Beschriftungen"],
+    "Icons only": ["Solo iconos", "Icônes seules", "Nur Symbole"],
+    "Buttons without an icon keep their label. The layout editor can set a panel, cluster or button its own way.": ["Los botones sin icono conservan su etiqueta. El editor de diseños puede ajustar cada panel, grupo o botón por separado.", "Les boutons sans icône gardent leur libellé. L'éditeur de disposition peut régler un panneau, un groupe ou un bouton à part.", "Buttons ohne Symbol behalten ihre Beschriftung. Im Layout-Editor lässt sich ein Panel, eine Gruppe oder ein Button eigens einstellen."],
+
     // ---------- button labels ----------
     "3rd Person": ["3.ª persona", "3e personne", "3. Person"],
     "Accept Invite": ["Aceptar invitación", "Accepter l'invitation", "Einladung annehmen"],

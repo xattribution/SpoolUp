@@ -149,6 +149,16 @@
     const keyText = (keys) => String(keys).split("+")
       .map((k) => KEY_NAMES[k] || k.replace(/^(?:np_|num)(\d)$/, "num$1")).join("+");
 
+    // Button labels: Deck settings' default (labels, or icons only), then a panel's, a
+    // group's or cluster's (a copy's own first), then the button's own "labels" ("show" or
+    // "hide"): the most specific one wins. renderItem and the regions set labelsNow while
+    // they draw. A hidden label stays the button's accessible name, title and voice phrase,
+    // and a button without an icon always keeps its label, so none is ever blank.
+    const deckLabels = () => (D.store && D.store.get && D.store.get("labels") === "icons" ? "hide" : "show");
+    const pickLabels = (v, outer) => (v === "show" || v === "hide" ? v : outer);
+    let labelsNow = "show";
+    const withLabels = (mode, fn) => { const was = labelsNow; labelsNow = mode; try { return fn(); } finally { labelsNow = was; } };
+
     function hudButton(def, style) {
       const el = make("button", `hud-btn s-${style || def.style || "std"}`);
       el.type = "button";
@@ -162,8 +172,9 @@
         el.innerHTML = `<span class="hud-lbl"></span><span class="dial"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><path d="M20 4a16 16 0 0 1 16 16"/></svg></span>`;
         text(el, ".hud-lbl", def.label);
       } else {
+        // "short" is a shorter word for the button's face; its name stays the full label.
         el.innerHTML = `${icon}<span class="hud-lbl"></span>`;
-        text(el, ".hud-lbl", def.label);
+        text(el, ".hud-lbl", def.short || def.label);
       }
       // The top bar's icon buttons are too small for one.
       if (def.keys && s !== "top") {
@@ -174,6 +185,7 @@
       }
       el.setAttribute("aria-label", tr(def.label));
       el.title = `${tr(def.label)} — ${def.keys}`;
+      if (def.icon && s !== "top" && s !== "chev" && pickLabels(def.labels, labelsNow) === "hide") el.classList.add("lbl-off");
       D.bindButton(el, def);
       return el;
     }
@@ -497,8 +509,11 @@
     // the element with its box (x, y, w, h); a ref's copy has the id of what it shows, so
     // its memory and its buttons are the same as the original's.
     function widgetCtx(e) {
+      const labels = labelsNow; // a widget that draws buttons later (a new tab) keeps its own
       return {
-        D, tr, make, text, keyText, hudButton,
+        D, tr, make, text, keyText,
+        hudButton: (def, style) => withLabels(labels, () => hudButton(def, style)),
+        labels: () => labels,
         size: { w: e.w * kx * rkx, h: e.h * ky },
         sizeClass: GRID ? cls : H < 500 ? "small" : "large",
         scale: scaleNow,
@@ -532,6 +547,10 @@
         item = index.get(e.ref);
         if (!item || item.type === "ref") return null;
       }
+      // A copy's own labels setting wins over its original's.
+      return withLabels(pickLabels(e.labels, pickLabels(item.labels, labelsNow)), () => drawItem(e, item, b));
+    }
+    function drawItem(e, item, b) {
       const it = b ? { ...item, x: b.x, y: b.y, w: b.w, h: b.h } : item;
       const def = DW && DW.get(item.type);
       let el = null;
@@ -547,6 +566,9 @@
         if (typeof e.id === "string") el.dataset.item = e.id;
         if (item !== e) el.dataset.ref = item.id;
       }
+      // Controls' and clusters' own words (a level's name, the reticle's corners, the
+      // dial's captions) follow the setting too; plain buttons mark themselves.
+      if (el && !el.classList.contains("hud-btn") && item.type !== "group") el.classList.toggle("lbl-off", labelsNow === "hide");
       return el;
     }
 
@@ -989,10 +1011,12 @@
       const shift = Math.max(0, Math.floor((m.cols - used) / 2));
       const pitchX = cs.cellW + m.gap, pitchY = cs.cellH + m.gap;
       body.classList.toggle("scrolls", cs.scrolls);
-      for (const c of placed.cells) {
-        const node = renderItem(c.item, { x: (c.col + shift) * pitchX, y: c.row * pitchY, w: c.w * cs.cellW + (c.w - 1) * m.gap, h: c.h * cs.cellH + (c.h - 1) * m.gap });
-        if (node) body.appendChild(node);
-      }
+      withLabels(pickLabels(panel.labels, deckLabels()), () => {
+        for (const c of placed.cells) {
+          const node = renderItem(c.item, { x: (c.col + shift) * pitchX, y: c.row * pitchY, w: c.w * cs.cellW + (c.w - 1) * m.gap, h: c.h * cs.cellH + (c.h - 1) * m.gap });
+          if (node) body.appendChild(node);
+        }
+      });
       gridInfo[region.id] = {
         panelId: pid, cols: m.cols, authoredCols: authored, rows: placed.rows, cellW: cs.cellW, cellH: cs.cellH, gap: m.gap,
         x: region.x + shift * pitchX, y: region.y, scrolls: cs.scrolls,
@@ -1190,7 +1214,7 @@
       if (slide && slide.region === region.id) body.classList.add(slide.dir > 0 ? "enter-next" : "enter-prev");
       body.style.height = `${region.h * ky - pagerH - 8}px`;
       rkx = f;
-      try { renderElements(body, panel.elements); } finally { rkx = 1; }
+      try { withLabels(pickLabels(panel.labels, deckLabels()), () => renderElements(body, panel.elements)); } finally { rkx = 1; }
       el.appendChild(body);
 
       const pager = make("div", "hud-pager",
@@ -1214,6 +1238,7 @@
       canvas.innerHTML = "";
       followers.clear();
       recentered = [];
+      labelsNow = deckLabels();
       if (GRID) {
         index = DG.index(layout);
         frameNow = frame();
