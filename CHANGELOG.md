@@ -5,6 +5,80 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/SpoolUp/releases), so add one
 before tagging a release.
 
+## 2.2.0 (2026-11-07)
+
+- **No more stuck keys.** When Star Citizen loses focus (you alt-tab, a
+  window pops up), SpoolUp lets go of every key a hold button is holding and
+  ends a long press early. It also lets go of any hold after 2 minutes. The
+  deck tells you: "Keys released: Star Citizen lost focus" or "Keys released
+  after 2 minutes".
+- **Binds you cleared stay cleared.** A bind you removed in Star Citizen's
+  keybindings no longer presses the game's default key (which may do
+  something else now). Its button shows dimmed with a **BIND** badge, and
+  pressing it says "Not bound in Star Citizen".
+- **Your keybinds are found anywhere.** SpoolUp looks on every drive (C to Z)
+  and in every channel (LIVE, PTU, EPTU, TECH-PREVIEW, HOTFIX). While the game
+  runs it reads that copy's binds, wherever it's installed, and connected
+  decks pick them up; otherwise LIVE's. Folders elsewhere can go in
+  `gameFolders` in `config.json`. Binds the game wrote with the modifier last
+  (`f6+lalt`) are now pressed modifier first, so the game sees LAlt+F6.
+- **Install keybind profile keeps your binds.** For a copy of the game where
+  you've set binds of your own, the app window now builds **SpoolUp Keyboard
+  (your binds)**: every bind you have (keyboard, mouse, joystick, gamepad,
+  device settings and binds you cleared), plus keys only for the deck's
+  actions you haven't bound. Where your binds already use one of the deck's
+  usual keys, it picks a free one that doesn't clash, and the window tells you
+  to reload the deck. A copy without binds of its own still gets the plain
+  SpoolUp Keyboard profile.
+- **Battle alerts.** SpoolUp reads Star Citizen's own Game.log (the text log
+  next to the game, read only) and tells your decks when your ship is under
+  fire and by whom, when it's disabled or destroyed, when you die and when
+  you get a kill. A thin strip at the top of the deck shows it quietly, and
+  the new **Last hits** readout on the Combat panel lists who hit you last,
+  your ship and its state, and your kills this session. It presses nothing.
+  Turn it off on each device with **Battle alerts** in Deck settings, or on
+  the PC with `"gameLog": false` in `config.json`.
+- **25 more buttons, all on Star Citizen 4.10's default keys**, so they work
+  without the SpoolUp profile:
+  - **Combat:** More Missiles and Reset Missiles beside Fewer Missiles in the
+    countermeasures cluster, and Decoy Burst − / + under it.
+  - **Targeting:** a Cycle forward row (Next Attacker, Friendly, Any, In view
+    and Subtarget), Pin Target 1–3 and Unlock Target.
+  - **Scanning:** Radar Ping under the operator-mode dial. It's held like Tab
+    in the game, whose ping is "Hold & Release".
+  - **Salvage:** Focus Left, All or Right head, and Fire Left / Right Head
+    (also on the Vulture panel).
+  - **Mining:** Jettison Cargo, in a red danger frame (also on the
+    Prospector panel).
+  - **Crew/Doors:** Light Amplification (lit while on) and Toggle Port Locks.
+  - **QT/Systems:** Emergency Exit under Eject and Self-D.
+  - **Power/Landing:** Power Throttle − / +.
+  - On tablets, the Combat dashboard adds Radar Ping, the pins and the decoy
+    burst, Industry adds the power throttle and Jettison Cargo, and Hauling
+    adds Light Amp and Port Locks. Every new button has its own icon, voice
+    phrases and Spanish, French and German labels.
+- **SpoolUp for Android.** A new app that finds the SpoolUp PCs on your
+  network by itself, opens the deck full screen, keeps the screen on and
+  gives a haptic tick on every press. It also takes the PC's address or its
+  QR code. It's the same deck, with the same pairing code and focus check.
+  Releases attach `SpoolUp-<version>.apk` once the signing key is set up
+  (see [docs/ANDROID.md](docs/ANDROID.md)).
+- **The apps find your PC.** SpoolUp answers the apps on your local network
+  with the PC's name, the deck's port and SpoolUp's version, never the
+  pairing code, and not on VPN or virtual adapters. Settings → Network → **Let
+  the SpoolUp app find this PC** in the app window turns it off.
+- **An iPhone and iPad app is on the way** (see [docs/IOS.md](docs/IOS.md)):
+  it finds your PC by itself, pairs with the QR code, keeps the screen on and
+  includes an offline demo. The deck is ready for it already: inside either
+  app it plays the device's own haptics, Deck settings gets **Switch PC**
+  (back to the app's list of PCs), and the Keep screen on switch hides
+  because the app keeps the screen on. In a browser nothing changes.
+- For developers: the keybind profile check now compares every action with
+  Star Citizen 4.10's own list of actions and default keys
+  (`data/sc-actions-4.10.json`), so a misspelled action or one in the wrong
+  map stops the build, and `node server.js --dry-run --game-log <file>`
+  follows a sample log for trying battle alerts without the game.
+
 ## 2.1.0 (2026-11-07)
 
 - **One HUD for every screen.** The SpoolUp HUD is now laid out on a grid that

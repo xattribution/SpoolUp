@@ -48,10 +48,10 @@
 Landing, power management, quantum, operator modes, shields, targeting,
 salvage, mining, doors, comms, emotes and more, on a HUD that fits your
 screen: one panel at a time on a phone, two halves on a tablet, and wide
-dashboards. **New in 2.1:** cockpit clusters (shields you shift by sliding
-toward a face, a targeting reticle, lights and doors, countermeasures under a
-flip cover), a new mode dial, emote favorites, swipes that never press a
-button, icons-only buttons and a screen that stays on. In English, Español, Français or Deutsch.
+dashboards. **New in 2.2:** battle alerts from the game's log (hits, who
+fired, your ship's state and your kills), 25 more buttons on the game's
+default keys, no more stuck keys, and an Android app that finds your PC by
+itself. In English, Español, Français or Deutsch.
 
 </td>
 <td width="50%" valign="top">
@@ -79,9 +79,9 @@ everything you can say.
 <td valign="top">
 
 ### ⌨️ Follows your keybinds
-Reads your Star Citizen keybinds, so if you rebind something in-game, the
-button follows. An optional keybind profile covers actions that have no default
-key.
+Reads your Star Citizen keybinds, on any drive and in any channel, so if you
+rebind something in-game, the button follows. An optional keybind profile
+covers actions that have no default key, and keeps the binds you already have.
 
 </td>
 </tr>
@@ -136,7 +136,12 @@ same Wi-Fi**. Nothing else.
 3. **Open SpoolUp** from the Start menu. Its window shows a QR code, an
    address like `http://192.168.1.20:8765` and a pairing code.
 4. **Pair your tablet:** scan the QR code with its camera, or open the address
-   and type the code. Use "Add to Home Screen" for a full-screen app.
+   and type the code. Use "Add to Home Screen" for a full-screen app. On
+   Android you can use the **SpoolUp app** instead (the APK on the release
+   page, when attached): it lists the SpoolUp PCs on your network by itself,
+   takes the QR code or the address, and opens the deck full screen with the
+   screen kept on and a haptic tick on every press. See
+   [docs/ANDROID.md](docs/ANDROID.md).
 5. **Fly.** Click into Star Citizen. Buttons only press keys while the game is
    the window in front; otherwise the tablet shows "Star Citizen not focused"
    and the button flashes red.
@@ -260,12 +265,26 @@ and so on) get keys from the **SpoolUp Keyboard** profile. To install it:
 1. Tick it in Setup, or use **Settings → Install keybind profile...** in the
    window. It finds your LIVE, PTU and other copies of the game, or lets you
    pick the folder.
-2. In-game, open **Options → Keybindings → Control Profiles** and load
-   **SpoolUp Keyboard**. This replaces your current custom binds, so note
-   any you want to keep and set them again afterwards.
+2. In-game, open **Options → Keybindings → Control Profiles** and load the
+   profile the window names:
+   - **SpoolUp Keyboard (your binds)**, for a copy of the game where you've set
+     binds of your own. It keeps all of them (keyboard, mouse, joystick and
+     gamepad) and adds keys only for the deck's actions you haven't bound,
+     picking free keys where yours already use the deck's usual ones. Load it
+     right after installing: if you change binds in the game first, install it
+     again.
+   - **SpoolUp Keyboard**, for a copy with no binds of your own yet. Loading it
+     replaces any custom binds.
 
 SpoolUp also reads your own `actionmaps.xml`, and your binds win: rebind an
-action in-game and its button follows.
+action in-game and its button follows. It looks in every channel (LIVE, PTU,
+EPTU, TECH-PREVIEW, HOTFIX) on every drive; while the game runs it reads that
+copy's binds, wherever it's installed, otherwise LIVE's. A bind you cleared
+in-game leaves its button dimmed with a **BIND** badge: it presses nothing
+until you bind it again (then reconnect the deck, or reload the page).
+
+While you hold a button, SpoolUp lets go of its keys when Star Citizen loses
+focus, and after 2 minutes at most, so no key stays stuck.
 
 <details>
 <summary>Buttons to double-check</summary>
@@ -365,11 +384,13 @@ can place on any panel or dashboard:
 - **Targeting** is a reticle between its buttons: Attacker, Friendly, Any and
   In view, and Previous and Next Hostile at its sides. Tap the reticle's center
   (or swipe right across it) for the next hostile, swipe left for the previous
-  one, and tap the inner ring for sub-targets.
+  one, and tap the inner ring for sub-targets. A Cycle forward row under it has
+  the forward cycles (Next Attacker, Friendly, Any, In view and Subtarget), and
+  a Pins row has Pin Target 1–3 and Unlock Target.
 - **Countermeasures** sit in two groups: defense on top (Decoy and Noise
   either side of Panic Decoys, under a flip cover that the first tap only
-  lifts), weapons below (Launch Missile, then Fewer Missiles and the lead /
-  lag pips).
+  lifts), weapons below (Launch Missile, then Fewer, More and Reset Missiles
+  and the lead / lag pips). Decoy Burst − and + sit under the cluster.
 - **Lights and doors**: Lights, Lock and Unlock, and the doors drawn as two
   leaves that slide apart while they're open. Tap the doors to toggle them, or
   tap Open or Close.
@@ -416,6 +437,17 @@ some. Tap + to make a group (say "Greetings"), then **Arrange**: drag emotes
 onto a tab to add them there, drag within Favorites or a group to change the
 order, and tap × to take one out. Hold a group's tab to rename or delete it.
 Each device keeps its own favorites and groups.
+
+### Battle alerts
+
+While you play, SpoolUp reads Star Citizen's Game.log, the text log the game
+writes next to its install, and shows hits on your ship (and who fired), your
+ship disabled or destroyed, your death and your kills: in a thin strip at the
+top of the deck and in the **Last hits** readout on the Combat panel (add it to
+any panel or dashboard in the layout editor). It's read only, nothing in the
+game is touched, and it presses nothing. The game doesn't log shield or hull
+levels, so SpoolUp can't show those. Turn it off with **Battle alerts** in Deck
+settings (on each device) or with `"gameLog": false` in `config.json`.
 
 ### Lit buttons
 
@@ -635,7 +667,10 @@ Uninstalling keeps them unless you choose to delete them.
 | `token` | the pairing code; delete it to get a new random one | random |
 | `layout` | the layout tablets show unless they pick their own | `layouts/hud.json` |
 | `phoneLayout` | the same for phones | `layouts/hud-phone.json` |
-| `actionmaps` | keybind files to read, in order (later files win) | the SpoolUp profile, then your `actionmaps.xml` |
+| `actionmaps` | keybind files to read, in order (later files win); `"auto"` is your `actionmaps.xml`, from the running game's channel, else LIVE | `["keybinds/TabletDeck-StarCitizen.xml", "auto"]` |
+| `gameFolders` | Star Citizen folders to look in besides the usual ones and the running game's: a `StarCitizen` folder, the folder holding it, or one channel's folder (`D:\Games\StarCitizen\PTU`) | `[]` |
+| `gameLog` | `false` stops reading Star Citizen's Game.log for battle alerts | on |
+| `discovery` | answers the SpoolUp apps on your local network so they can list this PC (mDNS, `_spoolup._tcp`, UDP 5353), with its name, port and version, never the pairing code; `false` turns it off (Settings → Network → Let the SpoolUp app find this PC) | on |
 | `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
 | `onlyWhenGameFocused` | only press keys while Star Citizen is in front; `false` sends them to whatever window is in front | `true` |
 | `voice` | voice commands on or off | `true` |
@@ -681,8 +716,10 @@ flowchart LR
 The tablet only shows the buttons; everything else happens on the PC. A press
 travels over your home network to SpoolUp, which checks that Star Citizen is
 the window in front and has the key sender type the button's keys, like a
-second keyboard. One press per tap: no macros or automation, and nothing touches
-the game's files or memory.
+second keyboard. One press per tap: no macros or automation, nothing touches the
+game's memory, and the only game files SpoolUp opens are your keybinds and the
+game's log, both read only (plus the keybind profile, when you ask it to
+install one).
 
 ## Safety and privacy
 
@@ -697,8 +734,9 @@ the game's files or memory.
   and taps. The firewall rule only allows private networks, so SpoolUp is
   blocked on networks Windows marks as public.
 - Held keys are released at once if the tablet disconnects (or after 5 seconds
-  if it goes quiet), and releasing a held button always goes through, so no key
-  stays stuck.
+  if it goes quiet), when Star Citizen loses focus, and after 2 minutes at
+  most, and releasing a held button always goes through, so no key stays
+  stuck.
 - Presses don't mix. Buttons tapped at the same moment, from one tablet or
   several, take turns when their keys could combine (Weapons + on F5 pressed
   under Shields −'s LAlt would reach the game as LAlt+F5, Weapons −). And while
@@ -710,7 +748,10 @@ the game's files or memory.
   round trip to the PC ("Connected · 8 ms").
 - No accounts, ads or tracking. The only internet traffic is the update check
   (GitHub; you can turn it off) and the theme fonts the tablet loads from Google
-  Fonts. See [CODE_SIGNING.md](CODE_SIGNING.md#privacy).
+  Fonts. With discovery on, SpoolUp also answers the apps' questions on your
+  local network (multicast DNS, which routers don't forward), with the PC's
+  name, the deck's port and SpoolUp's version, never the pairing code. See
+  [CODE_SIGNING.md](CODE_SIGNING.md#privacy).
 - Ideas, problems or a layout to share? **Feedback & ideas** in the window's
   System panel, at the bottom of Deck settings on the tablet, or the
   [issue forms](https://github.com/xattribution/SpoolUp/issues/new/choose).
@@ -724,6 +765,11 @@ Running from source, the test sandbox, editing layouts by hand, building the
 installer, releasing and code signing are in
 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**. Changes per version are in
 [CHANGELOG.md](CHANGELOG.md).
+
+The phone and tablet apps are in `android/` (Kotlin; building, signing and
+Google Play in [docs/ANDROID.md](docs/ANDROID.md)) and `ios/` (SwiftUI,
+generated with XcodeGen on a Mac; building and the App Store in
+[docs/IOS.md](docs/IOS.md)). Both open the same deck the browser gets.
 
 SpoolUp is [MIT licensed](LICENSE); the third-party software it ships is
 listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Contributions and

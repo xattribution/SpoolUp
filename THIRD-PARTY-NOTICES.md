@@ -19,6 +19,23 @@ contain no third-party code. They use parts of Windows (`SendInput`, WinMM's
 `waveOut`, the .NET Framework and its speech recognition), which come with
 Windows and aren't shipped.
 
+### The Android app
+
+The Android app (`android/`, `SpoolUp-<version>.apk`) includes these libraries,
+all under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0):
+[AndroidX](https://developer.android.com/jetpack/androidx) (Core, Activity,
+SplashScreen and CameraX, by Google) and [ZXing](https://github.com/zxing/zxing)
+core (QR code reading, on the device only), plus the
+[Kotlin standard library](https://kotlinlang.org) (Apache 2.0). The iPhone and
+iPad app (`ios/`) uses only Apple's frameworks.
+
+### Star Citizen data
+
+`data/sc-actions-4.10.json` lists Star Citizen 4.10's action names, English
+labels and default keys, as the game's own `defaultProfile.xml` and
+`global.ini` give them; they belong to Cloud Imperium Games. SpoolUp uses them
+only to check and place its own keybinds, and never shows them to players.
+
 ## Used, but not shipped
 
 - **Theme fonts:** Black Ops One, Chakra Petch, Cinzel, Comfortaa, Exo 2,
