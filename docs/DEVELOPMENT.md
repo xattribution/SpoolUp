@@ -185,7 +185,17 @@ profile and the Stream Deck plugin find every button as before:
   keeps its own columns), never stretches them when there are more, places pins
   first and then packs everything else in order, first fit. Rows fill the panel
   between the class's smallest and tallest cell; a panel that needs more scrolls
-  up and down. Each cell becomes an ordinary box, so 2.0's controls work in it.
+  up and down. Height left over under a panel (a phone held upright) goes to
+  the rows that hold clusters alone, so a cluster grows and buttons keep their
+  height. Each cell becomes an ordinary box, so 2.0's controls work in it.
+- **Labels**: `"labels": "show"` or `"hide"` on a panel, an item (a cluster,
+  control, group or ref) or a button overrides Deck settings' Button labels
+  (Icons and labels, or Icons only, per device, kept as `labels` in the
+  deck's storage); the most specific setting wins (button, then the ref, then
+  the item it shows, then the group, then the panel). A hidden label stays
+  the button's `aria-label`, title and voice phrase, and a button without an
+  `icon` always shows its label. Widgets get the setting as `ctx.labels()`;
+  their buttons from `ctx.hudButton` follow it on their own.
 - **`group`**: `{ "type": "group", "id", "label", "title", "style": "plain" |
   "danger", "cols": 6, "span", "elements": [...] }`, a framed sub-panel laid out
   on its own columns by the same rules and scaled to its box, so it keeps its
@@ -211,6 +221,7 @@ window.DeckWidgets.register("shields", {
   label: "Shields", category: "shields", icon: "power-shields",  // for the layout editor's library
   spans: { small: [6, 4], large: [6, 6] }, min: [3, 3], max: [12, 8],
   drag: "xy",                       // "x", "y", "xy" or "": what a drag on it claims
+  grows: true,                      // false for a row of plain buttons: its rows don't stretch tall
   buttons: (e) => [["front", e.faces.front], "..."],  // its parts, for the editor
   render(e, ctx) { return root; },  // the deck positions the root in its cell
 });
@@ -223,11 +234,11 @@ button object, with its own unique `id`, `keys` and `scAction`):
 |---|---|---|
 | `rotary` | `hub`, `options` (each a button with `label`), `label` | tap a chip, or drag on the face and let go; the hub taps `hub`. Its shape comes from the maker's `--dial-shape` |
 | `shields` | `faces: { front, back, left, right, top, bottom }`, `reset`, `power` | slide toward a face: one tap per 36 px (28 on small screens), at most 5 per slide; tap a face, the ship (`reset`) or the ring (`power`) |
-| `targeting` | `next`, `prev`, `corners: { attacker, friendly, any, view }`, `sub` | tap the center or swipe right for `next`, swipe left for `prev` (once per swipe), tap a corner or the inner ring |
-| `hull` | `lights`, `doors: { toggle, open, close }`, `lock: { lock, unlock }` | tap the cone, tap the ramp, pull it down to open or push it up to close (once per drag), tap the padlock |
-| `turrets` | `seats` (a list) | tap a pod |
-| `countermeasures` | `decoy`, `noise`, `panic`, `missile`, `fewer`, `pips` | `panic` sits under a cover: the first tap lifts it and presses nothing |
-| `quantum` | `engage` (a hold button), `ready` | hold Engage; tap Flight Ready |
+| `targeting` | `next`, `prev`, `corners: { attacker, friendly, any, view }`, `sub` | the four cycles and Prev / Next Hostile are buttons around the reticle; tap its center or swipe right across it for `next`, swipe left for `prev` (once per swipe), tap the inner ring for `sub` |
+| `hull` | `lights`, `doors: { toggle, open, close }`, `lock: { lock, unlock }` | tap Lights, Lock or Unlock, tap the drawn doors to toggle them, or tap Open or Close |
+| `turrets` | `seats` (a list) | tap a seat's button (T1, T2, ...) |
+| `countermeasures` | `decoy`, `noise`, `panic`, `missile`, `fewer`, `pips` | `panic` sits under a cover between Decoy and Noise: the first tap lifts it and presses nothing |
+| `quantum` | `engage` (a hold button), optional `ready` | hold Engage; the HUD keeps Flight Ready with the power switches (`qt-boot`) |
 | `mining` | `mode`, `fire`, `laserType`, `up`, `down`, `modules` (a list) | taps; `up` and `down` press as their buttons say |
 | `salvage` | `left`, `right`, `wider`, `narrower` | swipe sideways for modifier left or right; drag up or down for spacing (one tap per 32 px, at most 5); tap a chevron |
 | `switchbank` | `buttons` (a list) | tap a switch |
@@ -268,7 +279,9 @@ Button fields:
 | field | meaning |
 |---|---|
 | `id` | unique name for the button |
-| `label` | text on the button; also its voice phrase |
+| `label` | text on the button; also its voice phrase and its name for screen readers |
+| `short` | optional shorter text for the button's face (`"Flight Ready"`); `label` stays its name and voice phrase |
+| `labels` | `"show"` or `"hide"`: this button's label regardless of Deck settings (see Labels above) |
 | `keys` | Star Citizen key names joined with `+`: `r`, `lalt+n`, `np_1`, `f5`, `ralt+y` |
 | `mode` | `tap` (quick press), `hold` (held while your finger is down), `timed` (held for `ms`) |
 | `color` | `green`, `amber`, `red`, `blue` or blank (uses the theme's accent) |

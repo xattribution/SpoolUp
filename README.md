@@ -50,8 +50,8 @@ salvage, mining, doors, comms, emotes and more, on a HUD that fits your
 screen: one panel at a time on a phone, two halves on a tablet, and wide
 dashboards. **New in 2.1:** cockpit clusters (shields you shift by sliding
 toward a face, a targeting reticle, lights and doors, countermeasures under a
-flip cover), a new mode dial, emote favorites, and swipes that never press a
-button. In English, Español, Français or Deutsch.
+flip cover), a new mode dial, emote favorites, swipes that never press a
+button, icons-only buttons and a screen that stays on. In English, Español, Français or Deutsch.
 
 </td>
 <td width="50%" valign="top">
@@ -362,17 +362,24 @@ can place on any panel or dashboard:
   side view for top and bottom, and an outer ring. Slide a finger toward a face
   to shift strength there (one tap per step, at most five per slide), tap a
   face for one step, tap the ship to reset and tap the ring for Shields On/Off.
-- **Targeting** is a reticle: tap the center (or swipe right across it) for
-  the next hostile, swipe left for the previous one, tap a corner for
-  attackers, friendlies, anything or what's in view, and the inner ring for
-  sub-targets.
-- **Lights and doors** are the ship from the side: tap the headlight cone for
-  Lights, tap the ramp to toggle the doors, pull it down to open or push it up
-  to close, and tap the padlock to lock or unlock.
-- **Turrets** are numbered pods; **countermeasures** keep Panic Decoys under a
-  flip cover that the first tap only lifts; the **quantum spool** fills while
-  you hold Engage; the **mining** and **salvage heads** and the **switch
-  banks** gather their buttons the same way.
+- **Targeting** is a reticle between its buttons: Attacker, Friendly, Any and
+  In view, and Previous and Next Hostile at its sides. Tap the reticle's center
+  (or swipe right across it) for the next hostile, swipe left for the previous
+  one, and tap the inner ring for sub-targets.
+- **Countermeasures** sit in two groups: defense on top (Decoy and Noise
+  either side of Panic Decoys, under a flip cover that the first tap only
+  lifts), weapons below (Launch Missile, then Fewer Missiles and the lead /
+  lag pips).
+- **Lights and doors**: Lights, Lock and Unlock, and the doors drawn as two
+  leaves that slide apart while they're open. Tap the doors to toggle them, or
+  tap Open or Close.
+- **Turrets** are plain T1, T2 and T3 buttons with the turret icon; the
+  **quantum spool** fills while you hold Engage; the **mining** and **salvage
+  heads** and the **switch banks** gather their buttons the same way.
+- **QT/Systems** starts with what you press once at start-up, Flight Ready
+  beside the PWR, WEP, THR and SHLD switches, and gives the rest of the panel
+  to the quantum spool. The Pilot, Industry and Hauling dashboards start with
+  the same group.
 - Like the lit buttons, the clusters show what SpoolUp pressed, never a
   reading from the game.
 
@@ -447,7 +454,8 @@ deck exactly as the tablet does, but clicking selects instead of pressing:
   out of the way), or hold **Shift** (or pick **Pin**) to pin it to a cell.
   Drag its yellow corner to resize it by whole cells. Arrow keys move it.
 - **Check every screen** at the top: **Small** or **Large** screen (or **Fit
-  window**), **Two halves** or **One panel**, and the button size.
+  window**), **Two halves** or **One panel**, the button size, and labels
+  **Shown** or **Icons only** (as a tablet set to icons only sees it).
 - **Add** (on the left) lists new buttons, groups and headers, and every
   cluster and button already in the layout, by category. Click one to add it
   to the panel you're on, or drag it onto a cell. A cluster added again is a
@@ -455,8 +463,10 @@ deck exactly as the tablet does, but clicking selects instead of pressing:
 - **Panels** (on the left) adds, renames, reorders and deletes panels, sets
   which half they show in and the **primary panel** a swipe can jump to, and
   builds dashboards from presets (Pilot, Gunner, Miner, Salvager, Hauler).
-- On the right, change the selected button's **label, keys, how it presses,
-  color, icon, press animation and voice phrases**. Keys are picked from a
+- On the right, change the selected button's **label** (and an optional
+  **short label** for its face), **keys, how it presses, color, icon, press
+  animation and voice phrases**. **Labels: Inherit / Show / Hide** on a panel,
+  cluster or button overrides each tablet's Button labels setting. Keys are picked from a
   list, so they're always valid, and it warns when another button uses the same
   keys or phrases. A cluster lists its buttons; open one to change it.
 - Buttons tied to a Star Citizen keybind follow your in-game binds; untick
@@ -536,6 +546,19 @@ Under **Display**:
 - **Large text** makes labels bigger and bolder, easier to read at a glance.
 - **High contrast** turns any theme black and white with strong colors, plain
   fonts and no glows.
+- **Keep screen on** (on by default) stops the tablet dimming or locking
+  while the deck is open; a locked tablet drops the connection. The line under
+  it says how: the browser's wake lock, or a silent hidden video where the
+  browser has no wake lock (plain http on your network). If neither works it
+  says so, with the setting to change on that device: on an iPad or iPhone,
+  **Settings → Display & Brightness → Auto-Lock → Never**, or Guided Access;
+  on Android, a longer screen timeout, or **Stay awake** while charging in
+  Developer options.
+- **Button labels**: **Icons and labels**, or **Icons only** for a calmer
+  deck. Buttons without an icon keep their label, and a hidden label is still
+  the button's name for screen readers and its voice phrase. The layout
+  editor can set any panel, cluster or button to show or hide its labels
+  regardless (**Labels: Inherit / Show / Hide**); the most specific one wins.
 - **Key labels** shows the key each button presses in a corner, from your
   keybinds (so a rebind in-game shows there too). Handy for learning the
   binds, or checking one when a button doesn't do what you expect.

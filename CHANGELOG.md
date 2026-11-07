@@ -41,16 +41,26 @@ before tagging a release.
     and an outer ring for power. Slide a finger toward a face to shift
     strength there (one tap per step, at most 5 per slide), tap a face for one
     step, tap the ship to reset and tap the ring for Shields On/Off.
-  - **Targeting** is a reticle: tap the center (or swipe right across it) for
-    the next hostile, swipe left for the previous one, tap a corner for
-    attackers, friendlies, anything or what's in view, and the inner ring for
-    sub-targets.
-  - **Lights and doors** are the ship from the side: tap the headlight cone
-    for Lights, tap the ramp to toggle the doors, pull it down to open or push
-    it up to close, and tap the padlock to lock or unlock. Lights now sits
-    with the doors, on the Stream Deck too.
-  - **Countermeasures** keeps Panic Decoys under a flip cover: the first tap
-    only lifts it, and it drops again after 4 seconds.
+  - **Targeting** is a reticle between its buttons: Attacker, Friendly, Any
+    and In view, with Previous and Next Hostile at its sides, each with room
+    for its icon and word. Tap the reticle's center (or swipe right across
+    it) for the next hostile, swipe left for the previous one, and tap the
+    inner ring for sub-targets.
+  - **Countermeasures** is one tight weapons and defense block: Decoy and
+    Noise either side of Panic Decoys on top, Launch Missile below, then
+    Fewer Missiles and the lead / lag pips, each with its own icon. Panic
+    Decoys stays under a flip cover: the first tap only lifts it, and it drops
+    again after 4 seconds.
+  - **Lights and doors**: Lights, Lock and Unlock, and the doors drawn as two
+    leaves that slide apart while they're open. Tap the doors to toggle them,
+    or tap Open or Close. Lights now sits with the doors, on the Stream Deck
+    too.
+  - **Turrets** are plain T1, T2 and T3 buttons with the turret icon.
+  - **QT/Systems** puts Flight Ready, a normal-size button now, beside the
+    PWR, WEP, THR and SHLD switches, the things you press once at start-up,
+    and gives the rest of the panel to the quantum spool. The Pilot, Industry
+    and Hauling dashboards start with the same group, and every panel and
+    dashboard keeps together what's used together.
   - The arcs, gauges and lamps show the taps SpoolUp sent, never a reading
     from the game.
 - **A new mode dial.** The operator-mode dial has round mode chips on a clean,
@@ -92,6 +102,19 @@ before tagging a release.
   [Elgato Marketplace](https://marketplace.elgato.com), and the free Stream
   Deck downloads stop with 2.1. Stream Deck downloads from earlier releases
   keep working with SpoolUp 2.1.
+- **Icons only.** Deck settings → **Button labels** picks Icons and labels, or
+  Icons only, on each device. In the layout editor any panel, cluster or
+  button can show or hide its labels regardless (Inherit / Show / Hide); the
+  most specific one wins. Buttons without an icon keep their label, buttons
+  that share an icon keep a number or their words, and a hidden label is still
+  the button's name for screen readers and its voice phrase. A button can also
+  have a **short label** for its face.
+- **Keep screen on.** Deck settings has a **Keep screen on** switch (on by
+  default), with a line saying how it's kept on (the browser's wake lock, or a
+  silent video) and, where neither works, what to set on an iPad, iPhone or
+  Android device. The deck asks again when the system drops the wake lock,
+  plays the video again when the system pauses it, and starts at the first
+  touch.
 - "Centre sliders" is now "Center sliders", and SpoolUp uses American
   spelling throughout.
 - What each button presses hasn't changed, and every press still goes
