@@ -291,7 +291,7 @@ static class Lang
         // ---- Install keybind profile window ----
         { "Install keybind profile", new[] { "Instalar perfil de teclas", "Installer le profil de touches", "Tastenprofil installieren" } },
         { "STAR CITIZEN COPIES", new[] { "COPIAS DE STAR CITIZEN", "COPIES DE STAR CITIZEN", "STAR-CITIZEN-KOPIEN" } },
-        { "Copies the SpoolUp Keyboard profile into Star Citizen, so buttons for actions with no default key work. Tick the copies of the game to install it into.", new[] { "Copia el perfil SpoolUp Keyboard en Star Citizen, para que funcionen los botones de acciones sin tecla por defecto. Marca las copias del juego donde instalarlo.", "Copie le profil SpoolUp Keyboard dans Star Citizen, pour que les boutons des actions sans touche par défaut fonctionnent. Cochez les copies du jeu où l'installer.", "Kopiert das Profil SpoolUp Keyboard in Star Citizen, damit Tasten für Aktionen ohne Standardbelegung funktionieren. Hake die Spielkopien an, in die es soll." } },
+        { "Copies the SpoolUp Keyboard profile into Star Citizen, so buttons for actions with no default key work. A copy of the game with binds of your own gets \"SpoolUp Keyboard (your binds)\" instead: all of your binds, plus keys only for the deck's actions you haven't bound. Tick the copies to install it into.", new[] { "Copia el perfil SpoolUp Keyboard en Star Citizen, para que funcionen los botones de acciones sin tecla por defecto. Una copia del juego con asignaciones propias recibe \"SpoolUp Keyboard (your binds)\": todas tus asignaciones, más teclas solo para las acciones del panel que no tengas asignadas. Marca las copias donde instalarlo.", "Copie le profil SpoolUp Keyboard dans Star Citizen, pour que les boutons des actions sans touche par défaut fonctionnent. Une copie du jeu avec vos propres raccourcis reçoit plutôt \"SpoolUp Keyboard (your binds)\" : tous vos raccourcis, plus des touches seulement pour les actions du panneau que vous n'avez pas attribuées. Cochez les copies où l'installer.", "Kopiert das Profil SpoolUp Keyboard in Star Citizen, damit Tasten für Aktionen ohne Standardbelegung funktionieren. Eine Spielkopie mit eigenen Belegungen bekommt stattdessen \"SpoolUp Keyboard (your binds)\": alle deine Belegungen, dazu Tasten nur für die Deck-Aktionen, die du nicht belegt hast. Hake die Kopien an, in die es soll." } },
         { "Choose game folder...", new[] { "Elegir carpeta del juego...", "Choisir le dossier du jeu...", "Spielordner wählen..." } },
         { "STATUS", new[] { "ESTADO", "ÉTAT", "STATUS" } },
         { "Install", new[] { "Instalar", "Installer", "Installieren" } },
@@ -302,6 +302,13 @@ static class Lang
         { "not installed", new[] { "no instalado", "non installé", "nicht installiert" } },
         { "already up to date", new[] { "ya actualizado", "déjà à jour", "bereits aktuell" } },
         { "older copy, will be replaced", new[] { "copia antigua, se reemplazará", "ancienne copie, sera remplacée", "ältere Kopie, wird ersetzt" } },
+        { "your binds found, gets SpoolUp Keyboard (your binds)", new[] { "tus asignaciones encontradas, recibe SpoolUp Keyboard (your binds)", "vos raccourcis trouvés, reçoit SpoolUp Keyboard (your binds)", "eigene Belegungen gefunden, bekommt SpoolUp Keyboard (your binds)" } },
+        { "{0} ({1} keys added)", new[] { "{0} ({1} teclas añadidas)", "{0} ({1} touches ajoutées)", "{0} ({1} Tasten hinzugefügt)" } },
+        { "{0} (1 key added)", new[] { "{0} (1 tecla añadida)", "{0} (1 touche ajoutée)", "{0} (1 Taste hinzugefügt)" } },
+        { "exit code {0}", new[] { "código de salida {0}", "code de sortie {0}", "Exit-Code {0}" } },
+        { "Made \"SpoolUp Keyboard (your binds)\" for {0}. ", new[] { "Creado \"SpoolUp Keyboard (your binds)\" para {0}. ", "\"SpoolUp Keyboard (your binds)\" créé pour {0}. ", "\"SpoolUp Keyboard (your binds)\" erstellt für {0}. " } },
+        { "Now, in Star Citizen: Options > Keybindings > Control Profiles, load it. If you change binds in the game before that, install again first. ", new[] { "Ahora, en Star Citizen: Opciones > Asignación de teclas > Perfiles de control, cárgalo. Si antes cambias asignaciones en el juego, vuelve a instalarlo primero. ", "Ensuite, dans Star Citizen : Options > Raccourcis > Profils de contrôle, chargez-le. Si vous changez des raccourcis dans le jeu avant, réinstallez-le d'abord. ", "Jetzt in Star Citizen: Optionen > Tastenbelegung > Steuerungsprofile, das Profil laden. Änderst du vorher Belegungen im Spiel, installiere es zuerst neu. " } },
+        { "Your binds use some of the deck's usual keys, so free ones were picked: reload the deck on the tablet after loading the profile. ", new[] { "Tus asignaciones usan algunas teclas habituales del panel, así que se eligieron otras libres: recarga el panel en la tablet tras cargar el perfil. ", "Vos raccourcis utilisent certaines touches habituelles du panneau, d'autres touches libres ont donc été choisies : rechargez le panneau sur la tablette après avoir chargé le profil. ", "Deine Belegungen nutzen einige übliche Deck-Tasten, daher wurden freie gewählt: Lade das Deck auf dem Tablet neu, nachdem du das Profil geladen hast. " } },
         { "Pick the StarCitizen folder (the one with LIVE in it).", new[] { "Elige la carpeta StarCitizen (la que contiene LIVE).", "Choisissez le dossier StarCitizen (celui qui contient LIVE).", "Wähle den Ordner StarCitizen (der mit LIVE darin)." } },
         { "That folder doesn't look like Star Citizen. Pick the StarCitizen folder, the one with LIVE in it.", new[] { "Esa carpeta no parece de Star Citizen. Elige la carpeta StarCitizen, la que contiene LIVE.", "Ce dossier ne ressemble pas à Star Citizen. Choisissez le dossier StarCitizen, celui qui contient LIVE.", "Dieser Ordner sieht nicht nach Star Citizen aus. Wähle den Ordner StarCitizen, den mit LIVE darin." } },
         { "Added. Tick the copies of the game to install the profile into, then click Install.", new[] { "Añadido. Marca las copias del juego donde instalar el perfil y pulsa Instalar.", "Ajouté. Cochez les copies du jeu où installer le profil, puis cliquez sur Installer.", "Hinzugefügt. Hake die Spielkopien an, in die das Profil soll, und klicke auf Installieren." } },
@@ -2599,41 +2606,48 @@ class VoiceCommandsWindow : HudDialog
     }
 }
 
-// Copies the SpoolUp Keyboard profile (keybinds\TabletDeck-StarCitizen.xml in the
-// install folder) into Star Citizen's Controls\Mappings folder, for each copy of the game
-// (LIVE, PTU and so on) the player ticks. Found by searching the drives, or picked by hand.
+// Installs the SpoolUp Keyboard profile into Star Citizen's Controls\Mappings folder, for each
+// copy of the game (LIVE, PTU and so on) the player ticks. Found by searching the drives, or
+// picked by hand. A copy with the player's own actionmaps.xml gets "SpoolUp Keyboard (your
+// binds)" instead, which TabletDeckServer.exe --merge-profile builds from it: every bind the
+// player has, plus keys only for the deck's actions they haven't bound. A copy without one
+// gets the plain profile (keybinds\TabletDeck-StarCitizen.xml in the install folder).
 class KeybindProfileWindow : HudDialog
 {
     static readonly string[] Channels = { "LIVE", "PTU", "EPTU", "HOTFIX", "TECH-PREVIEW" };
     const string ProfileName = "TabletDeck-StarCitizen.xml";
+    const string MergedName = "SpoolUp-YourBinds.xml";
 
     readonly string profile;
+    readonly string server; // TabletDeckServer.exe, which builds the merged profile
     readonly List<string> games = new List<string>(); // ...\StarCitizen\<channel>, same order as list
     readonly CheckedListBox list = new CheckedListBox();
     readonly Note status;
 
-    public KeybindProfileWindow(string profile, Icon icon) : base("Install keybind profile", icon, 560, 504)
+    public KeybindProfileWindow(string profile, Icon icon) : base("Install keybind profile", icon, 560, 644)
     {
         this.profile = profile;
+        server = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(profile)), "TabletDeckServer.exe");
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
 
-        Panel("STAR CITIZEN COPIES", 16, 16, 528, 276);
+        Panel("STAR CITIZEN COPIES", 16, 16, 528, 320);
         var intro = Hint("Copies the SpoolUp Keyboard profile into Star Citizen, so buttons for actions with no default key work. " +
-            "Tick the copies of the game to install it into.", 32, 56, 496, 54);
+            "A copy of the game with binds of your own gets \"SpoolUp Keyboard (your binds)\" instead: all of your binds, plus keys only for the deck's actions you haven't bound. " +
+            "Tick the copies to install it into.", 32, 56, 496, 98);
         intro.Color = Hud.Ink;
-        Field(list, 32, 116, 496, 120);
+        Field(list, 32, 160, 496, 120);
         list.CheckOnClick = true;
         list.HorizontalScrollbar = true;
         list.Font = new Font("Segoe UI", 10f);
-        Button("Choose game folder...", 32, 248, 220, delegate { ChooseFolder(); });
+        Button("Choose game folder...", 32, 292, 220, delegate { ChooseFolder(); });
 
-        Panel("STATUS", 16, 304, 528, 140);
-        status = Hint("", 32, 344, 496, 90);
+        Panel("STATUS", 16, 348, 528, 236);
+        status = Hint("", 32, 388, 496, 188);
 
-        var install = Primary("Install", 336, 456, 100, delegate { Install(); });
-        Button("Close", 444, 456, 100, delegate { Close(); });
+        var install = Primary("Install", 336, 596, 100, delegate { Install(); });
+        Button("Close", 444, 596, 100, delegate { Close(); });
         Accept = delegate { if (install.Enabled) Install(); };
         Cancel = Close;
         ResumeLayout(false);
@@ -2691,19 +2705,31 @@ class KeybindProfileWindow : HudDialog
         catch (Exception) { return new string[0]; } // no access, e.g. system folders
     }
 
-    static string Target(string game)
+    static string Target(string game, string name)
     {
-        return Path.Combine(game, "user", "client", "0", "Controls", "Mappings", ProfileName);
+        return Path.Combine(game, "user", "client", "0", "Controls", "Mappings", name);
     }
 
-    // Adds a game copy to the list, ticked unless it already has this exact profile.
+    // The player's own binds for this copy of the game, which the game writes as they rebind.
+    static string Actionmaps(string game)
+    {
+        return Path.Combine(game, "user", "client", "0", "Profiles", "default", "actionmaps.xml");
+    }
+
+    bool CanMerge(string game)
+    {
+        return File.Exists(Actionmaps(game)) && File.Exists(server);
+    }
+
+    // Adds a game copy to the list, ticked unless it already has this exact plain profile.
     void AddGame(string game)
     {
         foreach (var g in games) if (string.Equals(g, game, StringComparison.OrdinalIgnoreCase)) return;
         string state;
         bool tick;
-        string target = Target(game);
-        if (!File.Exists(target)) { state = "not installed"; tick = true; }
+        string target = Target(game, ProfileName);
+        if (CanMerge(game)) { state = "your binds found, gets SpoolUp Keyboard (your binds)"; tick = true; }
+        else if (!File.Exists(target)) { state = "not installed"; tick = true; }
         else if (SameFile(target, profile)) { state = "already up to date"; tick = false; }
         else { state = "older copy, will be replaced"; tick = true; }
         games.Add(game);
@@ -2738,39 +2764,101 @@ class KeybindProfileWindow : HudDialog
         }
     }
 
+    // Runs TabletDeckServer.exe --merge-profile for one copy. Returns its exit code (0 built,
+    // 3 no actionmaps.xml after all) and sets added / moved from its first line, "added N moved M",
+    // and error to what it printed on failure.
+    int Merge(string game, out int added, out int moved, out string error)
+    {
+        added = 0;
+        moved = 0;
+        error = "";
+        var psi = new ProcessStartInfo(server, "--merge-profile \"" + Target(game, MergedName) + "\" \"" + Actionmaps(game) + "\"")
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+        };
+        using (var proc = Process.Start(psi))
+        {
+            var errors = new StringBuilder();
+            proc.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs e) { if (e.Data != null) lock (errors) errors.AppendLine(e.Data); };
+            proc.BeginErrorReadLine();
+            string output = proc.StandardOutput.ReadToEnd();
+            proc.WaitForExit(); // also waits for the error lines
+            lock (errors) error = errors.ToString().Trim();
+            var first = output.Split('\n')[0].Trim().Split(' ');
+            if (first.Length >= 4 && first[0] == "added")
+            {
+                int.TryParse(first[1], out added);
+                int.TryParse(first[3], out moved);
+            }
+            return proc.ExitCode;
+        }
+    }
+
     void Install()
     {
-        var done = new List<string>();
+        var plain = new List<string>();
+        var merged = new List<string>();
         var failed = new List<string>();
+        int movedTotal = 0;
         for (int i = 0; i < games.Count; i++)
         {
             if (!list.GetItemChecked(i)) continue;
+            string name = Path.GetFileName(games[i]);
             try
             {
-                string target = Target(games[i]);
+                if (CanMerge(games[i]))
+                {
+                    int added, moved;
+                    string error;
+                    int code = Merge(games[i], out added, out moved, out error);
+                    if (code == 0)
+                    {
+                        merged.Add(Lang.F(added == 1 ? "{0} (1 key added)" : "{0} ({1} keys added)", name, added));
+                        movedTotal += moved;
+                        continue;
+                    }
+                    if (code != 3) // 3: no actionmaps.xml after all, so the plain profile below
+                    {
+                        failed.Add(name + ": " + (error != "" ? error : Lang.F("exit code {0}", code)));
+                        continue;
+                    }
+                }
+                string target = Target(games[i], ProfileName);
                 Directory.CreateDirectory(Path.GetDirectoryName(target));
                 File.Copy(profile, target, true);
-                done.Add(Path.GetFileName(games[i]));
+                plain.Add(name);
             }
             catch (Exception ex)
             {
-                failed.Add(Path.GetFileName(games[i]) + ": " + ex.Message);
+                failed.Add(name + ": " + ex.Message);
             }
         }
-        if (done.Count == 0 && failed.Count == 0)
+        if (plain.Count == 0 && merged.Count == 0 && failed.Count == 0)
         {
             ShowStatus(Lang.T("Nothing ticked. Tick the copies of the game to install the profile into."), Hud.Warn);
             return;
         }
         var text = new StringBuilder();
-        if (done.Count > 0)
+        if (merged.Count > 0)
         {
-            text.Append(Lang.F("Installed into {0}. ", string.Join(", ", done.ToArray())));
+            text.Append(Lang.F("Made \"SpoolUp Keyboard (your binds)\" for {0}. ", string.Join(", ", merged.ToArray())));
+            text.Append(Lang.T("Now, in Star Citizen: Options > Keybindings > Control Profiles, load it. If you change binds in the game before that, install again first. "));
+            if (movedTotal > 0)
+                text.Append(Lang.T("Your binds use some of the deck's usual keys, so free ones were picked: reload the deck on the tablet after loading the profile. "));
+        }
+        if (plain.Count > 0)
+        {
+            text.Append((text.Length > 0 ? "\n\n" : "") + Lang.F("Installed into {0}. ", string.Join(", ", plain.ToArray())));
             text.Append(Lang.T("Now, in Star Citizen: Options > Keybindings > Control Profiles, load \"SpoolUp Keyboard\". "));
             text.Append(Lang.T("This replaces your current custom binds, so note any you want to keep and set them again afterwards."));
         }
         if (failed.Count > 0)
-            text.Append((done.Count > 0 ? "\n\n" : "") + Lang.F("Couldn't copy into {0}. Try running SpoolUp as administrator, or copy {1} by hand.",
+            text.Append((text.Length > 0 ? "\n\n" : "") + Lang.F("Couldn't copy into {0}. Try running SpoolUp as administrator, or copy {1} by hand.",
                 string.Join("; ", failed.ToArray()), profile));
         ShowStatus(text.ToString(), failed.Count > 0 ? Hud.Warn : Hud.Good);
         // Refresh the states shown in the list.

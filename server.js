@@ -242,6 +242,246 @@ if (setArg > -1) {
   process.exit(ok ? 0 : 1);
 }
 
+// ---------- merged keybind profile (--merge-profile) ----------
+
+// --merge-profile <out.xml> [actionmaps.xml]: write "SpoolUp Keyboard (your binds)" and exit
+// without starting. The app window's "Install keybind profile..." runs this for each copy of
+// the game that has an actionmaps.xml; a copy without one gets the plain profile. Without a
+// path, the actionmaps.xml findActionmaps() finds is used. actionmaps.xml is only read.
+//
+// Loading a profile in-game replaces every bind with the profile's, so the merged profile
+// carries the player's whole profile over (keyboard, mouse, joystick and gamepad binds, device
+// options, binds they cleared on purpose) and only adds keyboard binds: one for each action in
+// SpoolUp's profile that the player has no keyboard bind for in that map. A new bind keeps
+// SpoolUp's key when nothing active at the same time uses it (the player's binds and the
+// game's defaults, by data/sc-contexts.json), else it takes the first free right-hand combo.
+const MERGED_PROFILE_NAME = "SpoolUp Keyboard (your binds)";
+
+// Free combos for the merged profile, in the order they're handed out: right-hand modifiers,
+// which the game leaves almost unused, on ordinary keys. F4 is left out (Alt+F4 closes windows).
+function mergeComboPool() {
+  const mods = ["rctrl", "ralt", "rctrl+rshift", "ralt+rshift", "ralt+rctrl", "ralt+rctrl+rshift"];
+  const keys = [..."abcdefghijklmnopqrstuvwxyz0123456789"];
+  for (let i = 0; i <= 9; i++) keys.push(`np_${i}`);
+  for (let i = 1; i <= 12; i++) if (i !== 4) keys.push(`f${i}`);
+  keys.push("comma", "period", "slash", "semicolon", "apostrophe", "lbracket", "rbracket", "backslash", "minus", "equals",
+    "insert", "home", "pgup", "delete", "end", "pgdn", "np_add", "np_subtract", "np_multiply", "np_divide", "np_period",
+    "up", "down", "left", "right");
+  return mods.flatMap((m) => keys.map((k) => `${m}+${k}`));
+}
+
+// Modifier order doesn't matter to the game: lalt+n == n+lalt.
+const mergeCombo = (keys) => keys.trim().toLowerCase().split("+").sort().join("+");
+// A key combination, not a mouse button, wheel or axis.
+const mergeIsKeyboard = (keys) => Boolean(keys && keys.trim()) && !/(^|\+)(mouse|mwheel|maxis|hmd)/i.test(keys);
+
+function mergeAttrs(tag) {
+  const attrs = {};
+  for (const m of tag.matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)) attrs[m[1]] = m[2];
+  return attrs;
+}
+
+// Every bind in an actionmaps.xml body or a profile: [{ map, action, input }], any device.
+function mergeReadBinds(xml) {
+  const out = [];
+  let map = "";
+  let action = "";
+  for (const m of xml.matchAll(/<(\/?)(actionmap|action|rebind|addbind)\b([^>]*?)\/?>/g)) {
+    const [whole, close, tag, rest] = m;
+    const empty = whole.endsWith("/>");
+    if (tag === "actionmap") map = close || empty ? "" : mergeAttrs(rest).name || "";
+    else if (tag === "action") action = close || empty ? "" : mergeAttrs(rest).name || "";
+    else if (!close && map && action && mergeAttrs(rest).input !== undefined) out.push({ map, action, input: mergeAttrs(rest).input });
+  }
+  return out;
+}
+
+// What goes inside the merged profile's ActionMaps element: the player's default profile from
+// actionmaps.xml (or an exported profile's content), and the devices its options name. Null
+// when the file isn't a Star Citizen profile.
+function mergeProfileBody(current) {
+  const src = current.replace(/^﻿/, "").replace(/^\s*<\?xml[^>]*\?>/, "");
+  let body = null;
+  const profiles = [...src.matchAll(/<ActionProfiles\b([^>]*?)(?:\/>|>([\s\S]*?)<\/ActionProfiles>)/g)];
+  if (profiles.length) {
+    const pick = profiles.find((p) => mergeAttrs(p[1]).profileName === "default") || profiles[0];
+    body = pick[2] || "";
+  } else {
+    const open = /<ActionMaps\b[^>]*>/.exec(src);
+    if (open) {
+      body = src.slice(open.index + open[0].length);
+      const end = body.lastIndexOf("</ActionMaps>");
+      if (end >= 0) body = body.slice(0, end);
+      body = body.replace(/<CustomisationUIHeader\b[\s\S]*?<\/CustomisationUIHeader>|<CustomisationUIHeader\b[^>]*\/>/g, "");
+    }
+  }
+  if (body === null) return null;
+  const devices = [["keyboard", "1"]];
+  for (const m of body.matchAll(/<options\b([^>]*?)\/?>/g)) {
+    const { type, instance, Product } = mergeAttrs(m[1]);
+    if (!type || !instance || Product === undefined || !/^\w+$/.test(type) || !/^\d+$/.test(instance)) continue;
+    if (!devices.some(([t, i]) => t === type && i === instance)) devices.push([type, instance]);
+  }
+  if (!/<modifiers\b/.test(body)) body = " <modifiers />\n" + body;
+  return { body: body.replace(/\s+$/, ""), devices };
+}
+
+// Adds keyboard binds ([{ action, keys }]) to an action map in body: beside an action's other
+// binds (a joystick button, say), as a new action, or in a new map.
+function mergeAddToMap(body, map, rows) {
+  const quote = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rebind = (keys) => `\n    <rebind input="kb1_${keys}"/>`;
+  // Other attributes after the name are allowed, so the map is never written twice.
+  const mapRe = new RegExp(`<actionmap\\s+name="${quote(map)}"[^>]*?(\\/>|>([\\s\\S]*?)<\\/actionmap>)`);
+  const found = mapRe.exec(body);
+  if (!found) {
+    const actions = rows.map((r) => `   <action name="${r.action}">${rebind(r.keys)}\n   </action>\n`).join("");
+    return `${body}\n  <actionmap name="${map}">\n${actions}  </actionmap>`;
+  }
+  let inner = found[1] === "/>" ? "" : found[2] || "";
+  // The map's and an action's own opening tags are kept as the player's file has them.
+  const opening = (whole, close) => whole.slice(0, whole.length - close.length).replace(/\s+$/, "") + ">";
+  for (const r of rows) {
+    const empty = new RegExp(`<action\\s+name="${quote(r.action)}"[^>]*?\\/>`).exec(inner);
+    const open = new RegExp(`<action\\s+name="${quote(r.action)}"[^>]*?(?<!\\/)>`).exec(inner);
+    if (empty) inner = inner.slice(0, empty.index) + `${opening(empty[0], "/>")}${rebind(r.keys)}\n   </action>` + inner.slice(empty.index + empty[0].length);
+    else if (open) inner = inner.slice(0, open.index + open[0].length) + rebind(r.keys) + inner.slice(open.index + open[0].length);
+    else inner = inner.replace(/\s+$/, "") + `\n   <action name="${r.action}">${rebind(r.keys)}\n   </action>\n  `;
+  }
+  return body.slice(0, found.index) + opening(found[0], found[1]) + inner + "</actionmap>" + body.slice(found.index + found[0].length);
+}
+
+// Builds the merged profile. current: the player's actionmaps.xml; spoolup: SpoolUp's plain
+// profile; game: data/sc-actions-4.10.json's actions; contexts: data/sc-contexts.json's map.
+// Returns { xml, added: [{ action, keys, maps, moved }], kept } or null for a file that isn't
+// a profile. `moved` says the bind isn't SpoolUp's usual key.
+function mergeKeybindProfile(current, spoolup, game, contexts) {
+  const profile = mergeProfileBody(current);
+  if (!profile) return null;
+  const contextOf = (map) => contexts[map] || "global";
+  const mine = mergeReadBinds(profile.body);
+  // The player's keyboard binds by map and action ("" when they cleared it on purpose).
+  const theirs = new Map();
+  for (const b of mine) {
+    if (!/^kb\d*_/.test(b.input)) continue;
+    theirs.set(`${b.map}/${b.action}`, b.input.slice(b.input.indexOf("_") + 1).trim());
+  }
+  // SpoolUp's binds, by action: its key and the maps it goes in.
+  const needs = new Map();
+  for (const b of mergeReadBinds(spoolup)) {
+    const keys = b.input.startsWith("kb1_") ? b.input.slice(4).trim() : "";
+    if (!keys) continue;
+    const need = needs.get(b.action) || { action: b.action, keys, maps: [] };
+    if (!need.maps.includes(b.map)) need.maps.push(b.map);
+    needs.set(b.action, need);
+  }
+  const todo = [];
+  for (const need of [...needs.values()].sort((a, b) => a.action.localeCompare(b.action))) {
+    const maps = need.maps.filter((m) => !theirs.has(`${m}/${need.action}`));
+    if (!maps.length) continue; // the player's own bind (or none, on purpose) stays
+    const own = need.maps.map((m) => theirs.get(`${m}/${need.action}`)).find((k) => mergeIsKeyboard(k));
+    todo.push({ ...need, maps, own });
+  }
+  const adding = new Set(todo.flatMap((t) => t.maps.map((m) => `${m}/${t.action}`)));
+
+  // Combos in use, per context: the player's keyboard binds and the game's defaults they kept.
+  // Each context maps a combo to the actions using it, so an action may share its own key.
+  const used = new Map();
+  const use = (map, action, keys) => {
+    const c = contextOf(map);
+    if (!used.has(c)) used.set(c, new Map());
+    const combo = mergeCombo(keys);
+    if (!used.get(c).has(combo)) used.get(c).set(combo, new Set());
+    used.get(c).get(combo).add(action);
+  };
+  for (const [where, keys] of theirs) {
+    const [map, action] = where.split("/");
+    if (mergeIsKeyboard(keys)) use(map, action, keys);
+  }
+  for (const g of game) {
+    const where = `${g.map}/${g.name}`;
+    if (mergeIsKeyboard(g.kb) && !theirs.has(where) && !adding.has(where)) use(g.map, g.name, g.kb);
+  }
+  const taken = (keys, maps, action) => {
+    const combo = mergeCombo(keys);
+    const other = (set) => Boolean(set && set.has(combo) && [...set.get(combo)].some((a) => a !== action));
+    return maps.some((m) => {
+      const c = contextOf(m);
+      return c === "global" ? [...used.values()].some(other) : other(used.get(c)) || other(used.get("global"));
+    });
+  };
+
+  // First the player's own key for the action (from another map) or SpoolUp's, then free combos.
+  const chosen = new Map();
+  for (const t of todo) {
+    const pick = [t.own, t.keys].find((k) => mergeIsKeyboard(k) && !taken(k, t.maps, t.action));
+    if (pick) { chosen.set(t.action, pick); t.maps.forEach((m) => use(m, t.action, pick)); }
+  }
+  const pool = mergeComboPool();
+  for (const t of todo) {
+    if (chosen.has(t.action)) continue;
+    const pick = pool.find((k) => !taken(k, t.maps, t.action));
+    if (pick) { chosen.set(t.action, pick); t.maps.forEach((m) => use(m, t.action, pick)); }
+  }
+
+  const byMap = new Map();
+  const added = [];
+  for (const t of todo) {
+    const keys = chosen.get(t.action);
+    if (!keys) continue;
+    added.push({ action: t.action, keys, maps: t.maps, moved: mergeCombo(keys) !== mergeCombo(t.keys) });
+    for (const m of t.maps) {
+      if (!byMap.has(m)) byMap.set(m, []);
+      byMap.get(m).push({ action: t.action, keys });
+    }
+  }
+  let body = profile.body;
+  for (const [map, rows] of byMap) body = mergeAddToMap(body, map, rows);
+  const lines = [
+    `<ActionMaps version="1" optionsVersion="2" rebindVersion="2" profileName="${MERGED_PROFILE_NAME}">`,
+    ` <CustomisationUIHeader label="${MERGED_PROFILE_NAME}" description="" image="">`,
+    "  <devices>",
+    ...profile.devices.map(([type, instance]) => `   <${type} instance="${instance}"/>`),
+    "  </devices>",
+    "  <categories />",
+    " </CustomisationUIHeader>",
+    body,
+    "</ActionMaps>",
+  ];
+  return { xml: lines.join("\r\n") + "\r\n", added, kept: mine.length };
+}
+
+const mergeArg = process.argv.indexOf("--merge-profile");
+if (mergeArg > -1) {
+  const out = process.argv[mergeArg + 1];
+  const source = process.argv[mergeArg + 2] || findActionmaps();
+  if (!out || !/\.xml$/i.test(out) || /^actionmaps\.xml$/i.test(path.basename(out))) {
+    console.error("Usage: --merge-profile <profile.xml> [actionmaps.xml]");
+    process.exit(1);
+  }
+  if (!source || !fs.existsSync(source)) {
+    console.error("No actionmaps.xml found, so there are no binds of yours to keep. Install the plain SpoolUp Keyboard profile instead.");
+    process.exit(3);
+  }
+  if (path.resolve(source).toLowerCase() === path.resolve(out).toLowerCase()) {
+    console.error("The merged profile can't replace the file it's made from.");
+    process.exit(1);
+  }
+  const merged = mergeKeybindProfile(fs.readFileSync(source, "utf8"), readBundled("keybinds/TabletDeck-StarCitizen.xml").toString("utf8"),
+    JSON.parse(readBundled("data/sc-actions-4.10.json")).actions, JSON.parse(readBundled("data/sc-contexts.json")).contexts);
+  if (!merged) {
+    console.error(`${source} isn't a Star Citizen keybind file.`);
+    process.exit(1);
+  }
+  fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
+  fs.writeFileSync(out, merged.xml);
+  // First line for the app window: how many binds were added and how many of those aren't
+  // SpoolUp's usual keys; then one line per added bind.
+  console.log(`added ${merged.added.length} moved ${merged.added.filter((a) => a.moved).length}`);
+  for (const a of merged.added) console.log(`${a.action} ${a.keys}${a.moved ? " (moved)" : ""}`);
+  process.exit(0);
+}
+
 // ---------- scancodes (set 1). [code, extended] ----------
 
 const SCANCODES = {
