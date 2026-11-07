@@ -86,7 +86,10 @@
     "Not connected to the PC": ["Sin conexión con el PC", "Pas connecté au PC", "Nicht mit dem PC verbunden"],
     // Battle alerts (battle.js), from Star Citizen's Game.log.
     "Battle alerts": ["Alertas de combate", "Alertes de combat", "Kampfmeldungen"],
-    "Shows hits on your ship, its damage, your death and your kills, read from Star Citizen's Game.log on the PC. Presses nothing.": ["Muestra los impactos en tu nave, sus daños, tu muerte y tus bajas, leídos del Game.log de Star Citizen en el PC. No pulsa nada.", "Affiche les tirs reçus par votre vaisseau, ses dégâts, votre mort et vos victimes, lus dans le Game.log de Star Citizen sur le PC. N'appuie sur rien.", "Zeigt Treffer auf dein Schiff, seinen Schaden, deinen Tod und deine Abschüsse, gelesen aus dem Game.log von Star Citizen am PC. Drückt nichts."],
+    "Shows hits on your ship, its damage, your death and your kills, read from Star Citizen's Game.log on the PC.": ["Muestra los impactos en tu nave, sus daños, tu muerte y tus bajas, leídos del Game.log de Star Citizen en el PC.", "Affiche les tirs reçus par votre vaisseau, ses dégâts, votre mort et vos victimes, lus dans le Game.log de Star Citizen sur le PC.", "Zeigt Treffer auf dein Schiff, seinen Schaden, deinen Tod und deine Abschüsse, gelesen aus dem Game.log von Star Citizen am PC."],
+    // Deck settings: the copy of the game in use; {0} is "LIVE: <folder>".
+    "Star Citizen {0}, found automatically.": ["Star Citizen {0}, encontrado automáticamente.", "Star Citizen {0}, trouvé automatiquement.", "Star Citizen {0}, automatisch gefunden."],
+    "Star Citizen {0}, from the folder picked in the PC app's Settings.": ["Star Citizen {0}, de la carpeta elegida en los Ajustes de la app del PC.", "Star Citizen {0}, depuis le dossier choisi dans les réglages de l'app du PC.", "Star Citizen {0}, aus dem in den Einstellungen der PC-App gewählten Ordner."],
     "Under fire": ["Bajo fuego", "Sous le feu", "Unter Beschuss"],
     "Ship disabled": ["Nave inutilizada", "Vaisseau neutralisé", "Schiff kampfunfähig"],
     "Ship destroyed": ["Nave destruida", "Vaisseau détruit", "Schiff zerstört"],
@@ -570,7 +573,7 @@
   const originals = new WeakMap();
   const ATTRS = ["aria-label", "placeholder", "title"];
   function apply(root = document.body) {
-    const skip = (el) => el.closest && el.closest("#stage, #grid, #tabs, #cards, #layoutPick, #langPick, #pcLinkBtns, #voiceList, #toast, #title, #statusText, .js-status, .js-intro-maker, script, style");
+    const skip = (el) => el.closest && el.closest("#stage, #grid, #tabs, #cards, #layoutPick, #langPick, #pcLinkBtns, #voiceList, #gameNote, #toast, #title, #statusText, .js-status, .js-intro-maker, script, style");
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       if (skip(node.parentElement)) continue;

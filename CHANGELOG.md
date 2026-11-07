@@ -19,8 +19,7 @@ before tagging a release.
 - **Your keybinds are found anywhere.** SpoolUp looks on every drive (C to Z)
   and in every channel (LIVE, PTU, EPTU, TECH-PREVIEW, HOTFIX). While the game
   runs it reads that copy's binds, wherever it's installed, and connected
-  decks pick them up; otherwise LIVE's. Folders elsewhere can go in
-  `gameFolders` in `config.json`. Binds the game wrote with the modifier last
+  decks pick them up; otherwise LIVE's. Binds the game wrote with the modifier last
   (`f6+lalt`) are now pressed modifier first, so the game sees LAlt+F6.
 - **Install keybind profile keeps your binds.** For a copy of the game where
   you've set binds of your own, the app window now builds **SpoolUp Keyboard
@@ -30,6 +29,11 @@ before tagging a release.
   usual keys, it picks a free one that doesn't clash, and the window tells you
   to reload the deck. A copy without binds of its own still gets the plain
   SpoolUp Keyboard profile.
+- **Star Citizen folder in Settings.** The app window's Settings shows the copy
+  of the game in use (for example LIVE and its folder). **Change...** picks
+  another folder and **Reset to automatic** goes back to finding it by itself.
+  Keybinds, Install keybind profile and battle alerts all use that folder, and
+  Deck settings on the tablet shows it under Battle alerts.
 - **Battle alerts.** SpoolUp reads Star Citizen's own Game.log (the text log
   next to the game, read only) and tells your decks when your ship is under
   fire and by whom, when it's disabled or destroyed, when you die and when

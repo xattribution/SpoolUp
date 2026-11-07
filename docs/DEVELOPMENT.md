@@ -46,6 +46,7 @@ Options (they work with `start.bat`, `node server.js` and the installed
 | `--port <n>` | use another port than the one in `config.json` |
 | `--ui` | status lines for the app window (used by `TabletDeck.exe`) |
 | `--set name=value ...` | save settings to `config.json` and exit |
+| `--find-game` | print the Star Citizen folder as JSON and exit (see [The Star Citizen folder](#the-star-citizen-folder)) |
 | `--merge-profile <out.xml> [actionmaps.xml]` | write the merged keybind profile and exit (see [Your binds kept](#your-binds-kept)) |
 | `--game-log <file>` | follow that file for battle alerts instead of the game's `Game.log` (see [Battle alerts](#battle-alerts)) |
 
@@ -77,9 +78,10 @@ Against a normal server the page warns that taps send real keys.
 
 ### Battle alerts
 
-`gamelog.js` follows the game's `Game.log` (read only: it opens the file, reads
-the new whole lines and closes it again every 250 ms) next to the running
-game's install, else LIVE's, and the server sends paired tablets
+`gamelog.js` follows the game's `Game.log` (it opens the file, reads the new
+whole lines and closes it again every 250 ms) in the running channel's folder,
+else LIVE's, from the same `findInstalls()` as the keybinds, and the server
+sends paired tablets
 `{ t: "battle", event, state }`. `event` is `sync` (on connect and after the log
 is first read), `ship`, `hit`, `clear`, `ship-1` (disabled), `ship-2`
 (destroyed), `dead`, `kill` or `reset` (a new game session); `state` is
@@ -412,6 +414,30 @@ printed as a warning. Which maps are active together is in
 `data/sc-contexts.json`. `node tools/make-profile.js --check` runs the same
 checks and reports whether the committed file is up to date (the installer
 build runs it).
+
+### The Star Citizen folder
+
+`findInstalls()` in `server.js` lists the channel folders (`SC_CHANNELS`: LIVE,
+PTU, EPTU, TECH-PREVIEW, HOTFIX), the same way as the Go rebuild's
+`sc.Discover`. Automatically (`gameFolders` empty), the running
+`StarCitizen.exe`'s channel comes first (from the key sender's `exe` answer, so
+it's found in any folder), then every channel under these folders on each drive
+from C to Z: `Program Files\Roberts Space Industries\StarCitizen`,
+`Roberts Space Industries\StarCitizen`, `RSI\StarCitizen`,
+`Games\Roberts Space Industries\StarCitizen`, `Games\StarCitizen` and
+`StarCitizen`. The running channel ranks first, then the order of
+`SC_CHANNELS`.
+
+The app window's Settings → Star Citizen shows the copy in use (`gameInUse()`,
+from the `ready` status line, or `--find-game` while the server is stopped) and
+saves a picked folder as `gameFolders` (`--set gameFolders=<folder>` or
+`set gameFolders <folder>` on stdin; `auto` empties it). With a folder picked,
+`findInstalls()` lists the channels in it alone: the folder itself if it's a
+channel folder, else the channels under it and under its `StarCitizen`
+subfolder. The keybinds (`"auto"` in `actionmaps`), `--merge-profile`'s default
+source, **Install keybind profile...** (which lists `--find-game`'s `installs`)
+and `Game.log` all follow it. Decks get the copy in use as `game` in `hello`
+and in `{ t: "game", game }` when it changes, and Deck settings shows it.
 
 ### Your binds kept
 

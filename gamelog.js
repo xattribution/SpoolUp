@@ -49,7 +49,7 @@ function shortEntity(entity) {
 const fresh = () => ({ ship: "", fire: false, from: "", hits: 0, level: 0, dead: false, by: "", kills: 0, killed: "", recent: [] });
 
 // create({ files, onChange, log }): files() lists the logs to follow, [{ path, running }],
-// best first; onChange(event, state) hears "ship", "hit", "clear", "ship-1" (disabled),
+// best first, and again() looks for them anew; onChange(event, state) hears "ship", "hit", "clear", "ship-1" (disabled),
 // "ship-2" (destroyed), "dead", "kill", "reset" (a new game session) and "sync" (the log
 // found and read up to now). state() is what the decks show.
 function create({ files, onChange = () => {}, log = () => {} }) {
@@ -249,6 +249,8 @@ function create({ files, onChange = () => {}, log = () => {} }) {
   return {
     start() { if (!timer) { timer = setInterval(poll, POLL_MS); if (timer.unref) timer.unref(); poll(); } },
     stop() { clearInterval(timer); timer = null; clearTimeout(fightTimer); fightTimer = null; },
+    // Looks for the log again at the next poll, e.g. after the player picks another folder.
+    again() { lastFind = 0; file = ""; },
     state: snapshot,
     line,
   };

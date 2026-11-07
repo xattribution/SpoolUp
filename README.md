@@ -244,7 +244,7 @@ stands still if Windows' "Show animations" is off).
   icon to bring it back. **Closing** the window quits.
 - **Settings:** pairing code, port, the "only while Star Citizen is in front"
   check, tap length, voice on/off and language, what to do about a Public
-  network, the window's
+  network, the [Star Citizen folder](#star-citizen-folder), the window's
   [language](#languages), and **Install keybind profile**.
 - **Edit layout** opens the [layout editor](#layout-editor).
 - **Start with Windows** starts it in the tray when you log in. **Settings
@@ -263,8 +263,8 @@ default keyboard key (operator modes, shield facings, doors, emotes, targeting
 and so on) get keys from the **SpoolUp Keyboard** profile. To install it:
 
 1. Tick it in Setup, or use **Settings → Install keybind profile...** in the
-   window. It finds your LIVE, PTU and other copies of the game, or lets you
-   pick the folder.
+   window. It lists the LIVE, PTU and other copies of the game in your
+   [Star Citizen folder](#star-citizen-folder), or lets you pick another.
 2. In-game, open **Options → Keybindings → Control Profiles** and load the
    profile the window names:
    - **SpoolUp Keyboard (your binds)**, for a copy of the game where you've set
@@ -277,14 +277,34 @@ and so on) get keys from the **SpoolUp Keyboard** profile. To install it:
      replaces any custom binds.
 
 SpoolUp also reads your own `actionmaps.xml`, and your binds win: rebind an
-action in-game and its button follows. It looks in every channel (LIVE, PTU,
-EPTU, TECH-PREVIEW, HOTFIX) on every drive; while the game runs it reads that
-copy's binds, wherever it's installed, otherwise LIVE's. A bind you cleared
+action in-game and its button follows. While the game runs it reads that
+copy's binds, otherwise LIVE's. A bind you cleared
 in-game leaves its button dimmed with a **BIND** badge: it presses nothing
 until you bind it again (then reconnect the deck, or reload the page).
 
 While you hold a button, SpoolUp lets go of its keys when Star Citizen loses
-focus, and after 2 minutes at most, so no key stays stuck.
+focus, and after 2 minutes at most.
+
+#### Star Citizen folder
+
+SpoolUp finds Star Citizen by itself: the running game's folder first,
+wherever it is, then these folders on every drive from C to Z, each with its
+channels (LIVE, PTU, EPTU, TECH-PREVIEW, HOTFIX):
+
+- `Program Files\Roberts Space Industries\StarCitizen`
+- `Roberts Space Industries\StarCitizen`
+- `RSI\StarCitizen`
+- `Games\Roberts Space Industries\StarCitizen`
+- `Games\StarCitizen`
+- `StarCitizen`
+
+**Settings → Star Citizen** in the app window shows the copy in use (for
+example `LIVE: C:\Program Files\Roberts Space Industries\StarCitizen\LIVE`).
+**Change...** picks another folder (the `StarCitizen` folder, one channel's
+folder, or the folder holding `StarCitizen`), and **Reset to automatic** goes
+back. Your keybinds, **Install keybind profile** and battle alerts' Game.log
+all come from that folder. Deck settings on the tablet shows it too, under
+**Battle alerts**.
 
 <details>
 <summary>Buttons to double-check</summary>
@@ -444,9 +464,10 @@ While you play, SpoolUp reads Star Citizen's Game.log, the text log the game
 writes next to its install, and shows hits on your ship (and who fired), your
 ship disabled or destroyed, your death and your kills: in a thin strip at the
 top of the deck and in the **Last hits** readout on the Combat panel (add it to
-any panel or dashboard in the layout editor). It's read only, nothing in the
-game is touched, and it presses nothing. The game doesn't log shield or hull
-levels, so SpoolUp can't show those. Turn it off with **Battle alerts** in Deck
+any panel or dashboard in the layout editor). The game doesn't log shield or
+hull levels, so SpoolUp can't show those. SpoolUp finds Game.log in the same
+Star Citizen folder as your keybinds (see [Star Citizen folder](#star-citizen-folder)).
+Turn it off with **Battle alerts** in Deck
 settings (on each device) or with `"gameLog": false` in `config.json`.
 
 ### Lit buttons
@@ -668,7 +689,7 @@ Uninstalling keeps them unless you choose to delete them.
 | `layout` | the layout tablets show unless they pick their own | `layouts/hud.json` |
 | `phoneLayout` | the same for phones | `layouts/hud-phone.json` |
 | `actionmaps` | keybind files to read, in order (later files win); `"auto"` is your `actionmaps.xml`, from the running game's channel, else LIVE | `["keybinds/TabletDeck-StarCitizen.xml", "auto"]` |
-| `gameFolders` | Star Citizen folders to look in besides the usual ones and the running game's: a `StarCitizen` folder, the folder holding it, or one channel's folder (`D:\Games\StarCitizen\PTU`) | `[]` |
+| `gameFolders` | the Star Citizen folder to use instead of finding it automatically: a `StarCitizen` folder, the folder holding it, or one channel's folder (`D:\Games\StarCitizen\PTU`); set with Settings → Star Citizen → **Change...** | `[]` (automatic) |
 | `gameLog` | `false` stops reading Star Citizen's Game.log for battle alerts | on |
 | `discovery` | answers the SpoolUp apps on your local network so they can list this PC (mDNS, `_spoolup._tcp`, UDP 5353), with its name, port and version, never the pairing code; `false` turns it off (Settings → Network → Let the SpoolUp app find this PC) | on |
 | `tapMs` | how long a tap holds the key, in milliseconds (20 to 200: Star Citizen takes a longer press for a hold) | `60` |
