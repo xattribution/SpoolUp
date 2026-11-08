@@ -16,8 +16,8 @@ settings:
   base:
     # SpoolUp's version (package.json); the build number counts up with it like the Android
     # version code (2.2.0 -> 20200). Raise it again for a second upload of the same version.
-    MARKETING_VERSION: "2.2.0"
-    CURRENT_PROJECT_VERSION: "20200"
+    MARKETING_VERSION: "2.2.1"
+    CURRENT_PROJECT_VERSION: "20201"
     SWIFT_VERSION: "5.0"
     # The Team ID from developer.apple.com > Membership (not a secret). Empty until the
     # account is approved; Xcode's Signing & Capabilities tab can set it too.

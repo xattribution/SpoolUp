@@ -5,6 +5,19 @@ section becomes the notes of its
 [GitHub release](https://github.com/xattribution/SpoolUp/releases), so add one
 before tagging a release.
 
+## 2.2.1 (2026-11-08)
+
+- **Star Citizen folder in Settings.** The app window's Settings shows the copy
+  of the game in use (for example LIVE and its folder). **Change...** picks
+  another folder and **Reset to automatic** goes back to finding it by itself.
+  Keybinds, Install keybind profile and battle alerts all use that folder, and
+  Deck settings on the tablet shows it under Battle alerts.
+- The installer and **Install keybind profile** look for Star Citizen in the
+  same places as the rest of SpoolUp: the running game first, then the usual
+  folders on every drive (C to Z) and every channel.
+- The app window, Deck settings, README and website describe each feature
+  plainly.
+
 ## 2.2.0 (2026-11-07)
 
 - **No more stuck keys.** When Star Citizen loses focus (you alt-tab, a
@@ -29,11 +42,6 @@ before tagging a release.
   usual keys, it picks a free one that doesn't clash, and the window tells you
   to reload the deck. A copy without binds of its own still gets the plain
   SpoolUp Keyboard profile.
-- **Star Citizen folder in Settings.** The app window's Settings shows the copy
-  of the game in use (for example LIVE and its folder). **Change...** picks
-  another folder and **Reset to automatic** goes back to finding it by itself.
-  Keybinds, Install keybind profile and battle alerts all use that folder, and
-  Deck settings on the tablet shows it under Battle alerts.
 - **Battle alerts.** SpoolUp reads Star Citizen's own Game.log (the text log
   next to the game) and tells your decks when your ship is under
   fire and by whom, when it's disabled or destroyed, when you die and when
